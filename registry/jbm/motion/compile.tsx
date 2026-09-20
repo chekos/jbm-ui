@@ -6,9 +6,14 @@ import { Chip } from "../ui/chip"
 import { StatCard } from "../ui/stat-card"
 import { Callout } from "../ui/callout"
 import { BulletList } from "../ui/bullet-list"
+import { Brand } from "../ui/brand"
 import { Scene } from "./scene"
-import { Pop } from "./pop"
+import { Pop, Leave } from "./pop"
 import { CodeCard } from "./code-card"
+import { RebuildScreens } from "./rebuild-screens"
+import { Catalog } from "./catalog"
+import { Propagate } from "./propagate"
+import { Shelf, Twice } from "./shelf"
 import type { At, Block, SceneSpec } from "./spec"
 
 /**
@@ -46,7 +51,8 @@ export function resolveAt(at: At, spec: SceneSpec, host: Host): number {
   const phrase = exact ?? spec.anchors?.[m[1]]
   if (phrase === undefined)
     throw new Error(`scene ${spec.id}: unknown anchor "${m[1]}"`)
-  const off = exact === undefined && m[2] ? parseFloat(m[2].replace(/\s+/g, "")) : 0
+  const off =
+    exact === undefined && m[2] ? parseFloat(m[2].replace(/\s+/g, "")) : 0
   const result = host.resolve(phrase) + off
   if (!Number.isFinite(result))
     throw new Error(`scene ${spec.id}: non-finite anchor "${at}"`)
@@ -72,6 +78,17 @@ export function SceneFromSpec({
     c === "ink" ? color.ink : color.accent
 
   const render = (b: Block, i: number): React.ReactNode => {
+    const body = renderBody(b, i)
+    return b.until === undefined || b.type === "overlay" ? (
+      body
+    ) : (
+      <Leave key={i} at={at(b.until)}>
+        {body}
+      </Leave>
+    )
+  }
+
+  const renderBody = (b: Block, i: number): React.ReactNode => {
     switch (b.type) {
       case "big":
         return (
@@ -79,6 +96,10 @@ export function SceneFromSpec({
             <Big
               size={b.size ?? (V ? 96 : 120)}
               color={b.color ? tone(b.color) : color.ink}
+              style={{
+                whiteSpace: "pre-line",
+                textAlign: b.align === "center" ? "center" : undefined,
+              }}
             >
               {tr(b.text)}
             </Big>
@@ -194,6 +215,128 @@ export function SceneFromSpec({
       }
       case "spacer":
         return <div key={i} style={{ height: pick(b.h, orientation) }} />
+      case "screens":
+        return (
+          <RebuildScreens
+            key={i}
+            w={W}
+            h={pick(b.h ?? { landscape: 720, vertical: 1000 }, orientation)}
+            pieces={b.pieces.map((p) => ({ kind: p.kind, at: at(p.at) }))}
+            again={(b.again ?? []).map(at)}
+            sticker={
+              b.sticker
+                ? { text: tr(b.sticker.text), at: at(b.sticker.at) }
+                : undefined
+            }
+          />
+        )
+      case "catalog":
+        return (
+          <Catalog
+            key={i}
+            w={V ? W : Math.min(W, 1200)}
+            at={at(b.at)}
+            title={b.title ? tr(b.title) : undefined}
+            items={b.items.map((it) => ({
+              kind: it.kind,
+              label: tr(it.label),
+              at: at(it.at),
+            }))}
+            tokens={(b.tokens ?? []).map((tk) => ({
+              kind: tk.kind,
+              label: tr(tk.label),
+              at: at(tk.at),
+            }))}
+            tokensAt={b.tokensAt === undefined ? undefined : at(b.tokensAt)}
+            stamp={
+              b.stamp
+                ? { text: tr(b.stamp.text), at: at(b.stamp.at) }
+                : undefined
+            }
+          />
+        )
+      case "propagate": {
+        const opt = (a?: At) => (a === undefined ? undefined : at(a))
+        return (
+          <Propagate
+            key={i}
+            w={W}
+            h={pick(b.h ?? { landscape: 760, vertical: 1040 }, orientation)}
+            at={at(b.at)}
+            label={
+              b.label
+                ? { text: tr(b.label.text), at: at(b.label.at) }
+                : undefined
+            }
+            targets={b.targets}
+            bug={opt(b.bug)}
+            fix={opt(b.fix)}
+            fixed={opt(b.fixed)}
+            recolor={opt(b.recolor)}
+            recolored={opt(b.recolored)}
+          />
+        )
+      }
+      case "shelf":
+        return (
+          <Shelf
+            key={i}
+            w={V ? W : Math.min(W, 1100)}
+            items={b.items.map((it) => ({
+              text: tr(it.text),
+              at: at(it.at),
+              tone: it.tone,
+            }))}
+          />
+        )
+      case "twice":
+        return (
+          <Twice
+            key={i}
+            w={V ? W : Math.min(W, 1000)}
+            at={at(b.at)}
+            second={at(b.second)}
+            strike={b.strike === undefined ? undefined : at(b.strike)}
+          />
+        )
+      case "brand":
+        return (
+          <Pop key={i} at={at(b.at)} from="up" dist={20} style={{ width: W }}>
+            <Brand
+              size={b.size ?? (V ? 56 : 52)}
+              tagline={b.tagline ? tr(b.tagline) : undefined}
+            />
+          </Pop>
+        )
+      case "overlay":
+        return (
+          <div
+            key={i}
+            style={{
+              position: "absolute",
+              left: 0,
+              top: 0,
+              width: W,
+              height: s.bottom - s.top,
+              display: "flex",
+              flexDirection: "column",
+              justifyContent:
+                (b.valign ?? "center") === "center" ? "center" : undefined,
+              gap,
+            }}
+          >
+            {b.until === undefined ? (
+              b.blocks.map(render)
+            ) : (
+              <Leave
+                at={at(b.until)}
+                style={{ display: "flex", flexDirection: "column", gap }}
+              >
+                {b.blocks.map(render)}
+              </Leave>
+            )}
+          </div>
+        )
     }
   }
 
@@ -206,6 +349,8 @@ export function SceneFromSpec({
           top: s.top,
           width: W,
           maxHeight: s.bottom - s.top,
+          height: spec.valign === "center" ? s.bottom - s.top : undefined,
+          justifyContent: spec.valign === "center" ? "center" : undefined,
           display: "flex",
           flexDirection: "column",
           gap,

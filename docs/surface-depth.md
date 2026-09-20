@@ -24,3 +24,7 @@ The recipes adapt these supplied visual references to this library's palette; th
 ## Interactive reference
 
 The gallery's Foundations filter includes Surface depth: light/dark samples, the original surface for comparison, and independent border, inset, contact, and ambient controls. The current preview reads `shadowLayers` from the token module, which also composes the complete `shadow` recipes. Comparison-only historical styles stay in the gallery. Copy token usage installs `@jbm/tokens`; Surface depth is a documentation entry, not a separate registry package.
+
+## Paper illustrations
+
+`ui/paper.tsx` centralizes the cut-out illustration recipe used by Paper, Sticker, and UI bits: the shared contact/ambient layers plus a longer paper drop. These illustrations use a deliberate ink outline to depict physical cut-outs. Use them inside visual explanations; the existing Card recipe remains the standard for application surfaces.

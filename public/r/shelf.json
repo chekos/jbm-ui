@@ -1,0 +1,25 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "shelf",
+  "title": "Shelf",
+  "description": "Pile of library cards on their own cues, plus Twice: a button, the same button again, a cross through the second.",
+  "dependencies": [
+    "remotion"
+  ],
+  "registryDependencies": [
+    "@jbm/tokens",
+    "@jbm/motion-hooks",
+    "@jbm/pop",
+    "@jbm/paper",
+    "@jbm/ui-bits"
+  ],
+  "files": [
+    {
+      "path": "registry/jbm/motion/shelf.tsx",
+      "content": "import { color, font } from \"../lib/tokens\";\nimport { useProgress } from \"./hooks\";\nimport { Pop } from \"./pop\";\nimport { Paper, type PaperTone } from \"../ui/paper\";\nimport { Piece, UiButton } from \"../ui/ui-bits\";\n\n/**\n * A pile of library cards: each is a wide paper card with the library's name and a trio of tiny\n * pieces (its contents). Cards arrive on their own cue with alternating tilt so they read as a stack.\n */\nexport function Shelf({ w, items, cardH, gap = 22 }: { w: number; items: { text: string; at: number; tone?: PaperTone }[]; cardH?: number; gap?: number }) {\n  const ch = cardH ?? Math.round(w * 0.16);\n  const pw = Math.round(ch * 0.62);\n  return (\n    <div style={{ display: \"flex\", flexDirection: \"column\", gap, width: w }}>\n      {items.map((it, i) => {\n        const tone = it.tone ?? \"paper\";\n        return (\n          <Pop key={i} at={it.at} from=\"left\" dist={60}>\n            <Paper tone={tone} w={w} h={ch} radius={Math.round(ch * 0.2)} rotate={[-1.2, 1, -0.8][i % 3]} style={{ display: \"flex\", alignItems: \"center\", justifyContent: \"space-between\", padding: `0 ${Math.round(ch * 0.28)}px` }}>\n              <div style={{ fontFamily: font.mono, fontSize: Math.round(ch * 0.36), fontWeight: 700, color: tone === \"paper\" ? color.ink : color.bg, whiteSpace: \"nowrap\" }}>{it.text}</div>\n              <div style={{ display: \"flex\", alignItems: \"center\", gap: Math.round(ch * 0.12), transform: `scale(${1})` }}>\n                <Piece kind=\"card\" w={pw} />\n                <Piece kind=\"input\" w={pw} cursorOn={false} />\n                <Piece kind=\"button\" w={pw} tone={tone === \"accent\" ? \"paper\" : \"accent\"} />\n              </div>\n            </Paper>\n          </Pop>\n        );\n      })}\n    </div>\n  );\n}\n\n/**\n * The closing gag: a button, then the same button again beside it, then a vermilion cross drawn\n * over the second one (tail to head, in two strokes).\n */\nexport function Twice({ w, at, second, strike, bw, bh }: { w: number; at: number; second: number; strike?: number; bw?: number; bh?: number }) {\n  const gap = Math.round(w * 0.05);\n  const B = bw ?? Math.min(420, Math.round((w - gap) / 2));\n  const H = bh ?? Math.round(B * 0.34);\n  const pad = 26;\n  const d1 = useProgress(strike ?? second + 0.5, 1, 0.25);\n  const d2 = useProgress((strike ?? second + 0.5) + 0.2, 1, 0.25);\n  return (\n    <div style={{ display: \"flex\", justifyContent: \"center\", gap, width: w, alignItems: \"center\", height: H + pad * 2 }}>\n      <Pop at={at} from=\"scale\" dist={0}>\n        <UiButton w={B} h={H} tone=\"ink\" />\n      </Pop>\n      <Pop at={second} from=\"scale\" dist={0} style={{ position: \"relative\" }}>\n        <UiButton w={B} h={H} tone=\"ink\" />\n        <svg width={B + pad * 2} height={H + pad * 2} viewBox={`0 0 ${B + pad * 2} ${H + pad * 2}`} style={{ position: \"absolute\", left: -pad, top: -pad, overflow: \"visible\" }}>\n          <line x1={pad * 0.5} y1={pad * 0.3} x2={B + pad * 1.5} y2={H + pad * 1.7} stroke={color.accent} strokeWidth={16} strokeLinecap=\"round\" pathLength={1} strokeDasharray={1} strokeDashoffset={1 - d1} />\n          <line x1={B + pad * 1.5} y1={pad * 0.3} x2={pad * 0.5} y2={H + pad * 1.7} stroke={color.accent} strokeWidth={16} strokeLinecap=\"round\" pathLength={1} strokeDasharray={1} strokeDashoffset={1 - d2} />\n        </svg>\n      </Pop>\n    </div>\n  );\n}\n",
+      "type": "registry:component",
+      "target": "src/jbm/motion/shelf.tsx"
+    }
+  ],
+  "type": "registry:component"
+}

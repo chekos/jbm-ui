@@ -146,6 +146,39 @@
       ]
     },
     {
+      "name": "paper",
+      "type": "registry:ui",
+      "title": "Paper",
+      "description": "Paper cut-out primitives: Paper shape, Sticker (slanted note with display type), Caption.",
+      "registryDependencies": [
+        "@jbm/tokens"
+      ],
+      "files": [
+        {
+          "path": "registry/jbm/ui/paper.tsx",
+          "type": "registry:ui",
+          "target": "src/jbm/ui/paper.tsx"
+        }
+      ]
+    },
+    {
+      "name": "ui-bits",
+      "type": "registry:ui",
+      "title": "UI bits",
+      "description": "Illustrated interface pieces as paper cut-outs: UiButton, UiInput, UiCard, PhoneFrame, Badge, TokenGlyph.",
+      "registryDependencies": [
+        "@jbm/tokens",
+        "@jbm/paper"
+      ],
+      "files": [
+        {
+          "path": "registry/jbm/ui/ui-bits.tsx",
+          "type": "registry:ui",
+          "target": "src/jbm/ui/ui-bits.tsx"
+        }
+      ]
+    },
+    {
       "name": "replay-button",
       "type": "registry:ui",
       "title": "ReplayButton",
@@ -197,7 +230,7 @@
       "name": "pop",
       "type": "registry:component",
       "title": "Pop",
-      "description": "Spring entrance + Stagger.",
+      "description": "Spring entrance + Stagger + Leave (exit).",
       "dependencies": [
         "remotion"
       ],
@@ -304,6 +337,98 @@
       ]
     },
     {
+      "name": "rebuild-screens",
+      "type": "registry:component",
+      "title": "RebuildScreens",
+      "description": "A phone screen built piece by piece, then rebuilt on new screens on each cue; Stamp for a loud sticker.",
+      "dependencies": [
+        "remotion"
+      ],
+      "registryDependencies": [
+        "@jbm/motion-hooks",
+        "@jbm/pop",
+        "@jbm/ui-bits",
+        "@jbm/paper"
+      ],
+      "files": [
+        {
+          "path": "registry/jbm/motion/rebuild-screens.tsx",
+          "type": "registry:component",
+          "target": "src/jbm/motion/rebuild-screens.tsx"
+        }
+      ]
+    },
+    {
+      "name": "catalog",
+      "type": "registry:component",
+      "title": "Catalog",
+      "description": "Catalogue sheet of interface pieces that unfolds a second row of design-token glyphs.",
+      "dependencies": [
+        "remotion"
+      ],
+      "registryDependencies": [
+        "@jbm/tokens",
+        "@jbm/motion-hooks",
+        "@jbm/pop",
+        "@jbm/paper",
+        "@jbm/ui-bits",
+        "@jbm/rebuild-screens"
+      ],
+      "files": [
+        {
+          "path": "registry/jbm/motion/catalog.tsx",
+          "type": "registry:component",
+          "target": "src/jbm/motion/catalog.tsx"
+        }
+      ]
+    },
+    {
+      "name": "propagate",
+      "type": "registry:component",
+      "title": "Propagate",
+      "description": "One source card fanning out to a row of screens; bug, fix and recolour cues travel down the lines.",
+      "dependencies": [
+        "remotion"
+      ],
+      "registryDependencies": [
+        "@jbm/tokens",
+        "@jbm/motion-hooks",
+        "@jbm/pop",
+        "@jbm/paper",
+        "@jbm/ui-bits"
+      ],
+      "files": [
+        {
+          "path": "registry/jbm/motion/propagate.tsx",
+          "type": "registry:component",
+          "target": "src/jbm/motion/propagate.tsx"
+        }
+      ]
+    },
+    {
+      "name": "shelf",
+      "type": "registry:component",
+      "title": "Shelf",
+      "description": "Pile of library cards on their own cues, plus Twice: a button, the same button again, a cross through the second.",
+      "dependencies": [
+        "remotion"
+      ],
+      "registryDependencies": [
+        "@jbm/tokens",
+        "@jbm/motion-hooks",
+        "@jbm/pop",
+        "@jbm/paper",
+        "@jbm/ui-bits"
+      ],
+      "files": [
+        {
+          "path": "registry/jbm/motion/shelf.tsx",
+          "type": "registry:component",
+          "target": "src/jbm/motion/shelf.tsx"
+        }
+      ]
+    },
+    {
       "name": "scene-spec",
       "type": "registry:component",
       "title": "Scene spec",
@@ -321,7 +446,12 @@
         "@jbm/bullet-list",
         "@jbm/scene",
         "@jbm/pop",
-        "@jbm/code-card"
+        "@jbm/code-card",
+        "@jbm/brand",
+        "@jbm/rebuild-screens",
+        "@jbm/catalog",
+        "@jbm/propagate",
+        "@jbm/shelf"
       ],
       "files": [
         {

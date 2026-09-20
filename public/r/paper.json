@@ -1,0 +1,18 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "paper",
+  "title": "Paper",
+  "description": "Paper cut-out primitives: Paper shape, Sticker (slanted note with display type), Caption.",
+  "registryDependencies": [
+    "@jbm/tokens"
+  ],
+  "files": [
+    {
+      "path": "registry/jbm/ui/paper.tsx",
+      "content": "import * as React from \"react\";\nimport { color, font, shadowLayers } from \"../lib/tokens\";\n\n/**\n * Paper cut-out primitives. A `Paper` is a flat shape that reads as a piece of card stock laid on the\n * cream canvas: a fine ink edge, no gradient, and the house layered shadow with a slightly longer drop\n * so it lifts off the page. `tone` picks the stock: cream paper, vermilion (sticky note), or ink.\n * Pure React; wrap in a motion `Pop` for entrances.\n */\nexport type PaperTone = \"paper\" | \"accent\" | \"ink\";\n\nexport const paperShadow = [\n  ...shadowLayers.card.contact,\n  ...shadowLayers.card.ambient,\n  \"0 18px 28px -14px rgba(32,36,31,0.22)\",\n].join(\", \");\n\nexport const paperFill = (tone: PaperTone) => (tone === \"accent\" ? color.accent : tone === \"ink\" ? color.ink : color.card);\nexport const paperInk = (tone: PaperTone) => (tone === \"paper\" ? color.ink : color.bg);\n\nexport function Paper({\n  tone = \"paper\",\n  w,\n  h,\n  radius = 22,\n  rotate = 0,\n  edge = true,\n  shadow = true,\n  style,\n  children,\n}: {\n  tone?: PaperTone;\n  w?: number;\n  h?: number;\n  radius?: number;\n  rotate?: number;\n  edge?: boolean;\n  shadow?: boolean;\n  style?: React.CSSProperties;\n  children?: React.ReactNode;\n}) {\n  return (\n    <div\n      style={{\n        width: w,\n        height: h,\n        background: paperFill(tone),\n        border: edge ? `2px solid ${tone === \"paper\" ? color.ink : paperFill(tone)}` : \"none\",\n        borderRadius: radius,\n        boxShadow: shadow ? paperShadow : \"none\",\n        boxSizing: \"border-box\",\n        transform: rotate ? `rotate(${rotate}deg)` : undefined,\n        position: \"relative\",\n        ...style,\n      }}\n    >\n      {children}\n    </div>\n  );\n}\n\n/** A slanted vermilion (or ink) sticky note with one line of display type. The loud word of a scene. */\nexport function Sticker({\n  children,\n  tone = \"accent\",\n  size = 72,\n  rotate = -5,\n  mono,\n  style,\n}: {\n  children: React.ReactNode;\n  tone?: PaperTone;\n  size?: number;\n  rotate?: number;\n  mono?: boolean;\n  style?: React.CSSProperties;\n}) {\n  return (\n    <Paper tone={tone} rotate={rotate} radius={Math.round(size * 0.22)} edge={tone === \"paper\"} style={{ display: \"inline-block\", padding: `${Math.round(size * 0.18)}px ${Math.round(size * 0.4)}px`, ...style }}>\n      <div style={{ fontFamily: mono ? font.mono : font.sans, fontSize: size, fontWeight: 800, letterSpacing: mono ? 0 : -size * 0.02, lineHeight: 1.05, color: paperInk(tone), whiteSpace: \"nowrap\" }}>{children}</div>\n    </Paper>\n  );\n}\n\n/** Small lowercase caption under an illustration: sans 600, ink. */\nexport function Caption({ children, size = 34, dim, style }: { children: React.ReactNode; size?: number; dim?: boolean; style?: React.CSSProperties }) {\n  return <div style={{ fontFamily: font.sans, fontSize: size, fontWeight: 600, color: dim ? color.dim : color.ink, lineHeight: 1.2, textAlign: \"center\", ...style }}>{children}</div>;\n}\n",
+      "type": "registry:ui",
+      "target": "src/jbm/ui/paper.tsx"
+    }
+  ],
+  "type": "registry:ui"
+}

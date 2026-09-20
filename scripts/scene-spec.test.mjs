@@ -78,3 +78,36 @@ test('published dependency closure typechecks in a strict fresh video consumer',
     assert.ok(seen.has('code-card'));
   } finally {rmSync(tmp,{recursive:true,force:true});}
 });
+
+test('illustrated blocks resolve anchors and exits without moving overlays into the flow', async () => {
+  const {Leave} = await import('../registry/jbm/motion/pop.tsx');
+  const {Catalog} = await import('../registry/jbm/motion/catalog.tsx');
+  const {Propagate, propagationProgress} = await import('../registry/jbm/motion/propagate.tsx');
+  const {RebuildScreens} = await import('../registry/jbm/motion/rebuild-screens.tsx');
+  const {Shelf,Twice} = await import('../registry/jbm/motion/shelf.tsx');
+  const spec={id:'illustrated',anchors:{cue:'narration'},valign:'center',blocks:[
+    {type:'screens',pieces:[{kind:'card',at:'cue'}],again:['cue+1']},
+    {type:'catalog',at:0,items:[{kind:'button',label:'button',at:'cue'}],tokens:[{kind:'type',label:'type',at:'cue+1'}]},
+    {type:'propagate',at:0,bug:'cue',fix:'cue+1',fixed:'cue+1.1'},
+    {type:'shelf',items:[{text:'library',at:'cue'}]},
+    {type:'twice',at:0,second:'cue'},
+    {type:'overlay',until:'cue+3',blocks:[{type:'brand',at:'cue',tagline:'tagline'}]},
+  ]};
+  for(const orientation of ['landscape','vertical']) {
+    const tree=SceneFromSpec({spec,orientation,host});
+    assert.equal(find(tree,RebuildScreens)[0].props.again[0],3);
+    assert.equal(find(tree,Catalog)[0].props.items[0].label,'translated:button');
+    assert.equal(find(tree,Propagate)[0].props.fixed,3.1);
+    assert.equal(find(tree,Shelf)[0].props.items[0].text,'translated:library');
+    assert.equal(find(tree,Twice)[0].props.second,2);
+    const overlay=tree.props.children.props.children[1].at(-1);
+    assert.equal(overlay.type,'div');
+    assert.equal(overlay.props.style.position,'absolute');
+    assert.equal(find(overlay,Leave)[0].props.at,5);
+  }
+  assert.equal(propagationProgress(1.1,1,1.1),1);
+  assert.equal(propagationProgress(0,1,1.1),0);
+  assert.equal(propagationProgress(2,undefined,3),-1);
+  assert.throws(()=>propagationProgress(1,2,1),RangeError);
+  assert.throws(()=>Propagate({w:900,h:600,at:0,targets:0}),RangeError);
+});

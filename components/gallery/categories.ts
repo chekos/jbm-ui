@@ -19,6 +19,8 @@ const itemCategories: Record<string, Exclude<Category, "All">> = {
   callout: "UI",
   "bullet-list": "UI",
   brand: "UI",
+  paper: "UI",
+  "ui-bits": "UI",
   "replay-button": "Motion",
   "motion-hooks": "Foundations",
   scene: "Layout",
@@ -28,6 +30,10 @@ const itemCategories: Record<string, Exclude<Category, "All">> = {
   "prob-bar": "Motion",
   "code-card": "Motion",
   captions: "Motion",
+  "rebuild-screens": "Motion",
+  catalog: "Motion",
+  propagate: "Motion",
+  shelf: "Motion",
 }
 
 export function category(name: string): Exclude<Category, "All"> {
