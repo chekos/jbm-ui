@@ -242,17 +242,21 @@
       "name": "code-card",
       "type": "registry:component",
       "title": "CodeCard",
-      "description": "Dark code card, lines on their own anchors.",
+      "description": "Dark code card that types each line in place.",
       "dependencies": [
         "remotion"
       ],
       "registryDependencies": [
         "@jbm/card",
-        "@jbm/pop"
+        "@jbm/tokens"
       ],
       "files": [
         {
           "path": "registry/jbm/motion/code-card.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "registry/jbm/motion/code-card-timing.js",
           "type": "registry:component"
         }
       ]
