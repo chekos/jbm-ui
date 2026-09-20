@@ -1,3 +1,4 @@
+import { codeTypingSchedule } from "../../registry/jbm/motion/code-card-timing.js"
 import { measureSpring } from "remotion"
 
 export const fps = 30
@@ -46,7 +47,7 @@ export function durationFor(name: string): number {
       )
     case "code-card":
       return (
-        frame(Math.max(...codeLines.map((line) => line.at))) + springFrames + 1
+        (codeTypingSchedule(codeLines, fps).at(-1)?.end ?? 0) + 1
       )
     case "captions":
       // Captions keeps its last group for one second, including its fade-out.

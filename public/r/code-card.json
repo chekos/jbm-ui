@@ -2,18 +2,23 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "code-card",
   "title": "CodeCard",
-  "description": "Dark code card, lines on their own anchors.",
+  "description": "Dark code card that types each line in place.",
   "dependencies": [
     "remotion"
   ],
   "registryDependencies": [
     "@jbm/card",
-    "@jbm/pop"
+    "@jbm/tokens"
   ],
   "files": [
     {
       "path": "registry/jbm/motion/code-card.tsx",
-      "content": "import * as React from \"react\";\nimport { Card } from \"../ui/card\";\nimport { color, font } from \"../lib/tokens\";\nimport { Pop } from \"./pop\";\n\nexport type CodeLine = { t: string; at: number; color?: string };\n\n/** Dark code card with traffic lights and an optional filename; each line enters on its own anchor. ~12px per character at size 20. */\nexport function CodeCard({ lines, w = 900, h = 520, size = 24, title }: { lines: CodeLine[]; w?: number; h?: number; size?: number; title?: string }) {\n  return (\n    <Card dark style={{ padding: 0, overflow: \"hidden\", width: w, height: h }}>\n      <div style={{ padding: \"12px 20px\", display: \"flex\", gap: 10, alignItems: \"center\" }}>\n        {[color.accent, color.bg, color.dim].map((c) => <div key={c} style={{ width: 14, height: 14, borderRadius: 7, background: c }} />)}\n        {title ? <div style={{ fontFamily: font.mono, fontSize: 20, color: color.dim, marginLeft: 14 }}>{title}</div> : null}\n      </div>\n      <div style={{ fontFamily: font.mono, fontSize: size, color: color.bg, padding: \"14px 28px\", lineHeight: 1.55 }}>\n        {lines.map((l, i) => (\n          <Pop key={i} at={l.at} from=\"left\" dist={10}>\n            <div style={{ color: l.color ?? color.bg, whiteSpace: \"pre\" }}>{l.t}</div>\n          </Pop>\n        ))}\n      </div>\n    </Card>\n  );\n}\n",
+      "content": "import * as React from \"react\";\nimport { Card } from \"../ui/card\";\nimport { color, font } from \"../lib/tokens\";\nimport { useCurrentFrame, useVideoConfig } from \"remotion\";\nimport { codeTypingSchedule, typedCode } from \"./code-card-timing.js\";\n\nexport type CodeLine = { t: string; at: number; color?: string };\n\n/** Types code in place. Each anchor is an earliest start; lines wait for preceding text to finish. */\nexport function CodeCard({ lines, w = 900, h = 520, size = 24, title, charsPerSecond = 32 }: { lines: CodeLine[]; w?: number; h?: number; size?: number; title?: string; charsPerSecond?: number }) {\n  const frame = useCurrentFrame();\n  const { fps } = useVideoConfig();\n  const schedule = codeTypingSchedule(lines, fps, charsPerSecond);\n  return (\n    <Card dark style={{ padding: 0, overflow: \"hidden\", width: w, height: h }}>\n      <div style={{ padding: \"12px 20px\", display: \"flex\", gap: 10, alignItems: \"center\" }}>\n        {[color.accent, color.bg, color.dim].map((c) => <div key={c} style={{ width: 14, height: 14, borderRadius: 7, background: c }} />)}\n        {title ? <div style={{ fontFamily: font.mono, fontSize: 20, color: color.dim, marginLeft: 14 }}>{title}</div> : null}\n      </div>\n      <div style={{ fontFamily: font.mono, fontSize: size, color: color.bg, padding: \"14px 28px\", lineHeight: 1.55 }}>\n        {lines.map((l, i) => (\n          <div key={i} style={{ color: l.color ?? color.bg, whiteSpace: \"pre\", minHeight: \"1.55em\" }}>\n            {typedCode(schedule[i], frame, fps, charsPerSecond)}\n          </div>\n        ))}\n      </div>\n    </Card>\n  );\n}\n",
+      "type": "registry:component"
+    },
+    {
+      "path": "registry/jbm/motion/code-card-timing.js",
+      "content": "/**\n * Build a sequential typing schedule. Anchors are earliest start times in seconds.\n * @param {{ t: string, at: number }[]} lines\n * @param {number} fps\n * @param {number} charsPerSecond\n */\nexport function codeTypingSchedule(lines, fps, charsPerSecond = 32) {\n  if (!Number.isFinite(charsPerSecond) || charsPerSecond <= 0) {\n    throw new RangeError(\"charsPerSecond must be a positive finite number\");\n  }\n  let end = 0;\n  return lines.map((line) => {\n    const characters = Array.from(line.t);\n    const start = Math.max(end, Math.round(line.at * fps));\n    end = start + Math.ceil(characters.length * fps / charsPerSecond);\n    return { characters, start, end };\n  });\n}\n\n/**\n * @param {{ characters: string[], start: number, end: number }} line\n * @param {number} frame\n * @param {number} fps\n * @param {number} charsPerSecond\n */\nexport function typedCode(line, frame, fps, charsPerSecond = 32) {\n  const count = frame >= line.end\n    ? line.characters.length\n    : Math.max(0, Math.floor((frame - line.start) * charsPerSecond / fps));\n  return line.characters.slice(0, count).join(\"\");\n}\n",
       "type": "registry:component"
     }
   ],

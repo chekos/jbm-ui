@@ -94,7 +94,7 @@ export const snippets: Record<string, string> = {
   counter: "<Counter n={1024} at={0.2} dur={1.5} />",
   "prob-bar": '<ProbBar label="Confianza" p={0.86} at={0.2} />',
   "code-card":
-    '<CodeCard title="hello.ts" lines={[\n  { t: "const idea = \\\"simple\\\"", at: 0.2 },\n]} />',
+    '<CodeCard title="hello.ts" charsPerSecond={32} lines={[\n  { t: "const idea = \\\"simple\\\"", at: 0.2 },\n]} />',
   captions:
     '<Captions words={[\n  { w: "Una", s: 0, e: 0.7 },\n  { w: "idea.", s: 0.7, e: 1.5, emph: true },\n]} />',
   "motion-hooks":
