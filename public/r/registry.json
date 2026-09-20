@@ -1,0 +1,265 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry.json",
+  "name": "jbm",
+  "homepage": "https://github.com/chekos/jbm-ui",
+  "items": [
+    {
+      "name": "tokens",
+      "type": "registry:lib",
+      "title": "Tokens",
+      "description": "Cream/vermilion palette, Geist stacks, radii, shadow, stage safe areas; CSS vars string for Tailwind consumers.",
+      "files": [
+        {
+          "path": "registry/jbm/lib/tokens.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "name": "label",
+      "type": "registry:ui",
+      "title": "Label",
+      "description": "Uppercase tracked kicker.",
+      "registryDependencies": [
+        "@jbm/tokens"
+      ],
+      "files": [
+        {
+          "path": "registry/jbm/ui/label.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "big",
+      "type": "registry:ui",
+      "title": "Big",
+      "description": "Display heading, 800 weight.",
+      "registryDependencies": [
+        "@jbm/tokens"
+      ],
+      "files": [
+        {
+          "path": "registry/jbm/ui/big.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "card",
+      "type": "registry:ui",
+      "title": "Card",
+      "description": "Raised surface; dark variant for code.",
+      "registryDependencies": [
+        "@jbm/tokens"
+      ],
+      "files": [
+        {
+          "path": "registry/jbm/ui/card.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "chip",
+      "type": "registry:ui",
+      "title": "Chip",
+      "description": "Outline, accent or solid pill; sans or mono.",
+      "registryDependencies": [
+        "@jbm/tokens"
+      ],
+      "files": [
+        {
+          "path": "registry/jbm/ui/chip.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "stat-card",
+      "type": "registry:ui",
+      "title": "StatCard",
+      "description": "Label, big value, sub; stacked or row layout.",
+      "registryDependencies": [
+        "@jbm/tokens",
+        "@jbm/card"
+      ],
+      "files": [
+        {
+          "path": "registry/jbm/ui/stat-card.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "callout",
+      "type": "registry:ui",
+      "title": "Callout",
+      "description": "Sentence in an accent, ink or note pill.",
+      "registryDependencies": [
+        "@jbm/tokens"
+      ],
+      "files": [
+        {
+          "path": "registry/jbm/ui/callout.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "bullet-list",
+      "type": "registry:ui",
+      "title": "BulletList",
+      "description": "Arrow or dot list.",
+      "registryDependencies": [
+        "@jbm/tokens"
+      ],
+      "files": [
+        {
+          "path": "registry/jbm/ui/bullet-list.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "brand",
+      "type": "registry:ui",
+      "title": "Brand",
+      "description": "tacosdedatos lockup.",
+      "registryDependencies": [
+        "@jbm/tokens"
+      ],
+      "files": [
+        {
+          "path": "registry/jbm/ui/brand.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "motion-hooks",
+      "type": "registry:hook",
+      "title": "Motion hooks",
+      "description": "useSec, useIn, useFade, useProgress for Remotion.",
+      "dependencies": [
+        "remotion"
+      ],
+      "files": [
+        {
+          "path": "registry/jbm/motion/hooks.ts",
+          "type": "registry:hook"
+        }
+      ]
+    },
+    {
+      "name": "scene",
+      "type": "registry:component",
+      "title": "Scene",
+      "description": "Full-bleed canvas frame.",
+      "registryDependencies": [
+        "@jbm/tokens"
+      ],
+      "files": [
+        {
+          "path": "registry/jbm/motion/scene.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "pop",
+      "type": "registry:component",
+      "title": "Pop",
+      "description": "Spring entrance + Stagger.",
+      "dependencies": [
+        "remotion"
+      ],
+      "registryDependencies": [
+        "@jbm/motion-hooks"
+      ],
+      "files": [
+        {
+          "path": "registry/jbm/motion/pop.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "counter",
+      "type": "registry:component",
+      "title": "Counter",
+      "description": "Number counting up.",
+      "dependencies": [
+        "remotion"
+      ],
+      "registryDependencies": [
+        "@jbm/big",
+        "@jbm/motion-hooks"
+      ],
+      "files": [
+        {
+          "path": "registry/jbm/motion/counter.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "prob-bar",
+      "type": "registry:component",
+      "title": "ProbBar",
+      "description": "Labelled probability bar that fills.",
+      "dependencies": [
+        "remotion"
+      ],
+      "registryDependencies": [
+        "@jbm/tokens",
+        "@jbm/motion-hooks",
+        "@jbm/pop"
+      ],
+      "files": [
+        {
+          "path": "registry/jbm/motion/prob-bar.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "code-card",
+      "type": "registry:component",
+      "title": "CodeCard",
+      "description": "Dark code card, lines on their own anchors.",
+      "dependencies": [
+        "remotion"
+      ],
+      "registryDependencies": [
+        "@jbm/card",
+        "@jbm/pop"
+      ],
+      "files": [
+        {
+          "path": "registry/jbm/motion/code-card.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "captions",
+      "type": "registry:component",
+      "title": "Captions",
+      "description": "Kinetic subtitle pill from aligned words.",
+      "dependencies": [
+        "remotion"
+      ],
+      "registryDependencies": [
+        "@jbm/tokens",
+        "@jbm/motion-hooks"
+      ],
+      "files": [
+        {
+          "path": "registry/jbm/motion/captions.tsx",
+          "type": "registry:component"
+        }
+      ]
+    }
+  ]
+}

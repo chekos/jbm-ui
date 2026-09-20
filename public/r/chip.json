@@ -1,0 +1,17 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "chip",
+  "title": "Chip",
+  "description": "Outline, accent or solid pill; sans or mono.",
+  "registryDependencies": [
+    "@jbm/tokens"
+  ],
+  "files": [
+    {
+      "path": "registry/jbm/ui/chip.tsx",
+      "content": "import * as React from \"react\";\nimport { color, font, radius } from \"../lib/tokens\";\n\n/** Pill. Outline by default; `accent` fills vermilion; `solid` fills ink; `mono` switches the face. */\nexport function Chip({ children, accent, solid, mono, size = 26, style }: { children: React.ReactNode; accent?: boolean; solid?: boolean; mono?: boolean; size?: number; style?: React.CSSProperties }) {\n  const filled = accent || solid;\n  return (\n    <div\n      style={{\n        fontFamily: mono ? font.mono : font.sans,\n        fontSize: size,\n        fontWeight: 600,\n        color: filled ? color.bg : color.ink,\n        background: accent ? color.accent : solid ? color.ink : color.card,\n        border: `2px solid ${accent ? color.accent : solid ? color.ink : color.line}`,\n        padding: \"10px 20px\",\n        borderRadius: radius.chip,\n        whiteSpace: \"nowrap\",\n        display: \"inline-block\",\n        ...style,\n      }}\n    >\n      {children}\n    </div>\n  );\n}\n",
+      "type": "registry:ui"
+    }
+  ],
+  "type": "registry:ui"
+}

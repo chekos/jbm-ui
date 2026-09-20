@@ -4,3 +4,6 @@ allowBuilds:
   sharp: true
   unrs-resolver: true
   msw: false
+
+overrides:
+  systeminformation: 5.33.12

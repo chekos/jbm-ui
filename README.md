@@ -1,21 +1,38 @@
-# Next.js template
+# jbm-ui
 
-This is a Next.js template with shadcn/ui.
+A personal component library for tacosdedatos work, distributed as a [shadcn registry](https://ui.shadcn.com/docs/registry). One set of tokens and components renders in the browser and in Remotion, so an explainer video and a web page share the same vocabulary.
 
-## Adding components
+The library exists because the narrated explainers (`design/projects/2026-09-18-recap-septiembre-video`, `2026-09-19-jev-explainer-video`) kept re-implementing the same dozen visual ideas per scene. The full inventory that drives this repo is the "Motion component inventory" doc; the pipeline that consumes it is documented in the design repo's `docs/`.
 
-To add components to your app, run the following command:
+## Layout
 
-```bash
-npx shadcn@latest add button
+```
+registry.json            what the registry publishes (built to public/r/*.json by `pnpm registry:build`)
+registry/jbm/lib/        tokens.ts — palette, fonts, radii, stage safe areas, cssVars
+registry/jbm/ui/         pure React: no Remotion import, inline styles from tokens. Works on any page.
+registry/jbm/motion/     Remotion-only: hooks, Scene, Pop/Stagger, Counter, ProbBar, CodeCard, Captions
+app/                     Next.js preview site (renders every ui/* item statically; motion/* has no browser preview)
 ```
 
-This will place the ui components in the `components` directory.
+## Rules
 
-## Using components
+- Two colours: ink on cream, vermilion for one accent per composition. `accent2` only for annotations, `soft` only on dark surfaces.
+- Type: Geist for words, Geist Mono for labels, code and numbers with units. Components read `--font-sans` / `--font-mono` when a host sets them and fall back to the family name that `@remotion/fonts` loads.
+- Styling is inline from `tokens.ts`, not Tailwind classes, so a component is one file with no build step in Remotion. `tokens.cssVars` exposes the palette as `--jbm-*` for Tailwind code that lives next to these.
+- `ui/*` never imports `remotion`. Anything with an `at` prop or a time-dependent value belongs in `motion/*` and wraps a `ui/*` piece.
+- Sizes are in stage pixels (1920×1080 landscape, 1080×1920 vertical). A component that must fit both takes `w` or a `row` flag rather than a second file.
+- Safe areas: landscape content y 90–920, vertical y 100–1440; captions live below. Every block declares its height so a layout check can enforce this.
 
-To use the components in your app, import them as follows:
+## Using it
 
-```tsx
-import { Button } from "@/components/ui/button";
+Add the namespace to a project's `components.json`:
+
+```json
+"registries": { "@jbm": "https://<host>/r/{name}.json" }
 ```
+
+then `npx shadcn add @jbm/stat-card`. Items pull their own dependencies (`@jbm/tokens`, `@jbm/card`, `remotion` for motion items).
+
+## Developing
+
+`pnpm dev` runs the preview site. `pnpm registry:build` regenerates `public/r/`. Add a component by writing it under `registry/jbm/`, registering it in `registry.json`, and adding it to the preview page.
