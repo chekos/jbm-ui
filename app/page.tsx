@@ -1,19 +1,37 @@
-import { Button } from "@/components/ui/button"
+import { Gallery } from "@/components/gallery/gallery"
+import Link from "next/link"
 
 export default function Page() {
   return (
-    <div className="flex min-h-svh p-6">
-      <div className="flex max-w-md min-w-0 flex-col gap-4 text-sm leading-loose">
-        <div>
-          <h1 className="font-medium">Project ready!</h1>
-          <p>You may now add components and start building.</p>
-          <p>We&apos;ve already added the button component for you.</p>
-          <Button className="mt-2">Button</Button>
+    <main className="site-shell" id="main">
+      <header className="site-header">
+        <Link className="wordmark" href="/">
+          jbm<span>—</span>ui
+        </Link>
+        <a href="https://github.com/chekos/jbm-ui">GitHub ↗</a>
+      </header>
+      <section className="intro">
+        <p className="eyebrow">The tacosdedatos component collection</p>
+        <h1>
+          Small pieces.
+          <br />
+          <span>Clearer stories.</span>
+        </h1>
+        <p className="intro-copy">
+          A shared visual language for the web and video. Browse the primitives,
+          play with motion, and bring the source into your next project.
+        </p>
+        <div className="intro-meta">
+          <span>React + Remotion</span>
+          <span>Copy into your project</span>
+          <span>Cream, ink & vermilion</span>
         </div>
-        <div className="font-mono text-xs text-muted-foreground">
-          (Press <kbd>d</kbd> to toggle dark mode)
-        </div>
-      </div>
-    </div>
+      </section>
+      <Gallery />
+      <footer>
+        Made for tacosdedatos. Built to be used again.
+        <a href="/r/registry.json">Explore the registry ↗</a>
+      </footer>
+    </main>
   )
 }

@@ -1,0 +1,17 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "big",
+  "title": "Big",
+  "description": "Display heading, 800 weight.",
+  "registryDependencies": [
+    "@jbm/tokens"
+  ],
+  "files": [
+    {
+      "path": "registry/jbm/ui/big.tsx",
+      "content": "import * as React from \"react\";\nimport { color, font } from \"../lib/tokens\";\n\n/** Display heading. 800 weight, tight tracking. `size` in px (56–170 in practice). */\nexport function Big({ children, size = 96, color: c = color.ink, style }: { children: React.ReactNode; size?: number; color?: string; style?: React.CSSProperties }) {\n  return (\n    <div style={{ fontFamily: font.sans, fontSize: size, fontWeight: 800, color: c, lineHeight: 1.05, letterSpacing: -2, ...style }}>\n      {children}\n    </div>\n  );\n}\n",
+      "type": "registry:ui"
+    }
+  ],
+  "type": "registry:ui"
+}
