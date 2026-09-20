@@ -397,30 +397,3 @@ footer {
   display: flex;
   gap: 8px;
 }
-
-.replay-charge {
-  color: var(--jbm-ink);
-  border-radius: 6px;
-  border: 0;
-  background: transparent;
-  padding: 9px;
-  width: 44px;
-  height: 44px;
-  display: grid;
-  place-items: center;
-}
-.replay-charge:disabled {
-  cursor: default;
-}
-.replay-charge:not(:disabled):hover {
-  color: var(--jbm-accent);
-}
-.replay-glyph {
-  display: block;
-  position: relative;
-  width: 26px;
-  height: 26px;
-}
-.replay-track {
-  opacity: 0.18;
-}

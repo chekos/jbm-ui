@@ -137,6 +137,21 @@
       ]
     },
     {
+      "name": "replay-button",
+      "type": "registry:ui",
+      "title": "ReplayButton",
+      "description": "Controlled replay icon that charges from tail to arrowhead. Supply progress and charging state from any animation.",
+      "registryDependencies": [
+        "@jbm/tokens"
+      ],
+      "files": [
+        {
+          "path": "registry/jbm/ui/replay-button.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
       "name": "motion-hooks",
       "type": "registry:hook",
       "title": "Motion hooks",

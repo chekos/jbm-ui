@@ -15,6 +15,7 @@ import {
   useProgress,
 } from "@/registry/jbm/motion/hooks"
 import { Big } from "@/registry/jbm/ui/big"
+import { ReplayButton } from "@/registry/jbm/ui/replay-button"
 import { Chip } from "@/registry/jbm/ui/chip"
 import { color } from "@/registry/jbm/lib/tokens"
 
@@ -97,7 +98,6 @@ export default function MotionPreview({ name }: { name: string }) {
   const [phase, setPhase] = useState<"ready" | "playing">("ready")
   const [progress, setProgress] = useState(1)
   const charging = phase !== "ready"
-  const charge = charging ? progress : 1
 
   useEffect(() => {
     const current = player.current
@@ -147,57 +147,18 @@ export default function MotionPreview({ name }: { name: string }) {
       />
       {durationInFrames > 1 && (
         <div className="motion-actions">
-          <button
-            type="button"
-            className="replay-charge"
-            aria-label={`Replay ${name} animation`}
-            title={charging ? "Replay recharging" : "Replay"}
-            disabled={charging}
-            onClick={() => {
-              if (charging || !player.current) return
+          <ReplayButton
+            progress={progress}
+            charging={charging}
+            label={`Replay ${name} animation`}
+            onReplay={() => {
+              if (!player.current) return
               setProgress(0)
               setPhase("playing")
-              player.current?.seekTo(0)
-              player.current?.play()
+              player.current.seekTo(0)
+              player.current.play()
             }}
-          >
-            <svg
-              className="replay-glyph"
-              viewBox="0 0 24 24"
-              width="26"
-              height="26"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="3.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden="true"
-            >
-              <g className="replay-track">
-                <path d="M20 14 A8 8 0 1 1 19 6 L21 8" />
-                <path d="M16 8 H21 V3" />
-              </g>
-              <path
-                className="replay-shaft"
-                d="M20 14 A8 8 0 1 1 19 6 L21 8"
-                pathLength="1"
-                strokeDasharray="1"
-                strokeDashoffset={1 - Math.min(1, charge / 0.85)}
-                opacity={charge > 0 ? 1 : 0}
-              />
-              <g opacity={charge > 0.85 ? 1 : 0}>
-                {["M16 8 H21", "M21 3 V8"].map((d) => (
-                  <path
-                    key={d}
-                    d={d}
-                    pathLength="1"
-                    strokeDasharray="1"
-                    strokeDashoffset={1 - Math.max(0, (charge - 0.85) / 0.15)}
-                  />
-                ))}
-              </g>
-            </svg>
-          </button>
+          />
         </div>
       )}
     </div>

@@ -42,3 +42,18 @@ The gallery includes all registry items, category filters, search, source links,
 Run `pnpm lint`, `pnpm typecheck`, `pnpm registry:check`, and `pnpm build` locally before opening a PR. `registry:check` rebuilds the registry and fails if generated files differ from committed output. There is no GitHub Actions CI; Vercel builds and deploys through the GitHub integration. Track changes in issues and link them from PRs.
 
 Preview timing lives in `components/gallery/timing.ts`: demo anchors and content also determine Player duration and replay progress. Include the final interpolation frame, measure spring settling, and include caption fade-out; do not add an arbitrary hold after motion finishes. Static Scene previews have no replay control. Run `node --experimental-strip-types --test scripts/preview-timing.test.mjs` for timing regressions (Node 22.6+).
+
+## ReplayButton
+
+Install with `pnpm dlx shadcn@latest add @jbm/replay-button` after configuring the registry namespace. `ReplayButton` is a controlled plain React component with inline token styles; it needs neither Remotion nor gallery CSS. Render it inside your app's client boundary when supplying event handlers.
+
+```tsx
+<ReplayButton
+  progress={progress} // normalized 0–1 from the actual animation
+  charging={isPlaying}
+  onReplay={restartAnimation}
+  label="Replay chart animation"
+/>
+```
+
+Set `charging` to true when playback starts and false when it completes. While charging, replay is disabled and the icon traces from tail to arrowhead. Idle renders a fully charged icon. Optional `iconSize`, `disabled`, `style`, and standard button attributes support other hosts. The component owns no animation duration; a standalone browser demo and the Remotion previews both consume the same component.
