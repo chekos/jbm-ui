@@ -14,49 +14,69 @@ export const color = {
   soft: "#FF8A6A", // emphasis highlight on dark
   codeBg: "#20241F",
   codeGreen: "#9BE59B",
-} as const;
+} as const
 
 /** Font stacks: the CSS variable when a host app sets one (next/font), else the family loaded by @remotion/fonts. */
 export const font = {
   sans: "var(--font-sans, Geist), Geist, system-ui, sans-serif",
   mono: "var(--font-mono, 'Geist Mono'), 'Geist Mono', ui-monospace, monospace",
-} as const;
+} as const
 
-export const radius = { chip: 14, code: 12, card: 28, pill: 10 } as const;
+export const radius = { chip: 14, code: 12, card: 28, pill: 10 } as const
 /** Surface recipes: crisp contact, progressively softer depth, then inset edge light.
  * See docs/surface-depth.md. Keep shadow.card compatible with existing consumers.
  */
+export const shadowLayers = {
+  card: {
+    inset: [
+      "inset 0 1px 0 rgba(255,255,255,0.85)",
+      "inset 0 -1px 0 rgba(32,36,31,0.025)",
+    ],
+    contact: ["0 1px 1px -0.5px rgba(32,36,31,0.08)"],
+    ambient: [
+      "0 3px 3px -1.5px rgba(32,36,31,0.06)",
+      "0 6px 6px -3px rgba(32,36,31,0.05)",
+      "0 12px 12px -6px rgba(32,36,31,0.04)",
+      "0 24px 24px -12px rgba(32,36,31,0.04)",
+    ],
+  },
+  cardDark: {
+    inset: [
+      "inset 0 1px 0 rgba(255,246,232,0.10)",
+      "inset 0 -1px 0 rgba(0,0,0,0.15)",
+    ],
+    contact: ["0 1px 1px -0.5px rgba(32,36,31,0.16)"],
+    ambient: [
+      "0 3px 3px -1.5px rgba(32,36,31,0.12)",
+      "0 6px 6px -3px rgba(32,36,31,0.09)",
+      "0 12px 12px -6px rgba(32,36,31,0.07)",
+      "0 24px 24px -12px rgba(32,36,31,0.06)",
+    ],
+  },
+} as const
 export const shadow = {
   card: [
-    "inset 0 1px 0 rgba(255,255,255,0.85)",
-    "inset 0 -1px 0 rgba(32,36,31,0.025)",
-    "0 1px 1px -0.5px rgba(32,36,31,0.08)",
-    "0 3px 3px -1.5px rgba(32,36,31,0.06)",
-    "0 6px 6px -3px rgba(32,36,31,0.05)",
-    "0 12px 12px -6px rgba(32,36,31,0.04)",
-    "0 24px 24px -12px rgba(32,36,31,0.04)",
+    ...shadowLayers.card.inset,
+    ...shadowLayers.card.contact,
+    ...shadowLayers.card.ambient,
   ].join(", "),
   cardDark: [
-    "inset 0 1px 0 rgba(255,246,232,0.10)",
-    "inset 0 -1px 0 rgba(0,0,0,0.15)",
-    "0 1px 1px -0.5px rgba(32,36,31,0.16)",
-    "0 3px 3px -1.5px rgba(32,36,31,0.12)",
-    "0 6px 6px -3px rgba(32,36,31,0.09)",
-    "0 12px 12px -6px rgba(32,36,31,0.07)",
-    "0 24px 24px -12px rgba(32,36,31,0.06)",
+    ...shadowLayers.cardDark.inset,
+    ...shadowLayers.cardDark.contact,
+    ...shadowLayers.cardDark.ambient,
   ].join(", "),
-} as const;
+} as const
 export const surfaceBorder = {
   card: "1px solid rgba(32,36,31,0.12)",
   cardDark: "1px solid rgba(32,36,31,0.65)",
-} as const;
+} as const
 
 /** Safe areas per orientation: content stays inside these; captions live below. */
 export const stage = {
   landscape: { w: 1920, h: 1080, pad: 120, top: 90, bottom: 920 },
   vertical: { w: 1080, h: 1920, pad: 72, top: 100, bottom: 1440 },
-} as const;
-export type Orientation = keyof typeof stage;
+} as const
+export type Orientation = keyof typeof stage
 
 /** The same palette as CSS custom properties, for Tailwind/shadcn consumers. Paste into globals.css or import as a string. */
-export const cssVars = `:root{--jbm-bg:${color.bg};--jbm-card:${color.card};--jbm-ink:${color.ink};--jbm-dim:${color.dim};--jbm-line:${color.line};--jbm-accent:${color.accent};--jbm-accent2:${color.accent2};--jbm-soft:${color.soft};}`;
+export const cssVars = `:root{--jbm-bg:${color.bg};--jbm-card:${color.card};--jbm-ink:${color.ink};--jbm-dim:${color.dim};--jbm-line:${color.line};--jbm-accent:${color.accent};--jbm-accent2:${color.accent2};--jbm-soft:${color.soft};}`

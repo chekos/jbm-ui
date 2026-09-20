@@ -3,6 +3,19 @@
 import { useState, type ReactNode } from "react"
 import dynamic from "next/dynamic"
 import registry from "@/registry.json"
+import { SurfaceDepth, surfaceUsage } from "./surface-depth"
+
+const galleryItems = [
+  registry.items[0],
+  {
+    name: "surface-depth",
+    title: "Surface depth",
+    description:
+      "Fine borders, inset edge lighting, and layered shadows. Compare the original surface and inspect each layer.",
+    files: [{ path: "registry/jbm/lib/tokens.ts" }],
+  },
+  ...registry.items.slice(1),
+]
 import { color } from "@/registry/jbm/lib/tokens"
 import { examples, snippets } from "./examples"
 import { categories, category, type Category } from "./categories"
@@ -62,7 +75,7 @@ function Install({ name }: { name: string }) {
 export function Gallery() {
   const [query, setQuery] = useState("")
   const [filter, setFilter] = useState<Category>("All")
-  const items = registry.items.filter(
+  const items = galleryItems.filter(
     (item) =>
       (filter === "All" || category(item.name) === filter) &&
       `${item.title} ${item.name} ${item.description}`
@@ -82,10 +95,9 @@ export function Gallery() {
               {value}
               <span>
                 {value === "All"
-                  ? registry.items.length
-                  : registry.items.filter(
-                      (item) => category(item.name) === value
-                    ).length}
+                  ? galleryItems.length
+                  : galleryItems.filter((item) => category(item.name) === value)
+                      .length}
               </span>
             </button>
           ))}
@@ -110,8 +122,14 @@ export function Gallery() {
               <span>{String(index + 1).padStart(2, "0")}</span>
               <span>{category(item.name)}</span>
             </div>
-            <div className="preview">
-              {item.name === "tokens" ? (
+            <div
+              className={
+                item.name === "surface-depth" ? "surface-preview" : "preview"
+              }
+            >
+              {item.name === "surface-depth" ? (
+                <SurfaceDepth />
+              ) : item.name === "tokens" ? (
                 <div className="swatches">
                   {Object.entries(color).map(([name, value]) => (
                     <div key={name}>
@@ -138,8 +156,19 @@ export function Gallery() {
                 >
                   Source ↗
                 </a>
-                <a href={`/r/${item.name}.json`}>Registry JSON ↗</a>
+                <a
+                  href={`/r/${item.name === "surface-depth" ? "tokens" : item.name}.json`}
+                >
+                  Registry JSON ↗
+                </a>
               </div>
+              {item.name === "surface-depth" && (
+                <p>
+                  <a href="https://github.com/chekos/jbm-ui/blob/main/docs/surface-depth.md">
+                    Surface depth design note ↗
+                  </a>
+                </p>
+              )}
               <details>
                 <summary>Usage & installation</summary>
                 {"dependencies" in item &&
@@ -150,9 +179,15 @@ export function Gallery() {
                   </p>
                 ) : null}
                 <pre>
-                  <code>{snippets[item.name]}</code>
+                  <code>
+                    {item.name === "surface-depth"
+                      ? surfaceUsage
+                      : snippets[item.name]}
+                  </code>
                 </pre>
-                <Install name={item.name} />
+                <Install
+                  name={item.name === "surface-depth" ? "tokens" : item.name}
+                />
               </details>
             </div>
           </article>

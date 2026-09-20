@@ -20,3 +20,7 @@ Inspect the surface at its actual display scale, including scaled video previews
 - [Brett: progressively layered material shadows](https://x.com/BrettFromDJ/status/1795942054733713473).
 
 The recipes adapt these supplied visual references to this library's palette; they are not exact copies of either implementation.
+
+## Interactive reference
+
+The gallery's Foundations filter includes Surface depth: light/dark samples, the original surface for comparison, and independent border, inset, contact, and ambient controls. The current preview reads `shadowLayers` from the token module, which also composes the complete `shadow` recipes. Comparison-only historical styles stay in the gallery. Copy token usage installs `@jbm/tokens`; Surface depth is a documentation entry, not a separate registry package.
