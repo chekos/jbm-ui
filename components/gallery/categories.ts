@@ -22,6 +22,7 @@ const itemCategories: Record<string, Exclude<Category, "All">> = {
   "replay-button": "Motion",
   "motion-hooks": "Foundations",
   scene: "Layout",
+  "scene-spec": "Layout",
   pop: "Motion",
   counter: "Motion",
   "prob-bar": "Motion",

@@ -258,6 +258,10 @@
         {
           "path": "registry/jbm/motion/code-card-timing.js",
           "type": "registry:component"
+        },
+        {
+          "path": "registry/jbm/motion/code-card-timing.d.ts",
+          "type": "registry:component"
         }
       ]
     },
@@ -276,6 +280,37 @@
       "files": [
         {
           "path": "registry/jbm/motion/captions.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "scene-spec",
+      "type": "registry:component",
+      "title": "Scene spec",
+      "description": "Compose timed blocks from one scene spec for landscape and vertical video.",
+      "dependencies": [
+        "remotion"
+      ],
+      "registryDependencies": [
+        "@jbm/tokens",
+        "@jbm/label",
+        "@jbm/big",
+        "@jbm/chip",
+        "@jbm/stat-card",
+        "@jbm/callout",
+        "@jbm/bullet-list",
+        "@jbm/scene",
+        "@jbm/pop",
+        "@jbm/code-card"
+      ],
+      "files": [
+        {
+          "path": "registry/jbm/motion/compile.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "registry/jbm/motion/spec.ts",
           "type": "registry:component"
         }
       ]
