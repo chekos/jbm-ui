@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react"
 import { Player, type PlayerRef } from "@remotion/player"
+import { RotateCw } from "lucide-react"
 import { Scene } from "@/registry/jbm/motion/scene"
 import { Pop, Stagger } from "@/registry/jbm/motion/pop"
 import { Counter } from "@/registry/jbm/motion/counter"
@@ -96,20 +97,31 @@ function Composition({ name }: { name: string }) {
 
 export default function MotionPreview({ name }: { name: string }) {
   const player = useRef<PlayerRef>(null)
-  const [playing, setPlaying] = useState(false)
+  const [phase, setPhase] = useState<"ready" | "playing" | "paused">("ready")
+  const [progress, setProgress] = useState(1)
+  const charging = phase !== "ready"
 
   useEffect(() => {
     const current = player.current
     if (!current) return
-    const onPlay = () => setPlaying(true)
-    const onStop = () => setPlaying(false)
+    const onPlay = () => setPhase("playing")
+    const onPause = () =>
+      setPhase((value) => (value === "ready" ? value : "paused"))
+    const onEnd = () => setPhase("ready")
+    const onFrame = ({ detail }: { detail: { frame: number } }) => {
+      setProgress(Math.min(1, Math.max(0, detail.frame / 149)))
+    }
     current.addEventListener("play", onPlay)
-    current.addEventListener("pause", onStop)
-    current.addEventListener("ended", onStop)
+    current.addEventListener("pause", onPause)
+    current.addEventListener("ended", onEnd)
+    current.addEventListener("error", onEnd)
+    current.addEventListener("frameupdate", onFrame)
     return () => {
       current.removeEventListener("play", onPlay)
-      current.removeEventListener("pause", onStop)
-      current.removeEventListener("ended", onStop)
+      current.removeEventListener("pause", onPause)
+      current.removeEventListener("ended", onEnd)
+      current.removeEventListener("error", onEnd)
+      current.removeEventListener("frameupdate", onFrame)
     }
   }, [])
 
@@ -134,25 +146,44 @@ export default function MotionPreview({ name }: { name: string }) {
         aria-label={`${name} motion preview`}
       />
       <div className="motion-actions">
-        {playing && (
+        {charging && (
           <button
             type="button"
-            aria-label={`Pause ${name} animation`}
-            onClick={() => player.current?.pause()}
+            aria-label={`${phase === "playing" ? "Pause" : "Resume"} ${name} animation`}
+            onClick={() =>
+              phase === "playing"
+                ? player.current?.pause()
+                : player.current?.play()
+            }
           >
-            Pause
+            {phase === "playing" ? "Pause" : "Resume"}
           </button>
         )}
         <button
           type="button"
+          className="replay-charge"
           aria-label={`Replay ${name} animation`}
-          title="Replay"
+          title={charging ? "Replay recharging" : "Replay"}
+          disabled={charging}
           onClick={() => {
+            if (charging || !player.current) return
+            setProgress(0)
+            setPhase("playing")
             player.current?.seekTo(0)
             player.current?.play()
           }}
         >
-          <span aria-hidden="true">↻</span>
+          <span className="replay-glyph" aria-hidden="true">
+            <RotateCw className="replay-track" size={26} strokeWidth={3.5} />
+            <RotateCw
+              className="replay-fill"
+              size={26}
+              strokeWidth={3.5}
+              style={{
+                clipPath: `inset(${(1 - (charging ? progress : 1)) * 100}% 0 0 0)`,
+              }}
+            />
+          </span>
         </button>
       </div>
     </div>

@@ -409,3 +409,32 @@ footer {
 .motion-actions button:hover {
   border-color: var(--jbm-ink);
 }
+
+.motion-actions .replay-charge {
+  border: 0;
+  background: transparent;
+  padding: 9px;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+}
+.replay-charge:disabled {
+  cursor: default;
+}
+.replay-charge:not(:disabled):hover {
+  color: var(--jbm-accent);
+}
+.replay-glyph {
+  display: block;
+  position: relative;
+  width: 26px;
+  height: 26px;
+}
+.replay-track {
+  opacity: 0.18;
+}
+.replay-fill {
+  position: absolute;
+  inset: 0;
+}
