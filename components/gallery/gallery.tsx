@@ -5,17 +5,12 @@ import dynamic from "next/dynamic"
 import registry from "@/registry.json"
 import { color } from "@/registry/jbm/lib/tokens"
 import { examples, snippets } from "./examples"
+import { categories, category, type Category } from "./categories"
 
 const MotionPreview = dynamic(() => import("./motion-preview"), {
   ssr: false,
   loading: () => <p className="loading">Loading preview…</p>,
 })
-const categories = ["All", "UI", "Motion", "Foundations"] as const
-type Category = (typeof categories)[number]
-function category(name: string): Category {
-  if (name === "tokens" || name === "motion-hooks") return "Foundations"
-  return name in examples ? "UI" : "Motion"
-}
 
 function Canvas({ children }: { children: ReactNode }) {
   return (
@@ -147,8 +142,8 @@ export function Gallery() {
               </div>
               <details>
                 <summary>Usage & installation</summary>
-                {category(item.name) === "Motion" ||
-                item.name === "motion-hooks" ? (
+                {"dependencies" in item &&
+                item.dependencies?.includes("remotion") ? (
                   <p>
                     Render inside a Remotion composition or Player. Timing
                     values are in seconds.
