@@ -1,6 +1,7 @@
 "use client"
 
-import { Player } from "@remotion/player"
+import { useEffect, useRef, useState } from "react"
+import { Player, type PlayerRef } from "@remotion/player"
 import { Scene } from "@/registry/jbm/motion/scene"
 import { Pop, Stagger } from "@/registry/jbm/motion/pop"
 import { Counter } from "@/registry/jbm/motion/counter"
@@ -94,20 +95,64 @@ function Composition({ name }: { name: string }) {
 }
 
 export default function MotionPreview({ name }: { name: string }) {
+  const player = useRef<PlayerRef>(null)
+  const [playing, setPlaying] = useState(false)
+
+  useEffect(() => {
+    const current = player.current
+    if (!current) return
+    const onPlay = () => setPlaying(true)
+    const onStop = () => setPlaying(false)
+    current.addEventListener("play", onPlay)
+    current.addEventListener("pause", onStop)
+    current.addEventListener("ended", onStop)
+    return () => {
+      current.removeEventListener("play", onPlay)
+      current.removeEventListener("pause", onStop)
+      current.removeEventListener("ended", onStop)
+    }
+  }, [])
+
   return (
-    <Player
-      component={Composition}
-      inputProps={{ name }}
-      durationInFrames={150}
-      fps={30}
-      compositionWidth={800}
-      compositionHeight={500}
-      style={{ width: "100%", aspectRatio: "8 / 5" }}
-      controls
-      loop
-      initialFrame={45}
-      autoPlay={false}
-      aria-label={`${name} motion preview`}
-    />
+    <div className="motion-preview">
+      <Player
+        ref={player}
+        component={Composition}
+        inputProps={{ name }}
+        durationInFrames={150}
+        fps={30}
+        compositionWidth={800}
+        compositionHeight={500}
+        style={{ width: "100%", aspectRatio: "8 / 5" }}
+        controls={false}
+        loop={false}
+        clickToPlay={false}
+        doubleClickToFullscreen={false}
+        initialFrame={45}
+        autoPlay={false}
+        aria-label={`${name} motion preview`}
+      />
+      <div className="motion-actions">
+        {playing && (
+          <button
+            type="button"
+            aria-label={`Pause ${name} animation`}
+            onClick={() => player.current?.pause()}
+          >
+            Pause
+          </button>
+        )}
+        <button
+          type="button"
+          aria-label={`Replay ${name} animation`}
+          onClick={() => {
+            player.current?.seekTo(0)
+            player.current?.play()
+          }}
+        >
+          ↻ Replay
+        </button>
+      </div>
+    </div>
   )
 }
