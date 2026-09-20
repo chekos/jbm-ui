@@ -11,7 +11,7 @@ registry.json            what the registry publishes (built to public/r/*.json b
 registry/jbm/lib/        tokens.ts — palette, fonts, radii, stage safe areas, cssVars
 registry/jbm/ui/         pure React: no Remotion import, inline styles from tokens. Works on any page.
 registry/jbm/motion/     Remotion-only: hooks, Scene, Pop/Stagger, Counter, ProbBar, CodeCard, Captions
-app/                     Next.js preview site (renders every ui/* item statically; motion/* has no browser preview)
+app/                     Next.js gallery with searchable UI, motion, and foundation previews
 ```
 
 ## Rules
@@ -35,4 +35,8 @@ then `npx shadcn add @jbm/stat-card`. Items pull their own dependencies (`@jbm/t
 
 ## Developing
 
-`pnpm dev` runs the preview site. `pnpm registry:build` regenerates `public/r/`. Add a component by writing it under `registry/jbm/`, registering it in `registry.json`, and adding it to the preview page.
+`pnpm dev` runs the preview site. `pnpm registry:build` regenerates `public/r/`. Add a component by writing it under `registry/jbm/`, registering it in `registry.json`, and adding its preview and usage snippet under `components/gallery/`.
+
+The gallery includes all registry items, category filters, search, source links, and namespace installation instructions. Motion examples use a lazily loaded Remotion Player with explicit playback controls and no autoplay. Keep `remotion` and `@remotion/player` on the same exact version.
+
+Run `pnpm lint`, `pnpm typecheck`, `pnpm registry:check`, and `pnpm build` locally before opening a PR. `registry:check` rebuilds the registry and fails if generated files differ from committed output. There is no GitHub Actions CI; Vercel builds and deploys through the GitHub integration. Track changes in issues and link them from PRs.
