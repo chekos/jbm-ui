@@ -385,3 +385,27 @@ footer {
 .preview:has(.swatches) {
   min-height: 250px;
 }
+
+.motion-preview {
+  position: relative;
+  width: 100%;
+}
+.motion-actions {
+  position: absolute;
+  right: 16px;
+  bottom: 12px;
+  display: flex;
+  gap: 8px;
+}
+.motion-actions button {
+  border: 1px solid var(--jbm-line);
+  border-radius: 6px;
+  background: var(--jbm-card);
+  color: var(--jbm-ink);
+  padding: 7px 11px;
+  font-size: 12px;
+  min-height: 36px;
+}
+.motion-actions button:hover {
+  border-color: var(--jbm-ink);
+}
