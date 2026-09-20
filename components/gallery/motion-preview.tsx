@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState, type ReactNode } from "react"
 import { Player, type PlayerRef } from "@remotion/player"
 import { SceneFromSpec } from "@/registry/jbm/motion/compile"
 import type { SceneSpec } from "@/registry/jbm/motion/spec"
@@ -11,6 +11,10 @@ import { Counter } from "@/registry/jbm/motion/counter"
 import { ProbBar } from "@/registry/jbm/motion/prob-bar"
 import { CodeCard } from "@/registry/jbm/motion/code-card"
 import { Captions } from "@/registry/jbm/motion/captions"
+import { RebuildScreens } from "@/registry/jbm/motion/rebuild-screens"
+import { Catalog } from "@/registry/jbm/motion/catalog"
+import { Propagate } from "@/registry/jbm/motion/propagate"
+import { Shelf, Twice } from "@/registry/jbm/motion/shelf"
 import {
   useSec,
   useIn,
@@ -28,8 +32,19 @@ import {
   popItems,
   codeLines,
   captionWords,
+  illustrated,
   durationFor,
 } from "./timing"
+
+/** Fit a stage-sized illustrated block (authored at 936 px wide) into the 800×500 preview. */
+function Fit({ w, h, children }: { w: number; h: number; children: ReactNode }) {
+  const k = Math.min(680 / w, 380 / h)
+  return (
+    <div style={{ width: w * k, height: h * k }}>
+      <div style={{ width: w, height: h, transform: `scale(${k})`, transformOrigin: "top left" }}>{children}</div>
+    </div>
+  )
+}
 
 function HooksDemo() {
   const seconds = useSec()
@@ -133,6 +148,75 @@ function Composition({ name }: { name: string }) {
         </>
       )}
       {name === "motion-hooks" && <HooksDemo />}
+      {name === "rebuild-screens" && (
+        <Fit w={936} h={620}>
+          <RebuildScreens
+            w={936}
+            h={620}
+            pieces={[
+              { kind: "button", at: illustrated.screens.pieces[0] },
+              { kind: "input", at: illustrated.screens.pieces[1] },
+              { kind: "card", at: illustrated.screens.pieces[2] },
+            ]}
+            again={illustrated.screens.again}
+            sticker={{ text: "¿otra vez?", at: illustrated.screens.sticker }}
+          />
+        </Fit>
+      )}
+      {name === "catalog" && (
+        <Fit w={936} h={820}>
+          <div style={{ paddingTop: 40 }}>
+            <Catalog
+              w={936}
+              at={illustrated.catalog.at}
+              title="catálogo"
+              items={[
+                { kind: "button", label: "botón", at: illustrated.catalog.items[0] },
+                { kind: "card", label: "tarjeta", at: illustrated.catalog.items[1] },
+                { kind: "input", label: "input", at: illustrated.catalog.items[2] },
+              ]}
+              tokensAt={illustrated.catalog.tokensAt}
+              tokens={[
+                { kind: "color", label: "color", at: illustrated.catalog.tokens[0] },
+                { kind: "type", label: "tipografía", at: illustrated.catalog.tokens[1] },
+                { kind: "space", label: "espaciado", at: illustrated.catalog.tokens[2] },
+              ]}
+              stamp={{ text: "design tokens", at: illustrated.catalog.stamp }}
+            />
+          </div>
+        </Fit>
+      )}
+      {name === "propagate" && (
+        <Fit w={936} h={640}>
+          <Propagate
+            w={936}
+            h={640}
+            at={illustrated.propagate.at}
+            label={{ text: "una sola fuente de verdad", at: illustrated.propagate.label }}
+            targets={6}
+            bug={illustrated.propagate.bug}
+            fix={illustrated.propagate.fix}
+            fixed={illustrated.propagate.fixed}
+            recolor={illustrated.propagate.recolor}
+            recolored={illustrated.propagate.recolored}
+          />
+        </Fit>
+      )}
+      {name === "shelf" && (
+        <Fit w={936} h={820}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 40 }}>
+            <Shelf
+              w={936}
+              items={[
+                { text: "shadcn/ui", at: illustrated.shelf.items[0] },
+                { text: "Material UI", at: illustrated.shelf.items[1] },
+                { text: "jbm-ui", at: illustrated.shelf.items[2], tone: "accent" },
+              ]}
+            />
+            <Twice w={936} at={illustrated.shelf.twice} second={illustrated.shelf.second} strike={illustrated.shelf.strike} />
+          </div>
+        </Fit>
+      )}
     </Scene>
   )
 }

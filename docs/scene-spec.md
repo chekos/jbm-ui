@@ -45,3 +45,19 @@ Code blocks forward optional `charsPerSecond` to CodeCard (default 32); use a po
 The gallery's Layout category shows one spec in both orientations. Existing scaffolded videos contain copied source: update their `src/jbm` files or reinstall the registry components to receive these changes. Installing the registry does not update old copies automatically.
 
 Run `pnpm registry:build && node --test scripts/scene-spec.test.mjs` (Node 22.15+ or 24+) to check anchor resolution, block compilation, and a strict consumer assembled solely from published registry dependencies.
+
+## Illustrated blocks and exits
+
+`paper` and `ui-bits` provide pure React cut-out surfaces and interface illustrations. The motion registry adds:
+
+- `screens`: `pieces` with kind/anchor, optional `again` cues and `sticker`; optional per-orientation `h`.
+- `catalog`: anchored interface `items`, optional `tokens`, `tokensAt`, title, and stamp.
+- `propagate`: a source and positive integer `targets`; optional bug, fix/fixed, recolor/recolored pairs. Arrival must be later than departure; pulses follow those exact times, even for trips shorter than 0.3 seconds.
+- `shelf`: labeled library cards with anchored entrances and optional paper/accent/ink tones.
+- `twice`: first button `at`, `second`, and optional `strike` cue.
+- `brand`: an anchored brand lockup with optional tagline and size.
+- `overlay`: a separate safe-area layer containing nested blocks; `valign` defaults to center.
+
+Any block can use `until` to fade out and drift upward over 0.4 seconds. Flow blocks retain their layout space after exiting; overlays remain outside the flow even when they exit. Scene `valign: center` centers the main stack, and big blocks accept `align: center` plus line breaks. Anchors and translations follow the same rules as other blocks.
+
+The illustrated gallery timelines end at their final interpolation or spring-settling frame. Input cursors are decorative timeline blinks and freeze when playback finishes.

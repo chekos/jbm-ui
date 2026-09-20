@@ -8,6 +8,15 @@ import { Card } from "@/registry/jbm/ui/card"
 import { Chip } from "@/registry/jbm/ui/chip"
 import { Label } from "@/registry/jbm/ui/label"
 import { StatCard } from "@/registry/jbm/ui/stat-card"
+import { Paper, Sticker, Caption } from "@/registry/jbm/ui/paper"
+import {
+  UiButton,
+  UiInput,
+  UiCard,
+  PhoneFrame,
+  Badge,
+  TokenGlyph,
+} from "@/registry/jbm/ui/ui-bits"
 
 export const examples = {
   "replay-button": <ReplayDemo />,
@@ -75,6 +84,40 @@ export const examples = {
     </div>
   ),
   brand: <Brand tagline="Ideas, datos y código." size={64} />,
+  paper: (
+    <div style={{ display: "flex", alignItems: "center", gap: 28 }}>
+      <Paper w={200} h={130} rotate={-3} style={{ padding: 20 }}>
+        <Caption size={24}>papel</Caption>
+      </Paper>
+      <Sticker size={40} rotate={-5}>
+        ¿otra vez?
+      </Sticker>
+      <Sticker tone="ink" size={28} rotate={2}>
+        catálogo
+      </Sticker>
+    </div>
+  ),
+  "ui-bits": (
+    <div style={{ display: "flex", alignItems: "center", gap: 28 }}>
+      <PhoneFrame w={200} h={360} gap={14}>
+        <UiCard w={130} h={100} />
+        <UiInput w={130} h={40} />
+        <UiButton w={130} h={40} />
+      </PhoneFrame>
+      <div style={{ display: "flex", flexDirection: "column", gap: 18, alignItems: "center" }}>
+        <UiButton w={180} h={56} tone="accent" />
+        <div style={{ display: "flex", gap: 12 }}>
+          <Badge kind="check" size={40} />
+          <Badge kind="x" size={40} tone="ink" />
+        </div>
+        <div style={{ display: "flex", gap: 8 }}>
+          <TokenGlyph kind="color" size={70} />
+          <TokenGlyph kind="type" size={70} />
+          <TokenGlyph kind="space" size={70} />
+        </div>
+      </div>
+    </div>
+  ),
 }
 
 export const snippets: Record<string, string> = {
@@ -89,6 +132,17 @@ export const snippets: Record<string, string> = {
   callout: '<Callout variant="note">Al final, cómo se usa.</Callout>',
   "bullet-list": '<BulletList items={["El contexto", "La pregunta"]} />',
   brand: '<Brand tagline="Ideas, datos y código." />',
+  paper: '<Sticker size={72} rotate={-5}>¿otra vez?</Sticker>\n<Paper tone="paper" w={300} h={200} rotate={-2} />',
+  "ui-bits":
+    '<PhoneFrame w={420} h={780}>\n  <UiCard w={290} />\n  <UiInput w={290} h={92} />\n  <UiButton w={290} h={92} tone="ink" />\n</PhoneFrame>',
+  "rebuild-screens":
+    '<RebuildScreens w={936} h={1000}\n  pieces={[{ kind: "button", at: 1 }, { kind: "input", at: 2.8 }, { kind: "card", at: 5.3 }]}\n  again={[12.9, 14.5]} sticker={{ text: "¿otra vez?", at: 13 }} />',
+  catalog:
+    '<Catalog w={936} at={3.2} title="catálogo"\n  items={[{ kind: "button", label: "botón", at: 7.4 }]}\n  tokens={[{ kind: "color", label: "color", at: 18.2 }]} />',
+  propagate:
+    '<Propagate w={936} h={1040} at={0.9} targets={6}\n  label={{ text: "una sola fuente de verdad", at: 4 }}\n  bug={5.8} fix={6.6} fixed={7.7} recolor={10.5} recolored={11.7} />',
+  shelf:
+    '<Shelf w={936} items={[{ text: "shadcn/ui", at: 3.4 }, { text: "jbm-ui", at: 7.7, tone: "accent" }]} />\n<Twice w={936} at={13.1} second={14.6} strike={14.8} />',
   "scene-spec":
     '<SceneFromSpec spec={scenes.scenes[0]} orientation="landscape" host={{ resolve: phrase => timings[phrase] }} />\n// Code blocks accept charsPerSecond. See docs/scene-spec.md for YAML.',
   scene: "<Scene><Big>Una idea a la vez.</Big></Scene>",

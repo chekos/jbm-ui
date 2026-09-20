@@ -49,3 +49,11 @@ test("typing stays in place, queues lines, and finishes on the replay terminal f
   assert.equal(typedCode(last, durationFor("code-card") - 1, fps), codeLines.at(-1).t)
   assert.throws(() => codeTypingSchedule([], 30, 0), RangeError)
 })
+
+test('illustrated replay duration follows final motion instead of padded holds', async () => {
+  const {illustrated} = await import('../components/gallery/timing.ts');
+  assert.equal(durationFor('propagate')-1, Math.round((illustrated.propagate.recolored+0.35)*fps));
+  assert.equal(durationFor('shelf')-1, Math.max(Math.round((illustrated.shelf.strike+0.45)*fps),Math.round(illustrated.shelf.second*fps)+springFrames));
+  assert.ok(durationFor('catalog') < 5.8*fps+1);
+  assert.ok(durationFor('rebuild-screens') < 4.6*fps+1);
+});
