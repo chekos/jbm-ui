@@ -18,11 +18,20 @@ import { Big } from "@/registry/jbm/ui/big"
 import { Chip } from "@/registry/jbm/ui/chip"
 import { color } from "@/registry/jbm/lib/tokens"
 
+import {
+  fps,
+  timing,
+  popItems,
+  codeLines,
+  captionWords,
+  durationFor,
+} from "./timing"
+
 function HooksDemo() {
   const seconds = useSec()
-  const entrance = useIn(0.2)
-  const opacity = useFade(0.2)
-  const progress = useProgress(0.2, 100, 1.5)
+  const entrance = useIn(timing.counter.at)
+  const opacity = useFade(timing.counter.at)
+  const progress = useProgress(timing.counter.at, 100, timing.counter.dur)
   return (
     <div style={{ opacity, transform: `translateY(${(1 - entrance) * 30}px)` }}>
       <Big size={72}>{progress.toFixed(0)}%</Big>
@@ -50,43 +59,31 @@ function Composition({ name }: { name: string }) {
       )}
       {name === "pop" && (
         <div style={{ display: "flex", gap: 20 }}>
-          <Stagger at={0.2} step={0.35} from="scale">
-            {["Idea", "Datos", "Historia"].map((text) => (
+          <Stagger {...timing.pop} from="scale">
+            {popItems.map((text) => (
               <Chip key={text}>{text}</Chip>
             ))}
           </Stagger>
         </div>
       )}
-      {name === "counter" && <Counter n={1024} at={0.2} dur={1.5} />}
+      {name === "counter" && <Counter n={1024} {...timing.counter} />}
       {name === "prob-bar" && (
-        <ProbBar label="Confianza" p={0.86} at={0.2} w={620} />
+        <ProbBar
+          label="Confianza"
+          p={0.86}
+          at={timing.probability.at}
+          w={620}
+        />
       )}
       {name === "code-card" && (
-        <CodeCard
-          w={620}
-          h={280}
-          title="hello.ts"
-          lines={[
-            { t: 'const idea = "simple";', at: 0.2 },
-            { t: "const story = explain(idea);", at: 0.7 },
-            { t: "render(story);", at: 1.2, color: color.soft },
-          ]}
-        />
+        <CodeCard w={620} h={280} title="hello.ts" lines={codeLines} />
       )}
       {name === "captions" && (
         <>
           <Pop at={0}>
             <Big size={52}>Cada palabra cuenta.</Big>
           </Pop>
-          <Captions
-            words={[
-              { w: "Una", s: 0, e: 0.7 },
-              { w: "idea", s: 0.7, e: 1.4, emph: true },
-              { w: "a", s: 1.4, e: 1.8 },
-              { w: "la", s: 1.8, e: 2.2 },
-              { w: "vez.", s: 2.2, e: 3.5 },
-            ]}
-          />
+          <Captions words={captionWords} />
         </>
       )}
       {name === "motion-hooks" && <HooksDemo />}
@@ -95,6 +92,7 @@ function Composition({ name }: { name: string }) {
 }
 
 export default function MotionPreview({ name }: { name: string }) {
+  const durationInFrames = durationFor(name)
   const player = useRef<PlayerRef>(null)
   const [phase, setPhase] = useState<"ready" | "playing">("ready")
   const [progress, setProgress] = useState(1)
@@ -107,7 +105,12 @@ export default function MotionPreview({ name }: { name: string }) {
     const onPlay = () => setPhase("playing")
     const onEnd = () => setPhase("ready")
     const onFrame = ({ detail }: { detail: { frame: number } }) => {
-      setProgress(Math.min(1, Math.max(0, detail.frame / 149)))
+      setProgress(
+        Math.min(
+          1,
+          Math.max(0, detail.frame / Math.max(1, durationInFrames - 1))
+        )
+      )
     }
     current.addEventListener("play", onPlay)
     current.addEventListener("ended", onEnd)
@@ -119,7 +122,7 @@ export default function MotionPreview({ name }: { name: string }) {
       current.removeEventListener("error", onEnd)
       current.removeEventListener("frameupdate", onFrame)
     }
-  }, [])
+  }, [durationInFrames])
 
   return (
     <div className="motion-preview">
@@ -127,8 +130,8 @@ export default function MotionPreview({ name }: { name: string }) {
         ref={player}
         component={Composition}
         inputProps={{ name }}
-        durationInFrames={150}
-        fps={30}
+        durationInFrames={durationInFrames}
+        fps={fps}
         compositionWidth={800}
         compositionHeight={500}
         style={{ width: "100%", aspectRatio: "8 / 5" }}
@@ -138,63 +141,65 @@ export default function MotionPreview({ name }: { name: string }) {
         spaceKeyToPlayOrPause={false}
         clickToPlay={false}
         doubleClickToFullscreen={false}
-        initialFrame={45}
+        initialFrame={Math.min(45, durationInFrames - 1)}
         autoPlay={false}
         aria-label={`${name} motion preview`}
       />
-      <div className="motion-actions">
-        <button
-          type="button"
-          className="replay-charge"
-          aria-label={`Replay ${name} animation`}
-          title={charging ? "Replay recharging" : "Replay"}
-          disabled={charging}
-          onClick={() => {
-            if (charging || !player.current) return
-            setProgress(0)
-            setPhase("playing")
-            player.current?.seekTo(0)
-            player.current?.play()
-          }}
-        >
-          <svg
-            className="replay-glyph"
-            viewBox="0 0 24 24"
-            width="26"
-            height="26"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="3.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden="true"
+      {durationInFrames > 1 && (
+        <div className="motion-actions">
+          <button
+            type="button"
+            className="replay-charge"
+            aria-label={`Replay ${name} animation`}
+            title={charging ? "Replay recharging" : "Replay"}
+            disabled={charging}
+            onClick={() => {
+              if (charging || !player.current) return
+              setProgress(0)
+              setPhase("playing")
+              player.current?.seekTo(0)
+              player.current?.play()
+            }}
           >
-            <g className="replay-track">
-              <path d="M20 14 A8 8 0 1 1 19 6 L21 8" />
-              <path d="M16 8 H21 V3" />
-            </g>
-            <path
-              className="replay-shaft"
-              d="M20 14 A8 8 0 1 1 19 6 L21 8"
-              pathLength="1"
-              strokeDasharray="1"
-              strokeDashoffset={1 - Math.min(1, charge / 0.85)}
-              opacity={charge > 0 ? 1 : 0}
-            />
-            <g opacity={charge > 0.85 ? 1 : 0}>
-              {["M16 8 H21", "M21 3 V8"].map((d) => (
-                <path
-                  key={d}
-                  d={d}
-                  pathLength="1"
-                  strokeDasharray="1"
-                  strokeDashoffset={1 - Math.max(0, (charge - 0.85) / 0.15)}
-                />
-              ))}
-            </g>
-          </svg>
-        </button>
-      </div>
+            <svg
+              className="replay-glyph"
+              viewBox="0 0 24 24"
+              width="26"
+              height="26"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="3.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <g className="replay-track">
+                <path d="M20 14 A8 8 0 1 1 19 6 L21 8" />
+                <path d="M16 8 H21 V3" />
+              </g>
+              <path
+                className="replay-shaft"
+                d="M20 14 A8 8 0 1 1 19 6 L21 8"
+                pathLength="1"
+                strokeDasharray="1"
+                strokeDashoffset={1 - Math.min(1, charge / 0.85)}
+                opacity={charge > 0 ? 1 : 0}
+              />
+              <g opacity={charge > 0.85 ? 1 : 0}>
+                {["M16 8 H21", "M21 3 V8"].map((d) => (
+                  <path
+                    key={d}
+                    d={d}
+                    pathLength="1"
+                    strokeDasharray="1"
+                    strokeDashoffset={1 - Math.max(0, (charge - 0.85) / 0.15)}
+                  />
+                ))}
+              </g>
+            </svg>
+          </button>
+        </div>
+      )}
     </div>
   )
 }
