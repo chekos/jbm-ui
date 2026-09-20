@@ -37,6 +37,6 @@ then `npx shadcn add @jbm/stat-card`. Items pull their own dependencies (`@jbm/t
 
 `pnpm dev` runs the preview site. `pnpm registry:build` regenerates `public/r/`. Add a component by writing it under `registry/jbm/`, registering it in `registry.json`, and adding its preview and usage snippet under `components/gallery/`.
 
-The gallery includes all registry items, category filters, search, source links, and namespace installation instructions. Motion examples use a lazily loaded Remotion Player with frameless previews, a heavy icon-only replay control that fills with frame progress and unlocks on completion, plus Pause/Resume, and no autoplay or looping. Keep `remotion` and `@remotion/player` on the same exact version.
+The gallery includes all registry items, category filters, search, source links, and namespace installation instructions. Motion examples use a lazily loaded Remotion Player with frameless previews, a heavy icon-only replay control that traces its arrow from tail to head with frame progress and unlocks on completion, and no autoplay or looping. Keep `remotion` and `@remotion/player` on the same exact version.
 
 Run `pnpm lint`, `pnpm typecheck`, `pnpm registry:check`, and `pnpm build` locally before opening a PR. `registry:check` rebuilds the registry and fails if generated files differ from committed output. There is no GitHub Actions CI; Vercel builds and deploys through the GitHub integration. Track changes in issues and link them from PRs.
