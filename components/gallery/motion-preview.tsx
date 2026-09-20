@@ -146,12 +146,13 @@ export default function MotionPreview({ name }: { name: string }) {
         <button
           type="button"
           aria-label={`Replay ${name} animation`}
+          title="Replay"
           onClick={() => {
             player.current?.seekTo(0)
             player.current?.play()
           }}
         >
-          ↻ Replay
+          <span aria-hidden="true">↻</span>
         </button>
       </div>
     </div>
