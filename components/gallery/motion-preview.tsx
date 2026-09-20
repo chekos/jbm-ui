@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from "react"
 import { Player, type PlayerRef } from "@remotion/player"
-import { RotateCw } from "lucide-react"
 import { Scene } from "@/registry/jbm/motion/scene"
 import { Pop, Stagger } from "@/registry/jbm/motion/pop"
 import { Counter } from "@/registry/jbm/motion/counter"
@@ -97,28 +96,25 @@ function Composition({ name }: { name: string }) {
 
 export default function MotionPreview({ name }: { name: string }) {
   const player = useRef<PlayerRef>(null)
-  const [phase, setPhase] = useState<"ready" | "playing" | "paused">("ready")
+  const [phase, setPhase] = useState<"ready" | "playing">("ready")
   const [progress, setProgress] = useState(1)
   const charging = phase !== "ready"
+  const charge = charging ? progress : 1
 
   useEffect(() => {
     const current = player.current
     if (!current) return
     const onPlay = () => setPhase("playing")
-    const onPause = () =>
-      setPhase((value) => (value === "ready" ? value : "paused"))
     const onEnd = () => setPhase("ready")
     const onFrame = ({ detail }: { detail: { frame: number } }) => {
       setProgress(Math.min(1, Math.max(0, detail.frame / 149)))
     }
     current.addEventListener("play", onPlay)
-    current.addEventListener("pause", onPause)
     current.addEventListener("ended", onEnd)
     current.addEventListener("error", onEnd)
     current.addEventListener("frameupdate", onFrame)
     return () => {
       current.removeEventListener("play", onPlay)
-      current.removeEventListener("pause", onPause)
       current.removeEventListener("ended", onEnd)
       current.removeEventListener("error", onEnd)
       current.removeEventListener("frameupdate", onFrame)
@@ -139,6 +135,7 @@ export default function MotionPreview({ name }: { name: string }) {
         controls={false}
         loop={false}
         moveToBeginningWhenEnded={false}
+        spaceKeyToPlayOrPause={false}
         clickToPlay={false}
         doubleClickToFullscreen={false}
         initialFrame={45}
@@ -146,19 +143,6 @@ export default function MotionPreview({ name }: { name: string }) {
         aria-label={`${name} motion preview`}
       />
       <div className="motion-actions">
-        {charging && (
-          <button
-            type="button"
-            aria-label={`${phase === "playing" ? "Pause" : "Resume"} ${name} animation`}
-            onClick={() =>
-              phase === "playing"
-                ? player.current?.pause()
-                : player.current?.play()
-            }
-          >
-            {phase === "playing" ? "Pause" : "Resume"}
-          </button>
-        )}
         <button
           type="button"
           className="replay-charge"
@@ -173,17 +157,42 @@ export default function MotionPreview({ name }: { name: string }) {
             player.current?.play()
           }}
         >
-          <span className="replay-glyph" aria-hidden="true">
-            <RotateCw className="replay-track" size={26} strokeWidth={3.5} />
-            <RotateCw
-              className="replay-fill"
-              size={26}
-              strokeWidth={3.5}
-              style={{
-                clipPath: `inset(${(1 - (charging ? progress : 1)) * 100}% 0 0 0)`,
-              }}
+          <svg
+            className="replay-glyph"
+            viewBox="0 0 24 24"
+            width="26"
+            height="26"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="3.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <g className="replay-track">
+              <path d="M20 14 A8 8 0 1 1 19 6 L21 8" />
+              <path d="M16 8 H21 V3" />
+            </g>
+            <path
+              className="replay-shaft"
+              d="M20 14 A8 8 0 1 1 19 6 L21 8"
+              pathLength="1"
+              strokeDasharray="1"
+              strokeDashoffset={1 - Math.min(1, charge / 0.85)}
+              opacity={charge > 0 ? 1 : 0}
             />
-          </span>
+            <g opacity={charge > 0.85 ? 1 : 0}>
+              {["M16 8 H21", "M21 3 V8"].map((d) => (
+                <path
+                  key={d}
+                  d={d}
+                  pathLength="1"
+                  strokeDasharray="1"
+                  strokeDashoffset={1 - Math.max(0, (charge - 0.85) / 0.15)}
+                />
+              ))}
+            </g>
+          </svg>
         </button>
       </div>
     </div>

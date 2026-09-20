@@ -397,20 +397,10 @@ footer {
   display: flex;
   gap: 8px;
 }
-.motion-actions button {
-  border: 1px solid var(--jbm-line);
-  border-radius: 6px;
-  background: var(--jbm-card);
-  color: var(--jbm-ink);
-  padding: 7px 11px;
-  font-size: 12px;
-  min-height: 36px;
-}
-.motion-actions button:hover {
-  border-color: var(--jbm-ink);
-}
 
-.motion-actions .replay-charge {
+.replay-charge {
+  color: var(--jbm-ink);
+  border-radius: 6px;
   border: 0;
   background: transparent;
   padding: 9px;
@@ -433,8 +423,4 @@ footer {
 }
 .replay-track {
   opacity: 0.18;
-}
-.replay-fill {
-  position: absolute;
-  inset: 0;
 }
