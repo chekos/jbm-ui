@@ -1,3 +1,4 @@
+import { ReplayDemo } from "./replay-demo"
 import { color } from "@/registry/jbm/lib/tokens"
 import { Big } from "@/registry/jbm/ui/big"
 import { Brand } from "@/registry/jbm/ui/brand"
@@ -9,6 +10,7 @@ import { Label } from "@/registry/jbm/ui/label"
 import { StatCard } from "@/registry/jbm/ui/stat-card"
 
 export const examples = {
+  "replay-button": <ReplayDemo />,
   label: <Label>Una idea a la vez</Label>,
   big: (
     <Big size={76}>
@@ -76,6 +78,8 @@ export const examples = {
 }
 
 export const snippets: Record<string, string> = {
+  "replay-button":
+    '<ReplayButton\n  progress={progress} // 0–1 from your animation\n  charging={isPlaying}\n  onReplay={restartAnimation}\n  label="Replay animation"\n/>',
   label: "<Label>Una idea a la vez</Label>",
   big: "<Big size={76}>Ideas que se entienden.</Big>",
   card: "<Card dark><Big color={color.bg}>Surface</Big></Card>",

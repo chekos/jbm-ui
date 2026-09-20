@@ -1,0 +1,17 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "replay-button",
+  "title": "ReplayButton",
+  "description": "Controlled replay icon that charges from tail to arrowhead. Supply progress and charging state from any animation.",
+  "registryDependencies": [
+    "@jbm/tokens"
+  ],
+  "files": [
+    {
+      "path": "registry/jbm/ui/replay-button.tsx",
+      "content": "import * as React from \"react\"\nimport { color } from \"../lib/tokens\"\n\nexport type ReplayButtonProps = Omit<\n  React.ButtonHTMLAttributes<HTMLButtonElement>,\n  \"children\" | \"onClick\" | \"type\" | \"aria-label\"\n> & {\n  /** Normalized progress from the real animation timeline, clamped to 0–1. */\n  progress: number\n  /** Locks replay until the host animation has finished. */\n  charging: boolean\n  onReplay: () => void\n  label?: string\n  iconSize?: number\n}\n\n/** Controlled replay: tail-to-head charge, no internal timer or playback dependency. */\nexport function ReplayButton({\n  progress,\n  charging,\n  onReplay,\n  label = \"Replay animation\",\n  iconSize = 26,\n  disabled = false,\n  style,\n  title,\n  ...props\n}: ReplayButtonProps) {\n  const charge = charging\n    ? Math.min(1, Math.max(0, Number.isFinite(progress) ? progress : 0))\n    : 1\n  const locked = charging || disabled\n  return (\n    <button\n      {...props}\n      type=\"button\"\n      aria-label={label}\n      title={title ?? (charging ? \"Replay recharging\" : \"Replay\")}\n      disabled={locked}\n      onClick={() => {\n        if (!locked) onReplay()\n      }}\n      style={{\n        color: color.ink,\n        border: 0,\n        borderRadius: 6,\n        background: \"transparent\",\n        padding: 9,\n        minWidth: 44,\n        minHeight: 44,\n        display: \"inline-grid\",\n        placeItems: \"center\",\n        cursor: locked ? \"default\" : \"pointer\",\n        ...style,\n      }}\n    >\n      <svg\n        style={{ display: \"block\", width: iconSize, height: iconSize }}\n        viewBox=\"0 0 24 24\"\n        width={iconSize}\n        height={iconSize}\n        fill=\"none\"\n        stroke=\"currentColor\"\n        strokeWidth=\"3.5\"\n        strokeLinecap=\"round\"\n        strokeLinejoin=\"round\"\n        aria-hidden=\"true\"\n      >\n        <g opacity={0.18}>\n          <path d=\"M20 14 A8 8 0 1 1 19 6 L21 8\" />\n          <path d=\"M16 8 H21 V3\" />\n        </g>\n        <path\n          data-replay-shaft=\"\"\n          d=\"M20 14 A8 8 0 1 1 19 6 L21 8\"\n          pathLength=\"1\"\n          strokeDasharray=\"1\"\n          strokeDashoffset={1 - Math.min(1, charge / 0.85)}\n          opacity={charge > 0 ? 1 : 0}\n        />\n        <g opacity={charge > 0.85 ? 1 : 0}>\n          {[\"M16 8 H21\", \"M21 3 V8\"].map((d) => (\n            <path\n              key={d}\n              d={d}\n              pathLength=\"1\"\n              strokeDasharray=\"1\"\n              strokeDashoffset={1 - Math.max(0, (charge - 0.85) / 0.15)}\n            />\n          ))}\n        </g>\n      </svg>\n    </button>\n  )\n}\n",
+      "type": "registry:ui"
+    }
+  ],
+  "type": "registry:ui"
+}
