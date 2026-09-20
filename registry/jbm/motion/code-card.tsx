@@ -1,4 +1,3 @@
-import * as React from "react";
 import { Card } from "../ui/card";
 import { color, font } from "../lib/tokens";
 import { useCurrentFrame, useVideoConfig } from "remotion";

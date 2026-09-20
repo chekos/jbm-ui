@@ -1,5 +1,5 @@
 import { execFileSync } from "node:child_process"
-import { readFileSync } from "node:fs"
+import { readFileSync, readdirSync } from "node:fs"
 
 execFileSync("pnpm", ["registry:build"], { stdio: "inherit" })
 const changes = execFileSync(
@@ -22,3 +22,13 @@ for (const item of registry.items) {
   }
 }
 console.log(`Verified ${registry.items.length} registry items.`)
+
+const published = new Set(registry.items.flatMap(item => item.files.map(file => file.path)));
+function checkDirectory(dir) {
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    const path = dir + "/" + entry.name;
+    if (entry.isDirectory()) checkDirectory(path);
+    else if (!published.has(path)) throw new Error("Unpublished registry source: " + path);
+  }
+}
+checkDirectory("registry/jbm");

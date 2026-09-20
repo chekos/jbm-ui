@@ -13,8 +13,9 @@
   "files": [
     {
       "path": "registry/jbm/motion/counter.tsx",
-      "content": "import * as React from \"react\";\nimport { Big } from \"../ui/big\";\nimport { color } from \"../lib/tokens\";\nimport { useProgress } from \"./hooks\";\n\n/** Number counting up from 0 to `n` over `dur` seconds from `at`. */\nexport function Counter({ n, at, dur = 0.8, size = 140, color: c = color.accent }: { n: number; at: number; dur?: number; size?: number; color?: string }) {\n  const v = Math.round(useProgress(at, n, dur));\n  return <Big size={size} color={c}>{v}</Big>;\n}\n",
-      "type": "registry:component"
+      "content": "import { Big } from \"../ui/big\";\nimport { color } from \"../lib/tokens\";\nimport { useProgress } from \"./hooks\";\n\n/** Number counting up from 0 to `n` over `dur` seconds from `at`. */\nexport function Counter({ n, at, dur = 0.8, size = 140, color: c = color.accent }: { n: number; at: number; dur?: number; size?: number; color?: string }) {\n  const v = Math.round(useProgress(at, n, dur));\n  return <Big size={size} color={c}>{v}</Big>;\n}\n",
+      "type": "registry:component",
+      "target": "src/jbm/motion/counter.tsx"
     }
   ],
   "type": "registry:component"

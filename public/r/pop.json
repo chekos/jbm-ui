@@ -13,7 +13,8 @@
     {
       "path": "registry/jbm/motion/pop.tsx",
       "content": "import * as React from \"react\";\nimport { useIn } from \"./hooks\";\n\n/** Entrance: opacity plus a translate from one side, or a 0.6→1 scale. `at` in seconds relative to the sequence. */\nexport function Pop({ at, children, style, from = \"up\", dist = 40 }: { at: number; children: React.ReactNode; style?: React.CSSProperties; from?: \"up\" | \"down\" | \"left\" | \"right\" | \"scale\"; dist?: number }) {\n  const p = useIn(at);\n  const tx = from === \"left\" ? -dist : from === \"right\" ? dist : 0;\n  const ty = from === \"up\" ? dist : from === \"down\" ? -dist : 0;\n  const sc = from === \"scale\" ? 0.6 + 0.4 * p : 1;\n  return (\n    <div style={{ opacity: p, transform: `translate(${tx * (1 - p)}px, ${ty * (1 - p)}px) scale(${sc})`, ...style }}>\n      {children}\n    </div>\n  );\n}\n\n/** Staggered Pops for a list of children: item i enters at `at + i * step`. */\nexport function Stagger({ at, step = 0.3, from = \"up\", dist = 14, children }: { at: number; step?: number; from?: \"up\" | \"down\" | \"left\" | \"right\" | \"scale\"; dist?: number; children: React.ReactNode[] }) {\n  return <>{React.Children.map(children, (c, i) => <Pop key={i} at={at + i * step} from={from} dist={dist}>{c}</Pop>)}</>;\n}\n",
-      "type": "registry:component"
+      "type": "registry:component",
+      "target": "src/jbm/motion/pop.tsx"
     }
   ],
   "type": "registry:component"
