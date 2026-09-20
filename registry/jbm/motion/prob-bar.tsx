@@ -1,4 +1,3 @@
-import * as React from "react";
 import { color, font } from "../lib/tokens";
 import { useProgress } from "./hooks";
 import { Pop } from "./pop";

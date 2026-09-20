@@ -1,4 +1,3 @@
-import * as React from "react";
 import { Big } from "../ui/big";
 import { color } from "../lib/tokens";
 import { useProgress } from "./hooks";

@@ -10,7 +10,8 @@
     {
       "path": "registry/jbm/ui/brand.tsx",
       "content": "import * as React from \"react\";\nimport { color, font } from \"../lib/tokens\";\n\n/** tacos·de·datos lockup with an optional tagline. */\nexport function Brand({ tagline, size = 56, style }: { tagline?: string; size?: number; style?: React.CSSProperties }) {\n  return (\n    <div style={{ textAlign: \"center\", ...style }}>\n      <div style={{ fontFamily: font.mono, fontSize: size, fontWeight: 700, color: color.ink }}>\n        tacos<span style={{ color: color.accent }}>de</span>datos\n      </div>\n      {tagline ? <div style={{ fontFamily: font.sans, fontSize: Math.round(size * 0.46), color: color.dim, marginTop: 10 }}>{tagline}</div> : null}\n    </div>\n  );\n}\n",
-      "type": "registry:ui"
+      "type": "registry:ui",
+      "target": "src/jbm/ui/brand.tsx"
     }
   ],
   "type": "registry:ui"

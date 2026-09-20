@@ -10,7 +10,8 @@
     {
       "path": "registry/jbm/motion/scene.tsx",
       "content": "import * as React from \"react\";\nimport { color } from \"../lib/tokens\";\n\n/** Full-bleed frame with the canvas colour. One per scene, inside a Remotion Sequence. */\nexport function Scene({ children, style }: { children: React.ReactNode; style?: React.CSSProperties }) {\n  return <div style={{ position: \"absolute\", inset: 0, background: color.bg, overflow: \"hidden\", ...style }}>{children}</div>;\n}\n",
-      "type": "registry:component"
+      "type": "registry:component",
+      "target": "src/jbm/motion/scene.tsx"
     }
   ],
   "type": "registry:component"

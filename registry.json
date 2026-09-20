@@ -11,7 +11,8 @@
       "files": [
         {
           "path": "registry/jbm/lib/tokens.ts",
-          "type": "registry:lib"
+          "type": "registry:lib",
+          "target": "src/jbm/lib/tokens.ts"
         }
       ]
     },
@@ -26,7 +27,8 @@
       "files": [
         {
           "path": "registry/jbm/ui/label.tsx",
-          "type": "registry:ui"
+          "type": "registry:ui",
+          "target": "src/jbm/ui/label.tsx"
         }
       ]
     },
@@ -41,7 +43,8 @@
       "files": [
         {
           "path": "registry/jbm/ui/big.tsx",
-          "type": "registry:ui"
+          "type": "registry:ui",
+          "target": "src/jbm/ui/big.tsx"
         }
       ]
     },
@@ -56,7 +59,8 @@
       "files": [
         {
           "path": "registry/jbm/ui/card.tsx",
-          "type": "registry:ui"
+          "type": "registry:ui",
+          "target": "src/jbm/ui/card.tsx"
         }
       ]
     },
@@ -71,7 +75,8 @@
       "files": [
         {
           "path": "registry/jbm/ui/chip.tsx",
-          "type": "registry:ui"
+          "type": "registry:ui",
+          "target": "src/jbm/ui/chip.tsx"
         }
       ]
     },
@@ -87,7 +92,8 @@
       "files": [
         {
           "path": "registry/jbm/ui/stat-card.tsx",
-          "type": "registry:ui"
+          "type": "registry:ui",
+          "target": "src/jbm/ui/stat-card.tsx"
         }
       ]
     },
@@ -102,7 +108,8 @@
       "files": [
         {
           "path": "registry/jbm/ui/callout.tsx",
-          "type": "registry:ui"
+          "type": "registry:ui",
+          "target": "src/jbm/ui/callout.tsx"
         }
       ]
     },
@@ -117,7 +124,8 @@
       "files": [
         {
           "path": "registry/jbm/ui/bullet-list.tsx",
-          "type": "registry:ui"
+          "type": "registry:ui",
+          "target": "src/jbm/ui/bullet-list.tsx"
         }
       ]
     },
@@ -132,7 +140,8 @@
       "files": [
         {
           "path": "registry/jbm/ui/brand.tsx",
-          "type": "registry:ui"
+          "type": "registry:ui",
+          "target": "src/jbm/ui/brand.tsx"
         }
       ]
     },
@@ -147,7 +156,8 @@
       "files": [
         {
           "path": "registry/jbm/ui/replay-button.tsx",
-          "type": "registry:ui"
+          "type": "registry:ui",
+          "target": "src/jbm/ui/replay-button.tsx"
         }
       ]
     },
@@ -162,7 +172,8 @@
       "files": [
         {
           "path": "registry/jbm/motion/hooks.ts",
-          "type": "registry:hook"
+          "type": "registry:hook",
+          "target": "src/jbm/motion/hooks.ts"
         }
       ]
     },
@@ -177,7 +188,8 @@
       "files": [
         {
           "path": "registry/jbm/motion/scene.tsx",
-          "type": "registry:component"
+          "type": "registry:component",
+          "target": "src/jbm/motion/scene.tsx"
         }
       ]
     },
@@ -195,7 +207,8 @@
       "files": [
         {
           "path": "registry/jbm/motion/pop.tsx",
-          "type": "registry:component"
+          "type": "registry:component",
+          "target": "src/jbm/motion/pop.tsx"
         }
       ]
     },
@@ -214,7 +227,8 @@
       "files": [
         {
           "path": "registry/jbm/motion/counter.tsx",
-          "type": "registry:component"
+          "type": "registry:component",
+          "target": "src/jbm/motion/counter.tsx"
         }
       ]
     },
@@ -234,7 +248,8 @@
       "files": [
         {
           "path": "registry/jbm/motion/prob-bar.tsx",
-          "type": "registry:component"
+          "type": "registry:component",
+          "target": "src/jbm/motion/prob-bar.tsx"
         }
       ]
     },
@@ -253,15 +268,18 @@
       "files": [
         {
           "path": "registry/jbm/motion/code-card.tsx",
-          "type": "registry:component"
+          "type": "registry:component",
+          "target": "src/jbm/motion/code-card.tsx"
         },
         {
           "path": "registry/jbm/motion/code-card-timing.js",
-          "type": "registry:component"
+          "type": "registry:component",
+          "target": "src/jbm/motion/code-card-timing.js"
         },
         {
           "path": "registry/jbm/motion/code-card-timing.d.ts",
-          "type": "registry:component"
+          "type": "registry:component",
+          "target": "src/jbm/motion/code-card-timing.d.ts"
         }
       ]
     },
@@ -280,7 +298,8 @@
       "files": [
         {
           "path": "registry/jbm/motion/captions.tsx",
-          "type": "registry:component"
+          "type": "registry:component",
+          "target": "src/jbm/motion/captions.tsx"
         }
       ]
     },
@@ -307,11 +326,13 @@
       "files": [
         {
           "path": "registry/jbm/motion/compile.tsx",
-          "type": "registry:component"
+          "type": "registry:component",
+          "target": "src/jbm/motion/compile.tsx"
         },
         {
           "path": "registry/jbm/motion/spec.ts",
-          "type": "registry:component"
+          "type": "registry:component",
+          "target": "src/jbm/motion/spec.ts"
         }
       ]
     }

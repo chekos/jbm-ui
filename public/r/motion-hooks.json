@@ -10,7 +10,8 @@
     {
       "path": "registry/jbm/motion/hooks.ts",
       "content": "import { interpolate, spring, useCurrentFrame, useVideoConfig, Easing } from \"remotion\";\n\n/** Seconds since the start of the enclosing Sequence. */\nexport const useSec = () => {\n  const frame = useCurrentFrame();\n  const { fps } = useVideoConfig();\n  return frame / fps;\n};\n\n/** 0→1 spring that starts at `startSec` (relative to the sequence). */\nexport const useIn = (startSec: number, opts?: { damping?: number; stiffness?: number }) => {\n  const frame = useCurrentFrame();\n  const { fps } = useVideoConfig();\n  return spring({ frame: frame - Math.round(startSec * fps), fps, config: { damping: opts?.damping ?? 14, stiffness: opts?.stiffness ?? 120, mass: 0.8 } });\n};\n\n/** 0→1 cubic-out fade over `dur` seconds from `startSec`. */\nexport const useFade = (startSec: number, dur = 0.4) => {\n  const s = useSec();\n  return interpolate(s, [startSec, startSec + dur], [0, 1], { extrapolateLeft: \"clamp\", extrapolateRight: \"clamp\", easing: Easing.out(Easing.cubic) });\n};\n\n/** Eased 0→target progress over `dur` seconds from `startSec` (bar fills, counters, draw-on). */\nexport const useProgress = (startSec: number, target = 1, dur = 0.7) => {\n  const s = useSec();\n  return interpolate(s, [startSec, startSec + dur], [0, target], { extrapolateLeft: \"clamp\", extrapolateRight: \"clamp\", easing: Easing.out(Easing.cubic) });\n};\n",
-      "type": "registry:hook"
+      "type": "registry:hook",
+      "target": "src/jbm/motion/hooks.ts"
     }
   ],
   "type": "registry:hook"

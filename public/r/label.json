@@ -10,7 +10,8 @@
     {
       "path": "registry/jbm/ui/label.tsx",
       "content": "import * as React from \"react\";\nimport { color, font } from \"../lib/tokens\";\n\n/** Section kicker: uppercase, tracked, muted. Sits top-left of every scene and above page sections. */\nexport function Label({ children, style }: { children: React.ReactNode; style?: React.CSSProperties }) {\n  return (\n    <div style={{ fontFamily: font.sans, fontSize: 26, letterSpacing: 4, textTransform: \"uppercase\", color: color.dim, fontWeight: 600, ...style }}>\n      {children}\n    </div>\n  );\n}\n",
-      "type": "registry:ui"
+      "type": "registry:ui",
+      "target": "src/jbm/ui/label.tsx"
     }
   ],
   "type": "registry:ui"
