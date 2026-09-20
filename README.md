@@ -57,3 +57,5 @@ Install with `pnpm dlx shadcn@latest add @jbm/replay-button` after configuring t
 ```
 
 Set `charging` to true when playback starts and false when it completes. While charging, replay is disabled and the icon traces from tail to arrowhead. Idle renders a fully charged icon. Optional `iconSize`, `disabled`, `style`, and standard button attributes support other hosts. The component owns no animation duration; a standalone browser demo and the Remotion previews both consume the same component.
+
+Surface styling is codified in the shared `shadow` and `surfaceBorder` tokens. See [Surface depth](docs/surface-depth.md) for the lighting model, usage rules, and visual references.
