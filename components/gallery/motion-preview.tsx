@@ -126,6 +126,7 @@ export default function MotionPreview({ name }: { name: string }) {
         style={{ width: "100%", aspectRatio: "8 / 5" }}
         controls={false}
         loop={false}
+        moveToBeginningWhenEnded={false}
         clickToPlay={false}
         doubleClickToFullscreen={false}
         initialFrame={45}
