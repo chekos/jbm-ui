@@ -45,10 +45,9 @@ export function durationFor(name: string): number {
         Math.max(frame(timing.probability.dur), springFrames) +
         1
       )
+    case "scene-spec":
     case "code-card":
-      return (
-        (codeTypingSchedule(codeLines, fps).at(-1)?.end ?? 0) + 1
-      )
+      return (codeTypingSchedule(codeLines, fps).at(-1)?.end ?? 0) + 1
     case "captions":
       // Captions keeps its last group for one second, including its fade-out.
       return frame(captionWords[captionWords.length - 1].e + 1) + 1

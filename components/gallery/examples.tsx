@@ -89,6 +89,8 @@ export const snippets: Record<string, string> = {
   callout: '<Callout variant="note">Al final, cómo se usa.</Callout>',
   "bullet-list": '<BulletList items={["El contexto", "La pregunta"]} />',
   brand: '<Brand tagline="Ideas, datos y código." />',
+  "scene-spec":
+    '<SceneFromSpec spec={scenes.scenes[0]} orientation="landscape" host={{ resolve: phrase => timings[phrase] }} />\n// Code blocks accept charsPerSecond. See docs/scene-spec.md for YAML.',
   scene: "<Scene><Big>Una idea a la vez.</Big></Scene>",
   pop: '<Stagger at={0.2} step={0.35}>\n  {["Idea", "Datos"].map(text => <Chip key={text}>{text}</Chip>)}\n</Stagger>',
   counter: "<Counter n={1024} at={0.2} dur={1.5} />",

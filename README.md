@@ -61,3 +61,5 @@ Set `charging` to true when playback starts and false when it completes. While c
 Surface styling is codified in the shared `shadow` and `surfaceBorder` tokens. See [Surface depth](docs/surface-depth.md) for the lighting model, usage rules, and visual references.
 
 CodeCard types characters in place at `charsPerSecond` (default 32). Line `at` values are earliest start times in seconds; overlapping cues wait for the preceding line to finish. Empty lines retain their height. `codeTypingSchedule(lines, fps, charsPerSecond)` from the bundled `code-card-timing.js` provides the same end frames used by the gallery replay control.
+
+Scene specs compile YAML-shaped blocks into landscape and vertical compositions. See [the scene-spec guide](docs/scene-spec.md) for installation, host integration, anchors, and code typing speed.

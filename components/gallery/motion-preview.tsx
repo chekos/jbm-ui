@@ -2,6 +2,9 @@
 
 import { useEffect, useRef, useState } from "react"
 import { Player, type PlayerRef } from "@remotion/player"
+import { SceneFromSpec } from "@/registry/jbm/motion/compile"
+import type { SceneSpec } from "@/registry/jbm/motion/spec"
+import { stage } from "@/registry/jbm/lib/tokens"
 import { Scene } from "@/registry/jbm/motion/scene"
 import { Pop, Stagger } from "@/registry/jbm/motion/pop"
 import { Counter } from "@/registry/jbm/motion/counter"
@@ -42,6 +45,48 @@ function HooksDemo() {
 }
 
 function Composition({ name }: { name: string }) {
+  if (name === "scene-spec") {
+    const spec: SceneSpec = {
+      id: "gallery",
+      blocks: [
+        { type: "big", at: 0, text: "Una idea a la vez." },
+        {
+          type: "code",
+          at: 0,
+          title: "hello.ts",
+          lines: codeLines.map((line) => ({ text: line.t, at: line.at })),
+        },
+      ],
+    }
+    return (
+      <Scene>
+        {(["landscape", "vertical"] as const).map((orientation) => {
+          const vertical = orientation === "vertical"
+          return (
+            <div
+              key={orientation}
+              style={{
+                position: "absolute",
+                left: vertical ? 540 : 12,
+                top: vertical ? 30 : 110,
+                width: stage[orientation].w,
+                height: stage[orientation].h,
+                transform: `scale(${vertical ? 0.22 : 0.25})`,
+                transformOrigin: "top left",
+                border: `2px solid ${color.line}`,
+              }}
+            >
+              <SceneFromSpec
+                spec={spec}
+                orientation={orientation}
+                host={{ resolve: () => 0 }}
+              />
+            </div>
+          )
+        })}
+      </Scene>
+    )
+  }
   return (
     <Scene
       style={{
