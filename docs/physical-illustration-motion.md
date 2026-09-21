@@ -1,50 +1,19 @@
-# Refining physical illustration motion
+# Physical illustration motion
 
-A recognizable object is the beginning. Believable motion comes from showing what causes it to move, what holds it in place, and what it cannot pass through. Stylized geometry can simplify the physics while preserving those relationships.
+The cross-project principles live in [Design's confirmed guidance](https://github.com/chekos/design/blob/main/DESIGN.md#let-the-objects-nature-guide-its-behavior). The approved wording is reproduced here for component work.
 
-## Describe the action before choosing transforms
+## Let the object's nature guide its behavior
 
-Write a sentence with an actor, a contact point, and an action: “A hand holds the folder while the front falls toward the viewer; fingers grip the sheet near its upper short edge and pull it up and left while turning it upright.”
+Treat a visual element as the thing it represents. Calling something "paper" brings expectations about its material, orientation, how someone handles it, and how it interacts with surrounding objects. Its writing belongs to its surface; lifting it requires a plausible grip and path; its corners cannot pass through a folder. An arrow carries directionality, so its fill should follow that direction. Use these inherent properties to guide geometry and motion. Stylization can simplify reality while preserving the relationships that make the object feel coherent.
 
-Use that sentence to identify the moving parts, hinges, grip points, contacts, and obstacles. A rotation around an element's center is an implementation default, not evidence that the object should move that way. Translate a requested angle into an explicit axis, direction, pivot, and visible endpoint before editing code. If those are ambiguous, show a small sketch or ask one focused question instead of repeatedly implementing different interpretations.
+## Establish shared references before refining geometry
 
-## Define endpoints and constraints
+Create a clear vocabulary for the parts and movements being discussed. Label edges or corners A, B, C, and D; identify the front, back, hinge, and grip point. Specify which axis a rotation uses, which direction it travels, and what the starting and ending poses look like. Keep those labels attached to the object as it moves, so "edge A" stays unambiguous when "the top edge" changes. A small annotated sketch can establish this shared understanding faster than several rounds of implementation.
 
-Specify what is visible at each endpoint. A control's 0% is the start of the illustrated action, not necessarily a physically closed or inactive object. The folder's paper edge remains visible at 0%; at 100%, the sheet stands upright.
+## Folder implementation
 
-Separate invariants from adjustable choices:
+The front panel widens at the upper edge while its lower edge stays anchored. Its label compresses and shears with the surface. The sheet keeps its dimensions, folded corner and writing orientation while it rotates from landscape to upright, rises to clear the folder fold, and follows a shallow lateral path ending farther left. The paper remains partly visible at zero progress.
 
-- Invariants: sheet dimensions, writing aligned to the short edges, bottom fold clearance, attached label, visible folded corner.
-- Adjustable choices: grip trajectory, sideways travel, amount of perspective, rotation timing, and final position.
+The motion is a deterministic illustration, not a complete physical simulation. Clearance comes from the trajectory rather than clipping away an impossible corner. Test the full progress range for fold clearance, bounds and non-reversing lift; inspect the deployed preview for whether the pickup reads naturally. Preserve keyboard controls and avoid autoplay.
 
-Do not fix an impossible trajectory with clipping. Occlusion by the folder's front is correct; hiding a corner that passes through the folder's bottom conceals a geometry error.
-
-## Make attached details obey the same surface
-
-Labels, writing, folds, and borders provide evidence of orientation. Keep them attached to the object as it moves. The folder label compresses and shears with its front panel; the paper's writing and folded corner rotate with the sheet. Check both the silhouette and the interior marks: a plausible outline can still contain contradictory perspective cues.
-
-## Build a path, not an isolated transform
-
-Choose a meaningful control point, such as the fingers' grip or a hinge. Describe its path through space and derive the object's pose around it. Rotation and translation usually work together. As a rectangular sheet turns from its long edge toward its short edge, its lower corner sweeps downward unless the hand lifts it enough to clear the fold.
-
-A small deterministic approximation is often sufficient. Folder currently combines a rigid rotation with clearance-derived lift and a shallow lateral curve. It does not simulate fingers or full 3D physics. Preserve the physical relationships that viewers can see rather than adding complexity they cannot perceive.
-
-Keep spatial paths separate from temporal easing. A slider or video timeline should produce the same pose for the same progress. Add acceleration and settling only after the path itself makes sense.
-
-## Refine one cause at a time
-
-Use feedback to identify the underlying relationship, then make the smallest change that corrects it. Preserve accepted decisions. The folder iteration established front-edge perspective, attached label distortion, sheet orientation, writing direction, lift clearance, final angle, and lateral travel in succession.
-
-The order matters: establish silhouette and orientation, then contact and trajectory, then perspective details and timing. Do not treat every correction as an invitation to redesign the whole illustration.
-
-## Verify the journey as well as the destination
-
-Scrub forward and backward through the actual preview. Inspect the start, intermediate poses, endpoint, and points where a corner changes which edge is lowest. Check narrow layouts and the deployed result. A good endpoint does not prove a good transition.
-
-Use tests for physical invariants that can regress: no corner crosses the fold, the sheet stays in bounds, lift does not reverse unexpectedly, and invalid progress remains safe. Avoid tests that merely duplicate the implementation formula. Visual review is still needed for perceived weight, grip, balance, and whether the motion communicates the intended action.
-
-## Know what “finished” means
-
-Technical checks establish that the component works. The last-mile review establishes that its parts tell the same story. Look for contradictory cues: text floating on a moving surface, a rigid sheet apparently growing, a corner passing through a boundary, or a pickup with no lateral pull.
-
-Stop when the action reads clearly, accepted details remain intact, and further changes no longer resolve a specific visible inconsistency. Small corrections earn their place by improving that coherence, not by adding more motion.
+Evidence: [PR #43](https://github.com/chekos/jbm-ui/pull/43).
