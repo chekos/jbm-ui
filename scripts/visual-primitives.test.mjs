@@ -8,10 +8,10 @@ import { createElement } from "react"
 import { renderToStaticMarkup } from "react-dom/server"
 const require = createRequire(import.meta.url)
 function load(path) {
-  const module = { exports: {} }
+  const compiled = { exports: {} }
   const code = ts.transpileModule(readFileSync(path, "utf8"), { compilerOptions: { jsx: ts.JsxEmit.ReactJSX, module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText
-  new Function("require", "module", "exports", code)(name => name.startsWith(".") ? load(resolve(dirname(path), name + ".ts")) : require(name), module, module.exports)
-  return module.exports
+  new Function("require", "module", "exports", code)(name => name.startsWith(".") ? load(resolve(dirname(path), name + ".ts")) : require(name), compiled, compiled.exports)
+  return compiled.exports
 }
 const { ScoreScale } = load(resolve("registry/jbm/ui/score-scale.tsx"))
 const { ComparisonBars } = load(resolve("registry/jbm/ui/comparison-bars.tsx"))
