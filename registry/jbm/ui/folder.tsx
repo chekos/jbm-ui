@@ -17,11 +17,11 @@ export function Folder({
 }: FolderProps) {
   const p = Number.isFinite(open) ? Math.max(0, Math.min(1, open)) : 0
   const fill = tone === "accent" ? color.accent : color.ink
-  // Turn the landscape sheet from 180° toward 100°, keeping its size fixed.
-  const paperAngle = 180 - 80 * p
+  // Turn the landscape sheet from 180° to 90°, keeping its size fixed.
+  const paperAngle = 180 - 90 * p
   // Lift enough to clear the lower corner's sweep, then keep that clearance.
   // The grip follows a shallow sideways arc as the sheet is pulled upright.
-  const clearanceAngle = Math.min((80 * p * Math.PI) / 180, Math.atan2(79, 44))
+  const clearanceAngle = Math.min((90 * p * Math.PI) / 180, Math.atan2(79, 44))
   const paperLift = 79 * Math.sin(clearanceAngle) + 44 * Math.cos(clearanceAngle) - 44
   const paperDrift = 8 * Math.sin(Math.PI * p)
   // Project the printed label onto the front plane, around its baseline.
