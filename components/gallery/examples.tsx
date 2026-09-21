@@ -153,6 +153,8 @@ export const examples = {
 }
 
 export const snippets: Record<string, string> = {
+  "scroll-stack":
+    'import { ScrollStack } from "@/jbm/ui/scroll-stack";\nimport { Card } from "@/jbm/ui/card"; // install @jbm/card separately\n\n<ScrollStack height={480} distance={120}>\n  <Card>First idea</Card>\n  <Card dark>Another idea</Card>\n  <YourComponent />\n</ScrollStack>\n\n// Each direct child is one item; group related content in a div.\n// Omit height for page scrolling; avoid overflow ancestors in page mode.\n// top: sticky inset; minScale: outgoing scale (0.5–1).\n// reducedMotion: true renders a plain list; defaults to system preference.\n// Oversized content automatically uses the list so it stays readable.\n// Keep child backgrounds opaque for a solid stack.',
   "flip-text":
     'import { FlipText } from "@/jbm/ui/flip-text";\n\n<FlipText duration={450} style={{ fontSize: 48 }}>Una idea viva.</FlipText>\n// Hover individual letters. Click, tap, Enter, or Space flips all.\n// A button: do not nest inside another button or link.\n// Respects prefers-reduced-motion; reducedMotion can override it.',
   "text-fill":

@@ -54,3 +54,24 @@ test("scroll fill server output is readable and does not trap reduced-motion use
   assert.ok(!html.includes('tabindex="0"'))
   assert.equal((html.match(/color:#20241F/g) ?? []).length, 4)
 })
+
+const { ScrollStack } = load(resolve("registry/jbm/ui/scroll-stack.tsx"))
+test("scroll stack keeps arbitrary children and interactive semantics in readable server output", () => {
+  const html = render(ScrollStack, {height: 400, children: [createElement("section", {key: "card"}, "A card"), null, createElement("button", {key: "action"}, "Still a button")]})
+  assert.equal((html.match(/role="listitem"/g) ?? []).length, 2)
+  assert.ok(html.includes("<section>A card</section>"))
+  assert.ok(html.includes("<button>Still a button</button>"))
+  assert.ok(!html.includes("opacity:0"))
+  assert.ok(!html.includes("position:sticky"))
+  assert.ok(html.includes('tabindex="0"'))
+})
+
+test("scroll stack supports empty, single, and page-scrolling content without a fixed viewport", () => {
+  const empty = render(ScrollStack, {children: null})
+  assert.ok(!empty.includes('role="listitem"'))
+  assert.ok(!empty.includes('tabindex="0"'))
+  const single = render(ScrollStack, {children: createElement("div", null, "Only item")})
+  assert.equal((single.match(/role="listitem"/g) ?? []).length, 1)
+  assert.ok(!single.includes("height:480px"))
+  assert.ok(!single.includes("overflow-y:auto"))
+})
