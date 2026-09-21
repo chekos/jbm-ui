@@ -17,6 +17,10 @@ export function Folder({
 }: FolderProps) {
   const p = Number.isFinite(open) ? Math.max(0, Math.min(1, open)) : 0
   const fill = tone === "accent" ? color.accent : color.ink
+  // Project the printed label onto the front plane, around its baseline.
+  const labelWidth = 1 + (30 * p * 25) / (205 * 110)
+  const labelShear = (81.5 * 30 * p) / (205 * 110)
+  const labelHeight = 1 - (35 * p) / 110
   return (
     <svg
       viewBox="0 0 260 220"
@@ -57,8 +61,7 @@ export function Folder({
       />
       {label && (
         <text
-          x={46}
-          y={180}
+          transform={`matrix(${labelWidth} 0 ${labelShear} ${labelHeight} ${127.5 - 81.5 * labelWidth} ${205 - 25 * labelHeight})`}
           fontFamily={font.mono}
           fontSize={16}
           fontWeight={600}
