@@ -19,6 +19,11 @@ export function Folder({
   const fill = tone === "accent" ? color.accent : color.ink
   // Turn the landscape sheet from 180° toward 100°, keeping its size fixed.
   const paperAngle = 180 - 80 * p
+  // Lift enough to clear the lower corner's sweep, then keep that clearance.
+  // The grip follows a shallow sideways arc as the sheet is pulled upright.
+  const clearanceAngle = Math.min((80 * p * Math.PI) / 180, Math.atan2(79, 44))
+  const paperLift = 79 * Math.sin(clearanceAngle) + 44 * Math.cos(clearanceAngle) - 44
+  const paperDrift = 8 * Math.sin(Math.PI * p)
   // Project the printed label onto the front plane, around its baseline.
   const labelWidth = 1 + (30 * p * 25) / (205 * 110)
   const labelShear = (81.5 * 30 * p) / (205 * 110)
@@ -43,8 +48,7 @@ export function Folder({
         strokeWidth={2}
         strokeLinejoin="round"
       />
-      <svg width={260} height={205} overflow="hidden">
-        <g transform={`translate(256 0) scale(-1 1) rotate(${paperAngle - 180} 128 140)`}>
+        <g transform={`translate(${256 + paperDrift} ${-paperLift}) scale(-1 1) rotate(${paperAngle - 180} 128 140)`}>
           <path
             d="M49 78H180L207 104V184H49Z"
             fill={color.card}
@@ -55,7 +59,6 @@ export function Folder({
           <path d="M158 106V164" stroke={color.accent} strokeWidth={6} />
           <path d="M136 98V164M114 112V164M92 98V164" stroke={color.line} strokeWidth={4} />
         </g>
-      </svg>
       <path
         d={`M${25 - p * 15} ${95 + p * 35}H${230 + p * 15}L230 205H25Z`}
         fill={fill}
