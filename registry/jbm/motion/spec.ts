@@ -65,6 +65,7 @@ export type BlockBody =
       type: "screens"
       pieces: { kind: "button" | "input" | "card"; at: At }[]
       again?: At[]
+      phoneScale?: number
       sticker?: { text: string; at: At }
       h?: number | { landscape: number; vertical: number }
     }
@@ -113,8 +114,31 @@ export type BlockBody =
       valign?: "top" | "center"
     }
 
+export type SafeArea =
+  | "legacy"
+  | "full"
+  | "social"
+  | { top: number; right: number; bottom: number; left: number }
+export type SceneLayout =
+  "flow" | "hero" | "headline-illustration" | "illustration"
+export type CompositionOptions = {
+  /** Insets are canvas pixels. Social is a house preset, not a platform guarantee. */
+  safeArea?: SafeArea
+  layout?: SceneLayout
+  /** Fraction reserved for the first block in headline-illustration (default .25). */
+  headlineRatio?: number
+  /** Illustration subject scale; its logical box shrinks to preserve the safe area. */
+  subjectScale?: number
+  gap?: number | { landscape: number; vertical: number }
+  valign?: "top" | "center"
+  /** Overrides replace the entire block list; anchors remain shared. */
+  blocks?: Block[]
+}
+
 export type SceneSpec = {
   id: string
+  composition?: Omit<CompositionOptions, "blocks">
+  variants?: Partial<Record<"landscape" | "vertical", CompositionOptions>>
   /** Scene heading (Label, top-left). Omit for a headline-only scene. */
   title?: string
   /** First words the narrator says in this scene; pipeline/build_timing.py cuts scene boundaries here. Not needed on the first scene. */

@@ -3,7 +3,11 @@
 import { useEffect, useRef, useState, type ReactNode } from "react"
 import { Player, type PlayerRef } from "@remotion/player"
 import { SceneFromSpec } from "@/registry/jbm/motion/compile"
-import type { SceneSpec } from "@/registry/jbm/motion/spec"
+import type {
+  SceneSpec,
+  SceneLayout,
+  SafeArea,
+} from "@/registry/jbm/motion/spec"
 import { stage } from "@/registry/jbm/lib/tokens"
 import { Scene } from "@/registry/jbm/motion/scene"
 import { Pop, Stagger } from "@/registry/jbm/motion/pop"
@@ -28,6 +32,7 @@ import { color } from "@/registry/jbm/lib/tokens"
 
 import {
   fps,
+  springFrames,
   timing,
   popItems,
   codeLines,
@@ -37,11 +42,28 @@ import {
 } from "./timing"
 
 /** Fit a stage-sized illustrated block (authored at 936 px wide) into the 800×500 preview. */
-function Fit({ w, h, children }: { w: number; h: number; children: ReactNode }) {
+function Fit({
+  w,
+  h,
+  children,
+}: {
+  w: number
+  h: number
+  children: ReactNode
+}) {
   const k = Math.min(680 / w, 380 / h)
   return (
     <div style={{ width: w * k, height: h * k }}>
-      <div style={{ width: w, height: h, transform: `scale(${k})`, transformOrigin: "top left" }}>{children}</div>
+      <div
+        style={{
+          width: w,
+          height: h,
+          transform: `scale(${k})`,
+          transformOrigin: "top left",
+        }}
+      >
+        {children}
+      </div>
     </div>
   )
 }
@@ -59,19 +81,54 @@ function HooksDemo() {
   )
 }
 
-function Composition({ name }: { name: string }) {
+function Composition({
+  name,
+  layout = "headline-illustration",
+  safeArea = "full",
+  guides = false,
+}: {
+  name: string
+  layout?: SceneLayout
+  safeArea?: SafeArea
+  guides?: boolean
+}) {
   if (name === "scene-spec") {
-    const spec: SceneSpec = {
-      id: "gallery",
-      blocks: [
-        { type: "big", at: 0, text: "Una idea a la vez." },
-        {
-          type: "code",
-          at: 0,
-          title: "hello.ts",
-          lines: codeLines.map((line) => ({ text: line.t, at: line.at })),
-        },
+    const subject = {
+      type: "screens" as const,
+      phoneScale: 1.5,
+      pieces: [
+        { kind: "card" as const, at: 0.2 },
+        { kind: "input" as const, at: 0.5 },
+        { kind: "button" as const, at: 0.8 },
       ],
+    }
+    const spec: SceneSpec = {
+      id: "portrait-reference",
+      composition: { safeArea, layout, subjectScale: 1.3 },
+      blocks:
+        layout === "illustration"
+          ? [subject]
+          : layout === "hero"
+            ? [
+                {
+                  type: "big",
+                  at: 0,
+                  text: "Hazlo una vez.\nÚsalo siempre.",
+                  align: "center",
+                  size: 140,
+                },
+              ]
+            : [
+                {
+                  type: "big",
+                  at: 0,
+                  text: "Una biblioteca.\nMuchas posibilidades.",
+                  align: "center",
+                  size: 90,
+                },
+                subject,
+              ],
+      variants: { vertical: { headlineRatio: 0.23, gap: 48 } },
     }
     return (
       <Scene>
@@ -93,6 +150,7 @@ function Composition({ name }: { name: string }) {
             >
               <SceneFromSpec
                 spec={spec}
+                showSafeArea={guides}
                 orientation={orientation}
                 host={{ resolve: () => 0 }}
               />
@@ -171,15 +229,39 @@ function Composition({ name }: { name: string }) {
               at={illustrated.catalog.at}
               title="catálogo"
               items={[
-                { kind: "button", label: "botón", at: illustrated.catalog.items[0] },
-                { kind: "card", label: "tarjeta", at: illustrated.catalog.items[1] },
-                { kind: "input", label: "input", at: illustrated.catalog.items[2] },
+                {
+                  kind: "button",
+                  label: "botón",
+                  at: illustrated.catalog.items[0],
+                },
+                {
+                  kind: "card",
+                  label: "tarjeta",
+                  at: illustrated.catalog.items[1],
+                },
+                {
+                  kind: "input",
+                  label: "input",
+                  at: illustrated.catalog.items[2],
+                },
               ]}
               tokensAt={illustrated.catalog.tokensAt}
               tokens={[
-                { kind: "color", label: "color", at: illustrated.catalog.tokens[0] },
-                { kind: "type", label: "tipografía", at: illustrated.catalog.tokens[1] },
-                { kind: "space", label: "espaciado", at: illustrated.catalog.tokens[2] },
+                {
+                  kind: "color",
+                  label: "color",
+                  at: illustrated.catalog.tokens[0],
+                },
+                {
+                  kind: "type",
+                  label: "tipografía",
+                  at: illustrated.catalog.tokens[1],
+                },
+                {
+                  kind: "space",
+                  label: "espaciado",
+                  at: illustrated.catalog.tokens[2],
+                },
               ]}
               stamp={{ text: "design tokens", at: illustrated.catalog.stamp }}
             />
@@ -192,7 +274,10 @@ function Composition({ name }: { name: string }) {
             w={936}
             h={640}
             at={illustrated.propagate.at}
-            label={{ text: "una sola fuente de verdad", at: illustrated.propagate.label }}
+            label={{
+              text: "una sola fuente de verdad",
+              at: illustrated.propagate.label,
+            }}
             targets={6}
             bug={illustrated.propagate.bug}
             fix={illustrated.propagate.fix}
@@ -210,10 +295,19 @@ function Composition({ name }: { name: string }) {
               items={[
                 { text: "shadcn/ui", at: illustrated.shelf.items[0] },
                 { text: "Material UI", at: illustrated.shelf.items[1] },
-                { text: "jbm-ui", at: illustrated.shelf.items[2], tone: "accent" },
+                {
+                  text: "jbm-ui",
+                  at: illustrated.shelf.items[2],
+                  tone: "accent",
+                },
               ]}
             />
-            <Twice w={936} at={illustrated.shelf.twice} second={illustrated.shelf.second} strike={illustrated.shelf.strike} />
+            <Twice
+              w={936}
+              at={illustrated.shelf.twice}
+              second={illustrated.shelf.second}
+              strike={illustrated.shelf.strike}
+            />
           </div>
         </Fit>
       )}
@@ -222,7 +316,13 @@ function Composition({ name }: { name: string }) {
 }
 
 export default function MotionPreview({ name }: { name: string }) {
-  const durationInFrames = durationFor(name)
+  const [layout, setLayout] = useState<SceneLayout>("headline-illustration")
+  const [safeArea, setSafeArea] = useState<"full" | "social">("full")
+  const [guides, setGuides] = useState(false)
+  const durationInFrames =
+    name === "scene-spec" && layout === "hero"
+      ? springFrames + 1
+      : durationFor(name)
   const player = useRef<PlayerRef>(null)
   const [phase, setPhase] = useState<"ready" | "playing">("ready")
   const [progress, setProgress] = useState(1)
@@ -255,10 +355,47 @@ export default function MotionPreview({ name }: { name: string }) {
 
   return (
     <div className="motion-preview">
+      {name === "scene-spec" && (
+        <div className="composition-options">
+          <label>
+            Layout{" "}
+            <select
+              aria-label="Scene layout"
+              value={layout}
+              onChange={(e) => setLayout(e.target.value as SceneLayout)}
+            >
+              <option value="hero">Centered hero</option>
+              <option value="headline-illustration">
+                Headline + illustration
+              </option>
+              <option value="illustration">Illustration</option>
+            </select>
+          </label>
+          <label>
+            Safe area{" "}
+            <select
+              aria-label="Scene safe area"
+              value={safeArea}
+              onChange={(e) => setSafeArea(e.target.value as "full" | "social")}
+            >
+              <option value="full">Full frame</option>
+              <option value="social">Social</option>
+            </select>
+          </label>
+          <label>
+            <input
+              type="checkbox"
+              checked={guides}
+              onChange={(e) => setGuides(e.target.checked)}
+            />{" "}
+            Show safe area
+          </label>
+        </div>
+      )}
       <Player
         ref={player}
         component={Composition}
-        inputProps={{ name }}
+        inputProps={{ name, layout, safeArea, guides }}
         durationInFrames={durationInFrames}
         fps={fps}
         compositionWidth={800}

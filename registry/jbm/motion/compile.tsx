@@ -14,14 +14,14 @@ import { RebuildScreens } from "./rebuild-screens"
 import { Catalog } from "./catalog"
 import { Propagate } from "./propagate"
 import { Shelf, Twice } from "./shelf"
-import type { At, Block, SceneSpec } from "./spec"
+import type { At, Block, SceneSpec, SafeArea } from "./spec"
 
 /**
  * Compile a SceneSpec into a Remotion scene for one orientation.
  *
  * Layout is a vertical flow inside the stage's safe area (tokens.stage): blocks stack top to bottom
- * with `gap` between them, so the same spec fits 1920×1080 and 1080×1920 without per-orientation
- * coordinates. What changes per orientation is the block's own shape: a stat-row is three cards
+ * with `gap` between them. Explicit composition options and orientation variants let authors
+ * design for each frame; content is not automatically fitted. By default, a block changes shape: a stat-row is three cards
  * side by side in landscape and three row-mode cards stacked in vertical; text sizes step down.
  *
  * `resolve(phrase)` returns seconds from scene start for a narration phrase (the host's `rel`);
@@ -59,26 +59,77 @@ export function resolveAt(at: At, spec: SceneSpec, host: Host): number {
   return result
 }
 
+/** Resolve explicit canvas insets while retaining legacy geometry for existing scenes. */
+export function sceneGeometry(
+  orientation: Orientation,
+  safeArea: SafeArea = "legacy"
+) {
+  const s = stage[orientation]
+  const insets =
+    typeof safeArea === "object"
+      ? safeArea
+      : safeArea === "legacy"
+        ? { left: s.pad, right: s.pad, top: s.top, bottom: s.h - s.bottom }
+        : safeArea === "social" && orientation === "vertical"
+          ? { left: 72, right: 160, top: 160, bottom: 320 }
+          : { left: s.pad, right: s.pad, top: s.top, bottom: s.top }
+  if (
+    [insets.left, insets.right, insets.top, insets.bottom].some(
+      (v) => !Number.isFinite(v) || v < 0
+    ) ||
+    insets.left + insets.right >= s.w ||
+    insets.top + insets.bottom >= s.h
+  )
+    throw new Error("Invalid scene safe-area insets")
+  return {
+    left: insets.left,
+    top: insets.top,
+    width: s.w - insets.left - insets.right,
+    height: s.h - insets.top - insets.bottom,
+  }
+}
+
 export function SceneFromSpec({
   spec,
   orientation,
   host,
+  showSafeArea = false,
 }: {
   spec: SceneSpec
+  showSafeArea?: boolean
   orientation: Orientation
   host: Host
 }) {
-  const s = stage[orientation]
+  const options = { ...spec.composition, ...spec.variants?.[orientation] }
+  const area = sceneGeometry(orientation, options.safeArea)
+  const layout = options.layout ?? "flow"
+  const blocks = options.blocks ?? spec.blocks
+  const subjectScale = options.subjectScale ?? 1
+  if (!Number.isFinite(subjectScale) || subjectScale <= 0)
+    throw new Error("subjectScale must be positive and finite")
+  const ratio = options.headlineRatio ?? 0.25
+  if (!Number.isFinite(ratio) || ratio <= 0 || ratio >= 1)
+    throw new Error("headlineRatio must be between 0 and 1")
+  if (layout === "headline-illustration" && (blocks.length !== 2 || spec.title))
+    throw new Error(
+      "headline-illustration requires exactly two blocks and no title"
+    )
   const V = orientation === "vertical"
-  const W = s.w - s.pad * 2
+  const W = area.width
+  const H = area.height
   const tr = host.t ?? ((x: string) => x)
   const at = (a: At) => resolveAt(a, spec, host)
-  const gap = pick(spec.gap ?? 40, orientation)
+  const gap = pick(options.gap ?? spec.gap ?? 40, orientation)
   const tone = (c?: "accent" | "ink") =>
     c === "ink" ? color.ink : color.accent
 
-  const render = (b: Block, i: number): React.ReactNode => {
-    const body = renderBody(b, i)
+  const render = (
+    b: Block,
+    i: number,
+    height = H,
+    width = W
+  ): React.ReactNode => {
+    const body = renderBody(b, i, height, width)
     return b.until === undefined || b.type === "overlay" ? (
       body
     ) : (
@@ -88,7 +139,12 @@ export function SceneFromSpec({
     )
   }
 
-  const renderBody = (b: Block, i: number): React.ReactNode => {
+  const renderBody = (
+    b: Block,
+    i: number,
+    height: number,
+    W: number
+  ): React.ReactNode => {
     switch (b.type) {
       case "big":
         return (
@@ -202,7 +258,13 @@ export function SceneFromSpec({
               charsPerSecond={b.charsPerSecond}
               title={b.title ? tr(b.title) : undefined}
               w={V ? W : Math.min(W, 1200)}
-              h={V ? 520 : 480}
+              h={
+                layout === "illustration" || layout === "headline-illustration"
+                  ? height
+                  : V
+                    ? 520
+                    : 480
+              }
               size={V ? 26 : 24}
               lines={b.lines.map((l) => ({
                 t: tr(l.text),
@@ -219,8 +281,15 @@ export function SceneFromSpec({
         return (
           <RebuildScreens
             key={i}
+            phoneScale={b.phoneScale}
             w={W}
-            h={pick(b.h ?? { landscape: 720, vertical: 1000 }, orientation)}
+            h={pick(
+              b.h ??
+                (layout === "flow"
+                  ? { landscape: 720, vertical: 1000 }
+                  : height),
+              orientation
+            )}
             pieces={b.pieces.map((p) => ({ kind: p.kind, at: at(p.at) }))}
             again={(b.again ?? []).map(at)}
             sticker={
@@ -261,7 +330,13 @@ export function SceneFromSpec({
           <Propagate
             key={i}
             w={W}
-            h={pick(b.h ?? { landscape: 760, vertical: 1040 }, orientation)}
+            h={pick(
+              b.h ??
+                (layout === "flow"
+                  ? { landscape: 760, vertical: 1040 }
+                  : height),
+              orientation
+            )}
             at={at(b.at)}
             label={
               b.label
@@ -317,7 +392,7 @@ export function SceneFromSpec({
               left: 0,
               top: 0,
               width: W,
-              height: s.bottom - s.top,
+              height,
               display: "flex",
               flexDirection: "column",
               justifyContent:
@@ -326,13 +401,13 @@ export function SceneFromSpec({
             }}
           >
             {b.until === undefined ? (
-              b.blocks.map(render)
+              b.blocks.map((block, index) => render(block, index, height, W))
             ) : (
               <Leave
                 at={at(b.until)}
                 style={{ display: "flex", flexDirection: "column", gap }}
               >
-                {b.blocks.map(render)}
+                {b.blocks.map((block, index) => render(block, index, height))}
               </Leave>
             )}
           </div>
@@ -340,17 +415,47 @@ export function SceneFromSpec({
     }
   }
 
+  const subject = (block: Block, index: number, height: number) => (
+    <div style={{ width: W, height, position: "relative", flexShrink: 0 }}>
+      <div
+        style={{
+          width: W / subjectScale,
+          height: height / subjectScale,
+          transform: "scale(" + subjectScale + ")",
+          transformOrigin: "top left",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          position: "relative",
+        }}
+      >
+        {render(block, index, height / subjectScale, W / subjectScale)}
+      </div>
+    </div>
+  )
+  if (layout === "illustration" && (blocks.length !== 1 || spec.title))
+    throw new Error("illustration requires exactly one block and no title")
+  if (!Number.isFinite(gap) || gap < 0 || gap >= H)
+    throw new Error("gap must fit inside the safe area")
   return (
     <Scene>
       <div
         style={{
           position: "absolute",
-          left: s.pad,
-          top: s.top,
+          left: area.left,
+          top: area.top,
           width: W,
-          maxHeight: s.bottom - s.top,
-          height: spec.valign === "center" ? s.bottom - s.top : undefined,
-          justifyContent: spec.valign === "center" ? "center" : undefined,
+          maxHeight: H,
+          height:
+            layout !== "flow" || (options.valign ?? spec.valign) === "center"
+              ? H
+              : undefined,
+          justifyContent:
+            layout === "hero" ||
+            layout === "illustration" ||
+            (options.valign ?? spec.valign) === "center"
+              ? "center"
+              : undefined,
           display: "flex",
           flexDirection: "column",
           gap,
@@ -361,7 +466,42 @@ export function SceneFromSpec({
             <Label>{tr(spec.title)}</Label>
           </Pop>
         ) : null}
-        {spec.blocks.map(render)}
+        {layout === "headline-illustration"
+          ? blocks.map((block, index) => {
+              const height = (H - gap) * (index === 0 ? ratio : 1 - ratio)
+              return (
+                <div
+                  key={index}
+                  style={{
+                    position: "relative",
+                    height,
+                    flexShrink: 0,
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "center",
+                  }}
+                >
+                  {index === 0
+                    ? render(block, index, height)
+                    : subject(block, index, height)}
+                </div>
+              )
+            })
+          : layout === "illustration"
+            ? subject(blocks[0], 0, H)
+            : blocks.map((block, index) => render(block, index))}
+        {showSafeArea && (
+          <div
+            aria-hidden
+            style={{
+              position: "absolute",
+              inset: 0,
+              height: H,
+              outline: "3px dashed " + color.accent,
+              pointerEvents: "none",
+            }}
+          />
+        )}
       </div>
     </Scene>
   )

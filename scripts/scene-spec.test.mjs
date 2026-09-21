@@ -151,3 +151,25 @@ test('each UI Bit installs and typechecks from its own dependency closure',()=>{
     } finally {rmSync(tmp,{recursive:true,force:true});}
   }
 });
+
+test('portrait safe areas are explicit and legacy remains compatible', async () => {
+  const {sceneGeometry} = await import('../registry/jbm/motion/compile.tsx');
+  assert.deepEqual(sceneGeometry('vertical'), {left:72,top:100,width:936,height:1340});
+  assert.deepEqual(sceneGeometry('vertical','full'), {left:72,top:100,width:936,height:1720});
+  assert.deepEqual(sceneGeometry('vertical','social'), {left:72,top:160,width:848,height:1440});
+  assert.deepEqual(sceneGeometry('landscape',{left:0,right:0,top:0,bottom:0}),{left:0,top:0,width:1920,height:1080});
+  for(const insets of [{left:-1,right:0,top:0,bottom:0},{left:1080,right:0,top:0,bottom:0},{left:0,right:0,top:NaN,bottom:0}]) assert.throws(()=>sceneGeometry('vertical',insets));
+});
+
+test('portrait variants replace blocks while sharing anchors; subjects fit allocated boxes', async () => {
+  const {RebuildScreens} = await import('../registry/jbm/motion/rebuild-screens.tsx');
+  const spec={id:'portrait',anchors:{cue:'spoken'},blocks:[{type:'note',at:0,text:'landscape'}],variants:{vertical:{layout:'headline-illustration',safeArea:'full',headlineRatio:.25,gap:40,subjectScale:1.5,blocks:[{type:'big',at:0,text:'Portrait'},{type:'screens',phoneScale:1.5,pieces:[{kind:'button',at:'cue'}]}]}}};
+  const tree=SceneFromSpec({spec,orientation:'vertical',host});
+  const screen=find(tree,RebuildScreens)[0];
+  assert.equal(screen.props.phoneScale,1.5);
+  assert.equal(screen.props.w*1.5,936);
+  assert.equal(screen.props.h*1.5,(1720-40)*.75);
+  assert.equal(screen.props.pieces[0].at,2);
+  assert.equal(find(SceneFromSpec({spec,orientation:'landscape',host}),RebuildScreens).length,0);
+  for(const composition of [{layout:'headline-illustration'},{layout:'illustration',subjectScale:0},{headlineRatio:1}]) assert.throws(()=>SceneFromSpec({spec:{id:'invalid',blocks:[],composition},orientation:'vertical',host}));
+});
