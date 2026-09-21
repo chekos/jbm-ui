@@ -52,9 +52,8 @@ export function Folder({
           <path
             d="M49 78H180L207 104V184H49Z"
             fill={color.card}
-            stroke={color.ink}
-            strokeWidth={2}
           />
+          <path d="M180 78H49V184H207V104" fill="none" stroke={color.ink} strokeWidth={2} />
           <path d="M180 78V104H207" fill={color.line} />
           <path d="M158 106V164" stroke={color.accent} strokeWidth={6} />
           <path d="M136 98V164M114 112V164M92 98V164" stroke={color.line} strokeWidth={4} />
