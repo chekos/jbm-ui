@@ -1,0 +1,19 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "badge",
+  "title": "Badge",
+  "description": "Check and cross badges in paper, ink, and accent tones.",
+  "registryDependencies": [
+    "@jbm/tokens",
+    "@jbm/paper"
+  ],
+  "files": [
+    {
+      "path": "registry/jbm/ui/badge.tsx",
+      "content": "import type * as React from \"react\"\nimport { color } from \"../lib/tokens\"\nimport { paperShadow, type PaperTone } from \"./paper\"\n/** Round vermilion badge with a check or a cross, for \"fixed\" / \"broken\" states on a piece. */\nexport function Badge({\n  kind,\n  size = 44,\n  tone = \"accent\",\n  style,\n}: {\n  kind: \"check\" | \"x\"\n  size?: number\n  tone?: PaperTone\n  style?: React.CSSProperties\n}) {\n  const stroke = tone === \"paper\" ? color.ink : color.bg\n  const bg =\n    tone === \"accent\" ? color.accent : tone === \"ink\" ? color.ink : color.card\n  const s = size\n  return (\n    <div\n      style={{\n        width: s,\n        height: s,\n        borderRadius: s / 2,\n        background: bg,\n        boxShadow: paperShadow,\n        display: \"flex\",\n        alignItems: \"center\",\n        justifyContent: \"center\",\n        border: tone === \"paper\" ? `2px solid ${color.ink}` : \"none\",\n        boxSizing: \"border-box\",\n        ...style,\n      }}\n    >\n      <svg\n        width={s * 0.55}\n        height={s * 0.55}\n        viewBox=\"0 0 24 24\"\n        fill=\"none\"\n        stroke={stroke}\n        strokeWidth={4}\n        strokeLinecap=\"round\"\n        strokeLinejoin=\"round\"\n      >\n        {kind === \"check\" ? (\n          <path d=\"M4 12.5l5 5L20 6.5\" />\n        ) : (\n          <path d=\"M6 6l12 12M18 6L6 18\" />\n        )}\n      </svg>\n    </div>\n  )\n}\n",
+      "type": "registry:ui",
+      "target": "src/jbm/ui/badge.tsx"
+    }
+  ],
+  "type": "registry:ui"
+}

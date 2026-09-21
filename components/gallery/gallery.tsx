@@ -14,7 +14,7 @@ const galleryItems = [
       "Fine borders, inset edge lighting, and layered shadows. Compare the original surface and inspect each layer.",
     files: [{ path: "registry/jbm/lib/tokens.ts" }],
   },
-  ...registry.items.slice(1),
+  ...registry.items.slice(1).filter((item) => item.name !== "ui-bits"),
 ]
 import { color } from "@/registry/jbm/lib/tokens"
 import { examples, snippets } from "./examples"
@@ -115,84 +115,119 @@ export function Gallery() {
       <p className="result-count" role="status">
         {items.length} {items.length === 1 ? "item" : "items"} in the collection
       </p>
-      <div className="gallery-grid">
-        {items.map((item, index) => (
-          <article id={item.name} key={item.name} className="component-card">
-            <div className="card-heading">
-              <span>{String(index + 1).padStart(2, "0")}</span>
-              <span>{category(item.name)}</span>
-            </div>
-            <div
-              className={
-                item.name === "surface-depth" ? "surface-preview" : "preview"
-              }
+      {categories
+        .filter((group) => group !== "All")
+        .map((group) => {
+          const members = items.filter((item) => category(item.name) === group)
+          if (!members.length) return null
+          const id = group.toLowerCase().replaceAll(" ", "-")
+          return (
+            <section
+              key={group}
+              id={id}
+              className="gallery-section"
+              aria-labelledby={id + "-heading"}
             >
-              {item.name === "surface-depth" ? (
-                <SurfaceDepth />
-              ) : item.name === "tokens" ? (
-                <div className="swatches">
-                  {Object.entries(color).map(([name, value]) => (
-                    <div key={name}>
-                      <span style={{ background: value }} />
-                      <strong>{name}</strong>
-                      <code>{value}</code>
-                    </div>
-                  ))}
-                </div>
-              ) : item.name in examples ? (
-                <Canvas>{examples[item.name as keyof typeof examples]}</Canvas>
-              ) : (
-                <MotionPreview name={item.name} />
-              )}
-            </div>
-            <div className="card-content">
-              <h2>
-                <a href={`#${item.name}`}>{item.title}</a>
+              <h2 id={id + "-heading"} className="section-heading">
+                {group} <span>{members.length}</span>
               </h2>
-              <p>{item.description}</p>
-              <div className="card-links">
-                <a
-                  href={`https://github.com/chekos/jbm-ui/blob/main/${item.files[0].path}`}
-                >
-                  Source ↗
-                </a>
-                <a
-                  href={`/r/${item.name === "surface-depth" ? "tokens" : item.name}.json`}
-                >
-                  Registry JSON ↗
-                </a>
-              </div>
-              {item.name === "surface-depth" && (
-                <p>
-                  <a href="https://github.com/chekos/jbm-ui/blob/main/docs/surface-depth.md">
-                    Surface depth design note ↗
-                  </a>
+              {group === "UI Bits" && (
+                <p className="section-description">
+                  Paper illustrations of interface elements. Each component has
+                  its own preview and installation.
                 </p>
               )}
-              <details>
-                <summary>Usage & installation</summary>
-                {"dependencies" in item &&
-                item.dependencies?.includes("remotion") ? (
-                  <p>
-                    Render inside a Remotion composition or Player. Timing
-                    values are in seconds.
-                  </p>
-                ) : null}
-                <pre>
-                  <code>
-                    {item.name === "surface-depth"
-                      ? surfaceUsage
-                      : snippets[item.name]}
-                  </code>
-                </pre>
-                <Install
-                  name={item.name === "surface-depth" ? "tokens" : item.name}
-                />
-              </details>
-            </div>
-          </article>
-        ))}
-      </div>
+              <div className="gallery-grid">
+                {members.map((item, index) => (
+                  <article
+                    id={item.name}
+                    key={item.name}
+                    className="component-card"
+                  >
+                    <div className="card-heading">
+                      <span>{String(index + 1).padStart(2, "0")}</span>
+                      <span>{category(item.name)}</span>
+                    </div>
+                    <div
+                      className={
+                        item.name === "surface-depth"
+                          ? "surface-preview"
+                          : "preview"
+                      }
+                    >
+                      {item.name === "surface-depth" ? (
+                        <SurfaceDepth />
+                      ) : item.name === "tokens" ? (
+                        <div className="swatches">
+                          {Object.entries(color).map(([name, value]) => (
+                            <div key={name}>
+                              <span style={{ background: value }} />
+                              <strong>{name}</strong>
+                              <code>{value}</code>
+                            </div>
+                          ))}
+                        </div>
+                      ) : item.name in examples ? (
+                        <Canvas>
+                          {examples[item.name as keyof typeof examples]}
+                        </Canvas>
+                      ) : (
+                        <MotionPreview name={item.name} />
+                      )}
+                    </div>
+                    <div className="card-content">
+                      <h3>
+                        <a href={`#${item.name}`}>{item.title}</a>
+                      </h3>
+                      <p>{item.description}</p>
+                      <div className="card-links">
+                        <a
+                          href={`https://github.com/chekos/jbm-ui/blob/main/${item.files[0].path}`}
+                        >
+                          Source ↗
+                        </a>
+                        <a
+                          href={`/r/${item.name === "surface-depth" ? "tokens" : item.name}.json`}
+                        >
+                          Registry JSON ↗
+                        </a>
+                      </div>
+                      {item.name === "surface-depth" && (
+                        <p>
+                          <a href="https://github.com/chekos/jbm-ui/blob/main/docs/surface-depth.md">
+                            Surface depth design note ↗
+                          </a>
+                        </p>
+                      )}
+                      <details>
+                        <summary>Usage & installation</summary>
+                        {"dependencies" in item &&
+                        item.dependencies?.includes("remotion") ? (
+                          <p>
+                            Render inside a Remotion composition or Player.
+                            Timing values are in seconds.
+                          </p>
+                        ) : null}
+                        <pre>
+                          <code>
+                            {item.name === "surface-depth"
+                              ? surfaceUsage
+                              : snippets[item.name]}
+                          </code>
+                        </pre>
+                        <Install
+                          name={
+                            item.name === "surface-depth" ? "tokens" : item.name
+                          }
+                        />
+                      </details>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </section>
+          )
+        })}
       {items.length === 0 && (
         <div className="empty">
           <h2>No components found.</h2>

@@ -280,13 +280,13 @@ h1 span {
   background: var(--jbm-card);
   border-top: 1px solid var(--jbm-line);
 }
-.card-content h2 {
+.card-content h3 {
   font-size: 22px;
   font-weight: 600;
   letter-spacing: -0.6px;
   margin: 0 0 8px;
 }
-.card-content h2 a {
+.card-content h3 a {
   text-decoration: none;
 }
 .card-content p {
@@ -467,3 +467,8 @@ footer {
   line-height: 1.5;
   margin: 14px 0;
 }
+
+.gallery-section { margin-block: 40px 64px; scroll-margin-top: 24px; }
+.section-heading { display: flex; align-items: baseline; gap: 12px; font-size: 28px; margin-bottom: 20px; }
+.section-heading span { font-size: 14px; color: var(--jbm-dim); font-weight: 400; }
+.section-description { color: var(--jbm-dim); margin: -8px 0 24px; }

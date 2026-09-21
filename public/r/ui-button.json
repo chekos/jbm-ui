@@ -1,0 +1,19 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "ui-button",
+  "title": "UiButton",
+  "description": "Illustrated button with paper, ink, and accent tones.",
+  "registryDependencies": [
+    "@jbm/tokens",
+    "@jbm/paper"
+  ],
+  "files": [
+    {
+      "path": "registry/jbm/ui/ui-button.tsx",
+      "content": "import type * as React from \"react\"\nimport { color } from \"../lib/tokens\"\nimport { Paper, type PaperTone } from \"./paper\"\n/** Rounded pill with a short label bar. `tone` ink (default), accent, or paper (outline). */\nexport function UiButton({\n  w = 220,\n  h = 70,\n  tone = \"ink\",\n  style,\n}: {\n  w?: number\n  h?: number\n  tone?: PaperTone\n  style?: React.CSSProperties\n}) {\n  const bar = tone === \"paper\" ? color.ink : color.bg\n  return (\n    <Paper\n      tone={tone}\n      w={w}\n      h={h}\n      radius={h / 2}\n      style={{\n        display: \"flex\",\n        alignItems: \"center\",\n        justifyContent: \"center\",\n        ...style,\n      }}\n    >\n      <div\n        style={{\n          width: w * 0.42,\n          height: Math.max(6, h * 0.13),\n          borderRadius: 99,\n          background: bar,\n        }}\n      />\n    </Paper>\n  )\n}\n",
+      "type": "registry:ui",
+      "target": "src/jbm/ui/ui-button.tsx"
+    }
+  ],
+  "type": "registry:ui"
+}

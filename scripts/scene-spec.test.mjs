@@ -111,3 +111,43 @@ test('illustrated blocks resolve anchors and exits without moving overlays into 
   assert.throws(()=>propagationProgress(1,2,1),RangeError);
   assert.throws(()=>Propagate({w:900,h:600,at:0,targets:0}),RangeError);
 });
+
+test('completed replay uses a solid path; charging dash offsets never become negative', async () => {
+  const {ReplayButton} = await import('../registry/jbm/ui/replay-button.tsx');
+  for(const charging of [true,false]) {
+    const tree=ReplayButton({progress:1,charging,onReplay:()=>{}});
+    const paths=find(tree,'path');
+    assert.equal(paths.length,1);
+    assert.ok(paths[0].props.d.includes('H21 V3'));
+    assert.equal(paths[0].props.strokeDashoffset,undefined);
+    assert.equal(paths[0].props.strokeDasharray,undefined);
+    assert.equal(tree.props.disabled,charging);
+  }
+  for(const progress of [0,0.85,0.9,0.999999999,NaN]) {
+    const tree=ReplayButton({progress,charging:true,onReplay:()=>{}});
+    for(const path of find(tree,'path')) if(path.props.strokeDashoffset!==undefined) assert.ok(path.props.strokeDashoffset>=0 && path.props.strokeDashoffset<=1);
+  }
+});
+
+test('each UI Bit installs and typechecks from its own dependency closure',()=>{
+  for(const name of ['ui-button','ui-input','ui-card','piece','phone-frame','badge','token-glyph']) {
+    const tmp=mkdtempSync(join(tmpdir(),'jbm-bit-'));
+    try {
+      const seen=new Set();
+      function install(itemName) {
+        if(seen.has(itemName)) return; seen.add(itemName);
+        const item=JSON.parse(readFileSync(join(root,'public/r',itemName+'.json'),'utf8'));
+        for(const dep of item.registryDependencies??[]) install(dep.replace('@jbm/',''));
+        for(const f of item.files) {
+          const target=join(tmp,f.target);
+          mkdirSync(dirname(target),{recursive:true});writeFileSync(target,f.content);
+        }
+      }
+      install(name);
+      symlinkSync(join(root,'node_modules'),join(tmp,'node_modules'),'dir');
+      writeFileSync(join(tmp,'tsconfig.json'),readFileSync(join(root,'fixtures/consumer/tsconfig.json')));
+      execFileSync(join(root,'node_modules/.bin/tsc'),['-p',tmp],{encoding:'utf8'});
+      assert.ok(!seen.has('ui-bits'));
+    } finally {rmSync(tmp,{recursive:true,force:true});}
+  }
+});

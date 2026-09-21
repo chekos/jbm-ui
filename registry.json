@@ -167,8 +167,13 @@
       "title": "UI bits",
       "description": "Illustrated interface pieces as paper cut-outs: UiButton, UiInput, UiCard, PhoneFrame, Badge, TokenGlyph.",
       "registryDependencies": [
-        "@jbm/tokens",
-        "@jbm/paper"
+        "@jbm/ui-button",
+        "@jbm/ui-input",
+        "@jbm/ui-card",
+        "@jbm/piece",
+        "@jbm/phone-frame",
+        "@jbm/badge",
+        "@jbm/token-glyph"
       ],
       "files": [
         {
@@ -463,6 +468,127 @@
           "path": "registry/jbm/motion/spec.ts",
           "type": "registry:component",
           "target": "src/jbm/motion/spec.ts"
+        }
+      ]
+    },
+    {
+      "name": "ui-button",
+      "type": "registry:ui",
+      "title": "UiButton",
+      "description": "Illustrated button with paper, ink, and accent tones.",
+      "registryDependencies": [
+        "@jbm/tokens",
+        "@jbm/paper"
+      ],
+      "files": [
+        {
+          "path": "registry/jbm/ui/ui-button.tsx",
+          "type": "registry:ui",
+          "target": "src/jbm/ui/ui-button.tsx"
+        }
+      ]
+    },
+    {
+      "name": "ui-input",
+      "type": "registry:ui",
+      "title": "UiInput",
+      "description": "Illustrated text field with a controllable cursor.",
+      "registryDependencies": [
+        "@jbm/tokens",
+        "@jbm/paper"
+      ],
+      "files": [
+        {
+          "path": "registry/jbm/ui/ui-input.tsx",
+          "type": "registry:ui",
+          "target": "src/jbm/ui/ui-input.tsx"
+        }
+      ]
+    },
+    {
+      "name": "ui-card",
+      "type": "registry:ui",
+      "title": "UiCard",
+      "description": "Illustrated card with a picture and text bars.",
+      "registryDependencies": [
+        "@jbm/tokens",
+        "@jbm/paper"
+      ],
+      "files": [
+        {
+          "path": "registry/jbm/ui/ui-card.tsx",
+          "type": "registry:ui",
+          "target": "src/jbm/ui/ui-card.tsx"
+        }
+      ]
+    },
+    {
+      "name": "piece",
+      "type": "registry:ui",
+      "title": "Piece",
+      "description": "Choose a button, input, or card illustration by kind.",
+      "registryDependencies": [
+        "@jbm/paper",
+        "@jbm/ui-button",
+        "@jbm/ui-input",
+        "@jbm/ui-card"
+      ],
+      "files": [
+        {
+          "path": "registry/jbm/ui/piece.tsx",
+          "type": "registry:ui",
+          "target": "src/jbm/ui/piece.tsx"
+        }
+      ]
+    },
+    {
+      "name": "phone-frame",
+      "type": "registry:ui",
+      "title": "PhoneFrame",
+      "description": "Phone silhouette that holds your own content.",
+      "registryDependencies": [
+        "@jbm/tokens",
+        "@jbm/paper"
+      ],
+      "files": [
+        {
+          "path": "registry/jbm/ui/phone-frame.tsx",
+          "type": "registry:ui",
+          "target": "src/jbm/ui/phone-frame.tsx"
+        }
+      ]
+    },
+    {
+      "name": "badge",
+      "type": "registry:ui",
+      "title": "Badge",
+      "description": "Check and cross badges in paper, ink, and accent tones.",
+      "registryDependencies": [
+        "@jbm/tokens",
+        "@jbm/paper"
+      ],
+      "files": [
+        {
+          "path": "registry/jbm/ui/badge.tsx",
+          "type": "registry:ui",
+          "target": "src/jbm/ui/badge.tsx"
+        }
+      ]
+    },
+    {
+      "name": "token-glyph",
+      "type": "registry:ui",
+      "title": "TokenGlyph",
+      "description": "Color, typography, and spacing illustrations.",
+      "registryDependencies": [
+        "@jbm/tokens",
+        "@jbm/paper"
+      ],
+      "files": [
+        {
+          "path": "registry/jbm/ui/token-glyph.tsx",
+          "type": "registry:ui",
+          "target": "src/jbm/ui/token-glyph.tsx"
         }
       ]
     }

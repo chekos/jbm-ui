@@ -1,0 +1,19 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "ui-card",
+  "title": "UiCard",
+  "description": "Illustrated card with a picture and text bars.",
+  "registryDependencies": [
+    "@jbm/tokens",
+    "@jbm/paper"
+  ],
+  "files": [
+    {
+      "path": "registry/jbm/ui/ui-card.tsx",
+      "content": "import type * as React from \"react\"\nimport { color } from \"../lib/tokens\"\nimport { Paper } from \"./paper\"\n/** Card with a picture slot (line-art hills and sun) and two text bars. */\nexport function UiCard({\n  w = 220,\n  h = 170,\n  style,\n}: {\n  w?: number\n  h?: number\n  style?: React.CSSProperties\n}) {\n  const pad = Math.round(w * 0.07)\n  const imgH = Math.round(h * 0.5)\n  const iw = w - pad * 2\n  return (\n    <Paper\n      tone=\"paper\"\n      w={w}\n      h={h}\n      radius={Math.round(w * 0.08)}\n      style={{\n        padding: pad,\n        display: \"flex\",\n        flexDirection: \"column\",\n        gap: Math.round(h * 0.07),\n        ...style,\n      }}\n    >\n      <svg\n        width={iw}\n        height={imgH}\n        viewBox={`0 0 ${iw} ${imgH}`}\n        style={{ display: \"block\" }}\n      >\n        <rect\n          x={2}\n          y={2}\n          width={iw - 4}\n          height={imgH - 4}\n          rx={Math.round(w * 0.04)}\n          fill=\"none\"\n          stroke={color.ink}\n          strokeWidth={3}\n        />\n        <circle\n          cx={iw * 0.72}\n          cy={imgH * 0.32}\n          r={imgH * 0.11}\n          fill={color.accent}\n        />\n        <path\n          d={`M ${iw * 0.08} ${imgH * 0.86} L ${iw * 0.36} ${imgH * 0.42} L ${iw * 0.52} ${imgH * 0.66} L ${iw * 0.62} ${imgH * 0.54} L ${iw * 0.92} ${imgH * 0.86}`}\n          fill=\"none\"\n          stroke={color.ink}\n          strokeWidth={3}\n          strokeLinejoin=\"round\"\n          strokeLinecap=\"round\"\n        />\n      </svg>\n      <div\n        style={{\n          width: iw * 0.72,\n          height: Math.max(6, h * 0.075),\n          borderRadius: 99,\n          background: color.ink,\n        }}\n      />\n      <div\n        style={{\n          width: iw * 0.48,\n          height: Math.max(5, h * 0.06),\n          borderRadius: 99,\n          background: color.line,\n        }}\n      />\n    </Paper>\n  )\n}\n",
+      "type": "registry:ui",
+      "target": "src/jbm/ui/ui-card.tsx"
+    }
+  ],
+  "type": "registry:ui"
+}

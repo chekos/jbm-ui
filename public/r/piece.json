@@ -1,0 +1,21 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "piece",
+  "title": "Piece",
+  "description": "Choose a button, input, or card illustration by kind.",
+  "registryDependencies": [
+    "@jbm/paper",
+    "@jbm/ui-button",
+    "@jbm/ui-input",
+    "@jbm/ui-card"
+  ],
+  "files": [
+    {
+      "path": "registry/jbm/ui/piece.tsx",
+      "content": "import type * as React from \"react\"\nimport type { PaperTone } from \"./paper\"\nimport { UiButton } from \"./ui-button\"\nimport { UiInput } from \"./ui-input\"\nimport { UiCard } from \"./ui-card\"\nexport type PieceKind = \"button\" | \"input\" | \"card\"\n/** Any of the three pieces by name, at a width; height follows the piece's own proportion. */\nexport function Piece({\n  kind,\n  w,\n  tone,\n  cursorOn,\n  style,\n}: {\n  kind: PieceKind\n  w: number\n  tone?: PaperTone\n  cursorOn?: boolean\n  style?: React.CSSProperties\n}) {\n  if (kind === \"button\")\n    return (\n      <UiButton\n        w={w}\n        h={Math.round(w * 0.32)}\n        tone={tone ?? \"ink\"}\n        style={style}\n      />\n    )\n  if (kind === \"input\")\n    return (\n      <UiInput\n        w={w}\n        h={Math.round(w * 0.32)}\n        cursorOn={cursorOn}\n        style={style}\n      />\n    )\n  return <UiCard w={w} h={Math.round(w * 0.78)} style={style} />\n}\n",
+      "type": "registry:ui",
+      "target": "src/jbm/ui/piece.tsx"
+    }
+  ],
+  "type": "registry:ui"
+}
