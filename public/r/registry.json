@@ -591,6 +591,55 @@
           "target": "src/jbm/ui/token-glyph.tsx"
         }
       ]
+    },
+    {
+      "name": "text-fill",
+      "type": "registry:ui",
+      "title": "Text fill",
+      "description": "A controlled character sweep from muted text through vermilion into ink. Drive progress with a slider, scroll, or a video timeline.",
+      "registryDependencies": [
+        "@jbm/tokens"
+      ],
+      "files": [
+        {
+          "path": "registry/jbm/ui/text-fill.tsx",
+          "type": "registry:ui",
+          "target": "src/jbm/ui/text-fill.tsx"
+        }
+      ]
+    },
+    {
+      "name": "scroll-text-fill",
+      "type": "registry:ui",
+      "title": "Scroll text fill",
+      "description": "Scroll to bring text into focus, one character at a time. Keyboard scrolling, reversible progress, and reduced-motion support.",
+      "registryDependencies": [
+        "@jbm/text-fill",
+        "@jbm/tokens"
+      ],
+      "files": [
+        {
+          "path": "registry/jbm/ui/scroll-text-fill.tsx",
+          "type": "registry:ui",
+          "target": "src/jbm/ui/scroll-text-fill.tsx"
+        }
+      ]
+    },
+    {
+      "name": "flip-text",
+      "type": "registry:ui",
+      "title": "Flip text",
+      "description": "Letters tumble on hover with a vermilion accent. Click, tap, or use the keyboard to flip the whole phrase. Respects reduced motion.",
+      "registryDependencies": [
+        "@jbm/tokens"
+      ],
+      "files": [
+        {
+          "path": "registry/jbm/ui/flip-text.tsx",
+          "type": "registry:ui",
+          "target": "src/jbm/ui/flip-text.tsx"
+        }
+      ]
     }
   ]
 }

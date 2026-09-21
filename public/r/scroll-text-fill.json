@@ -1,0 +1,19 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "scroll-text-fill",
+  "title": "Scroll text fill",
+  "description": "Scroll to bring text into focus, one character at a time. Keyboard scrolling, reversible progress, and reduced-motion support.",
+  "registryDependencies": [
+    "@jbm/text-fill",
+    "@jbm/tokens"
+  ],
+  "files": [
+    {
+      "path": "registry/jbm/ui/scroll-text-fill.tsx",
+      "content": "\"use client\"\n\nimport { useEffect, useRef, useState, useSyncExternalStore } from \"react\"\nimport { TextFill, type TextFillProps } from \"./text-fill\"\nimport { color } from \"../lib/tokens\"\n\nfunction subscribe(listener: () => void) {\n  const media = window.matchMedia(\"(prefers-reduced-motion: reduce)\")\n  media.addEventListener(\"change\", listener)\n  return () => media.removeEventListener(\"change\", listener)\n}\nconst getReducedMotion = () =>\n  window.matchMedia(\"(prefers-reduced-motion: reduce)\").matches\nconst serverReducedMotion = () => true\n\nexport type ScrollTextFillProps = Omit<TextFillProps, \"progress\"> & {\n  /** Height of the self-contained, keyboard-scrollable viewport in pixels. */\n  height?: number\n  /** Extra scroll distance in pixels. */\n  distance?: number\n  label?: string\n}\n\n/** Scroll forward to fill, backward to rewind. Never autoplays. */\nexport function ScrollTextFill({\n  height = 320,\n  distance = 640,\n  label = \"Scroll to fill the text\",\n  reducedMotion,\n  ...props\n}: ScrollTextFillProps) {\n  const prefersReducedMotion = useSyncExternalStore(\n    subscribe,\n    getReducedMotion,\n    serverReducedMotion\n  )\n  const reduced = reducedMotion ?? prefersReducedMotion\n  const ref = useRef<HTMLDivElement>(null)\n  const [progress, setProgress] = useState(0)\n  const viewport = Number.isFinite(height) ? Math.max(120, height) : 320\n  const travel = Number.isFinite(distance) ? Math.max(1, distance) : 640\n  useEffect(() => {\n    const element = ref.current\n    if (!element || reduced) return\n    const update = () =>\n      setProgress(\n        element.scrollTop /\n          Math.max(1, element.scrollHeight - element.clientHeight)\n      )\n    update()\n    element.addEventListener(\"scroll\", update, { passive: true })\n    const observer = new ResizeObserver(update)\n    observer.observe(element)\n    return () => {\n      element.removeEventListener(\"scroll\", update)\n      observer.disconnect()\n    }\n  }, [reduced, travel, viewport, props.text])\n  return (\n    <div\n      ref={ref}\n      role=\"region\"\n      aria-label={label}\n      tabIndex={reduced ? undefined : 0}\n      style={{\n        width: \"100%\",\n        height: reduced ? \"auto\" : viewport,\n        overflowY: reduced ? \"visible\" : \"auto\",\n        overscrollBehavior: \"contain\",\n        background: color.bg,\n      }}\n    >\n      <div style={{ minHeight: reduced ? undefined : viewport + travel }}>\n        <div\n          style={{\n            position: reduced ? \"relative\" : \"sticky\",\n            top: 0,\n            minHeight: viewport,\n            display: \"flex\",\n            alignItems: \"center\",\n            padding: 24,\n          }}\n        >\n          <p style={{ margin: 0, width: \"100%\" }}>\n            <TextFill {...props} progress={progress} reducedMotion={reduced} />\n          </p>\n        </div>\n      </div>\n    </div>\n  )\n}\n",
+      "type": "registry:ui",
+      "target": "src/jbm/ui/scroll-text-fill.tsx"
+    }
+  ],
+  "type": "registry:ui"
+}

@@ -153,6 +153,12 @@ export const examples = {
 }
 
 export const snippets: Record<string, string> = {
+  "flip-text":
+    'import { FlipText } from "@/jbm/ui/flip-text";\n\n<FlipText duration={450} style={{ fontSize: 48 }}>Una idea viva.</FlipText>\n// Hover individual letters. Click, tap, Enter, or Space flips all.\n// A button: do not nest inside another button or link.\n// Respects prefers-reduced-motion; reducedMotion can override it.',
+  "text-fill":
+    'import { TextFill } from "@/jbm/ui/text-fill";\n\n<TextFill text="Una idea toma forma." progress={0.5} />\n// progress: 0–1. Set reducedMotion to show the complete text.\n// Customize dimColor, accentColor, textColor, and style.',
+  "scroll-text-fill":
+    'import { ScrollTextFill } from "@/jbm/ui/scroll-text-fill";\n\n<ScrollTextFill\n  text="Una idea toma forma. Letra por letra."\n  height={320}\n  distance={640}\n  style={{ fontSize: 40 }}\n/>\n// Self-contained scroll region; respects prefers-reduced-motion.',
   "ui-button": '<UiButton w={220} h={70} tone="accent" />',
   "ui-input": "<UiInput w={220} h={70} cursorOn />",
   "ui-card": "<UiCard w={220} h={170} />",

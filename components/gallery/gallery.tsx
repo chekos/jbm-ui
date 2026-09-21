@@ -3,6 +3,11 @@
 import { useState, type ReactNode } from "react"
 import dynamic from "next/dynamic"
 import registry from "@/registry.json"
+import {
+  TextFillDemo,
+  ScrollTextFillDemo,
+  FlipTextDemo,
+} from "./text-fill-demo"
 import { SurfaceDepth, surfaceUsage } from "./surface-depth"
 
 const galleryItems = [
@@ -149,13 +154,26 @@ export function Gallery() {
                       <span>{category(item.name)}</span>
                     </div>
                     <div
+                      style={
+                        item.name === "flip-text" ||
+                        item.name === "text-fill" ||
+                        item.name === "scroll-text-fill"
+                          ? { aspectRatio: "auto", minHeight: 300 }
+                          : undefined
+                      }
                       className={
                         item.name === "surface-depth"
                           ? "surface-preview"
                           : "preview"
                       }
                     >
-                      {item.name === "surface-depth" ? (
+                      {item.name === "flip-text" ? (
+                        <FlipTextDemo />
+                      ) : item.name === "text-fill" ? (
+                        <TextFillDemo />
+                      ) : item.name === "scroll-text-fill" ? (
+                        <ScrollTextFillDemo />
+                      ) : item.name === "surface-depth" ? (
                         <SurfaceDepth />
                       ) : item.name === "tokens" ? (
                         <div className="swatches">

@@ -10,6 +10,9 @@ export type Category = (typeof categories)[number]
 
 // Browsing categories describe purpose, independently of file location or renderer.
 const itemCategories: Record<string, Exclude<Category, "All">> = {
+  "flip-text": "Motion",
+  "text-fill": "Motion",
+  "scroll-text-fill": "Motion",
   tokens: "Foundations",
   "surface-depth": "Foundations",
   label: "UI",
