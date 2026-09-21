@@ -721,6 +721,118 @@
           "target": "src/jbm/ui/figure-caption.tsx"
         }
       ]
+    },
+    {
+      "name": "ticket",
+      "type": "registry:ui",
+      "title": "Ticket",
+      "description": "Admission-style surface with a colored header, flexible body, and perforated footer stub.",
+      "registryDependencies": [
+        "@jbm/tokens"
+      ],
+      "files": [
+        {
+          "path": "registry/jbm/ui/ticket.tsx",
+          "type": "registry:ui",
+          "target": "src/jbm/ui/ticket.tsx"
+        }
+      ]
+    },
+    {
+      "name": "chat-bubble",
+      "type": "registry:ui",
+      "title": "Chat Bubble",
+      "description": "Messages with optional speakers and tails, incoming/outgoing alignment, and three palette tones.",
+      "registryDependencies": [
+        "@jbm/tokens"
+      ],
+      "files": [
+        {
+          "path": "registry/jbm/ui/chat-bubble.tsx",
+          "type": "registry:ui",
+          "target": "src/jbm/ui/chat-bubble.tsx"
+        }
+      ]
+    },
+    {
+      "name": "document",
+      "type": "registry:ui",
+      "title": "Document",
+      "description": "Folded paper illustration with optional label and accent heading.",
+      "registryDependencies": [
+        "@jbm/tokens"
+      ],
+      "files": [
+        {
+          "path": "registry/jbm/ui/document.tsx",
+          "type": "registry:ui",
+          "target": "src/jbm/ui/document.tsx"
+        }
+      ]
+    },
+    {
+      "name": "folder",
+      "type": "registry:ui",
+      "title": "Folder",
+      "description": "Labelled folder illustration with a controlled open state. No built-in autoplay.",
+      "registryDependencies": [
+        "@jbm/tokens"
+      ],
+      "files": [
+        {
+          "path": "registry/jbm/ui/folder.tsx",
+          "type": "registry:ui",
+          "target": "src/jbm/ui/folder.tsx"
+        }
+      ]
+    },
+    {
+      "name": "score-scale",
+      "type": "registry:ui",
+      "title": "Score Scale",
+      "description": "A read-only score meter with endpoint labels and a controlled marker.",
+      "registryDependencies": [
+        "@jbm/tokens"
+      ],
+      "files": [
+        {
+          "path": "registry/jbm/ui/score-scale.tsx",
+          "type": "registry:ui",
+          "target": "src/jbm/ui/score-scale.tsx"
+        }
+      ]
+    },
+    {
+      "name": "comparison-bars",
+      "type": "registry:ui",
+      "title": "Comparison Bars",
+      "description": "Readable comparison rows on a shared zero-based scale, with optional emphasis.",
+      "registryDependencies": [
+        "@jbm/tokens"
+      ],
+      "files": [
+        {
+          "path": "registry/jbm/ui/comparison-bars.tsx",
+          "type": "registry:ui",
+          "target": "src/jbm/ui/comparison-bars.tsx"
+        }
+      ]
+    },
+    {
+      "name": "clock",
+      "type": "registry:ui",
+      "title": "Clock",
+      "description": "A deterministic analog clock and time label. Supply time explicitly for web or video.",
+      "registryDependencies": [
+        "@jbm/tokens"
+      ],
+      "files": [
+        {
+          "path": "registry/jbm/ui/clock.tsx",
+          "type": "registry:ui",
+          "target": "src/jbm/ui/clock.tsx"
+        }
+      ]
     }
   ]
 }

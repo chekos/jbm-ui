@@ -1,0 +1,18 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "ticket",
+  "title": "Ticket",
+  "description": "Admission-style surface with a colored header, flexible body, and perforated footer stub.",
+  "registryDependencies": [
+    "@jbm/tokens"
+  ],
+  "files": [
+    {
+      "path": "registry/jbm/ui/ticket.tsx",
+      "content": "import * as React from \"react\"\nimport { color, font, radius, shadow, surfaceBorder } from \"../lib/tokens\"\n\nexport type TicketProps = React.HTMLAttributes<HTMLDivElement> & {\n  header?: React.ReactNode\n  stub?: React.ReactNode\n  tone?: \"ink\" | \"accent\"\n}\n\n/** Admission-style surface with a perforated stub. Content and semantics belong to the caller. */\nexport function Ticket({\n  header,\n  stub,\n  tone = \"ink\",\n  children,\n  style,\n  ...props\n}: TicketProps) {\n  return (\n    <div\n      {...props}\n      style={{\n        background: color.card,\n        color: color.ink,\n        fontFamily: font.sans,\n        border: surfaceBorder.card,\n        borderRadius: radius.card,\n        boxShadow: shadow.card,\n        overflow: \"hidden\",\n        minWidth: 0,\n        overflowWrap: \"anywhere\",\n        ...style,\n      }}\n    >\n      {header != null && (\n        <div\n          style={{\n            padding: \"14px 24px\",\n            background: tone === \"accent\" ? color.accent : color.ink,\n            color: color.bg,\n            fontFamily: font.mono,\n            fontSize: 12,\n            fontWeight: 600,\n            letterSpacing: 1,\n          }}\n        >\n          {header}\n        </div>\n      )}\n      <div style={{ padding: 24 }}>{children}</div>\n      {stub != null && (\n        <div\n          style={{\n            borderTop: `1px dashed ${color.line}`,\n            padding: \"16px 24px\",\n            fontFamily: font.mono,\n            fontSize: 12,\n            lineHeight: 1.5,\n            color: color.dim,\n          }}\n        >\n          {stub}\n        </div>\n      )}\n    </div>\n  )\n}\n",
+      "type": "registry:ui",
+      "target": "src/jbm/ui/ticket.tsx"
+    }
+  ],
+  "type": "registry:ui"
+}

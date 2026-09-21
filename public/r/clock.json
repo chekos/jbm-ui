@@ -1,0 +1,18 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "clock",
+  "title": "Clock",
+  "description": "A deterministic analog clock and time label. Supply time explicitly for web or video.",
+  "registryDependencies": [
+    "@jbm/tokens"
+  ],
+  "files": [
+    {
+      "path": "registry/jbm/ui/clock.tsx",
+      "content": "import * as React from \"react\"\nimport { color, font } from \"../lib/tokens\"\n\nexport type ClockProps = React.HTMLAttributes<HTMLDivElement> & {\n  hours: number\n  minutes?: number\n  size?: number\n  label?: string\n}\n\n/** Deterministic analog clock. No timers: provide the time explicitly for web or video. */\nexport function Clock({\n  hours,\n  minutes = 0,\n  size = 64,\n  label,\n  style,\n  ...props\n}: ClockProps) {\n  if (![hours, minutes, size].every(Number.isFinite) || size <= 0)\n    throw new RangeError(\n      \"Clock requires finite time values and a positive size\"\n    )\n  const total = (((hours * 60 + minutes) % 1440) + 1440) % 1440\n  const minute = total % 60\n  const hour = total / 60\n  const text =\n    label ??\n    `${Math.floor(hour).toString().padStart(2, \"0\")}:${Math.floor(minute).toString().padStart(2, \"0\")}`\n  return (\n    <div\n      {...props}\n      style={{\n        display: \"inline-flex\",\n        flexWrap: \"wrap\",\n        alignItems: \"center\",\n        gap: 16,\n        color: color.ink,\n        fontFamily: font.mono,\n        fontSize: 22,\n        fontWeight: 600,\n        maxWidth: \"100%\",\n        ...style,\n      }}\n    >\n      <svg\n        aria-hidden=\"true\"\n        viewBox=\"0 0 64 64\"\n        width={size}\n        height={size}\n        style={{ maxWidth: \"100%\", height: \"auto\" }}\n      >\n        <circle\n          cx={32}\n          cy={32}\n          r={29}\n          fill=\"none\"\n          stroke={color.dim}\n          strokeWidth={3}\n        />\n        {[0, 90, 180, 270].map((angle) => (\n          <path\n            key={angle}\n            d=\"M32 7V11\"\n            transform={`rotate(${angle} 32 32)`}\n            stroke={color.line}\n            strokeWidth={2}\n          />\n        ))}\n        <path\n          d=\"M32 32V17\"\n          transform={`rotate(${hour * 30} 32 32)`}\n          stroke={color.ink}\n          strokeWidth={4}\n          strokeLinecap=\"round\"\n        />\n        <path\n          d=\"M32 32V10\"\n          transform={`rotate(${minute * 6} 32 32)`}\n          stroke={color.accent}\n          strokeWidth={3}\n          strokeLinecap=\"round\"\n        />\n        <circle cx={32} cy={32} r={3} fill={color.ink} />\n      </svg>\n      <span style={{ overflowWrap: \"anywhere\", minWidth: 0 }}>{text}</span>\n    </div>\n  )\n}\n",
+      "type": "registry:ui",
+      "target": "src/jbm/ui/clock.tsx"
+    }
+  ],
+  "type": "registry:ui"
+}
