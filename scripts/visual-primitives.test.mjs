@@ -64,3 +64,22 @@ test("folder opens from a fixed bottom hinge while its upper edge widens", () =>
     assert.equal(right, 230 + open * 15)
   }
 })
+
+test("paper clears the folder fold throughout its curved pickup without clipping", () => {
+  let previousLift = 0
+  for (let step = 0; step <= 100; step++) {
+    const html = render(Folder, { open: step / 100 })
+    const match = html.match(/translate\(([-\d.e]+) ([-\d.e]+)\) scale\(-1 1\) rotate\(([-\d.e]+) 128 140\)/)
+    assert.ok(match)
+    const [, tx, ty, degrees] = match.map(Number)
+    const angle = degrees * Math.PI / 180
+    assert.ok(-ty >= previousLift - 1e-9, "pickup must not sink back down")
+    previousLift = -ty
+    for (const [x, y] of [[49, 78], [180, 78], [207, 104], [207, 184], [49, 184]]) {
+      const screenX = tx - (128 + (x - 128) * Math.cos(angle) - (y - 140) * Math.sin(angle))
+      const screenY = ty + 140 + (x - 128) * Math.sin(angle) + (y - 140) * Math.cos(angle)
+      assert.ok(screenY <= 184 + 1e-9, "paper must clear the fold without a clipping mask")
+      assert.ok(screenY >= 1 && screenX >= 1 && screenX <= 259, "whole sheet stays within the illustration")
+    }
+  }
+})
