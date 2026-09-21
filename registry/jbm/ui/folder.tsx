@@ -23,7 +23,7 @@ export function Folder({
   // The grip follows a shallow sideways arc as the sheet is pulled upright.
   const clearanceAngle = Math.min((90 * p * Math.PI) / 180, Math.atan2(79, 44))
   const paperLift = 79 * Math.sin(clearanceAngle) + 44 * Math.cos(clearanceAngle) - 44
-  const paperDrift = 8 * Math.sin(Math.PI * p)
+  const paperDrift = 8 * Math.sin(Math.PI * p) - 18 * p
   // Project the printed label onto the front plane, around its baseline.
   const labelWidth = 1 + (30 * p * 25) / (205 * 110)
   const labelShear = (81.5 * 30 * p) / (205 * 110)
