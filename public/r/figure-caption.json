@@ -1,0 +1,18 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "figure-caption",
+  "title": "Figure Caption",
+  "description": "An editorial figure label, caption, and provenance that wraps on narrow screens.",
+  "registryDependencies": [
+    "@jbm/tokens"
+  ],
+  "files": [
+    {
+      "path": "registry/jbm/ui/figure-caption.tsx",
+      "content": "import * as React from \"react\"\nimport { color, font } from \"../lib/tokens\"\n\nexport type FigureCaptionProps = React.ComponentPropsWithRef<\"figcaption\"> & {\n  index?: React.ReactNode\n  provenance?: React.ReactNode\n  layout?: \"inline\" | \"stacked\"\n}\n\n/** Place as the first or last child of a figure, alongside any visual content. */\nexport function FigureCaption({\n  index,\n  provenance,\n  layout = \"inline\",\n  children,\n  style,\n  ...props\n}: FigureCaptionProps) {\n  return (\n    <figcaption\n      {...props}\n      style={{\n        display: \"flex\",\n        flexWrap: \"wrap\",\n        flexDirection: layout === \"stacked\" ? \"column\" : \"row\",\n        alignItems: \"baseline\",\n        gap: \"10px 20px\",\n        paddingTop: 18,\n        borderTop: `1px solid ${color.line}`,\n        fontFamily: font.sans,\n        color: color.ink,\n        ...style,\n      }}\n    >\n      {index != null && (\n        <span\n          style={{\n            fontFamily: font.mono,\n            fontSize: 12,\n            fontWeight: 600,\n            letterSpacing: 1,\n            textTransform: \"uppercase\",\n            color: color.accent,\n          }}\n        >\n          Fig. {index}\n        </span>\n      )}\n      <div\n        style={{\n          flex: layout === \"inline\" ? \"1 1 180px\" : undefined,\n          minWidth: 0,\n          overflowWrap: \"anywhere\",\n        }}\n      >\n        <div style={{ fontSize: 18, fontWeight: 700, lineHeight: 1.4 }}>\n          {children}\n        </div>\n        {provenance && (\n          <div\n            style={{\n              marginTop: 8,\n              fontFamily: font.mono,\n              fontSize: 12,\n              lineHeight: 1.6,\n              color: color.dim,\n            }}\n          >\n            {provenance}\n          </div>\n        )}\n      </div>\n    </figcaption>\n  )\n}\n",
+      "type": "registry:ui",
+      "target": "src/jbm/ui/figure-caption.tsx"
+    }
+  ],
+  "type": "registry:ui"
+}

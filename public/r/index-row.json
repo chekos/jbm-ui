@@ -1,0 +1,19 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "index-row",
+  "title": "Index Row",
+  "description": "A numbered record with optional evidence, linked title, and active state.",
+  "registryDependencies": [
+    "@jbm/tokens",
+    "@jbm/action-link"
+  ],
+  "files": [
+    {
+      "path": "registry/jbm/ui/index-row.tsx",
+      "content": "import * as React from \"react\"\nimport { color, font } from \"../lib/tokens\"\nimport { ActionLink } from \"./action-link\"\n\nexport type IndexRowProps = Omit<\n  React.HTMLAttributes<HTMLDivElement>,\n  \"title\"\n> & {\n  index: React.ReactNode\n  title: React.ReactNode\n  evidence?: React.ReactNode\n  href?: string\n  active?: boolean\n}\n\n/** A compact numbered record. Link only the title so evidence may contain its own links. */\nexport function IndexRow({\n  index,\n  title,\n  evidence,\n  href,\n  active = false,\n  style,\n  ...props\n}: IndexRowProps) {\n  return (\n    <div\n      {...props}\n      style={{\n        display: \"flex\",\n        alignItems: \"baseline\",\n        gap: 18,\n        padding: \"22px 0\",\n        borderBottom: `1px solid ${color.line}`,\n        fontFamily: font.sans,\n        color: color.ink,\n        ...style,\n      }}\n    >\n      <span\n        style={{\n          flexShrink: 0,\n          fontFamily: font.mono,\n          fontSize: 14,\n          fontWeight: 600,\n          color: active ? color.accent : color.dim,\n        }}\n      >\n        {index}\n      </span>\n      <div style={{ minWidth: 0, flex: 1, overflowWrap: \"anywhere\" }}>\n        {href ? (\n          <ActionLink\n            href={href}\n            aria-current={active ? \"step\" : undefined}\n            style={{\n              fontSize: 22,\n              paddingBlock: 0,\n              ...(active ? { color: color.accent } : {}),\n            }}\n          >\n            {title}\n          </ActionLink>\n        ) : (\n          <div\n            style={{\n              fontSize: 22,\n              fontWeight: 800,\n              lineHeight: 1.25,\n              color: active ? color.accent : color.ink,\n            }}\n          >\n            {title}\n          </div>\n        )}\n        {evidence && (\n          <div\n            style={{\n              marginTop: 8,\n              fontSize: 15,\n              lineHeight: 1.55,\n              color: color.dim,\n            }}\n          >\n            {evidence}\n          </div>\n        )}\n      </div>\n    </div>\n  )\n}\n",
+      "type": "registry:ui",
+      "target": "src/jbm/ui/index-row.tsx"
+    }
+  ],
+  "type": "registry:ui"
+}

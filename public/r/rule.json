@@ -1,0 +1,18 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "rule",
+  "title": "Rule",
+  "description": "A labelled divider with ink or vermilion emphasis and two line weights.",
+  "registryDependencies": [
+    "@jbm/tokens"
+  ],
+  "files": [
+    {
+      "path": "registry/jbm/ui/rule.tsx",
+      "content": "import * as React from \"react\"\nimport { color, font } from \"../lib/tokens\"\n\nexport type RuleProps = React.HTMLAttributes<HTMLDivElement> & {\n  label?: string\n  strong?: boolean\n  accent?: boolean\n}\n\n/** A semantic separator with an optional editorial label. */\nexport function Rule({\n  label,\n  strong = false,\n  accent = false,\n  style,\n  ...props\n}: RuleProps) {\n  const ink = accent ? color.accent : strong ? color.ink : color.line\n  return (\n    <div\n      role=\"separator\"\n      aria-label={label}\n      {...props}\n      style={{\n        display: \"flex\",\n        alignItems: \"center\",\n        gap: 16,\n        width: \"100%\",\n        color: ink,\n        ...style,\n      }}\n    >\n      {label && (\n        <span\n          style={{\n            fontFamily: font.mono,\n            fontSize: 13,\n            fontWeight: 600,\n            letterSpacing: 1,\n            textTransform: \"uppercase\",\n            color: accent ? color.accent : color.dim,\n            overflowWrap: \"anywhere\",\n          }}\n        >\n          {label}\n        </span>\n      )}\n      <span\n        aria-hidden=\"true\"\n        style={{\n          flex: 1,\n          minWidth: 24,\n          borderTop: `${strong ? 3 : 1}px solid currentColor`,\n        }}\n      />\n    </div>\n  )\n}\n",
+      "type": "registry:ui",
+      "target": "src/jbm/ui/rule.tsx"
+    }
+  ],
+  "type": "registry:ui"
+}
