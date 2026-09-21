@@ -640,6 +640,22 @@
           "target": "src/jbm/ui/flip-text.tsx"
         }
       ]
+    },
+    {
+      "name": "scroll-stack",
+      "type": "registry:ui",
+      "title": "Scroll stack",
+      "description": "Stack any React content as you scroll. Successive items scale into place while earlier ones fade. Page or contained scrolling, keyboard access, and a plain-list fallback.",
+      "registryDependencies": [
+        "@jbm/tokens"
+      ],
+      "files": [
+        {
+          "path": "registry/jbm/ui/scroll-stack.tsx",
+          "type": "registry:ui",
+          "target": "src/jbm/ui/scroll-stack.tsx"
+        }
+      ]
     }
   ]
 }

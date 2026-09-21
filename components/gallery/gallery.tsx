@@ -8,6 +8,7 @@ import {
   ScrollTextFillDemo,
   FlipTextDemo,
 } from "./text-fill-demo"
+import { ScrollStackDemo } from "./scroll-stack-demo"
 import { SurfaceDepth, surfaceUsage } from "./surface-depth"
 
 const galleryItems = [
@@ -155,6 +156,7 @@ export function Gallery() {
                     </div>
                     <div
                       style={
+                        item.name === "scroll-stack" ||
                         item.name === "flip-text" ||
                         item.name === "text-fill" ||
                         item.name === "scroll-text-fill"
@@ -167,7 +169,9 @@ export function Gallery() {
                           : "preview"
                       }
                     >
-                      {item.name === "flip-text" ? (
+                      {item.name === "scroll-stack" ? (
+                        <ScrollStackDemo />
+                      ) : item.name === "flip-text" ? (
                         <FlipTextDemo />
                       ) : item.name === "text-fill" ? (
                         <TextFillDemo />
