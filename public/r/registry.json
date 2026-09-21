@@ -437,7 +437,7 @@
       "name": "scene-spec",
       "type": "registry:component",
       "title": "Scene spec",
-      "description": "Compose timed blocks from one scene spec for landscape and vertical video.",
+      "description": "Compose timed blocks with explicit portrait layouts, orientation overrides, and configurable safe areas.",
       "dependencies": [
         "remotion"
       ],

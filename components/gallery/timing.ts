@@ -69,6 +69,7 @@ export function durationFor(name: string): number {
         1
       )
     case "scene-spec":
+      return frame(0.8) + springFrames + 1
     case "code-card":
       return (codeTypingSchedule(codeLines, fps).at(-1)?.end ?? 0) + 1
     case "captions":

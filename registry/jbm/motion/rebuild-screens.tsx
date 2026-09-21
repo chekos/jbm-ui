@@ -22,6 +22,7 @@ export function RebuildScreens({
   again = [],
   sticker,
   rebuildStep = 0.22,
+  phoneScale = 1,
 }: {
   w: number;
   h: number;
@@ -29,10 +30,12 @@ export function RebuildScreens({
   again?: number[];
   sticker?: { text: string; at: number };
   rebuildStep?: number;
+  phoneScale?: number;
 }) {
   const sec = useSec();
   const n = 1 + again.length;
-  const pw = Math.min(470, Math.round(w * 0.5), Math.round(h * 0.47));
+  if (!Number.isFinite(phoneScale) || phoneScale <= 0) throw new Error("phoneScale must be positive and finite");
+  const pw = phoneScale === 1 ? Math.min(470, Math.round(w * 0.5), Math.round(h * 0.47)) : Math.min(Math.min(470, Math.round(w * 0.5), Math.round(h * 0.47)) * phoneScale, w * 0.9 / (1 + (n - 1) * 0.42), h * 0.9 / (1.82 * (1 + (n - 1) * 0.09)));
   const ph = Math.round(pw * 1.82);
   const dx = Math.round(pw * 0.42);
   const dy = Math.round(ph * 0.09);

@@ -184,7 +184,7 @@ export const snippets: Record<string, string> = {
   shelf:
     '<Shelf w={936} items={[{ text: "shadcn/ui", at: 3.4 }, { text: "jbm-ui", at: 7.7, tone: "accent" }]} />\n<Twice w={936} at={13.1} second={14.6} strike={14.8} />',
   "scene-spec":
-    '<SceneFromSpec spec={scenes.scenes[0]} orientation="landscape" host={{ resolve: phrase => timings[phrase] }} />\n// Code blocks accept charsPerSecond. See docs/scene-spec.md for YAML.',
+    '<SceneFromSpec spec={scenes.scenes[0]} orientation="landscape" host={{ resolve: phrase => timings[phrase] }} />\n// Set composition: { layout: "headline-illustration", safeArea: "full" }.\n// variants.vertical overrides blocks, headlineRatio, gap, or subjectScale. See docs/scene-spec.md.',
   scene: "<Scene><Big>Una idea a la vez.</Big></Scene>",
   pop: '<Stagger at={0.2} step={0.35}>\n  {["Idea", "Datos"].map(text => <Chip key={text}>{text}</Chip>)}\n</Stagger>',
   counter: "<Counter n={1024} at={0.2} dur={1.5} />",
