@@ -10,6 +10,7 @@ import { Label } from "@/registry/jbm/ui/label"
 import { StatCard } from "@/registry/jbm/ui/stat-card"
 import { Paper, Sticker, Caption } from "@/registry/jbm/ui/paper"
 import {
+  Piece,
   UiButton,
   UiInput,
   UiCard,
@@ -97,6 +98,30 @@ export const examples = {
       </Sticker>
     </div>
   ),
+  "ui-button": <UiButton w={360} h={110} tone="accent" />,
+  "ui-input": <UiInput w={420} h={120} />,
+  "ui-card": <UiCard w={360} h={280} />,
+  "phone-frame": <PhoneFrame w={200} h={360} />,
+  badge: (
+    <div style={{ display: "flex", gap: 40 }}>
+      <Badge kind="check" size={100} />
+      <Badge kind="x" size={100} tone="ink" />
+    </div>
+  ),
+  "token-glyph": (
+    <div style={{ display: "flex", gap: 30 }}>
+      {(["color", "type", "space"] as const).map((kind) => (
+        <TokenGlyph key={kind} kind={kind} size={150} />
+      ))}
+    </div>
+  ),
+  piece: (
+    <div style={{ display: "flex", gap: 30, alignItems: "center" }}>
+      {(["button", "input", "card"] as const).map((kind) => (
+        <Piece key={kind} kind={kind} w={180} />
+      ))}
+    </div>
+  ),
   "ui-bits": (
     <div style={{ display: "flex", alignItems: "center", gap: 28 }}>
       <PhoneFrame w={200} h={360} gap={14}>
@@ -104,7 +129,14 @@ export const examples = {
         <UiInput w={130} h={40} />
         <UiButton w={130} h={40} />
       </PhoneFrame>
-      <div style={{ display: "flex", flexDirection: "column", gap: 18, alignItems: "center" }}>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: 18,
+          alignItems: "center",
+        }}
+      >
         <UiButton w={180} h={56} tone="accent" />
         <div style={{ display: "flex", gap: 12 }}>
           <Badge kind="check" size={40} />
@@ -121,6 +153,13 @@ export const examples = {
 }
 
 export const snippets: Record<string, string> = {
+  "ui-button": '<UiButton w={220} h={70} tone="accent" />',
+  "ui-input": "<UiInput w={220} h={70} cursorOn />",
+  "ui-card": "<UiCard w={220} h={170} />",
+  "phone-frame": "<PhoneFrame w={420} h={780}>{children}</PhoneFrame>",
+  badge: '<Badge kind="check" size={44} />',
+  "token-glyph": '<TokenGlyph kind="color" size={150} />',
+  piece: '<Piece kind="button" w={220} />',
   "replay-button":
     '<ReplayButton\n  progress={progress} // 0–1 from your animation\n  charging={isPlaying}\n  onReplay={restartAnimation}\n  label="Replay animation"\n/>',
   label: "<Label>Una idea a la vez</Label>",
@@ -132,7 +171,8 @@ export const snippets: Record<string, string> = {
   callout: '<Callout variant="note">Al final, cómo se usa.</Callout>',
   "bullet-list": '<BulletList items={["El contexto", "La pregunta"]} />',
   brand: '<Brand tagline="Ideas, datos y código." />',
-  paper: '<Sticker size={72} rotate={-5}>¿otra vez?</Sticker>\n<Paper tone="paper" w={300} h={200} rotate={-2} />',
+  paper:
+    '<Sticker size={72} rotate={-5}>¿otra vez?</Sticker>\n<Paper tone="paper" w={300} h={200} rotate={-2} />',
   "ui-bits":
     '<PhoneFrame w={420} h={780}>\n  <UiCard w={290} />\n  <UiInput w={290} h={92} />\n  <UiButton w={290} h={92} tone="ink" />\n</PhoneFrame>',
   "rebuild-screens":

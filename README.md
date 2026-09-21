@@ -65,3 +65,5 @@ CodeCard types characters in place at `charsPerSecond` (default 32). Line `at` v
 Scene specs compile YAML-shaped blocks into landscape and vertical compositions. See [the scene-spec guide](docs/scene-spec.md) for installation, host integration, anchors, and code typing speed.
 
 Published components must pass the [consumer contract](docs/consumer-contract.md). Run `pnpm consumer:check` for scaffold-copy and real shadcn installation checks.
+
+UI Bits are available individually as `@jbm/ui-button`, `@jbm/ui-input`, `@jbm/ui-card`, `@jbm/phone-frame`, `@jbm/badge`, `@jbm/token-glyph`, and `@jbm/piece`. Each has its own gallery preview and usage example in the UI Bits section. `@jbm/ui-bits` remains a compatible bundle that re-exports these components and their types; existing imports continue to work.

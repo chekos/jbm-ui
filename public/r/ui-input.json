@@ -1,0 +1,19 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "ui-input",
+  "title": "UiInput",
+  "description": "Illustrated text field with a controllable cursor.",
+  "registryDependencies": [
+    "@jbm/tokens",
+    "@jbm/paper"
+  ],
+  "files": [
+    {
+      "path": "registry/jbm/ui/ui-input.tsx",
+      "content": "import type * as React from \"react\"\nimport { color } from \"../lib/tokens\"\nimport { Paper } from \"./paper\"\n/** Outlined field with a placeholder bar and a text cursor. `cursorOn` blinks it from the timeline. */\nexport function UiInput({\n  w = 220,\n  h = 70,\n  cursorOn = true,\n  style,\n}: {\n  w?: number\n  h?: number\n  cursorOn?: boolean\n  style?: React.CSSProperties\n}) {\n  const pad = Math.round(h * 0.28)\n  return (\n    <Paper\n      tone=\"paper\"\n      w={w}\n      h={h}\n      radius={Math.round(h * 0.22)}\n      style={{\n        display: \"flex\",\n        alignItems: \"center\",\n        gap: Math.round(h * 0.14),\n        padding: `0 ${pad}px`,\n        ...style,\n      }}\n    >\n      <div\n        style={{\n          width: 3,\n          height: h * 0.5,\n          background: color.ink,\n          opacity: cursorOn ? 1 : 0,\n          borderRadius: 2,\n        }}\n      />\n      <div\n        style={{\n          width: w * 0.45,\n          height: Math.max(6, h * 0.12),\n          borderRadius: 99,\n          background: color.line,\n        }}\n      />\n    </Paper>\n  )\n}\n",
+      "type": "registry:ui",
+      "target": "src/jbm/ui/ui-input.tsx"
+    }
+  ],
+  "type": "registry:ui"
+}

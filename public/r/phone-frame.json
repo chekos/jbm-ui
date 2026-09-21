@@ -1,0 +1,19 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "phone-frame",
+  "title": "PhoneFrame",
+  "description": "Phone silhouette that holds your own content.",
+  "registryDependencies": [
+    "@jbm/tokens",
+    "@jbm/paper"
+  ],
+  "files": [
+    {
+      "path": "registry/jbm/ui/phone-frame.tsx",
+      "content": "import type * as React from \"react\"\nimport { color } from \"../lib/tokens\"\nimport { paperShadow } from \"./paper\"\n/** Phone silhouette: thick ink edge, cream screen, a small speaker slot. Children lay out as a column inside the screen. */\nexport function PhoneFrame({\n  w = 420,\n  h = 780,\n  rotate = 0,\n  children,\n  style,\n  gap = 26,\n}: {\n  w?: number\n  h?: number\n  rotate?: number\n  children?: React.ReactNode\n  style?: React.CSSProperties\n  gap?: number\n}) {\n  const edge = Math.max(5, Math.round(w * 0.016))\n  const pad = Math.round(w * 0.1)\n  return (\n    <div\n      style={{\n        width: w,\n        height: h,\n        boxSizing: \"border-box\",\n        background: color.card,\n        border: `${edge}px solid ${color.ink}`,\n        borderRadius: Math.round(w * 0.13),\n        boxShadow: paperShadow,\n        transform: rotate ? `rotate(${rotate}deg)` : undefined,\n        position: \"relative\",\n        padding: `${pad + Math.round(w * 0.08)}px ${pad}px ${pad}px`,\n        display: \"flex\",\n        flexDirection: \"column\",\n        justifyContent: \"flex-end\",\n        alignItems: \"center\",\n        gap,\n        ...style,\n      }}\n    >\n      <div\n        style={{\n          position: \"absolute\",\n          top: Math.round(w * 0.06),\n          left: \"50%\",\n          transform: \"translateX(-50%)\",\n          width: w * 0.26,\n          height: Math.max(5, w * 0.018),\n          borderRadius: 99,\n          background: color.ink,\n        }}\n      />\n      {children}\n    </div>\n  )\n}\n",
+      "type": "registry:ui",
+      "target": "src/jbm/ui/phone-frame.tsx"
+    }
+  ],
+  "type": "registry:ui"
+}
