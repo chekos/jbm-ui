@@ -1,0 +1,18 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "chat-bubble",
+  "title": "Chat Bubble",
+  "description": "Messages with optional speakers and tails, incoming/outgoing alignment, and three palette tones.",
+  "registryDependencies": [
+    "@jbm/tokens"
+  ],
+  "files": [
+    {
+      "path": "registry/jbm/ui/chat-bubble.tsx",
+      "content": "import * as React from \"react\"\nimport { color, font, radius } from \"../lib/tokens\"\n\nexport type ChatBubbleProps = React.HTMLAttributes<HTMLDivElement> & {\n  side?: \"start\" | \"end\"\n  tone?: \"paper\" | \"ink\" | \"accent\"\n  tail?: boolean\n  speaker?: React.ReactNode\n}\n\n/** One message, without chat application state or simulated typing. */\nexport function ChatBubble({\n  side = \"start\",\n  tone = \"paper\",\n  tail = true,\n  speaker,\n  children,\n  style,\n  ...props\n}: ChatBubbleProps) {\n  const fill =\n    tone === \"paper\" ? color.card : tone === \"ink\" ? color.ink : color.accent\n  return (\n    <div\n      {...props}\n      style={{\n        position: \"relative\",\n        width: \"fit-content\",\n        maxWidth: \"100%\",\n        boxSizing: \"border-box\",\n        marginInlineStart: side === \"end\" ? \"auto\" : 0,\n        marginInlineEnd: side === \"start\" ? \"auto\" : 0,\n        marginBottom: tail ? 10 : 0,\n        padding: \"16px 20px\",\n        borderRadius: radius.card,\n        background: fill,\n        color: tone === \"paper\" ? color.ink : color.bg,\n        fontFamily: font.sans,\n        fontSize: 18,\n        lineHeight: 1.5,\n        overflowWrap: \"anywhere\",\n        ...style,\n      }}\n    >\n      {speaker != null && (\n        <div\n          style={{\n            fontFamily: font.mono,\n            fontSize: 11,\n            fontWeight: 600,\n            marginBottom: 6,\n          }}\n        >\n          {speaker}\n        </div>\n      )}\n      {children}\n      {tail && (\n        <span\n          aria-hidden=\"true\"\n          style={{\n            position: \"absolute\",\n            bottom: -9,\n            ...(side === \"start\"\n              ? { insetInlineStart: 22 }\n              : { insetInlineEnd: 22 }),\n            width: 18,\n            height: 12,\n            background: fill,\n            clipPath:\n              side === \"start\"\n                ? \"polygon(0 0, 100% 0, 0 100%)\"\n                : \"polygon(0 0, 100% 0, 100% 100%)\",\n          }}\n        />\n      )}\n    </div>\n  )\n}\n",
+      "type": "registry:ui",
+      "target": "src/jbm/ui/chat-bubble.tsx"
+    }
+  ],
+  "type": "registry:ui"
+}

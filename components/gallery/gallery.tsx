@@ -8,6 +8,7 @@ import {
   ScrollTextFillDemo,
   FlipTextDemo,
 } from "./text-fill-demo"
+import { videoPrimitiveExamples } from "./video-primitives-demo"
 import { editorialExamples } from "./editorial-demo"
 import { ScrollStackDemo } from "./scroll-stack-demo"
 import { SurfaceDepth, surfaceUsage } from "./surface-depth"
@@ -161,7 +162,8 @@ export function Gallery() {
                         item.name === "flip-text" ||
                         item.name === "text-fill" ||
                         item.name === "scroll-text-fill" ||
-                        item.name in editorialExamples
+                        item.name in editorialExamples ||
+                        item.name in videoPrimitiveExamples
                           ? { aspectRatio: "auto", minHeight: 300 }
                           : undefined
                       }
@@ -190,6 +192,20 @@ export function Gallery() {
                               <code>{value}</code>
                             </div>
                           ))}
+                        </div>
+                      ) : item.name in videoPrimitiveExamples ? (
+                        <div
+                          style={{
+                            padding: 28,
+                            width: "100%",
+                            boxSizing: "border-box",
+                          }}
+                        >
+                          {
+                            videoPrimitiveExamples[
+                              item.name as keyof typeof videoPrimitiveExamples
+                            ]
+                          }
                         </div>
                       ) : item.name in editorialExamples ? (
                         <div

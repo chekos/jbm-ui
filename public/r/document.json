@@ -1,0 +1,18 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "document",
+  "title": "Document",
+  "description": "Folded paper illustration with optional label and accent heading.",
+  "registryDependencies": [
+    "@jbm/tokens"
+  ],
+  "files": [
+    {
+      "path": "registry/jbm/ui/document.tsx",
+      "content": "import * as React from \"react\"\nimport { color, font } from \"../lib/tokens\"\n\nexport type DocumentProps = React.SVGProps<SVGSVGElement> & {\n  label?: string\n  accent?: boolean\n}\n\n/** Folded paper illustration. Omit label for a decorative document. */\nexport function Document({\n  label,\n  accent = false,\n  style,\n  ...props\n}: DocumentProps) {\n  return (\n    <svg\n      viewBox=\"0 0 160 200\"\n      width={160}\n      height={200}\n      role={label ? \"img\" : undefined}\n      aria-label={label}\n      aria-hidden={label ? undefined : true}\n      {...props}\n      style={{ display: \"block\", maxWidth: \"100%\", height: \"auto\", ...style }}\n    >\n      <path\n        d=\"M8 2H118L152 36V198H8Z\"\n        fill={color.card}\n        stroke={color.ink}\n        strokeWidth={2}\n        strokeLinejoin=\"round\"\n      />\n      <path\n        d=\"M118 2V36H152\"\n        fill={color.line}\n        stroke={color.ink}\n        strokeWidth={2}\n        strokeLinejoin=\"round\"\n      />\n      <path\n        d=\"M28 65H112\"\n        stroke={accent ? color.accent : color.ink}\n        strokeWidth={8}\n        strokeLinecap=\"round\"\n      />\n      {[98, 120, 142].map((y, i) => (\n        <path\n          key={y}\n          d={`M28 ${y}H${128 - i * 12}`}\n          stroke={color.line}\n          strokeWidth={5}\n          strokeLinecap=\"round\"\n        />\n      ))}\n      {label && (\n        <text\n          x={28}\n          y={177}\n          fontFamily={font.mono}\n          fontSize={11}\n          fill={color.dim}\n        >\n          {label.length > 16 ? `${label.slice(0, 15)}…` : label}\n        </text>\n      )}\n    </svg>\n  )\n}\n",
+      "type": "registry:ui",
+      "target": "src/jbm/ui/document.tsx"
+    }
+  ],
+  "type": "registry:ui"
+}

@@ -153,6 +153,19 @@ export const examples = {
 }
 
 export const snippets: Record<string, string> = {
+  ticket:
+    '<Ticket header="ADMIT ONE · OCT 2026" stub="Tu nombre · Tu comunidad" tone="accent">\n  <h3>Un lugar para crear.</h3>\n  <p>Trae tu curiosidad.</p>\n</Ticket>',
+  "chat-bubble":
+    '<ChatBubble speaker="Tú" side="end" tone="accent">\n  Una pieza a la vez.\n</ChatBubble>',
+  document: '<Document label="idea.md" accent style={{ width: 180 }} />',
+  folder:
+    '<Folder label="Ideas" open={0.6} />\n// open: 0 (closed) to 1 (open); no internal timer.',
+  "score-scale":
+    '<ScoreScale label="Claridad" value={6} min={0} max={10}\n  labels={["Por explorar", "Lista para compartir"]} />\n// Read-only meter; clamps values to the range.',
+  "comparison-bars":
+    '<ComparisonBars max={100} items={[\n  { label: "Contexto", value: 42 },\n  { label: "Una idea clara", value: 90, highlight: true },\n]} />\n// Values must be nonnegative; max must cover all values.',
+  clock:
+    "<Clock hours={8} minutes={30} size={64} />\n// Explicit time keeps rendering deterministic. No autoplay.",
   rule: '<Rule label="El siguiente capítulo" accent strong />',
   "action-link": '<ActionLink href="/ideas">Explora las ideas</ActionLink>',
   "index-row":
