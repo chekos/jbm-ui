@@ -17,6 +17,10 @@ export function Folder({
 }: FolderProps) {
   const p = Number.isFinite(open) ? Math.max(0, Math.min(1, open)) : 0
   const fill = tone === "accent" ? color.accent : color.ink
+  // Lift the sheet around its lower edge: 15° resting, 65° picked up.
+  const paperAngle = ((15 + 50 * p) * Math.PI) / 180
+  const paperHeight = 1.45 * Math.sin(paperAngle)
+  const paperShear = -0.18 * Math.cos(paperAngle)
   // Project the printed label onto the front plane, around its baseline.
   const labelWidth = 1 + (30 * p * 25) / (205 * 110)
   const labelShear = (81.5 * 30 * p) / (205 * 110)
@@ -41,7 +45,9 @@ export function Folder({
         strokeWidth={2}
         strokeLinejoin="round"
       />
-      <g transform={`translate(0 ${-42 * p}) rotate(${-5 * p} 130 160)`}>
+      <g
+        transform={`matrix(1 0 ${paperShear} ${paperHeight} ${-184 * paperShear} ${190 - 184 * paperHeight})`}
+      >
         <path
           d="M49 78H180L207 104V184H49Z"
           fill={color.card}
