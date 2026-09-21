@@ -49,7 +49,7 @@ export function Folder({
         <path d="M68 140H184M68 156H162" stroke={color.line} strokeWidth={4} />
       </g>
       <path
-        d={`M25 ${95 + p * 35}H230L${230 + p * 15} 205H${25 - p * 15}Z`}
+        d={`M${25 - p * 15} ${95 + p * 35}H${230 + p * 15}L230 205H25Z`}
         fill={fill}
         stroke={color.ink}
         strokeWidth={2}

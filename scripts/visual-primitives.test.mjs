@@ -48,3 +48,19 @@ test("folder state clamps without invalid SVG geometry", () => {
   assert.equal(render(Folder, { open: 2 }), render(Folder, { open: 1 }))
   assert.match(closed, /aria-label="Notes, closed folder"/)
 })
+
+test("folder opens from a fixed bottom hinge while its upper edge widens", () => {
+  for (const open of [0, 0.5, 1]) {
+    const html = render(Folder, { open })
+    const paths = [...html.matchAll(/<path d="([^"]+)"/g)]
+    const front = paths.at(-1)[1].match(/^M([\d.]+) ([\d.]+)H([\d.]+)L([\d.]+) ([\d.]+)H([\d.]+)Z$/)
+    assert.ok(front)
+    const [, left, top, right, bottomRight, bottom, bottomLeft] = front.map(Number)
+    assert.equal(bottomLeft, 25)
+    assert.equal(bottomRight, 230)
+    assert.equal(bottom, 205)
+    assert.equal(top, 95 + open * 35)
+    assert.equal(left, 25 - open * 15)
+    assert.equal(right, 230 + open * 15)
+  }
+})
