@@ -1,0 +1,18 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "action-link",
+  "title": "Action Link",
+  "description": "A text anchor with an optional arrow and visible hover and keyboard focus.",
+  "registryDependencies": [
+    "@jbm/tokens"
+  ],
+  "files": [
+    {
+      "path": "registry/jbm/ui/action-link.tsx",
+      "content": "\"use client\"\n\nimport * as React from \"react\"\nimport { color, font } from \"../lib/tokens\"\n\nexport type ActionLinkProps = React.ComponentPropsWithRef<\"a\"> & {\n  arrow?: boolean\n}\n\n/** A real anchor, with a decorative arrow and stable hover/focus emphasis. */\nexport function ActionLink({\n  arrow = true,\n  children,\n  style,\n  onMouseEnter,\n  onMouseLeave,\n  onFocus,\n  onBlur,\n  ...props\n}: ActionLinkProps) {\n  const [hovered, setHovered] = React.useState(false)\n  const [focused, setFocused] = React.useState(false)\n  return (\n    <a\n      {...props}\n      onMouseEnter={(event) => {\n        setHovered(true)\n        onMouseEnter?.(event)\n      }}\n      onMouseLeave={(event) => {\n        setHovered(false)\n        onMouseLeave?.(event)\n      }}\n      onFocus={(event) => {\n        setFocused(true)\n        onFocus?.(event)\n      }}\n      onBlur={(event) => {\n        setFocused(false)\n        onBlur?.(event)\n      }}\n      style={{\n        display: \"inline-flex\",\n        alignItems: \"baseline\",\n        gap: 10,\n        maxWidth: \"100%\",\n        paddingBlock: 6,\n        fontFamily: font.sans,\n        fontSize: 18,\n        fontWeight: 700,\n        lineHeight: 1.4,\n        color: hovered || focused ? color.accent : color.ink,\n        textDecoration: \"underline\",\n        textDecorationThickness: hovered || focused ? 2 : 1,\n        textUnderlineOffset: 5,\n        outlineOffset: 5,\n        overflowWrap: \"anywhere\",\n        ...style,\n      }}\n    >\n      <span style={{ minWidth: 0 }}>{children}</span>\n      {arrow && (\n        <span aria-hidden=\"true\" style={{ flexShrink: 0 }}>\n          ↗\n        </span>\n      )}\n    </a>\n  )\n}\n",
+      "type": "registry:ui",
+      "target": "src/jbm/ui/action-link.tsx"
+    }
+  ],
+  "type": "registry:ui"
+}

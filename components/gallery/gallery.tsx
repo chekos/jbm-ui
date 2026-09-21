@@ -8,6 +8,7 @@ import {
   ScrollTextFillDemo,
   FlipTextDemo,
 } from "./text-fill-demo"
+import { editorialExamples } from "./editorial-demo"
 import { ScrollStackDemo } from "./scroll-stack-demo"
 import { SurfaceDepth, surfaceUsage } from "./surface-depth"
 
@@ -159,7 +160,8 @@ export function Gallery() {
                         item.name === "scroll-stack" ||
                         item.name === "flip-text" ||
                         item.name === "text-fill" ||
-                        item.name === "scroll-text-fill"
+                        item.name === "scroll-text-fill" ||
+                        item.name in editorialExamples
                           ? { aspectRatio: "auto", minHeight: 300 }
                           : undefined
                       }
@@ -188,6 +190,20 @@ export function Gallery() {
                               <code>{value}</code>
                             </div>
                           ))}
+                        </div>
+                      ) : item.name in editorialExamples ? (
+                        <div
+                          style={{
+                            padding: 28,
+                            width: "100%",
+                            boxSizing: "border-box",
+                          }}
+                        >
+                          {
+                            editorialExamples[
+                              item.name as keyof typeof editorialExamples
+                            ]
+                          }
                         </div>
                       ) : item.name in examples ? (
                         <Canvas>

@@ -153,6 +153,12 @@ export const examples = {
 }
 
 export const snippets: Record<string, string> = {
+  rule: '<Rule label="El siguiente capítulo" accent strong />',
+  "action-link": '<ActionLink href="/ideas">Explora las ideas</ActionLink>',
+  "index-row":
+    '<IndexRow index="01" title="El contexto" evidence="Empieza con una pregunta." href="/contexto" active />',
+  "figure-caption":
+    '<figure>\n  <img src="/chart.png" alt="Descripción del gráfico" />\n  <FigureCaption index="01" provenance="Fuente: nuestro estudio">\n    Menos ruido. Más señal.\n  </FigureCaption>\n</figure>',
   "scroll-stack":
     'import { ScrollStack } from "@/jbm/ui/scroll-stack";\nimport { Card } from "@/jbm/ui/card"; // install @jbm/card separately\n\n<ScrollStack height={480} distance={120}>\n  <Card>First idea</Card>\n  <Card dark>Another idea</Card>\n  <YourComponent />\n</ScrollStack>\n\n// Each direct child is one item; group related content in a div.\n// Omit height for page scrolling; avoid overflow ancestors in page mode.\n// top: sticky inset; minScale: outgoing scale (0.5–1).\n// reducedMotion: true renders a plain list; defaults to system preference.\n// Oversized content automatically uses the list so it stays readable.\n// Keep child backgrounds opaque for a solid stack.',
   "flip-text":

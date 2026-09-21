@@ -656,6 +656,71 @@
           "target": "src/jbm/ui/scroll-stack.tsx"
         }
       ]
+    },
+    {
+      "name": "rule",
+      "type": "registry:ui",
+      "title": "Rule",
+      "description": "A labelled divider with ink or vermilion emphasis and two line weights.",
+      "registryDependencies": [
+        "@jbm/tokens"
+      ],
+      "files": [
+        {
+          "path": "registry/jbm/ui/rule.tsx",
+          "type": "registry:ui",
+          "target": "src/jbm/ui/rule.tsx"
+        }
+      ]
+    },
+    {
+      "name": "action-link",
+      "type": "registry:ui",
+      "title": "Action Link",
+      "description": "A text anchor with an optional arrow and visible hover and keyboard focus.",
+      "registryDependencies": [
+        "@jbm/tokens"
+      ],
+      "files": [
+        {
+          "path": "registry/jbm/ui/action-link.tsx",
+          "type": "registry:ui",
+          "target": "src/jbm/ui/action-link.tsx"
+        }
+      ]
+    },
+    {
+      "name": "index-row",
+      "type": "registry:ui",
+      "title": "Index Row",
+      "description": "A numbered record with optional evidence, linked title, and active state.",
+      "registryDependencies": [
+        "@jbm/tokens",
+        "@jbm/action-link"
+      ],
+      "files": [
+        {
+          "path": "registry/jbm/ui/index-row.tsx",
+          "type": "registry:ui",
+          "target": "src/jbm/ui/index-row.tsx"
+        }
+      ]
+    },
+    {
+      "name": "figure-caption",
+      "type": "registry:ui",
+      "title": "Figure Caption",
+      "description": "An editorial figure label, caption, and provenance that wraps on narrow screens.",
+      "registryDependencies": [
+        "@jbm/tokens"
+      ],
+      "files": [
+        {
+          "path": "registry/jbm/ui/figure-caption.tsx",
+          "type": "registry:ui",
+          "target": "src/jbm/ui/figure-caption.tsx"
+        }
+      ]
     }
   ]
 }
