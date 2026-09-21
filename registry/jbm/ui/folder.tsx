@@ -44,17 +44,17 @@ export function Folder({
         strokeLinejoin="round"
       />
       <svg width={260} height={205} overflow="hidden">
-      <g transform={`rotate(${paperAngle - 180} 128 140)`}>
-        <path
-          d="M49 78H180L207 104V184H49Z"
-          fill={color.card}
-          stroke={color.ink}
-          strokeWidth={2}
-        />
-        <path d="M180 78V104H207" fill={color.line} />
-        <path d="M68 118H158" stroke={color.accent} strokeWidth={6} />
-        <path d="M68 140H184M68 156H162" stroke={color.line} strokeWidth={4} />
-      </g>
+        <g transform={`translate(256 0) scale(-1 1) rotate(${paperAngle - 180} 128 140)`}>
+          <path
+            d="M49 78H180L207 104V184H49Z"
+            fill={color.card}
+            stroke={color.ink}
+            strokeWidth={2}
+          />
+          <path d="M180 78V104H207" fill={color.line} />
+          <path d="M158 106V164" stroke={color.accent} strokeWidth={6} />
+          <path d="M136 98V164M114 112V164M92 98V164" stroke={color.line} strokeWidth={4} />
+        </g>
       </svg>
       <path
         d={`M${25 - p * 15} ${95 + p * 35}H${230 + p * 15}L230 205H25Z`}
