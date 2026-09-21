@@ -7,12 +7,22 @@
     "strict": true,
     "noUnusedLocals": true,
     "noEmit": true,
-    "lib": ["es2015"],
+    "lib": [
+      "es2018",
+      "es2022.intl",
+      "dom"
+    ],
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "baseUrl": ".",
-    "paths": { "@/*": ["./src/*"] }
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ]
+    }
   },
-  "include": ["src/**/*"]
+  "include": [
+    "src/**/*"
+  ]
 }
