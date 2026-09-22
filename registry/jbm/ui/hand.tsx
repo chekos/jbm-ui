@@ -2,36 +2,40 @@ import type { SVGProps } from "react"
 import { color } from "../lib/tokens"
 export type HandPose = "open" | "point" | "pinch"
 export type HandProps = SVGProps<SVGSVGElement> & { pose?: HandPose }
-// Quiver paths exported from Paper using the issue #50 cursor image as reference.
+// Based on the issue #50 cursor reference; open-palm joins share coordinates and stroke widths.
 const poses = {
   open: [
     {
-      d: "m56.44 41.51c-1.02-6.68-2.1-15.33-2.52-18.83-0.17-1.85-1.56-3.07-3.2-3.07-1.6 0-2.97 1.36-3 2.94l-0.27-4.31c-0.12-2.14-1.53-3.42-3.22-3.42-1.88 0-3.16 1.59-3.1 3.6l0.07 1.19c-0.3-1.4-1.6-2.22-3.09-2.22-1.86 0-3.12 1.66-3 3.66l0.25 3.97c-0.13-1.79-1.53-2.92-3-2.92-1.82 0.06-3.15 1.57-3.09 3.5 0.26 4.14 1.31 13.55 1.79 17.16 0 0.05-0.04 0.07-0.07 0.04l-4.83-3.32c-0.87-0.56-1.74-0.92-2.73-0.92-1.83 0-3.12 1.21-3.12 2.88 0 0.99 0.45 1.94 1.24 2.76l12.43 13.17c0.68 0.75 1.56 1.36 2.32 1.78 0.16 0.1 0.24 0.24 0.27 0.38l1.42 4.89c0.02 0.07 0.1 0.1 0.17 0.09l17.03-4.59c0.08-0.03 0.14-0.11 0.12-0.2-0.18-1.03-0.62-3.2-0.62-4.11 0-2.17 1.95-5.81 1.95-10.78 0-1.18-0.07-2.32-0.2-3.32z",
+      d: "M54 23 C54 18.8 47.6 18.8 47.6 23 V18 C47.6 13.8 41.2 13.8 41.2 18 V20 C41.2 15.8 34.8 15.8 34.8 20 V25 C34.8 20.8 28.4 20.8 28.4 25 C28.4 29.2 29.5 39.5 30 43 L25.1 39.7 C24.2 39.1 23.3 38.8 22.3 38.8 C20.5 38.8 19.2 40 19.2 41.7 C19.2 42.7 19.7 43.6 20.5 44.5 L32.9 57.6 C33.6 58.4 34.5 59 35.3 59.4 L36.8 64.8 L54.1 60.1 C53.9 59 53.5 56.9 53.5 56 C53.5 53.8 55.5 50.2 55.5 45.2 C55.5 39 54 28 54 23 Z",
       fill: "#FFFFFF",
       stroke: "#111212",
       strokeWidth: "2.57",
       strokeLinecap: "round",
+      strokeLinejoin: "round",
     },
     {
-      d: "m35.24 24.82 1.28 12.12",
+      d: "M34.8 25 V37",
       fill: "none",
       stroke: "#111212",
-      strokeWidth: "1.714",
+      strokeWidth: "2.57",
       strokeLinecap: "round",
+      strokeLinejoin: "round",
     },
     {
-      d: "m41.21 20.19 1.32 15.85",
+      d: "M41.2 20 V36",
       fill: "none",
       stroke: "#111212",
-      strokeWidth: "1.714",
+      strokeWidth: "2.57",
       strokeLinecap: "round",
+      strokeLinejoin: "round",
     },
     {
-      d: "m47.68 22.26 1.02 13.41",
+      d: "M47.6 23 V36",
       fill: "none",
       stroke: "#111212",
-      strokeWidth: "1.714",
+      strokeWidth: "2.57",
       strokeLinecap: "round",
+      strokeLinejoin: "round",
     },
   ],
   point: [
