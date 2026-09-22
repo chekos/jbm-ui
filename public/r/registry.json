@@ -976,7 +976,8 @@
       "type": "registry:component",
       "registryDependencies": [
         "@jbm/tokens",
-        "@jbm/cajon"
+        "@jbm/cajon",
+        "@jbm/scene-geometry"
       ],
       "files": [
         {
