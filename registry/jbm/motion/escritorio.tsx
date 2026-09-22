@@ -1,7 +1,7 @@
 import { color } from "../lib/tokens"
 import { type Box } from "../lib/geometry"
-import { type DrawerFolder, cajonLayout } from "./cajon"
-import { FileCabinet } from "../ui/file-cabinet"
+import { Cajon, type DrawerFolder, cajonLayout } from "./cajon"
+import { FileCabinetBody, fileCabinetLayout } from "../ui/file-cabinet"
 
 export type DeskSpec = {
   finish?: "paper" | "wood"
@@ -21,25 +21,33 @@ export function escritorioLayout({
   open = 0,
 }: EscritorioProps) {
   const top = box.y + 20
+  // Legs, apron and cabinet share a front plane and a floor line.
+  const legWidth = 18
+  const legInset = 24
+  const clearance = 12
+  const innerLeft = box.x + legInset + legWidth
+  const innerRight = box.x + box.w - legInset - legWidth
+  const floor = box.y + box.h
+  const cabinetTop = top + 47 + clearance
+  const cabinetWidth = Math.min(250, innerRight - innerLeft - 2 * clearance)
   const cabinet = {
-    x: spec.drawerSide === "end" ? box.x + box.w - 290 : box.x + 38,
-    y: top + 40,
-    w: 250,
-    h: box.h - 65,
+    x:
+      spec.drawerSide === "end"
+        ? innerRight - clearance - cabinetWidth
+        : innerLeft + clearance,
+    y: cabinetTop,
+    w: cabinetWidth,
+    h: floor - cabinetTop,
     folders,
     open,
   }
-  const drawer = {
-    ...cabinet,
-    x: cabinet.x + 10,
-    y: cabinet.y + 32,
-    w: cabinet.w - 20,
-  }
+  const { drawer } = fileCabinetLayout(cabinet)
   return {
     box,
     top,
     cabinet,
     drawer,
+    plane: { innerLeft, innerRight, floor, apronBottom: top + 47 },
     anchors: { folders: cajonLayout(drawer).folders.map((f) => f.anchor) },
   }
 }
@@ -51,6 +59,11 @@ export function Escritorio(props: EscritorioProps) {
   const wood = props.spec?.finish === "wood"
   return (
     <g role="img" aria-label={`${wood ? "Wood" : "Paper"} desk`}>
+      {props.cabinet && (
+        <g role="img" aria-label="File cabinet">
+          <FileCabinetBody {...l.cabinet} />
+        </g>
+      )}
       <g
         fill={wood ? color.bg : color.card}
         stroke={color.ink}
@@ -72,7 +85,7 @@ export function Escritorio(props: EscritorioProps) {
           />
         )}
       </g>
-      {props.cabinet && <FileCabinet {...l.cabinet} />}
+      {props.cabinet && <Cajon {...l.drawer} />}
     </g>
   )
 }

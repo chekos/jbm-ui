@@ -180,3 +180,21 @@ test("hand movement wraps the independent artwork without carried props",()=>{
   assert.ok(markup.includes("translate(20 30) rotate(12)"))
   assert.ok(markup.includes("Hand: pinch"))
 })
+
+test("cabinet and closed drawer fit between the legs and share the floor", () => {
+  for (const w of [440, 760, 980]) for (const drawerSide of ["start", "end"]) {
+    const box = { x: 31, y: 29, w, h: 420 }
+    for (const open of [0, .25, .5, .75, 1]) {
+      const l = escritorioLayout({ box, spec: { drawerSide }, folders: [{name:"datos"}], open })
+      assert.ok(l.cabinet.x > l.plane.innerLeft)
+      assert.ok(l.cabinet.x + l.cabinet.w < l.plane.innerRight)
+      assert.ok(l.cabinet.y > l.plane.apronBottom)
+      assert.equal(l.cabinet.y + l.cabinet.h, l.plane.floor)
+      assert.ok(l.drawer.x > l.plane.innerLeft)
+      assert.ok(l.drawer.x + l.drawer.w < l.plane.innerRight)
+      const closed = escritorioLayout({ box, spec: { drawerSide }, folders: [], open: 0 })
+      assert.deepEqual({...l.cabinet, folders:[], open:0}, closed.cabinet)
+      assert.equal(cajonLayout(l.drawer).front - cajonLayout(closed.drawer).front, 104 * open)
+    }
+  }
+})
