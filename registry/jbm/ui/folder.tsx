@@ -1,6 +1,35 @@
 import * as React from "react"
 import { color, font } from "../lib/tokens"
 
+/** Shared complete folder silhouette for standalone folders and filing drawers. */
+export function FolderOutline({
+  x = 25,
+  y = 55,
+  w = 205,
+  h = 144,
+  tabX = x,
+  tabWidth = 83,
+  fill = color.accent,
+}: {
+  x?: number
+  y?: number
+  w?: number
+  h?: number
+  tabX?: number
+  tabWidth?: number
+  fill?: string
+}) {
+  return (
+    <path
+      d={`M${x} ${y + 27}H${tabX}V${y}H${tabX + tabWidth - 17}L${tabX + tabWidth} ${y + 17}H${x + w}V${y + h}H${x}Z`}
+      fill={fill}
+      stroke={color.ink}
+      strokeWidth={2}
+      strokeLinejoin="round"
+    />
+  )
+}
+
 export type FolderProps = React.SVGProps<SVGSVGElement> & {
   label?: string
   open?: number
@@ -22,7 +51,8 @@ export function Folder({
   // Lift enough to clear the lower corner's sweep, then keep that clearance.
   // The grip follows a shallow sideways arc as the sheet is pulled upright.
   const clearanceAngle = Math.min((90 * p * Math.PI) / 180, Math.atan2(79, 44))
-  const paperLift = 79 * Math.sin(clearanceAngle) + 44 * Math.cos(clearanceAngle) - 44
+  const paperLift =
+    79 * Math.sin(clearanceAngle) + 44 * Math.cos(clearanceAngle) - 44
   const paperDrift = 8 * Math.sin(Math.PI * p) - 18 * p
   // Project the printed label onto the front plane, around its baseline.
   const labelWidth = 1 + (30 * p * 25) / (205 * 110)
@@ -41,23 +71,25 @@ export function Folder({
       {...props}
       style={{ display: "block", maxWidth: "100%", height: "auto", ...style }}
     >
-      <path
-        d="M25 82V55H91L108 72H230V199H25Z"
-        fill={fill}
-        stroke={color.ink}
-        strokeWidth={2}
-        strokeLinejoin="round"
-      />
-        <g transform={`translate(${256 + paperDrift} ${-paperLift}) scale(-1 1) rotate(${paperAngle - 180} 128 140)`}>
-          <path
-            d="M49 78H180L207 104V184H49Z"
-            fill={color.card}
-          />
-          <path d="M180 78H49V184H207V104" fill="none" stroke={color.ink} strokeWidth={2} />
-          <path d="M180 78V104H207" fill={color.line} />
-          <path d="M158 106V164" stroke={color.accent} strokeWidth={6} />
-          <path d="M136 98V164M114 112V164M92 98V164" stroke={color.line} strokeWidth={4} />
-        </g>
+      <FolderOutline fill={fill} />
+      <g
+        transform={`translate(${256 + paperDrift} ${-paperLift}) scale(-1 1) rotate(${paperAngle - 180} 128 140)`}
+      >
+        <path d="M49 78H180L207 104V184H49Z" fill={color.card} />
+        <path
+          d="M180 78H49V184H207V104"
+          fill="none"
+          stroke={color.ink}
+          strokeWidth={2}
+        />
+        <path d="M180 78V104H207" fill={color.line} />
+        <path d="M158 106V164" stroke={color.accent} strokeWidth={6} />
+        <path
+          d="M136 98V164M114 112V164M92 98V164"
+          stroke={color.line}
+          strokeWidth={4}
+        />
+      </g>
       <path
         d={`M${25 - p * 15} ${95 + p * 35}H${230 + p * 15}L230 205H25Z`}
         fill={fill}

@@ -25,27 +25,17 @@ const file: ScenesFile = {
 export function Video() {
   const desk = {
     box: { x: 20, y: 30, w: 820, h: 580 },
-    spec: { tools: [{ name: "Read", kind: "ruler" }] },
+    cabinet: true,
     folders: [{ name: "datos", accent: true }],
-    layers: 2,
   } as const
   const layout = escritorioLayout(desk)
   return (
     <>
       <svg viewBox="0 0 1000 800">
         <Escritorio {...desk} />
-        <Mano at={pointOn(layout.anchors.folders, 0)} grip={1}>
-          <rect width={30} height={20} />
-        </Mano>
+        <Mano at={pointOn(layout.anchors.folders, 0)} pose="pinch" />
       </svg>
-      <Burbuja
-        words={["Analiza", "datos"]}
-        highlight={[1]}
-        target={layout.anchors.folders[0]}
-        arrive={1}
-        glow={1}
-        link={1}
-      />
+      <Burbuja words={["Analiza", "datos"]} highlight={[1]} progress={1} />
       <SceneFromSpec
         spec={file.scenes[0]}
         orientation="landscape"

@@ -10,9 +10,15 @@ This is a reusable React / Remotion component library and shadcn registry with a
 
 - `registry/jbm/` owns published code; `registry.json` owns the inventory and dependencies. `public/r/` is generated: run `pnpm registry:build` after registry edits and commit the output.
 - Keep `ui/` pure React with inline styles from `lib/tokens.ts`; never import Remotion there. Timeline-dependent code belongs in `motion/`.
-- `components/gallery/` owns browser demos. Add a working preview, usage example, and explicit category in `components/gallery/categories.ts` for every new registry item. Categories describe behavior, not source folders or runtime dependencies. Motion demos need a Remotion Player context; keep client boundaries in the gallery.
+- `components/gallery/` owns browser demos. Add a working preview, usage example, and explicit category in `components/gallery/categories.ts` for every new registry item. Categories describe behavior, not source folders or runtime dependencies. Only components that call Remotion hooks need a Player context. Controlled React illustrations use direct controls without video/player chrome; keep client boundaries in the gallery.
 - For video composition, follow `docs/scene-spec.md`. Portrait needs deliberate subject sizing and layout, not just a taller canvas. Inspect beginning, middle, and end frames in both orientations; keep safe-area guides out of final renders.
 - Follow `docs/surface-depth.md` for raised surfaces; use the shared shadow and border tokens rather than duplicating recipes.
 - Preserve the cream, ink, and vermilion palette and Geist font stacks. Check narrow screens and keyboard interaction; motion must not autoplay.
 - Run `pnpm lint`, `pnpm typecheck`, `pnpm registry:check`, `pnpm consumer:check`, and `pnpm build` before merging. For gallery changes, also inspect desktop/mobile previews and exercise filters and playback.
 - Track changes with GitHub issues and linked PRs on `codex/` branches. Vercel deploys from GitHub; verify deployment checks before merging and the deployed result afterward. Never commit secrets.
+
+## Illustration acceptance
+
+- Audit existing components before implementing a reference: reuse primitives, and expose independent objects separately from composites and transforms.
+- Match the reference and existing library with simple geometric line art. Use minimal contours and flat fills; avoid realistic anatomy and incidental scene props.
+- Perform adversarial visual QA before delivery: compare against the source image and existing gallery, inspect intermediate states and extremes, check complete hidden object geometry and occlusion, and exercise each control independently on desktop and mobile. Passing builds alone is insufficient.

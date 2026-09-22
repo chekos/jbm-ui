@@ -1,4 +1,4 @@
-import { color, font } from "../lib/tokens"
+import { color } from "../lib/tokens"
 import { unit, type Pt } from "../lib/geometry"
 
 export type BandejaProps = {
@@ -7,8 +7,6 @@ export type BandejaProps = {
   w?: number
   layers?: number
   landing?: number
-  costLine?: number
-  label?: string
 }
 export function bandejaLayout({
   x = 0,
@@ -29,7 +27,7 @@ export function bandejaLayout({
 
 /** Shallow tray. layers is the settled count; landing adds one incoming sheet. */
 export function Bandeja(props: BandejaProps) {
-  const { landing = 0, costLine = 52, label = "línea de carga" } = props
+  const { landing = 0 } = props
   const l = bandejaLayout(props)
   const sheet = (y: number, key: number) => (
     <path
@@ -64,23 +62,6 @@ export function Bandeja(props: BandejaProps) {
         d={`M${l.x} ${l.y + 47}h${l.w * 0.34}l10 9h${l.w * 0.32 - 20}l10 -9H${l.x + l.w}v21H${l.x}Z`}
         fill={color.card}
       />
-      <path
-        d={`M${l.x - 12} ${l.y - costLine}H${l.x + l.w + 12}`}
-        stroke={color.accent}
-        strokeDasharray="7 6"
-      />
-      {label && (
-        <text
-          x={l.x}
-          y={l.y - costLine - 12}
-          fontFamily={font.mono}
-          fontSize={13}
-          fill={color.accent}
-          stroke="none"
-        >
-          {label}
-        </text>
-      )}
     </g>
   )
 }

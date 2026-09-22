@@ -1,5 +1,6 @@
 import { color, font } from "../lib/tokens"
 import { unit, type Box } from "../lib/geometry"
+import { FolderOutline } from "../ui/folder"
 
 export type DrawerFolder = { name: string; accent?: boolean; pulled?: number }
 export type CajonProps = Partial<Box> & {
@@ -7,143 +8,107 @@ export type CajonProps = Partial<Box> & {
   open?: number
 }
 
-/** h is a minimum: a full drawer grows deeper instead of shrinking its labels. */
+/** Fixed physical bounds. Index zero is nearest the drawer front. */
 export function cajonLayout({
   x = 0,
   y = 0,
   w = 420,
-  h = 260,
+  h = 420,
   folders,
   open = 1,
 }: CajonProps) {
-  if (folders.length > 12)
-    throw new Error("Cajon supports up to twelve folders")
-  const width = Math.max(
-    w,
-    ...folders.map((f) => Array.from(f.name).length * 10 + 88)
-  )
-  const depth = Math.max(h - 100, folders.length * 30 + 30)
   const p = unit(open)
-  const front = y - 16 + (depth + 52) * p
+  const front = y - 22 + 104 * p
+  const folderHeight = ((w - 52) * 150) / 205
+  const spacing = 48 / Math.max(5, folders.length - 1)
+  const frontHeight = folderHeight + 8
   return {
     x,
     y,
-    w: width,
-    h: depth + 152,
+    w,
+    h,
     front,
+    frontHeight,
     folders: folders.map((f, i) => {
-      const tabWidth = Array.from(f.name).length * 10 + 30
-      const left = x + 26
-      const top = y + 26 + i * 30 * p - unit(f.pulled ?? 0) * (110 + i * 30 * p)
-      const tabX = left + ((i % 3) * (width - 52 - tabWidth)) / 2
+      const top =
+        front +
+        32 -
+        62 * p -
+        i * spacing * p -
+        unit(f.pulled ?? 0) * p * (folderHeight + 24)
+      const tabWidth = Math.min((w - 52) * 0.55, 28 + f.name.length * 9)
+      const tabX = x + 26 + ((i % 3) * (w - 52 - tabWidth)) / 2
       return {
-        x: left,
+        x: x + 26,
         y: top,
-        w: width - 52,
+        w: w - 52,
+        h: folderHeight,
         tabX,
         tabWidth,
-        anchor: { x: tabX + tabWidth / 2, y: top + 13 },
+        anchor: { x: tabX + tabWidth / 2, y: top + 10 },
       }
     }),
   }
 }
 
-/** SVG group; place inside a scene SVG. All anchor coordinates are scene-local. */
+/** A drawer alone. Complete folders are occluded by its front, never shortened. */
 export function Cajon(props: CajonProps) {
-  const { folders, open = 1 } = props
   const l = cajonLayout(props)
-  const p = unit(open)
-  const drawFolder = (f: DrawerFolder, i: number) => {
-    const q = l.folders[i]
-    return (
-      <g key={i}>
-        <path
-          d={`M${q.x} ${q.y + 25}H${q.tabX}V${q.y}H${q.tabX + q.tabWidth - 16}L${q.tabX + q.tabWidth} ${q.y + 18}H${q.x + q.w}V${q.y + 104}H${q.x}Z`}
-          fill={f.accent ? color.accent : color.card}
-        />
-        <path
-          d={`M${q.x + 5} ${q.y + 36}H${q.x + q.w - 5}M${q.x + 5} ${q.y + 40}V${q.y + 98}`}
-          fill="none"
-        />
-        <text
-          x={q.tabX + 9}
-          y={q.y + 17}
-          stroke="none"
-          fill={f.accent ? color.card : color.ink}
-          fontFamily={font.mono}
-          fontSize={16}
-        >
-          {f.name}
-        </text>
-      </g>
-    )
-  }
   return (
     <g
       role="img"
-      aria-label={`Filing drawer, ${folders.length} folders`}
+      aria-label={`Filing drawer, ${props.folders.length} folders`}
       stroke={color.ink}
       strokeWidth={2}
       strokeLinejoin="round"
     >
-      <rect
-        x={l.x + 13}
-        y={l.y + 12}
-        width={l.w - 26}
-        height={118}
-        fill={color.card}
-      />
       <path
-        d={`M${l.x + 22} ${l.y + 30}H${l.x + l.w - 22}L${l.x + l.w} ${l.front + 28}H${l.x}Z`}
+        d={`M${l.x + 20} ${l.y + 10}H${l.x + l.w - 20}L${l.x + l.w} ${l.front + 32}H${l.x}Z`}
         fill={color.ink}
       />
-      <g opacity={p}>
-        {folders.map((f, i) =>
-          unit(f.pulled ?? 0) === 0 ? drawFolder(f, i) : null
-        )}
-        {folders.map((f, i) =>
-          unit(f.pulled ?? 0) > 0 ? drawFolder(f, i) : null
-        )}
-      </g>
+      {[...props.folders.keys()].reverse().map((i) => {
+        const f = props.folders[i],
+          q = l.folders[i]
+        return (
+          <g key={i} data-folder-index={i}>
+            <FolderOutline {...q} fill={f.accent ? color.accent : color.card} />
+            <path d={`M${q.x + 5} ${q.y + 38}H${q.x + q.w - 5}`} fill="none" />
+            <text
+              x={q.tabX + 8}
+              y={q.y + 16}
+              fontFamily={font.mono}
+              fontSize={13}
+              stroke="none"
+              fill={f.accent ? color.card : color.ink}
+            >
+              {f.name.length > 16 ? f.name.slice(0, 15) + "…" : f.name}
+            </text>
+          </g>
+        )
+      })}
       <path
-        d={`M${l.x + 22} ${l.y + 30}L${l.x} ${l.front + 28}V${l.front + 116}L${l.x + 22} ${l.y + 116}ZM${l.x + l.w - 22} ${l.y + 30}L${l.x + l.w} ${l.front + 28}V${l.front + 116}L${l.x + l.w - 22} ${l.y + 116}Z`}
+        d={`M${l.x + 20} ${l.y + 10}L${l.x} ${l.front + 32}V${l.front + 32 + l.frontHeight}L${l.x + 20} ${l.y + 10 + l.frontHeight}ZM${l.x + l.w - 20} ${l.y + 10}L${l.x + l.w} ${l.front + 32}V${l.front + 32 + l.frontHeight}L${l.x + l.w - 20} ${l.y + 10 + l.frontHeight}Z`}
         fill={color.bg}
       />
       <rect
         x={l.x}
-        y={l.front + 28}
+        y={l.front + 32}
         width={l.w}
-        height={88}
+        height={l.frontHeight}
         rx={2}
         fill={color.card}
       />
       <rect
-        x={l.x + l.w / 2 - 49}
-        y={l.front + 57}
-        width={10}
-        height={14}
-        rx={2}
-        fill={color.bg}
-      />
-      <rect
-        x={l.x + l.w / 2 + 39}
-        y={l.front + 57}
-        width={10}
-        height={14}
-        rx={2}
+        x={l.x + l.w / 2 - 36}
+        y={l.front + 63}
+        width={72}
+        height={25}
+        rx={3}
         fill={color.bg}
       />
       <path
-        d={`M${l.x + l.w / 2 - 44} ${l.front + 63}v13q0 5 6 5h76q6 0 6 -5v-13`}
-        fill="none"
-        strokeWidth={6}
-        stroke={color.ink}
-      />
-      <path
-        d={`M${l.x + l.w / 2 - 44} ${l.front + 63}v13q0 5 6 5h76q6 0 6 -5v-13`}
-        fill="none"
-        strokeWidth={2}
-        stroke={color.card}
+        d={`M${l.x + l.w / 2 - 27} ${l.front + 72}h54v10h-54Z`}
+        fill={color.ink}
       />
     </g>
   )
