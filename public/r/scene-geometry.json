@@ -1,0 +1,16 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "scene-geometry",
+  "title": "Scene geometry",
+  "description": "Shared points, bounds, arc-length path interpolation and travel tilt.",
+  "registryDependencies": [],
+  "files": [
+    {
+      "path": "registry/jbm/lib/geometry.ts",
+      "content": "export type Pt = { x: number; y: number }\nexport type Box = Pt & { w: number; h: number }\n\nexport function unit(value: number): number {\n  return Number.isFinite(value) ? Math.max(0, Math.min(1, value)) : 0\n}\n\n/** Arc-length interpolation; repeated points and a one-point path are valid. */\nexport function pointOn(path: readonly Pt[], progress: number): Pt {\n  if (!path.length) throw new Error(\"pointOn needs at least one point\")\n  const lengths = path\n    .slice(1)\n    .map((p, i) => Math.hypot(p.x - path[i].x, p.y - path[i].y))\n  let distance = unit(progress) * lengths.reduce((a, b) => a + b, 0)\n  for (let i = 0; i < lengths.length; i++) {\n    if (lengths[i] > 0 && distance <= lengths[i]) {\n      const p = distance / lengths[i]\n      return {\n        x: path[i].x + (path[i + 1].x - path[i].x) * p,\n        y: path[i].y + (path[i + 1].y - path[i].y) * p,\n      }\n    }\n    distance -= lengths[i]\n  }\n  return { ...path[path.length - 1] }\n}\n\n/** Restrained travel tilt, in degrees. */\nexport function pathTilt(path: readonly Pt[], progress: number): number {\n  const a = pointOn(path, Math.max(0, progress - 0.01))\n  const b = pointOn(path, Math.min(1, progress + 0.01))\n  return Math.max(\n    -18,\n    Math.min(18, (Math.atan2(b.y - a.y, Math.abs(b.x - a.x)) * 180) / Math.PI)\n  )\n}\n",
+      "type": "registry:lib",
+      "target": "src/jbm/lib/geometry.ts"
+    }
+  ],
+  "type": "registry:lib"
+}

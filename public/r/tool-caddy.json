@@ -1,0 +1,19 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "tool-caddy",
+  "title": "Tool caddy",
+  "description": "Named rulers, stamps and knives in an open caddy, with individual pickup controls.",
+  "registryDependencies": [
+    "@jbm/tokens",
+    "@jbm/scene-geometry"
+  ],
+  "files": [
+    {
+      "path": "registry/jbm/motion/tool-caddy.tsx",
+      "content": "import { color, font } from \"../lib/tokens\"\nimport { unit } from \"../lib/geometry\"\n\nexport type DeskTool = {\n  name: string\n  kind?: \"ruler\" | \"stamp\" | \"knife\"\n  pulled?: number\n}\nexport type ToolCaddyProps = {\n  x?: number\n  y?: number\n  tools: readonly DeskTool[]\n}\nexport function toolCaddyLayout({ x = 0, y = 0, tools }: ToolCaddyProps) {\n  return {\n    x,\n    y,\n    w: Math.max(100, tools.length * 60 + 24),\n    tools: tools.map((tool, i) => ({\n      x: x + 42 + i * 60,\n      y: y - 104 - unit(tool.pulled ?? 0) * 90,\n    })),\n  }\n}\nexport function ToolCaddy(props: ToolCaddyProps) {\n  const l = toolCaddyLayout(props)\n  return (\n    <g\n      role=\"img\"\n      aria-label={`Tool caddy: ${props.tools.map((t) => t.name).join(\", \")}`}\n      stroke={color.ink}\n      strokeWidth={2}\n      strokeLinejoin=\"round\"\n    >\n      <path\n        d={`M${l.x} ${l.y}q${l.w / 2} -20 ${l.w} 0v54H${l.x}Z`}\n        fill={color.bg}\n      />\n      {props.tools.map((tool, i) => {\n        const p = l.tools[i]\n        const kind = tool.kind ?? ([\"ruler\", \"stamp\", \"knife\"] as const)[i % 3]\n        return (\n          <g key={i} transform={`translate(${p.x} ${p.y})`} fill={color.card}>\n            {kind === \"ruler\" ? (\n              <>\n                <rect x={-18} y={0} width={36} height={150} rx={2} />\n                {Array.from({ length: 12 }, (_, j) => (\n                  <path key={j} d={`M-18 ${12 + j * 10}h${j % 2 ? 5 : 9}`} />\n                ))}\n              </>\n            ) : kind === \"stamp\" ? (\n              <>\n                <path d=\"M-11 114V36C-34 11 -15 -5 0 -5S34 11 11 36V114Z\" />\n                <rect x={-24} y={114} width={48} height={22} rx={3} />\n                <path d=\"M-24 130h48\" />\n              </>\n            ) : (\n              <>\n                <path d=\"M-12 38L12 0V140H-12Z\" />\n                <path d=\"M-12 48H12M-12 53H12\" />\n                <circle cy={125} r={3} />\n              </>\n            )}\n            <text\n              transform=\"translate(5 102) rotate(-90)\"\n              stroke=\"none\"\n              fill={color.ink}\n              fontFamily={font.mono}\n              fontSize={13}\n            >\n              {tool.name}\n            </text>\n          </g>\n        )\n      })}\n      <path\n        d={`M${l.x} ${l.y + 8}q${l.w / 2} 14 ${l.w} 0v48q-${l.w / 2} 12 -${l.w} 0Z`}\n        fill={color.card}\n      />\n    </g>\n  )\n}\n",
+      "type": "registry:component",
+      "target": "src/jbm/motion/tool-caddy.tsx"
+    }
+  ],
+  "type": "registry:component"
+}
