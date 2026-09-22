@@ -20,6 +20,29 @@ import {
 } from "@/registry/jbm/ui/ui-bits"
 
 export const examples = {
+  "scene-geometry": (
+    <svg
+      viewBox="0 0 500 220"
+      width={500}
+      style={{ maxWidth: "100%" }}
+      aria-label="A path and its shared contact points"
+      role="img"
+    >
+      <path
+        d="M40 170L220 50L460 130"
+        fill="none"
+        stroke={color.ink}
+        strokeWidth={2}
+      />
+      {[
+        [40, 170],
+        [220, 50],
+        [460, 130],
+      ].map(([x, y], i) => (
+        <circle key={i} cx={x} cy={y} r={7} fill={color.accent} />
+      ))}
+    </svg>
+  ),
   "replay-button": <ReplayDemo />,
   label: <Label>Una idea a la vez</Label>,
   big: (
@@ -153,6 +176,7 @@ export const examples = {
 }
 
 export const snippets: Record<string, string> = {
+  "scene-geometry": `import { pointOn, pathTilt } from "./jbm/lib/geometry"\nconst path = [{ x: 40, y: 170 }, { x: 220, y: 50 }, { x: 460, y: 130 }]\nconst at = pointOn(path, 0.5)\nconst angle = pathTilt(path, 0.5)`,
   ticket:
     '<Ticket header="ADMIT ONE · OCT 2026" stub="Tu nombre · Tu comunidad" tone="accent">\n  <h3>Un lugar para crear.</h3>\n  <p>Trae tu curiosidad.</p>\n</Ticket>',
   "chat-bubble":

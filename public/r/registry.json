@@ -833,6 +833,126 @@
           "target": "src/jbm/ui/clock.tsx"
         }
       ]
+    },
+    {
+      "name": "scene-geometry",
+      "title": "Scene geometry",
+      "description": "Shared points, bounds, arc-length path interpolation and travel tilt.",
+      "type": "registry:lib",
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "registry/jbm/lib/geometry.ts",
+          "type": "registry:lib",
+          "target": "src/jbm/lib/geometry.ts"
+        }
+      ]
+    },
+    {
+      "name": "cajon",
+      "title": "Cajón",
+      "description": "A filing drawer with staggered named tabs, controlled opening and individually lifted folders.",
+      "type": "registry:component",
+      "registryDependencies": [
+        "@jbm/tokens",
+        "@jbm/scene-geometry"
+      ],
+      "files": [
+        {
+          "path": "registry/jbm/motion/cajon.tsx",
+          "type": "registry:component",
+          "target": "src/jbm/motion/cajon.tsx"
+        }
+      ]
+    },
+    {
+      "name": "mano",
+      "title": "Mano",
+      "description": "An anchored hand that points, reaches and grips a carried SVG child.",
+      "type": "registry:component",
+      "registryDependencies": [
+        "@jbm/tokens",
+        "@jbm/scene-geometry"
+      ],
+      "files": [
+        {
+          "path": "registry/jbm/motion/mano.tsx",
+          "type": "registry:component",
+          "target": "src/jbm/motion/mano.tsx"
+        }
+      ]
+    },
+    {
+      "name": "bandeja",
+      "title": "Bandeja",
+      "description": "A shallow paper tray with accumulated sheets, an incoming sheet and a cost mark.",
+      "type": "registry:component",
+      "registryDependencies": [
+        "@jbm/tokens",
+        "@jbm/scene-geometry"
+      ],
+      "files": [
+        {
+          "path": "registry/jbm/motion/bandeja.tsx",
+          "type": "registry:component",
+          "target": "src/jbm/motion/bandeja.tsx"
+        }
+      ]
+    },
+    {
+      "name": "tool-caddy",
+      "title": "Tool caddy",
+      "description": "Named rulers, stamps and knives in an open caddy, with individual pickup controls.",
+      "type": "registry:component",
+      "registryDependencies": [
+        "@jbm/tokens",
+        "@jbm/scene-geometry"
+      ],
+      "files": [
+        {
+          "path": "registry/jbm/motion/tool-caddy.tsx",
+          "type": "registry:component",
+          "target": "src/jbm/motion/tool-caddy.tsx"
+        }
+      ]
+    },
+    {
+      "name": "escritorio",
+      "title": "Escritorio",
+      "description": "A desk composed of drawer, tray and tool caddy, with shared scene anchors and two finishes.",
+      "type": "registry:component",
+      "registryDependencies": [
+        "@jbm/tokens",
+        "@jbm/scene-geometry",
+        "@jbm/cajon",
+        "@jbm/bandeja",
+        "@jbm/tool-caddy"
+      ],
+      "files": [
+        {
+          "path": "registry/jbm/motion/escritorio.tsx",
+          "type": "registry:component",
+          "target": "src/jbm/motion/escritorio.tsx"
+        }
+      ]
+    },
+    {
+      "name": "burbuja",
+      "title": "Burbuja",
+      "description": "A chat message that arrives, highlights words, links to a target and retracts on a failed match.",
+      "type": "registry:component",
+      "registryDependencies": [
+        "@jbm/tokens",
+        "@jbm/scene-geometry",
+        "@jbm/chat-bubble"
+      ],
+      "files": [
+        {
+          "path": "registry/jbm/motion/burbuja.tsx",
+          "type": "registry:component",
+          "target": "src/jbm/motion/burbuja.tsx"
+        }
+      ]
     }
   ]
 }

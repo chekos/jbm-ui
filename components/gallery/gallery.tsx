@@ -12,6 +12,7 @@ import { videoPrimitiveExamples } from "./video-primitives-demo"
 import { editorialExamples } from "./editorial-demo"
 import { ScrollStackDemo } from "./scroll-stack-demo"
 import { SurfaceDepth, surfaceUsage } from "./surface-depth"
+import { DeskDemo, deskNames, deskSnippets } from "./desk-demo"
 
 const galleryItems = [
   registry.items[0],
@@ -221,6 +222,8 @@ export function Gallery() {
                             ]
                           }
                         </div>
+                      ) : deskNames.includes(item.name) ? (
+                        <DeskDemo name={item.name} />
                       ) : item.name in examples ? (
                         <Canvas>
                           {examples[item.name as keyof typeof examples]}
@@ -266,7 +269,8 @@ export function Gallery() {
                           <code>
                             {item.name === "surface-depth"
                               ? surfaceUsage
-                              : snippets[item.name]}
+                              : (deskSnippets[item.name] ??
+                                snippets[item.name])}
                           </code>
                         </pre>
                         <Install
