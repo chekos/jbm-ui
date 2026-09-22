@@ -851,11 +851,12 @@
     {
       "name": "cajon",
       "title": "Cajón",
-      "description": "A filing drawer with staggered named tabs, controlled opening and individually lifted folders.",
+      "description": "A fixed-size filing drawer with complete folders packed front to back.",
       "type": "registry:component",
       "registryDependencies": [
         "@jbm/tokens",
-        "@jbm/scene-geometry"
+        "@jbm/scene-geometry",
+        "@jbm/folder"
       ],
       "files": [
         {
@@ -868,10 +869,10 @@
     {
       "name": "mano",
       "title": "Mano",
-      "description": "An anchored hand that points, reaches and grips a carried SVG child.",
+      "description": "Position and rotate the independent Hand illustration with controlled coordinates.",
       "type": "registry:component",
       "registryDependencies": [
-        "@jbm/tokens",
+        "@jbm/hand",
         "@jbm/scene-geometry"
       ],
       "files": [
@@ -885,7 +886,7 @@
     {
       "name": "bandeja",
       "title": "Bandeja",
-      "description": "A shallow paper tray with accumulated sheets, an incoming sheet and a cost mark.",
+      "description": "A shallow paper tray with optional sheets.",
       "type": "registry:component",
       "registryDependencies": [
         "@jbm/tokens",
@@ -902,11 +903,10 @@
     {
       "name": "tool-caddy",
       "title": "Tool caddy",
-      "description": "Named rulers, stamps and knives in an open caddy, with individual pickup controls.",
+      "description": "An empty divided desktop organizer.",
       "type": "registry:component",
       "registryDependencies": [
-        "@jbm/tokens",
-        "@jbm/scene-geometry"
+        "@jbm/tokens"
       ],
       "files": [
         {
@@ -919,14 +919,13 @@
     {
       "name": "escritorio",
       "title": "Escritorio",
-      "description": "A desk composed of drawer, tray and tool caddy, with shared scene anchors and two finishes.",
+      "description": "An empty desk with separate finish and optional file cabinet.",
       "type": "registry:component",
       "registryDependencies": [
         "@jbm/tokens",
         "@jbm/scene-geometry",
         "@jbm/cajon",
-        "@jbm/bandeja",
-        "@jbm/tool-caddy"
+        "@jbm/file-cabinet"
       ],
       "files": [
         {
@@ -939,18 +938,51 @@
     {
       "name": "burbuja",
       "title": "Burbuja",
-      "description": "A chat message that arrives, highlights words, links to a target and retracts on a failed match.",
+      "description": "The existing ChatBubble with selected words highlighted by TextFill.",
       "type": "registry:component",
       "registryDependencies": [
         "@jbm/tokens",
-        "@jbm/scene-geometry",
-        "@jbm/chat-bubble"
+        "@jbm/chat-bubble",
+        "@jbm/text-fill"
       ],
       "files": [
         {
           "path": "registry/jbm/motion/burbuja.tsx",
           "type": "registry:component",
           "target": "src/jbm/motion/burbuja.tsx"
+        }
+      ]
+    },
+    {
+      "name": "hand",
+      "title": "Hand",
+      "description": "An independent hand illustration with open, pointing and pinching poses.",
+      "type": "registry:component",
+      "registryDependencies": [
+        "@jbm/tokens"
+      ],
+      "files": [
+        {
+          "path": "registry/jbm/ui/hand.tsx",
+          "type": "registry:component",
+          "target": "src/jbm/ui/hand.tsx"
+        }
+      ]
+    },
+    {
+      "name": "file-cabinet",
+      "title": "File cabinet",
+      "description": "A reusable cabinet containing a controlled filing drawer.",
+      "type": "registry:component",
+      "registryDependencies": [
+        "@jbm/tokens",
+        "@jbm/cajon"
+      ],
+      "files": [
+        {
+          "path": "registry/jbm/ui/file-cabinet.tsx",
+          "type": "registry:component",
+          "target": "src/jbm/ui/file-cabinet.tsx"
         }
       ]
     }

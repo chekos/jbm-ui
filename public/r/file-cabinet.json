@@ -1,0 +1,19 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "file-cabinet",
+  "title": "File cabinet",
+  "description": "A reusable cabinet containing a controlled filing drawer.",
+  "registryDependencies": [
+    "@jbm/tokens",
+    "@jbm/cajon"
+  ],
+  "files": [
+    {
+      "path": "registry/jbm/ui/file-cabinet.tsx",
+      "content": "import { color } from \"../lib/tokens\"\nimport { Cajon, type CajonProps } from \"../motion/cajon\"\n\nexport type FileCabinetProps = CajonProps\n/** The enclosing cabinet is independent of both its drawer and a desk. */\nexport function FileCabinet({\n  x = 0,\n  y = 0,\n  w = 300,\n  h = 360,\n  ...props\n}: FileCabinetProps) {\n  return (\n    <g role=\"img\" aria-label=\"File cabinet\">\n      <g\n        fill={color.card}\n        stroke={color.ink}\n        strokeWidth={2}\n        strokeLinejoin=\"round\"\n      >\n        <path\n          d={`M${x + 14} ${y}H${x + w - 14}L${x + w} ${y + 18}V${y + h}H${x}V${y + 18}Z`}\n        />\n        <path\n          d={`M${x} ${y + 18}H${x + w}M${x + 10} ${y + h - 14}H${x + w - 10}`}\n          fill=\"none\"\n        />\n      </g>\n      <Cajon {...props} x={x + 10} y={y + 32} w={w - 20} h={h - 44} />\n    </g>\n  )\n}\n",
+      "type": "registry:component",
+      "target": "src/jbm/ui/file-cabinet.tsx"
+    }
+  ],
+  "type": "registry:component"
+}
