@@ -19,6 +19,7 @@ This is a reusable React / Remotion component library and shadcn registry with a
 
 ## Illustration acceptance
 
+- Read [the illustration workflow](docs/illustration-workflow.md) before reference-based component work. It captures the reference, composition, physicality, and visual acceptance requirements.
 - Audit existing components before implementing a reference: reuse primitives, and expose independent objects separately from composites and transforms.
 - Match the reference and existing library with simple geometric line art. Use minimal contours and flat fills; avoid realistic anatomy and incidental scene props.
 - Perform adversarial visual QA before delivery: compare against the source image and existing gallery, inspect intermediate states and extremes, check complete hidden object geometry and occlusion, and exercise each control independently on desktop and mobile. Passing builds alone is insufficient.
