@@ -1,0 +1,19 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "paper-line",
+  "title": "Paper line",
+  "description": "Controlled grapheme reveal, ink lift, dotted underline, and strike-through.",
+  "registryDependencies": [
+    "@jbm/tokens",
+    "@jbm/scene-geometry"
+  ],
+  "files": [
+    {
+      "path": "registry/jbm/ui/paper-line.tsx",
+      "content": "import type { CSSProperties } from \"react\"\nimport { color, font } from \"../lib/tokens\"\nimport { unit } from \"../lib/geometry\"\n\nexport type PaperLineProps = {\n  text: string\n  reveal?: number\n  lift?: number\n  strike?: number\n  dotted?: boolean\n  accent?: boolean\n  mono?: boolean\n  style?: CSSProperties\n}\n/** All progress values are controlled 0–1. The full text remains available to assistive technology. */\nexport function PaperLine({\n  text,\n  reveal = 1,\n  lift = 0,\n  strike = 0,\n  dotted = false,\n  accent = false,\n  mono = false,\n  style,\n}: PaperLineProps) {\n  const p = unit(lift)\n  const glyphs = Array.from(\n    new Intl.Segmenter(undefined, { granularity: \"grapheme\" }).segment(text),\n    (s) => s.segment\n  )\n  return (\n    <span\n      style={{\n        display: \"inline-block\",\n        maxWidth: \"100%\",\n        fontFamily: mono ? font.mono : font.sans,\n        color: accent ? color.accent : color.ink,\n        lineHeight: 1.4,\n        ...style,\n      }}\n    >\n      <span\n        style={{\n          position: \"absolute\",\n          width: 1,\n          height: 1,\n          overflow: \"hidden\",\n          clipPath: \"inset(50%)\",\n        }}\n      >\n        {text}\n      </span>\n      <span\n        aria-hidden\n        style={{\n          position: \"relative\",\n          display: \"inline-block\",\n          maxWidth: \"100%\",\n          overflowWrap: \"anywhere\",\n          whiteSpace: \"pre-wrap\",\n          transform: `translate(${p * 60}px, ${-p * 40}px) rotate(${-p * 9}deg)`,\n          opacity: 1 - p * p,\n          borderBottom: dotted ? `2px dotted ${color.dim}` : undefined,\n        }}\n      >\n        {glyphs.map((g, i) => (\n          <span\n            key={i}\n            style={{\n              visibility:\n                i < Math.ceil(unit(reveal) * glyphs.length)\n                  ? \"visible\"\n                  : \"hidden\",\n            }}\n          >\n            {g}\n          </span>\n        ))}\n        <span\n          style={{\n            position: \"absolute\",\n            left: 0,\n            top: \"50%\",\n            width: `${unit(strike) * 100}%`,\n            height: 2,\n            background: color.accent,\n          }}\n        />\n      </span>\n    </span>\n  )\n}\n",
+      "type": "registry:ui",
+      "target": "src/jbm/ui/paper-line.tsx"
+    }
+  ],
+  "type": "registry:ui"
+}

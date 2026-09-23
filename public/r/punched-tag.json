@@ -1,0 +1,19 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "punched-tag",
+  "title": "Punched tag",
+  "description": "Card-stock label with a punched hole and configurable content.",
+  "registryDependencies": [
+    "@jbm/tokens",
+    "@jbm/paper"
+  ],
+  "files": [
+    {
+      "path": "registry/jbm/ui/punched-tag.tsx",
+      "content": "import type { CSSProperties, ReactNode } from \"react\"\nimport { color, font } from \"../lib/tokens\"\nimport { Paper, paperInk, type PaperTone } from \"./paper\"\n\nexport function PunchedTag({\n  children,\n  tone = \"paper\",\n  style,\n}: {\n  children: ReactNode\n  tone?: PaperTone\n  style?: CSSProperties\n}) {\n  return (\n    <Paper\n      tone={tone}\n      radius={12}\n      style={{\n        display: \"flex\",\n        gap: 18,\n        alignItems: \"center\",\n        borderTopLeftRadius: 36,\n        borderBottomLeftRadius: 36,\n        padding: \"16px 24px 16px 16px\",\n        maxWidth: \"100%\",\n        ...style,\n      }}\n    >\n      <span\n        aria-hidden\n        style={{\n          flex: \"0 0 14px\",\n          height: 14,\n          borderRadius: \"50%\",\n          background: color.bg,\n          border: `2px solid ${color.ink}`,\n        }}\n      />\n      <span\n        style={{\n          fontFamily: font.sans,\n          fontWeight: 800,\n          fontSize: 28,\n          color: paperInk(tone),\n          overflowWrap: \"anywhere\",\n          minWidth: 0,\n        }}\n      >\n        {children}\n      </span>\n    </Paper>\n  )\n}\n",
+      "type": "registry:ui",
+      "target": "src/jbm/ui/punched-tag.tsx"
+    }
+  ],
+  "type": "registry:ui"
+}

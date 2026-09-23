@@ -1,5 +1,7 @@
 "use client"
 
+import { WorkOrderExample } from "./design-video-demo"
+
 import { useState } from "react"
 import { Ticket } from "@/registry/jbm/ui/ticket"
 import { ChatBubble } from "@/registry/jbm/ui/chat-bubble"
@@ -124,7 +126,12 @@ function ClockDemo() {
   )
 }
 export const videoPrimitiveExamples = {
-  ticket: <TicketDemo />,
+  ticket: (
+    <div style={{ display: "grid", gap: 32 }}>
+      <TicketDemo />
+      <WorkOrderExample />
+    </div>
+  ),
   "chat-bubble": (
     <div style={{ display: "grid", gap: 20 }}>
       <ChatBubble speaker="Tú" tone="ink">

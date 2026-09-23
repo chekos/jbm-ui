@@ -1,0 +1,20 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "clipped-note",
+  "title": "Clipped note",
+  "description": "Paper note with an optional independent clip, rotation, and paper tones.",
+  "registryDependencies": [
+    "@jbm/tokens",
+    "@jbm/paper",
+    "@jbm/paper-clip"
+  ],
+  "files": [
+    {
+      "path": "registry/jbm/ui/clipped-note.tsx",
+      "content": "import type { CSSProperties, ReactNode } from \"react\"\nimport { Paper, paperInk, type PaperTone } from \"./paper\"\nimport { PaperClip } from \"./paper-clip\"\nimport { font } from \"../lib/tokens\"\n\nexport function ClippedNote({\n  children,\n  clip = true,\n  tone = \"paper\",\n  rotate = 0,\n  style,\n}: {\n  children: ReactNode\n  clip?: boolean\n  tone?: PaperTone\n  rotate?: number\n  style?: CSSProperties\n}) {\n  return (\n    <Paper\n      tone={tone}\n      rotate={rotate}\n      radius={10}\n      style={{ width: 220, maxWidth: \"100%\", padding: 18, ...style }}\n    >\n      {clip && (\n        <PaperClip style={{ position: \"absolute\", left: 18, top: -24 }} />\n      )}\n      <div\n        style={{\n          fontFamily: font.sans,\n          fontWeight: 700,\n          color: paperInk(tone),\n          lineHeight: 1.3,\n          overflowWrap: \"anywhere\",\n        }}\n      >\n        {children}\n      </div>\n    </Paper>\n  )\n}\n",
+      "type": "registry:ui",
+      "target": "src/jbm/ui/clipped-note.tsx"
+    }
+  ],
+  "type": "registry:ui"
+}

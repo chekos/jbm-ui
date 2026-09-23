@@ -9,6 +9,8 @@ export function FolderOutline({
   h = 144,
   tabX = x,
   tabWidth = 83,
+  tabHeight = 27,
+  tabSlope = 17,
   fill = color.accent,
 }: {
   x?: number
@@ -17,11 +19,13 @@ export function FolderOutline({
   h?: number
   tabX?: number
   tabWidth?: number
+  tabHeight?: number
+  tabSlope?: number
   fill?: string
 }) {
   return (
     <path
-      d={`M${x} ${y + 27}H${tabX}V${y}H${tabX + tabWidth - 17}L${tabX + tabWidth} ${y + 17}H${x + w}V${y + h}H${x}Z`}
+      d={`M${x} ${y + tabHeight}H${tabX}V${y}H${tabX + tabWidth - tabSlope}L${tabX + tabWidth} ${y + tabSlope}H${x + w}V${y + h}H${x}Z`}
       fill={fill}
       stroke={color.ink}
       strokeWidth={2}
@@ -34,6 +38,8 @@ export type FolderProps = React.SVGProps<SVGSVGElement> & {
   label?: string
   open?: number
   tone?: "accent" | "ink"
+  /** SVG contents in the 260×220 folder space, drawn behind its front panel. */
+  children?: React.ReactNode
 }
 
 /** Controlled illustration: open is 0–1; drive it with a slider or video timeline. */
@@ -42,6 +48,7 @@ export function Folder({
   open = 0,
   tone = "accent",
   style,
+  children,
   ...props
 }: FolderProps) {
   const p = Number.isFinite(open) ? Math.max(0, Math.min(1, open)) : 0
@@ -72,24 +79,26 @@ export function Folder({
       style={{ display: "block", maxWidth: "100%", height: "auto", ...style }}
     >
       <FolderOutline fill={fill} />
-      <g
-        transform={`translate(${256 + paperDrift} ${-paperLift}) scale(-1 1) rotate(${paperAngle - 180} 128 140)`}
-      >
-        <path d="M49 78H180L207 104V184H49Z" fill={color.card} />
-        <path
-          d="M180 78H49V184H207V104"
-          fill="none"
-          stroke={color.ink}
-          strokeWidth={2}
-        />
-        <path d="M180 78V104H207" fill={color.line} />
-        <path d="M158 106V164" stroke={color.accent} strokeWidth={6} />
-        <path
-          d="M136 98V164M114 112V164M92 98V164"
-          stroke={color.line}
-          strokeWidth={4}
-        />
-      </g>
+      {children ?? (
+        <g
+          transform={`translate(${256 + paperDrift} ${-paperLift}) scale(-1 1) rotate(${paperAngle - 180} 128 140)`}
+        >
+          <path d="M49 78H180L207 104V184H49Z" fill={color.card} />
+          <path
+            d="M180 78H49V184H207V104"
+            fill="none"
+            stroke={color.ink}
+            strokeWidth={2}
+          />
+          <path d="M180 78V104H207" fill={color.line} />
+          <path d="M158 106V164" stroke={color.accent} strokeWidth={6} />
+          <path
+            d="M136 98V164M114 112V164M92 98V164"
+            stroke={color.line}
+            strokeWidth={4}
+          />
+        </g>
+      )}
       <path
         d={`M${25 - p * 15} ${95 + p * 35}H${230 + p * 15}L230 205H25Z`}
         fill={fill}

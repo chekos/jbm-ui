@@ -1,0 +1,19 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "frontmatter",
+  "title": "Frontmatter",
+  "description": "Metadata fields with YAML delimiters, emphasis, dimming, and stacked layout.",
+  "registryDependencies": [
+    "@jbm/tokens",
+    "@jbm/scene-geometry"
+  ],
+  "files": [
+    {
+      "path": "registry/jbm/ui/frontmatter.tsx",
+      "content": "import type { CSSProperties, ReactNode } from \"react\"\nimport { color, font } from \"../lib/tokens\"\nimport { unit } from \"../lib/geometry\"\n\nexport type FrontmatterRow = {\n  key: string\n  value: ReactNode\n  highlight?: boolean\n  dim?: number\n}\n/** Metadata between literal YAML delimiters. Stacked mode gives values the full width. */\nexport function Frontmatter({\n  rows,\n  stacked = false,\n  style,\n}: {\n  rows: FrontmatterRow[]\n  stacked?: boolean\n  style?: CSSProperties\n}) {\n  return (\n    <div\n      style={{\n        background: color.bg,\n        padding: 18,\n        fontFamily: font.mono,\n        fontSize: 14,\n        minWidth: 0,\n        ...style,\n      }}\n    >\n      <div aria-hidden>---</div>\n      <dl\n        style={{\n          margin: \"12px 0\",\n          display: \"grid\",\n          gridTemplateColumns: stacked\n            ? \"minmax(0, 1fr)\"\n            : \"minmax(112px, 1fr) minmax(0, 2fr)\",\n          gap: stacked ? \"6px\" : \"12px\",\n        }}\n      >\n        {rows.map((row) => (\n          <div key={row.key} style={{ display: \"contents\" }}>\n            <dt\n              style={{\n                borderLeft: `3px solid ${row.highlight ? color.accent : \"transparent\"}`,\n                paddingLeft: 8,\n                color: color.ink,\n                opacity: 1 - unit(row.dim ?? 0) * 0.72,\n                overflowWrap: \"anywhere\",\n                fontWeight: 600,\n              }}\n            >\n              {row.key}:\n            </dt>\n            <dd\n              style={{\n                margin: 0,\n                paddingLeft: stacked ? 11 : 0,\n                marginBottom: stacked ? 12 : 0,\n                color: color.ink,\n                opacity: 1 - unit(row.dim ?? 0) * 0.72,\n                overflowWrap: \"anywhere\",\n                minWidth: 0,\n              }}\n            >\n              {row.value}\n            </dd>\n          </div>\n        ))}\n      </dl>\n      <div aria-hidden>---</div>\n    </div>\n  )\n}\n",
+      "type": "registry:ui",
+      "target": "src/jbm/ui/frontmatter.tsx"
+    }
+  ],
+  "type": "registry:ui"
+}

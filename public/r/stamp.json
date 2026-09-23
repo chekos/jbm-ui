@@ -1,0 +1,19 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "stamp",
+  "title": "Stamp",
+  "description": "Controlled ink impression with press and angle controls.",
+  "registryDependencies": [
+    "@jbm/tokens",
+    "@jbm/scene-geometry"
+  ],
+  "files": [
+    {
+      "path": "registry/jbm/ui/stamp.tsx",
+      "content": "import type { CSSProperties } from \"react\"\nimport { color, font } from \"../lib/tokens\"\nimport { unit } from \"../lib/geometry\"\n\n/** An ink impression, not a validation verdict. press controls contact and settling. */\nexport function Stamp({\n  text,\n  press = 1,\n  angle = -7,\n  style,\n}: {\n  text: string\n  press?: number\n  angle?: number\n  style?: CSSProperties\n}) {\n  const p = unit(press)\n  const ink = unit((p - 0.5) / 0.3)\n  const layer: CSSProperties = {\n    border: `3px solid ${color.accent}`,\n    borderRadius: 5,\n    padding: \"8px 16px\",\n    fontFamily: font.mono,\n    fontSize: 24,\n    fontWeight: 700,\n    color: color.accent,\n    overflowWrap: \"anywhere\",\n  }\n  return (\n    <div\n      style={{\n        display: \"inline-block\",\n        position: \"relative\",\n        maxWidth: \"100%\",\n        transform: `translateY(${-60 * (1 - unit(p / 0.62))}px) rotate(${angle}deg)`,\n        opacity: ink,\n        ...style,\n      }}\n    >\n      <div style={layer}>{text}</div>\n      <div\n        aria-hidden\n        style={{\n          ...layer,\n          position: \"absolute\",\n          inset: 0,\n          transform: \"translate(2px, -1px)\",\n          opacity: 0.3,\n        }}\n      >\n        {text}\n      </div>\n    </div>\n  )\n}\n",
+      "type": "registry:ui",
+      "target": "src/jbm/ui/stamp.tsx"
+    }
+  ],
+  "type": "registry:ui"
+}

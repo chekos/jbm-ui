@@ -986,6 +986,179 @@
           "target": "src/jbm/ui/file-cabinet.tsx"
         }
       ]
+    },
+    {
+      "name": "paper-clip",
+      "title": "Paper clip",
+      "description": "Independent wire clip for paper edges.",
+      "type": "registry:ui",
+      "registryDependencies": [
+        "@jbm/tokens"
+      ],
+      "files": [
+        {
+          "path": "registry/jbm/ui/paper-clip.tsx",
+          "type": "registry:ui",
+          "target": "src/jbm/ui/paper-clip.tsx"
+        }
+      ]
+    },
+    {
+      "name": "clipped-note",
+      "title": "Clipped note",
+      "description": "Paper note with an optional independent clip, rotation, and paper tones.",
+      "type": "registry:ui",
+      "registryDependencies": [
+        "@jbm/tokens",
+        "@jbm/paper",
+        "@jbm/paper-clip"
+      ],
+      "files": [
+        {
+          "path": "registry/jbm/ui/clipped-note.tsx",
+          "type": "registry:ui",
+          "target": "src/jbm/ui/clipped-note.tsx"
+        }
+      ]
+    },
+    {
+      "name": "punched-tag",
+      "title": "Punched tag",
+      "description": "Card-stock label with a punched hole and configurable content.",
+      "type": "registry:ui",
+      "registryDependencies": [
+        "@jbm/tokens",
+        "@jbm/paper"
+      ],
+      "files": [
+        {
+          "path": "registry/jbm/ui/punched-tag.tsx",
+          "type": "registry:ui",
+          "target": "src/jbm/ui/punched-tag.tsx"
+        }
+      ]
+    },
+    {
+      "name": "paper-line",
+      "title": "Paper line",
+      "description": "Controlled grapheme reveal, ink lift, dotted underline, and strike-through.",
+      "type": "registry:ui",
+      "registryDependencies": [
+        "@jbm/tokens",
+        "@jbm/scene-geometry"
+      ],
+      "files": [
+        {
+          "path": "registry/jbm/ui/paper-line.tsx",
+          "type": "registry:ui",
+          "target": "src/jbm/ui/paper-line.tsx"
+        }
+      ]
+    },
+    {
+      "name": "stamp",
+      "title": "Stamp",
+      "description": "Controlled ink impression with press and angle controls.",
+      "type": "registry:ui",
+      "registryDependencies": [
+        "@jbm/tokens",
+        "@jbm/scene-geometry"
+      ],
+      "files": [
+        {
+          "path": "registry/jbm/ui/stamp.tsx",
+          "type": "registry:ui",
+          "target": "src/jbm/ui/stamp.tsx"
+        }
+      ]
+    },
+    {
+      "name": "tape-marker",
+      "title": "Tape marker",
+      "description": "Independent folded paper checkpoint marker.",
+      "type": "registry:ui",
+      "registryDependencies": [
+        "@jbm/tokens",
+        "@jbm/paper"
+      ],
+      "files": [
+        {
+          "path": "registry/jbm/ui/tape-marker.tsx",
+          "type": "registry:ui",
+          "target": "src/jbm/ui/tape-marker.tsx"
+        }
+      ]
+    },
+    {
+      "name": "paper-tape",
+      "title": "Paper tape",
+      "description": "Feeding paper with shared coordinates for writing, markers, and attached notes.",
+      "type": "registry:ui",
+      "registryDependencies": [
+        "@jbm/tokens",
+        "@jbm/paper",
+        "@jbm/tape-marker"
+      ],
+      "files": [
+        {
+          "path": "registry/jbm/ui/paper-tape.tsx",
+          "type": "registry:ui",
+          "target": "src/jbm/ui/paper-tape.tsx"
+        }
+      ]
+    },
+    {
+      "name": "frontmatter",
+      "title": "Frontmatter",
+      "description": "Metadata fields with YAML delimiters, emphasis, dimming, and stacked layout.",
+      "type": "registry:ui",
+      "registryDependencies": [
+        "@jbm/tokens",
+        "@jbm/scene-geometry"
+      ],
+      "files": [
+        {
+          "path": "registry/jbm/ui/frontmatter.tsx",
+          "type": "registry:ui",
+          "target": "src/jbm/ui/frontmatter.tsx"
+        }
+      ]
+    },
+    {
+      "name": "folder-contents",
+      "title": "Folder contents",
+      "description": "Nested folders and documents with independent extraction and rigid-object reveal.",
+      "type": "registry:ui",
+      "registryDependencies": [
+        "@jbm/tokens",
+        "@jbm/scene-geometry",
+        "@jbm/folder"
+      ],
+      "files": [
+        {
+          "path": "registry/jbm/ui/folder-contents.tsx",
+          "type": "registry:ui",
+          "target": "src/jbm/ui/folder-contents.tsx"
+        }
+      ]
+    },
+    {
+      "name": "folder-carry",
+      "title": "Folder carry",
+      "description": "Continuous folder transport with shared tab contact geometry.",
+      "type": "registry:ui",
+      "registryDependencies": [
+        "@jbm/tokens",
+        "@jbm/scene-geometry",
+        "@jbm/folder"
+      ],
+      "files": [
+        {
+          "path": "registry/jbm/ui/folder-carry.tsx",
+          "type": "registry:ui",
+          "target": "src/jbm/ui/folder-carry.tsx"
+        }
+      ]
     }
   ]
 }

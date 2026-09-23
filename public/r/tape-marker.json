@@ -1,0 +1,19 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "tape-marker",
+  "title": "Tape marker",
+  "description": "Independent folded paper checkpoint marker.",
+  "registryDependencies": [
+    "@jbm/tokens",
+    "@jbm/paper"
+  ],
+  "files": [
+    {
+      "path": "registry/jbm/ui/tape-marker.tsx",
+      "content": "import type { CSSProperties } from \"react\"\nimport { color, font } from \"../lib/tokens\"\nimport { paperShadow } from \"./paper\"\n\n/** Folded paper marker; usable without a tape. */\nexport function TapeMarker({\n  label,\n  style,\n}: {\n  label?: string\n  style?: CSSProperties\n}) {\n  return (\n    <div\n      style={{\n        position: \"relative\",\n        width: 20,\n        height: 72,\n        background: color.accent,\n        borderRadius: 4,\n        boxShadow: paperShadow,\n        ...style,\n      }}\n    >\n      <div\n        aria-hidden\n        style={{\n          height: 14,\n          background: \"rgba(0,0,0,.16)\",\n          borderRadius: \"4px 4px 0 0\",\n        }}\n      />\n      {label && (\n        <span\n          style={{\n            position: \"absolute\",\n            left: \"50%\",\n            bottom: \"100%\",\n            marginBottom: 8,\n            transform: \"translateX(-50%)\",\n            fontFamily: font.sans,\n            fontWeight: 700,\n            color: color.accent,\n            whiteSpace: \"nowrap\",\n          }}\n        >\n          {label}\n        </span>\n      )}\n    </div>\n  )\n}\n",
+      "type": "registry:ui",
+      "target": "src/jbm/ui/tape-marker.tsx"
+    }
+  ],
+  "type": "registry:ui"
+}

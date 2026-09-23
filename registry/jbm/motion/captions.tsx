@@ -36,7 +36,7 @@ export function Captions({ words, orientation = "landscape", offset = 0 }: { wor
           const on = t >= w.s;
           const pop = w.emph ? interpolate(t, [w.s, w.s + 0.2, w.s + 0.4], [1, 1.22, 1.08], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }) : 1;
           return (
-            <span key={i} style={{ opacity: on ? 1 : 0.28, color: w.emph && on ? color.soft : color.bg, fontWeight: w.emph ? 800 : 600, display: "inline-block", transform: `scale(${pop})`, marginRight: 12 }}>{w.w}</span>
+            <span key={i} style={{ opacity: on ? 1 : 0.28, color: w.emph && on ? color.soft : color.bg, fontWeight: w.emph ? 800 : 600, display: "inline-block", transform: `translateY(${(1 - pop) * 6}px)`, marginRight: 12 }}>{w.w}</span>
           );
         })}
       </div>

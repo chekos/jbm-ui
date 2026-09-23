@@ -12,6 +12,11 @@ import { videoPrimitiveExamples } from "./video-primitives-demo"
 import { editorialExamples } from "./editorial-demo"
 import { ScrollStackDemo } from "./scroll-stack-demo"
 import { SurfaceDepth, surfaceUsage } from "./surface-depth"
+import {
+  DesignVideoDemo,
+  designNames,
+  designSnippets,
+} from "./design-video-demo"
 import { DeskDemo, deskNames, deskSnippets } from "./desk-demo"
 
 const galleryItems = [
@@ -159,6 +164,7 @@ export function Gallery() {
                     </div>
                     <div
                       style={
+                        designNames.includes(item.name) ||
                         item.name === "scroll-stack" ||
                         item.name === "flip-text" ||
                         item.name === "text-fill" ||
@@ -174,7 +180,9 @@ export function Gallery() {
                           : "preview"
                       }
                     >
-                      {item.name === "scroll-stack" ? (
+                      {designNames.includes(item.name) ? (
+                        <DesignVideoDemo name={item.name} />
+                      ) : item.name === "scroll-stack" ? (
                         <ScrollStackDemo />
                       ) : item.name === "flip-text" ? (
                         <FlipTextDemo />
@@ -269,7 +277,8 @@ export function Gallery() {
                           <code>
                             {item.name === "surface-depth"
                               ? surfaceUsage
-                              : (deskSnippets[item.name] ??
+                              : (designSnippets[item.name] ??
+                                deskSnippets[item.name] ??
                                 snippets[item.name])}
                           </code>
                         </pre>
