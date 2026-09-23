@@ -178,7 +178,7 @@ export const examples = {
 export const snippets: Record<string, string> = {
   "scene-geometry": `import { pointOn, pathTilt } from "./jbm/lib/geometry"\nconst path = [{ x: 40, y: 170 }, { x: 220, y: 50 }, { x: 460, y: 130 }]\nconst at = pointOn(path, 0.5)\nconst angle = pathTilt(path, 0.5)`,
   ticket:
-    '<Ticket header="ADMIT ONE · OCT 2026" stub="Tu nombre · Tu comunidad" tone="accent">\n  <h3>Un lugar para crear.</h3>\n  <p>Trae tu curiosidad.</p>\n</Ticket>',
+    '<Ticket header="ADMIT ONE · OCT 2026" stub="Tu nombre · Tu comunidad" tone="accent">\n  <h3>Un lugar para crear.</h3>\n  <p>Trae tu curiosidad.</p>\n</Ticket>\n\n// Work order: compose the same header and stub slots.\n<Ticket header="orden de trabajo" stub={<>Hecho es:<br />Las pruebas pasan.</>}>\n  <h3>Migrar los pagos</h3>\n  <p>Del cliente anterior al nuevo.</p>\n</Ticket>',
   "chat-bubble":
     '<ChatBubble speaker="Tú" side="end" tone="accent">\n  Una pieza a la vez.\n</ChatBubble>',
   document: '<Document label="idea.md" accent style={{ width: 180 }} />',

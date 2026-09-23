@@ -66,4 +66,6 @@ Scene specs compile YAML-shaped blocks into landscape and vertical compositions.
 
 Published components must pass the [consumer contract](docs/consumer-contract.md). Run `pnpm consumer:check` for scaffold-copy and real shadcn installation checks.
 
+The [paper and filing illustration guide](docs/design-video-components.md) covers feeding paper tape, clips and tags, controlled ink, frontmatter, nested folder contents, and shared folder/hand transport geometry adapted from the Design videos.
+
 UI Bits are available individually as `@jbm/ui-button`, `@jbm/ui-input`, `@jbm/ui-card`, `@jbm/phone-frame`, `@jbm/badge`, `@jbm/token-glyph`, and `@jbm/piece`. Each has its own gallery preview and usage example in the UI Bits section. `@jbm/ui-bits` remains a compatible bundle that re-exports these components and their types; existing imports continue to work.

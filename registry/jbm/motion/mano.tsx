@@ -6,17 +6,33 @@ export type ManoProps = {
   pose?: HandPose
   size?: number
   angle?: number
+  /** Local point in the Hand's 30×29 viewBox held at `at`, including during rotation. */
+  anchor?: Pt
 }
 /** Placement wrapper; Hand owns the artwork and pose, callers own movement. */
-export function Mano({ at, pose = "point", size = 180, angle = 0 }: ManoProps) {
+export function Mano({
+  at,
+  pose = "point",
+  size = 180,
+  angle = 0,
+  anchor,
+}: ManoProps) {
   return (
     <g transform={`translate(${at.x} ${at.y}) rotate(${angle})`}>
-      <Hand
-        pose={pose}
-        width={size}
-        height={(size * 44) / 30}
-        style={{ height: (size * 44) / 30 }}
-      />
+      <g
+        transform={
+          anchor
+            ? `translate(${(-anchor.x * size) / 30} ${(-anchor.y * size) / 30})`
+            : undefined
+        }
+      >
+        <Hand
+          pose={pose}
+          width={size}
+          height={(size * (anchor ? 29 : 44)) / 30}
+          style={{ height: (size * (anchor ? 29 : 44)) / 30 }}
+        />
+      </g>
     </g>
   )
 }

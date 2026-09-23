@@ -1,0 +1,18 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "paper-clip",
+  "title": "Paper clip",
+  "description": "Independent wire clip for paper edges.",
+  "registryDependencies": [
+    "@jbm/tokens"
+  ],
+  "files": [
+    {
+      "path": "registry/jbm/ui/paper-clip.tsx",
+      "content": "import type { SVGProps } from \"react\"\nimport { color } from \"../lib/tokens\"\n\n/** Independent wire clip. Place across a paper edge; it does not own the paper. */\nexport function PaperClip(props: SVGProps<SVGSVGElement>) {\n  return (\n    <svg width={26} height={48} viewBox=\"0 0 34 62\" aria-hidden {...props}>\n      <path\n        d=\"M8 58V12a9 9 0 0 1 18 0V48a5 5 0 0 1-10 0V16\"\n        fill=\"none\"\n        stroke={color.ink}\n        strokeWidth={3}\n        strokeLinecap=\"round\"\n      />\n    </svg>\n  )\n}\n",
+      "type": "registry:ui",
+      "target": "src/jbm/ui/paper-clip.tsx"
+    }
+  ],
+  "type": "registry:ui"
+}
