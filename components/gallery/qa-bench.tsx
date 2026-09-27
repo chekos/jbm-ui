@@ -1,25 +1,23 @@
 "use client"
 
-import { useLayoutEffect, useRef } from "react"
+import { useLayoutEffect, useRef, useState } from "react"
 import dynamic from "next/dynamic"
 import { ItemPreview } from "./qa-bench-preview"
 import { BenchParams } from "./bench-url"
 import { urlStateNames } from "./demo-data"
+import { BenchHostScript, BenchSkeleton } from "./qa-bench-chrome"
 
-// The Remotion Player is client-only and heavy; only motion items load it.
+// The Remotion Player is client-only and heavy; only motion items load it. QaBench draws the
+// placeholder itself (BenchSkeleton), since next/dynamic's loading slot cannot see the bench's props.
 const MotionBench = dynamic(() => import("./qa-bench-motion"), {
   ssr: false,
-  loading: () => (
-    <div className="bench">
-      <p className="loading bench-loading">Loading preview…</p>
-    </div>
-  ),
+  loading: () => null,
 })
 
 /**
- * Publishes the bench's distance from the top of the document as `--bench-top`, so CSS can size
- * the stage from the viewport height left under the page header (see `.bench` in globals.css).
- * The CSS fallback covers the server render; this refines it when the header wraps or fonts load.
+ * Keeps `--bench-top` (the bench's distance from the top of the document, first set by
+ * BenchHostScript before paint) current when the header wraps or fonts load, so CSS can size the
+ * stage from the viewport height left under the page header (see `.bench` in globals.css).
  */
 function useBenchTop() {
   const ref = useRef<HTMLDivElement>(null)
@@ -53,15 +51,31 @@ export function QaBench({
   orientationAware: boolean
 }) {
   const host = useBenchTop()
+  // The placeholder holds the bench's size until MotionBench mounts, then leaves in the same frame.
+  const [loaded, setLoaded] = useState(false)
   return (
-    <div className="bench-host" ref={host}>
+    // BenchHostScript sets --bench-top on this element before hydration.
+    <div className="bench-host" ref={host} suppressHydrationWarning>
       {player ? (
-        <MotionBench
-          key={name}
-          name={name}
-          title={title}
-          orientationAware={orientationAware}
-        />
+        <>
+          <MotionBench
+            key={name}
+            name={name}
+            title={title}
+            orientationAware={orientationAware}
+            onMount={() => setLoaded(true)}
+          />
+          {!loaded && (
+            <>
+              <BenchSkeleton
+                title={title}
+                orientationAware={orientationAware}
+              />
+              {/* The skeleton is hidden from assistive technology; this line is not. */}
+              <p className="sr-only">Loading preview…</p>
+            </>
+          )}
+        </>
       ) : urlStateNames.includes(name) ? (
         // Controlled illustrations: Copy link above the preview, control values in the URL.
         <div className="bench" data-layout="controls">
@@ -78,6 +92,7 @@ export function QaBench({
           </div>
         </div>
       )}
+      <BenchHostScript />
     </div>
   )
 }

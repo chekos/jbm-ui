@@ -2,125 +2,35 @@
 
 import {
   useEffect,
-  useId,
+  useLayoutEffect,
   useRef,
   useState,
   type CSSProperties,
-  type KeyboardEvent,
 } from "react"
+import { usePathname, useSearchParams } from "next/navigation"
 import { Player } from "@remotion/player"
 import type { SceneLayout } from "@/registry/jbm/motion/spec"
-import { stage, type Orientation } from "@/registry/jbm/lib/tokens"
-import { ReplayButton } from "@/registry/jbm/ui/replay-button"
+import type { Orientation } from "@/registry/jbm/lib/tokens"
 import { fps } from "./timing"
-import { usePathname, useSearchParams } from "next/navigation"
-import { CopyBenchLink, stateHref, useMirrorUrl } from "./bench-url"
+import { stateHref, useMirrorUrl } from "./bench-url"
 import {
   Composition,
   playerChrome,
   previewDuration,
   usePlayback,
 } from "./motion-preview"
+import { BenchStrip, SafeAreaGuides } from "./qa-bench-strip"
 import {
-  BenchStrip,
-  SafeAreaGuides,
-  padFrame,
+  BenchToolbar,
+  FrameStepper,
+  OrientSwitch,
+  SceneOptions,
+  benchParams,
+  readBenchState,
+  stageSize,
   type BenchSafeArea,
-} from "./qa-bench-strip"
-
-type View = "single" | "strip"
-
-const orientations: { value: Orientation; label: string }[] = [
-  { value: "landscape", label: "Landscape 16:9" },
-  { value: "vertical", label: "Portrait 9:16" },
-]
-const views: { value: View; label: string }[] = [
-  { value: "single", label: "Single" },
-  { value: "strip", label: "Strip" },
-]
-const layouts: SceneLayout[] = ["hero", "headline-illustration", "illustration"]
-
-/**
- * Bench state in the URL, so a reviewer can reload or share exactly what they see:
- *   ?view=strip  ?orientation=portrait  ?frame=21  ?layout=hero  ?safe=social  ?guides=1
- * `frame` is the zero-based frame index (0 … durationInFrames − 1), the same number the readout
- * and the strip show. Defaults are omitted, unknown values fall back to them, a frame past the end
- * clamps to the last frame, and scene options are read only on orientation-aware benches.
- */
-type BenchState = {
-  view: View
-  orientation: Orientation
-  layout: SceneLayout
-  safeArea: BenchSafeArea
-  guides: boolean
-  /** Null rests on the last frame. */
-  frame: number | null
-}
-
-const defaults: BenchState = {
-  view: "single",
-  orientation: "landscape",
-  layout: "headline-illustration",
-  safeArea: "full",
-  guides: false,
-  frame: null,
-}
-type Query = { get(key: string): string | null }
-
-// MotionBench is client-only (next/dynamic with ssr: false), so it reads the query during its
-// first render: the bench mounts in its requested state with no second layout pass.
-export function readBenchState(
-  query: Query,
-  orientationAware: boolean
-): BenchState {
-  const pick = <T extends string>(key: string, allowed: readonly T[]) => {
-    const value = query.get(key) as T | null
-    return value !== null && allowed.includes(value) ? value : undefined
-  }
-  const frameText = query.get("frame")
-  const frame =
-    frameText !== null && /^\d{1,6}$/.test(frameText) ? Number(frameText) : null
-  if (!orientationAware)
-    return {
-      ...defaults,
-      view: pick("view", ["single", "strip"]) ?? "single",
-      frame,
-    }
-  const orientation = pick("orientation", ["landscape", "portrait", "vertical"])
-  return {
-    view: pick("view", ["single", "strip"]) ?? defaults.view,
-    orientation:
-      orientation === undefined
-        ? defaults.orientation
-        : orientation === "landscape"
-          ? "landscape"
-          : "vertical",
-    layout: pick("layout", layouts) ?? defaults.layout,
-    safeArea: pick("safe", ["full", "social"]) ?? defaults.safeArea,
-    guides: query.get("guides") === "1",
-    frame,
-  }
-}
-
-/** The bench keys for a state: defaults and scene options on other benches are removed. */
-function benchParams(
-  state: BenchState,
-  last: number,
-  orientationAware: boolean
-): Record<string, string | null> {
-  const scene = (value: string | null) => (orientationAware ? value : null)
-  return {
-    view: state.view !== defaults.view ? state.view : null,
-    orientation: scene(
-      state.orientation !== defaults.orientation ? "portrait" : null
-    ),
-    layout: scene(state.layout !== defaults.layout ? state.layout : null),
-    safe: scene(state.safeArea !== defaults.safeArea ? state.safeArea : null),
-    guides: scene(state.guides ? "1" : null),
-    frame:
-      state.frame !== null && state.frame !== last ? String(state.frame) : null,
-  }
-}
+  type View,
+} from "./qa-bench-chrome"
 
 /**
  * QA bench for one Remotion Player item. Single view: a large preview resting on its final frame,
@@ -132,12 +42,14 @@ export default function MotionBench({
   name,
   title,
   orientationAware,
+  onMount,
 }: {
   name: string
   title: string
   orientationAware: boolean
+  /** Called before the first paint, so QaBench can drop its placeholder in the same frame. */
+  onMount?: () => void
 }) {
-  const id = useId()
   const pathname = usePathname()
   const query = useSearchParams()
   const [initial] = useState(() => readBenchState(query, orientationAware))
@@ -180,17 +92,11 @@ export default function MotionBench({
   // Mirror the state into the address bar once it settles: not while the timeline plays.
   useMirrorUrl(href, pathname, charging)
 
-  const size = orientationAware ? stage[orientation] : { w: 800, h: 500 }
-  const seconds = (value: number) => `${(value / fps).toFixed(2)} s`
-  const middle = Math.round(last / 2)
-  const readout = `Frame ${frame} of 0 to ${last}, ${seconds(frame)}`
-  const strip = view === "strip"
-  const showViews = last > 0
+  const onMountRef = useRef(onMount)
+  useLayoutEffect(() => onMountRef.current?.(), [])
 
-  function stepBy(delta: number, event: KeyboardEvent<HTMLInputElement>) {
-    event.preventDefault()
-    seek(frame + delta)
-  }
+  const size = stageSize(orientationAware ? orientation : undefined)
+  const strip = view === "strip"
 
   // Opening a strip cell unmounts the strip and the focused cell with it: focus moves to the frame
   // slider (which announces the opened frame) and the bench scrolls back into view, since on
@@ -216,37 +122,14 @@ export default function MotionBench({
   }, [view])
 
   const sceneOptions = (
-    <div className="bench-options" role="group" aria-label="Scene options">
-      <label>
-        Layout
-        <select
-          value={layout}
-          onChange={(e) => setLayout(e.target.value as SceneLayout)}
-        >
-          <option value="hero">Centered hero</option>
-          <option value="headline-illustration">Headline + illustration</option>
-          <option value="illustration">Illustration</option>
-        </select>
-      </label>
-      <label>
-        Safe area
-        <select
-          value={safeArea}
-          onChange={(e) => setSafeArea(e.target.value as BenchSafeArea)}
-        >
-          <option value="full">Full frame</option>
-          <option value="social">Social</option>
-        </select>
-      </label>
-      <label className="bench-check">
-        <input
-          type="checkbox"
-          checked={guides}
-          onChange={(e) => setGuides(e.target.checked)}
-        />
-        Safe-area guides
-      </label>
-    </div>
+    <SceneOptions
+      layout={layout}
+      safeArea={safeArea}
+      guides={guides}
+      onLayout={setLayout}
+      onSafeArea={setSafeArea}
+      onGuides={setGuides}
+    />
   )
 
   return (
@@ -259,23 +142,12 @@ export default function MotionBench({
     >
       {/* View and link lead the bench (the rail on wide scene-spec benches), so switching views
           never moves the switch itself. */}
-      <div className="bench-toolbar">
-        {showViews && (
-          <div className="bench-segmented" role="group" aria-label="Bench view">
-            {views.map((option) => (
-              <button
-                key={option.value}
-                type="button"
-                aria-pressed={view === option.value}
-                onClick={() => setView(option.value)}
-              >
-                {option.label}
-              </button>
-            ))}
-          </div>
-        )}
-        <CopyBenchLink href={href} />
-      </div>
+      <BenchToolbar
+        view={view}
+        onView={setView}
+        showViews={last > 0}
+        href={href}
+      />
 
       {/* Strip view: the scene options come straight after the toolbar, above the frames (a phone
           strip runs about a screen long); the single view keeps them after the stepper. */}
@@ -283,22 +155,7 @@ export default function MotionBench({
 
       {/* The strip shows both orientations, so the switch only applies to the single view. */}
       {orientationAware && !strip && (
-        <div
-          className="bench-segmented bench-orient"
-          role="group"
-          aria-label="Stage orientation"
-        >
-          {orientations.map((option) => (
-            <button
-              key={option.value}
-              type="button"
-              aria-pressed={orientation === option.value}
-              onClick={() => setOrientation(option.value)}
-            >
-              {option.label}
-            </button>
-          ))}
-        </div>
+        <OrientSwitch orientation={orientation} onChange={setOrientation} />
       )}
 
       {/* The Player stays mounted in the strip view so playback state and listeners survive a
@@ -345,76 +202,17 @@ export default function MotionBench({
         />
       )}
 
-      {strip ? null : last > 0 ? (
-        <div className="bench-frames" role="group" aria-label="Frame stepper">
-          <div className="bench-steps">
-            {(
-              [
-                ["Begin", 0],
-                ["Middle", middle],
-                ["End", last],
-              ] as const
-            ).map(([label, target]) => (
-              <button
-                key={label}
-                type="button"
-                aria-current={
-                  frame === target && !charging ? "step" : undefined
-                }
-                onClick={() => seek(target)}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
-          <div className="bench-scrub">
-            <label className="sr-only" htmlFor={`${id}-frame`}>
-              Frame
-            </label>
-            <input
-              ref={scrub}
-              id={`${id}-frame`}
-              type="range"
-              min={0}
-              max={last}
-              step={1}
-              value={frame}
-              aria-valuetext={readout}
-              aria-describedby={`${id}-keys`}
-              onChange={(e) => seek(Number(e.target.value))}
-              onKeyDown={(event) => {
-                // Arrow keys step one frame natively; PageUp/PageDown step a fixed five frames
-                // (browsers otherwise pick a tenth of the range).
-                if (event.key === "PageUp") stepBy(5, event)
-                else if (event.key === "PageDown") stepBy(-5, event)
-              }}
-            />
-            <p className="bench-keys" aria-hidden="true">
-              0–{last} · ← → 1 · PgUp PgDn 5 · Home End
-            </p>
-            <span className="sr-only" id={`${id}-keys`}>
-              {durationInFrames} frames, numbered 0 to {last}. Arrow keys step
-              one frame, Page Up and Page Down step five, Home and End jump to
-              the first and last frame.
-            </span>
-          </div>
-          <output className="bench-readout" htmlFor={`${id}-frame`}>
-            <span>
-              {padFrame(frame, last)}/{padFrame(last, last)}
-            </span>
-            <span>{seconds(frame)}</span>
-          </output>
-          <ReplayButton
-            progress={progress}
-            charging={charging}
-            label={`Replay ${title} animation`}
-            onReplay={replay}
-          />
-        </div>
-      ) : (
-        <p className="bench-note">
-          Static layout: one frame, nothing to step or replay.
-        </p>
+      {!strip && (
+        <FrameStepper
+          title={title}
+          durationInFrames={durationInFrames}
+          frame={frame}
+          charging={charging}
+          progress={progress}
+          seek={seek}
+          replay={replay}
+          scrubRef={scrub}
+        />
       )}
 
       {orientationAware && !strip && sceneOptions}

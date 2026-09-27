@@ -1147,8 +1147,7 @@ details > p {
   --bench-above: calc(var(--bench-gap) + 36px);
 }
 .bench-stage,
-.bench-preview,
-.bench-loading {
+.bench-preview {
   width: var(--bench-w);
 }
 .bench-stage[hidden] {
@@ -1182,13 +1181,11 @@ details > p {
   padding: 6px 12px;
 }
 .bench-preview,
-.bench-loading,
 .bench-frames {
   min-width: min(100%, 320px);
 }
 .bench-stage,
-.bench-preview,
-.bench-loading {
+.bench-preview {
   overflow: hidden;
   border: 1px solid var(--jbm-line);
   border-radius: 10px;
@@ -1200,8 +1197,21 @@ details > p {
 .bench-loading {
   display: grid;
   place-items: center;
-  aspect-ratio: 8 / 5;
+  height: 100%;
   margin: 0;
+}
+/* The placeholder before the Player loads (BenchSkeleton): the bench's own markup at its defaults,
+   carrying both views. The inline host script sets data-view from the query before first paint;
+   only the parts of that view take space, and only frames and the loading line are visible. */
+.bench-skeleton[data-view="strip"]
+  > :is(.bench-orient, .bench-stage, .bench-frames, .bench-note, [data-slot="single"]) {
+  display: none;
+}
+.bench-skeleton:not([data-view="strip"]) > :is(.bench-strip, [data-slot="strip"]) {
+  display: none;
+}
+.bench-skeleton :is(.bench-toolbar, .bench-orient, .bench-frames, .bench-options, figcaption) {
+  visibility: hidden;
 }
 /* Rail layout (orientation-aware stages). Narrow screens stack the orientation switch, the stage,
    the stepper, then the scene options. */
