@@ -70,7 +70,7 @@ export const editorialExamples = {
               style={{
                 height,
                 flex: 1,
-                borderRadius: "8px 8px 0 0",
+                borderRadius: "6px 6px 0 0",
                 background: i === 2 ? color.accent : color.ink,
               }}
             />

@@ -125,3 +125,60 @@ export function RangeControl({
     </div>
   )
 }
+
+/**
+ * A small whole-number control (a count of folders, sheets): label and a mono readout in the
+ * control's own unit, then joined − / + buttons in the preset style. The readout is an <output>,
+ * a polite status, so each press is announced ("4 folders"). At a bound the button stays
+ * focusable (aria-disabled) and does nothing, so keyboard focus never drops to the page.
+ */
+export function StepperControl({
+  label,
+  value,
+  onChange,
+  min,
+  max,
+  format,
+  noun,
+}: {
+  label: string
+  value: number
+  onChange: (value: number) => void
+  min: number
+  max: number
+  format: (value: number) => string
+  /** Plural noun for the button names: "Fewer folders", "More folders". */
+  noun: string
+}) {
+  const id = useId()
+  const steps = [
+    ["−", `Fewer ${noun}`, -1, value <= min],
+    ["+", `More ${noun}`, 1, value >= max],
+  ] as const
+  return (
+    <div className="progress-control" role="group" aria-labelledby={id}>
+      <div className="progress-control-head">
+        <span id={id}>{label}</span>
+        <output>{format(value)}</output>
+      </div>
+      <div className="progress-control-row">
+        <div className="progress-presets progress-stepper">
+          {steps.map(([glyph, name, delta, atBound]) => (
+            <button
+              key={glyph}
+              type="button"
+              aria-label={name}
+              aria-disabled={atBound || undefined}
+              onClick={() => {
+                if (!atBound)
+                  onChange(Math.min(max, Math.max(min, value + delta)))
+              }}
+            >
+              <span aria-hidden="true">{glyph}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
