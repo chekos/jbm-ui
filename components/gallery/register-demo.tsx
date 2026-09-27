@@ -143,7 +143,10 @@ function RegisterBench() {
             <Toggle label="Gap" value={gapOn} onChange={setGapOn} />
             {gapOn && range("Reflow", reflow, setReflow, ["Closed", "Half", "Open"])}
             <Toggle label="Accent first mark" value={accent} onChange={setAccent} />
-            <Toggle label="Show seams, anchors, gap" value={guides} onChange={setGuides} />
+            {/* Only pages with seams, source anchors, or a gap have guides to draw. */}
+            {(layout.seams.length > 0 || layout.anchors.length > 0 || layout.gap) && (
+              <Toggle label="Show seams, anchors, gap" value={guides} onChange={setGuides} />
+            )}
           </>
         )}
       </div>

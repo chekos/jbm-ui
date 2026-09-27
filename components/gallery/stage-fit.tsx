@@ -31,10 +31,15 @@ export function StageFit({
 }) {
   const ref = useRef<HTMLDivElement>(null)
   const [scale, setScale] = useState(maxScale)
+  // False for the server-rendered stage, drawn at maxScale until hydration measures the frame.
+  const [fitted, setFitted] = useState(false)
   useLayoutEffect(() => {
     const el = ref.current
     if (!el) return
-    const fit = () => setScale(el.clientWidth / w)
+    const fit = () => {
+      setScale(el.clientWidth / w)
+      setFitted(true)
+    }
     fit()
     const observer = new ResizeObserver(fit)
     observer.observe(el)
@@ -65,7 +70,11 @@ export function StageFit({
           overflow: "hidden",
         }}
       >
+        {/* Remounted once the first measurement lands: Chromium keeps SVG text sized for the
+            server's scale when only an ancestor's transform changes inside a size container
+            (a /c bench), so tab names in a scaled drawer printed far larger than their tabs. */}
         <div
+          key={fitted ? "fitted" : "server"}
           style={{
             position: "absolute",
             left: 0,
