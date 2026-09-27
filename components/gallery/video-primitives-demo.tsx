@@ -3,6 +3,7 @@
 import { WorkOrderExample } from "./design-video-demo"
 
 import { useBenchParam } from "./bench-url"
+import { useBenchCompact } from "./bench-compact"
 import { Ticket } from "@/registry/jbm/ui/ticket"
 import { ChatBubble } from "@/registry/jbm/ui/chat-bubble"
 import { Document } from "@/registry/jbm/ui/document"
@@ -55,6 +56,8 @@ function TicketDemo() {
   )
 }
 function FolderDemo() {
+  // Index cards keep opening, tone, and sublabel; /c/folder adds where the label prints.
+  const compact = useBenchCompact()
   const [open, setOpen] = useBenchParam("open", 0.5, { clamp: [0, 1] })
   const [tone, setTone] = useBenchParam<FolderTone>("tone", "accent", {
     allowed: ["accent", "ink", "card"],
@@ -95,18 +98,20 @@ function FolderDemo() {
             <option value="card">Card</option>
           </select>
         </label>
-        <label>
-          Label on{" "}
-          <select
-            aria-label="folder Label on"
-            value={place}
-            onChange={(e) => setPlace(e.target.value as typeof place)}
-          >
-            <option value="auto">Tone default</option>
-            <option value="front">Front panel</option>
-            <option value="tab">Tab</option>
-          </select>
-        </label>
+        {!compact && (
+          <label>
+            Label on{" "}
+            <select
+              aria-label="folder Label on"
+              value={place}
+              onChange={(e) => setPlace(e.target.value as typeof place)}
+            >
+              <option value="auto">Tone default</option>
+              <option value="front">Front panel</option>
+              <option value="tab">Tab</option>
+            </select>
+          </label>
+        )}
         <label>
           <input
             type="checkbox"

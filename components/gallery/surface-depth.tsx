@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { color, shadowLayers, surfaceBorder } from "@/registry/jbm/lib/tokens"
 import { getGalleryItem } from "./item-meta"
+import { useBenchCompact } from "./bench-compact"
 
 // The copy button copies the contract's usage example, the same text as the Usage section.
 const surfaceUsage = getGalleryItem("surface-depth")?.snippet ?? ""
@@ -16,6 +17,8 @@ export function SurfaceDepth() {
     ambient: true,
   })
   const [status, setStatus] = useState("")
+  // Index cards compare Before and Layered; /c/surface-depth adds the per-layer toggles.
+  const compact = useBenchCompact()
   return (
     <div className="surface-lab">
       <div
@@ -62,32 +65,36 @@ export function SurfaceDepth() {
           )
         })}
       </div>
-      <fieldset disabled={before}>
-        <legend>Layers</legend>
-        {(
-          [
-            ["border", "Border"],
-            ["inset", "Inset highlight"],
-            ["contact", "Contact shadow"],
-            ["ambient", "Soft outer shadows"],
-          ] as const
-        ).map(([key, label]) => (
-          <label key={key}>
-            <input
-              type="checkbox"
-              checked={layers[key]}
-              onChange={(event) =>
-                setLayers({ ...layers, [key]: event.target.checked })
-              }
-            />
-            {label}
-          </label>
-        ))}
-      </fieldset>
+      {!compact && (
+        <fieldset disabled={before}>
+          <legend>Layers</legend>
+          {(
+            [
+              ["border", "Border"],
+              ["inset", "Inset highlight"],
+              ["contact", "Contact shadow"],
+              ["ambient", "Soft outer shadows"],
+            ] as const
+          ).map(([key, label]) => (
+            <label key={key}>
+              <input
+                type="checkbox"
+                checked={layers[key]}
+                onChange={(event) =>
+                  setLayers({ ...layers, [key]: event.target.checked })
+                }
+              />
+              {label}
+            </label>
+          ))}
+        </fieldset>
+      )}
       <p className="surface-note">
         {before
           ? "Original: one broad shadow and a 2px border."
-          : "Toggle layers to inspect the current recipe. Copy uses the complete recipe."}
+          : compact
+            ? "The current recipe: border, inset highlight, contact and soft outer shadows."
+            : "Toggle layers to inspect the current recipe. Copy uses the complete recipe."}
       </p>
       <button
         className="surface-copy"
@@ -96,9 +103,7 @@ export function SurfaceDepth() {
             await navigator.clipboard.writeText(surfaceUsage)
             setStatus("Token usage copied.")
           } catch {
-            setStatus(
-              "Clipboard unavailable. Copy it from Usage below."
-            )
+            setStatus("Clipboard unavailable. Copy it from Usage below.")
           }
         }}
       >
