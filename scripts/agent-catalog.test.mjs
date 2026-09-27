@@ -115,6 +115,13 @@ test("llms.txt index lists every item with its Markdown, JSON, and page", () => 
     assert.ok(line.includes(item.endpoints.json), `${item.name} JSON link`)
     if (item.page !== null) assert.ok(line.includes(item.page), `${item.name} page link`)
   }
+  // Each category heading is followed by its one-line definition, in both texts.
+  for (const group of catalog.categories)
+    for (const body of [text, getLlmsFullText(catalog)])
+      assert.ok(
+        body.includes(`## ${group}\n\n${catalog.categoryDefinitions[group]}\n`),
+        `${group} definition under its heading`
+      )
   // The index stays an index: the full text lives at /llms-full.txt.
   assert.ok(text.length < getLlmsFullText(catalog).length / 4)
 })

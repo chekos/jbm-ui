@@ -6,7 +6,7 @@
 //   /catalog/<name>.json  one item's catalog entry plus the install setup
 //   /catalog/<name>.md    one item as Markdown
 import { addCommand, getGalleryItems } from "@/components/gallery/item-meta"
-import { categories } from "@/components/gallery/categories"
+import { categories, categoryDefinitions } from "@/components/gallery/categories"
 import type {
   ApiField,
   ContractEntry,
@@ -242,7 +242,10 @@ export function getCatalog() {
       tsconfigPaths: { "@/*": ["./src/*"] },
     },
     rules,
-    categories: categories.filter((value) => value !== "All"),
+    categories: categories.filter(
+      (value): value is Exclude<typeof value, "All"> => value !== "All"
+    ),
+    categoryDefinitions,
     capabilities: {
       controls: "The preview exposes independent controls for states.",
       scroll: "The preview responds to scroll position.",
@@ -449,7 +452,7 @@ export function getLlmsFullText(catalog = getCatalog()) {
   for (const group of catalog.categories) {
     const items = catalog.items.filter((item) => item.category === group)
     if (!items.length) continue
-    lines.push("", `## ${group}`)
+    lines.push("", `## ${group}`, "", categoryDefinitions[group])
     for (const item of items) {
       lines.push(
         "",
@@ -529,7 +532,7 @@ export function getLlmsText(catalog = getCatalog()) {
   for (const group of catalog.categories) {
     const items = catalog.items.filter((item) => item.category === group)
     if (!items.length) continue
-    lines.push(`## ${group}`, "")
+    lines.push(`## ${group}`, "", categoryDefinitions[group], "")
     for (const item of items) {
       const links = [`[JSON](${item.endpoints.json})`]
       if (item.page !== null) links.push(`[QA page](${item.page})`)

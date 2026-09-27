@@ -6,7 +6,7 @@ export default {
   title: "TextFill",
   description:
     "A controlled character sweep from muted text through vermilion into ink. Drive progress with a slider, scroll, or a video timeline.",
-  category: "Interactive",
+  category: "UI",
   capabilities: ["controls"],
   api: [
     {

@@ -656,7 +656,7 @@
       "name": "text-fill",
       "title": "TextFill",
       "description": "A controlled character sweep from muted text through vermilion into ink. Drive progress with a slider, scroll, or a video timeline.",
-      "category": "Interactive",
+      "category": "UI",
       "capabilities": [
         "controls"
       ],
@@ -932,7 +932,7 @@
       "name": "mano",
       "title": "Mano",
       "description": "Position and rotate the independent Hand illustration with controlled coordinates.",
-      "category": "Interactive",
+      "category": "UI Bits",
       "capabilities": [
         "controls"
       ],
@@ -1110,7 +1110,7 @@
       "name": "paper-line",
       "title": "PaperLine",
       "description": "Line of text with controlled grapheme reveal, ink lift, strike-through, and dotted underline.",
-      "category": "Interactive",
+      "category": "UI",
       "capabilities": [
         "controls"
       ],
@@ -1220,7 +1220,7 @@
       "name": "folder-carry",
       "title": "FolderCarry",
       "description": "Folder carried along a path by its tab, interpolating size and label between two resting places.",
-      "category": "Interactive",
+      "category": "UI Bits",
       "capabilities": [
         "controls"
       ],

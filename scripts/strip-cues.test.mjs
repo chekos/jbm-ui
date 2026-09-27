@@ -117,7 +117,7 @@ test("cue validation rejects labels, order, and frames the strip cannot show", (
 })
 
 // Categories describe behaviour: a category pager walks one kind of bench.
-test("Motion holds Player timelines; Interactive holds reader-driven pieces", () => {
+test("Motion holds Player timelines; Interactive holds pieces that respond to the reader", () => {
   const motion = catalog.filter((item) => item.category === "Motion")
   const interactive = catalog.filter((item) => item.category === "Interactive")
   assert.ok(motion.length > 0 && interactive.length > 0)
@@ -133,13 +133,9 @@ test("Motion holds Player timelines; Interactive holds reader-driven pieces", ()
     interactive.map((item) => item.name).sort(),
     [
       "flip-text",
-      "folder-carry",
-      "mano",
-      "paper-line",
       "replay-button",
       "scroll-stack",
       "scroll-text-fill",
-      "text-fill",
     ]
   )
 })

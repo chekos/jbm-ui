@@ -691,7 +691,7 @@
       "title": "TextFill",
       "description": "A controlled character sweep from muted text through vermilion into ink. Drive progress with a slider, scroll, or a video timeline.",
       "categories": [
-        "Interactive"
+        "UI"
       ],
       "registryDependencies": [
         "@jbm/tokens"
@@ -1015,7 +1015,7 @@
       "title": "Mano",
       "description": "Position and rotate the independent Hand illustration with controlled coordinates.",
       "categories": [
-        "Interactive"
+        "UI Bits"
       ],
       "type": "registry:component",
       "registryDependencies": [
@@ -1217,7 +1217,7 @@
       "title": "PaperLine",
       "description": "Line of text with controlled grapheme reveal, ink lift, strike-through, and dotted underline.",
       "categories": [
-        "Interactive"
+        "UI"
       ],
       "type": "registry:ui",
       "registryDependencies": [
@@ -1339,7 +1339,7 @@
       "title": "FolderCarry",
       "description": "Folder carried along a path by its tab, interpolating size and label between two resting places.",
       "categories": [
-        "Interactive"
+        "UI Bits"
       ],
       "type": "registry:ui",
       "registryDependencies": [

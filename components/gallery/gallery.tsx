@@ -24,7 +24,7 @@ import { AddCommand, InstallOnce } from "./install"
 import { CodeBlock } from "./code-block"
 import { color } from "@/registry/jbm/lib/tokens"
 import { examples } from "./examples"
-import { categories, type Category } from "./categories"
+import { categories, categoryDefinitions, type Category } from "./categories"
 import {
   categorySlug,
   getGalleryItems,
@@ -538,12 +538,9 @@ export function Gallery() {
                   <span className="sr-only"> {plural(members.length)}</span>
                 </span>
               </h2>
-              {group === "UI Bits" && (
-                <p className="section-description">
-                  Paper illustrations of interface elements. Each component has
-                  its own preview and installation.
-                </p>
-              )}
+              <p className="section-description">
+                {categoryDefinitions[group]}
+              </p>
               <div className="gallery-grid">
                 {members.map((item) => (
                   <ComponentCard key={item.name} item={item} />
