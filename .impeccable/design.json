@@ -1,0 +1,330 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-27T04:31:35.037Z",
+  "title": "Design System: jbm-ui",
+  "extensions": {
+    "colorMeta": {
+      "cream-canvas": {
+        "role": "neutral",
+        "displayName": "Cream Canvas",
+        "canonical": "oklch(97.6% 0.021 79)",
+        "tonalRamp": [
+          "#100a03",
+          "#292319",
+          "#463f33",
+          "#645c51",
+          "#877f73",
+          "#aca396",
+          "#d2c9bc",
+          "#f6eddf"
+        ]
+      },
+      "card-stock": {
+        "role": "neutral",
+        "displayName": "Card Stock",
+        "canonical": "oklch(99.1% 0.010 87)",
+        "tonalRamp": [
+          "#0d0b07",
+          "#26241f",
+          "#423f3a",
+          "#605d57",
+          "#83807a",
+          "#a7a49e",
+          "#cdcac3",
+          "#f1eee7"
+        ]
+      },
+      "press-ink": {
+        "role": "neutral",
+        "displayName": "Press Ink",
+        "canonical": "oklch(25.4% 0.011 139)",
+        "tonalRamp": [
+          "#090c08",
+          "#212520",
+          "#3d413c",
+          "#5a5f59",
+          "#7d827c",
+          "#a1a6a0",
+          "#c7ccc6",
+          "#ebf0e9"
+        ]
+      },
+      "graphite": {
+        "role": "neutral",
+        "displayName": "Graphite",
+        "canonical": "oklch(50.9% 0.013 118)",
+        "tonalRamp": [
+          "#0b0c06",
+          "#23251e",
+          "#3f4139",
+          "#5d5f57",
+          "#7f8179",
+          "#a4a69d",
+          "#c9ccc3",
+          "#edf0e6"
+        ]
+      },
+      "pencil-rule": {
+        "role": "neutral",
+        "displayName": "Pencil Rule",
+        "canonical": "oklch(86.1% 0.016 90)",
+        "tonalRamp": [
+          "#0e0b05",
+          "#27241b",
+          "#434037",
+          "#615d54",
+          "#848076",
+          "#a8a49a",
+          "#cecabf",
+          "#f2eee3"
+        ]
+      },
+      "stamp-vermilion": {
+        "role": "primary",
+        "displayName": "Stamp Vermilion",
+        "canonical": "oklch(55.7% 0.178 32)",
+        "tonalRamp": [
+          "#2e0000",
+          "#560000",
+          "#810000",
+          "#ab2002",
+          "#d54c32",
+          "#fc765c",
+          "#ffa48c",
+          "#ffceb7"
+        ]
+      },
+      "rust-annotation": {
+        "role": "secondary",
+        "displayName": "Rust Annotation",
+        "canonical": "oklch(51.9% 0.118 39)",
+        "tonalRamp": [
+          "#270000",
+          "#4b0300",
+          "#702100",
+          "#934226",
+          "#bb6549",
+          "#e28b6e",
+          "#ffb49a",
+          "#ffdbc4"
+        ]
+      },
+      "coral-glow": {
+        "role": "tertiary",
+        "displayName": "Coral Glow",
+        "canonical": "oklch(75.5% 0.149 36)",
+        "tonalRamp": [
+          "#230000",
+          "#470900",
+          "#6e230d",
+          "#983d24",
+          "#c75b3d",
+          "#f37f5f",
+          "#ffa584",
+          "#ffccac"
+        ]
+      },
+      "code-green": {
+        "role": "tertiary",
+        "displayName": "Code Green",
+        "canonical": "oklch(85.5% 0.125 144)",
+        "tonalRamp": [
+          "#001100",
+          "#082c0b",
+          "#1f4b21",
+          "#376c38",
+          "#529253",
+          "#71b971",
+          "#96e096",
+          "#baffb9"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Big headline in scenes; the loudest words on a stage."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Gallery page title; one vermilion word allowed."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Component names on gallery cards."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Gallery intro copy in Graphite."
+      },
+      "body-small": {
+        "displayName": "Body small",
+        "purpose": "Card descriptions and secondary copy."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Uppercase scene kicker, top-left of every scene."
+      },
+      "mono-label": {
+        "displayName": "Mono label",
+        "purpose": "Eyebrows, counts, card headings, codes, numbers with units."
+      }
+    },
+    "shadows": [
+      {
+        "name": "card",
+        "value": "inset 0 1px 0 rgba(255,255,255,0.85), inset 0 -1px 0 rgba(32,36,31,0.025), 0 1px 1px -0.5px rgba(32,36,31,0.08), 0 3px 3px -1.5px rgba(32,36,31,0.06), 0 6px 6px -3px rgba(32,36,31,0.05), 0 12px 12px -6px rgba(32,36,31,0.04), 0 24px 24px -12px rgba(32,36,31,0.04)",
+        "purpose": "Application surfaces on cream: Card, StatCard, CodeCard."
+      },
+      {
+        "name": "card-dark",
+        "value": "inset 0 1px 0 rgba(255,246,232,0.10), inset 0 -1px 0 rgba(0,0,0,0.15), 0 1px 1px -0.5px rgba(32,36,31,0.16), 0 3px 3px -1.5px rgba(32,36,31,0.12), 0 6px 6px -3px rgba(32,36,31,0.09), 0 12px 12px -6px rgba(32,36,31,0.07), 0 24px 24px -12px rgba(32,36,31,0.06)",
+        "purpose": "Dark cards; restrained cream inset highlight."
+      },
+      {
+        "name": "paper",
+        "value": "0 1px 1px -0.5px rgba(32,36,31,0.08), 0 3px 3px -1.5px rgba(32,36,31,0.06), 0 6px 6px -3px rgba(32,36,31,0.05), 0 12px 12px -6px rgba(32,36,31,0.04), 0 24px 24px -12px rgba(32,36,31,0.04), 0 18px 28px -14px rgba(32,36,31,0.22)",
+        "purpose": "Cut-out illustrations lifted off the stage."
+      }
+    ],
+    "motion": [
+      {
+        "name": "spring-in",
+        "value": "Remotion spring, damping 10–13",
+        "purpose": "Entrances (useIn) for sheets, stamps, and objects."
+      },
+      {
+        "name": "ease-in-out-cubic",
+        "value": "Easing.inOut(Easing.cubic)",
+        "purpose": "Transport and interpolated moves between states."
+      },
+      {
+        "name": "ease-out-cubic",
+        "value": "Easing.out(Easing.cubic)",
+        "purpose": "Arrivals that settle."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "narrow",
+        "value": "760px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "Raised surface with fine border, layered depth, and inset edge light.",
+      "html": "<div class=\"ds-card\"><div class=\"ds-card-kicker\">SEPTIEMBRE</div><div class=\"ds-card-title\">42 piezas</div></div>",
+      "css": ".ds-card { background: #FFFCF5; color: #20241F; border: 1px solid rgba(32,36,31,0.12); border-radius: 28px; padding: 40px; box-shadow: inset 0 1px 0 rgba(255,255,255,0.85), inset 0 -1px 0 rgba(32,36,31,0.025), 0 1px 1px -0.5px rgba(32,36,31,0.08), 0 3px 3px -1.5px rgba(32,36,31,0.06), 0 6px 6px -3px rgba(32,36,31,0.05), 0 12px 12px -6px rgba(32,36,31,0.04), 0 24px 24px -12px rgba(32,36,31,0.04); font-family: Geist, system-ui, sans-serif; } .ds-card-kicker { font-size: 12px; letter-spacing: 3px; font-weight: 600; color: #65675F; } .ds-card-title { font-size: 40px; font-weight: 800; letter-spacing: -1px; margin-top: 8px; }"
+    },
+    {
+      "name": "Dark Card",
+      "kind": "card",
+      "refersTo": "card-dark",
+      "description": "Ink surface for code and emphasis; coral accents only here.",
+      "html": "<div class=\"ds-card-dark\"><code>npx shadcn add <span>@jbm/card</span></code></div>",
+      "css": ".ds-card-dark { background: #20241F; color: #FFF6E8; border: 1px solid rgba(32,36,31,0.65); border-radius: 28px; padding: 40px; box-shadow: inset 0 1px 0 rgba(255,246,232,0.10), inset 0 -1px 0 rgba(0,0,0,0.15), 0 1px 1px -0.5px rgba(32,36,31,0.16), 0 3px 3px -1.5px rgba(32,36,31,0.12), 0 6px 6px -3px rgba(32,36,31,0.09), 0 12px 12px -6px rgba(32,36,31,0.07), 0 24px 24px -12px rgba(32,36,31,0.06); font-family: 'Geist Mono', ui-monospace, monospace; font-size: 16px; } .ds-card-dark span { color: #FF8A6A; }"
+    },
+    {
+      "name": "Chip",
+      "kind": "chip",
+      "refersTo": "chip",
+      "description": "Outline pill for tags and values.",
+      "html": "<span class=\"ds-chip\">datos</span>",
+      "css": ".ds-chip { display: inline-block; font-family: Geist, system-ui, sans-serif; font-weight: 600; font-size: 18px; color: #20241F; background: #FFFCF5; border: 2px solid #D5D1C6; border-radius: 14px; padding: 10px 20px; }"
+    },
+    {
+      "name": "Accent Chip",
+      "kind": "chip",
+      "refersTo": "chip-accent",
+      "description": "The one vermilion stamp in a composition.",
+      "html": "<span class=\"ds-chip-accent\">nuevo</span>",
+      "css": ".ds-chip-accent { display: inline-block; font-family: Geist, system-ui, sans-serif; font-weight: 600; font-size: 18px; color: #FFF6E8; background: #C63D24; border: 2px solid #C63D24; border-radius: 14px; padding: 10px 20px; }"
+    },
+    {
+      "name": "Filter Button",
+      "kind": "button",
+      "refersTo": "gallery-filter",
+      "description": "Gallery category filter; ink fill when pressed.",
+      "html": "<div class=\"ds-filters\"><button class=\"ds-filter\" aria-pressed=\"true\">All <span>66</span></button><button class=\"ds-filter\" aria-pressed=\"false\">Motion <span>18</span></button></div>",
+      "css": ".ds-filters { display: flex; gap: 8px; } .ds-filter { border: 1px solid #D5D1C6; border-radius: 6px; padding: 9px 13px; background: transparent; color: #20241F; font-family: Geist, system-ui, sans-serif; font-size: 13px; cursor: pointer; } .ds-filter:hover { border-color: #20241F; } .ds-filter:focus-visible { outline: 2px solid #C63D24; outline-offset: 5px; } .ds-filter[aria-pressed=\"true\"] { background: #20241F; border-color: #20241F; color: #FFF6E8; } .ds-filter span { margin-left: 10px; opacity: 0.65; font-family: 'Geist Mono', ui-monospace, monospace; font-size: 11px; }"
+    },
+    {
+      "name": "Search Input",
+      "kind": "input",
+      "refersTo": "gallery-search",
+      "description": "Gallery search field on card stock.",
+      "html": "<input class=\"ds-search\" type=\"search\" placeholder=\"Search components\" aria-label=\"Search components\">",
+      "css": ".ds-search { width: 240px; border: 1px solid #D5D1C6; border-radius: 6px; padding: 9px 13px; background: #FFFCF5; color: #20241F; font-family: Geist, system-ui, sans-serif; font-size: 13px; } .ds-search:focus-visible { outline: 2px solid #C63D24; outline-offset: 5px; }"
+    },
+    {
+      "name": "Site Header",
+      "kind": "nav",
+      "description": "Mono wordmark with vermilion suffix over a hairline rule.",
+      "html": "<header class=\"ds-header\"><a class=\"ds-wordmark\" href=\"#\">jbm<span>-ui</span></a><nav><a href=\"#\">GitHub</a></nav></header>",
+      "css": ".ds-header { display: flex; justify-content: space-between; align-items: center; padding: 28px 0; border-bottom: 1px solid #D5D1C6; font-family: Geist, system-ui, sans-serif; font-size: 14px; color: #20241F; } .ds-header a { color: inherit; text-underline-offset: 4px; } .ds-header a:focus-visible { outline: 2px solid #C63D24; outline-offset: 5px; } .ds-wordmark { font-family: 'Geist Mono', ui-monospace, monospace; font-size: 26px; font-weight: 700; letter-spacing: -2px; text-decoration: none; } .ds-wordmark span { color: #C63D24; }"
+    },
+    {
+      "name": "Paper Cut-out",
+      "kind": "custom",
+      "description": "Signature cut-out: flat card stock with a 2px ink edge and the paper drop.",
+      "html": "<div class=\"ds-paper-row\"><div class=\"ds-paper\"></div><div class=\"ds-paper ds-paper-accent\"></div></div>",
+      "css": ".ds-paper-row { display: flex; gap: 32px; padding: 24px; background: #FFF6E8; } .ds-paper { width: 120px; height: 150px; background: #FFFCF5; border: 2px solid #20241F; border-radius: 22px; box-shadow: 0 1px 1px -0.5px rgba(32,36,31,0.08), 0 3px 3px -1.5px rgba(32,36,31,0.06), 0 6px 6px -3px rgba(32,36,31,0.05), 0 12px 12px -6px rgba(32,36,31,0.04), 0 24px 24px -12px rgba(32,36,31,0.04), 0 18px 28px -14px rgba(32,36,31,0.22); } .ds-paper-accent { background: #C63D24; border-color: #C63D24; transform: rotate(-4deg); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Cut-Paper Stage",
+    "overview": "Everything in jbm-ui is a flat piece of card stock moved around a cream stage. Shapes are simple and geometric, cut with crisp edges, filled flat, and lifted off the canvas by a soft layered shadow. The system is tactile and plain: it should feel physical without looking realistic, like a paper-craft animation, not an illustration with lighting and texture.\n\nThe same pieces render on a web page and in a 1920×1080 or 1080×1920 Remotion stage, so every decision is made in stage pixels and inline styles. Components are deliberately low-detail: minimal contours, no incidental props, and no anatomy beyond what the explanation needs. The content being explained is the subject. The stage and its paper exist to serve it.\n\nThe gallery is the stage's backroom. It uses the same palette and type, but it is quieter: thin pencil rules, small mono labels, and transparent controls, so the previews stay the loudest thing on the page.",
+    "keyCharacteristics": [
+      "Two colours: press ink on cream, with one vermilion stamp per composition.",
+      "Flat fills and fine ink edges; depth comes only from layered, ink-tinted shadows.",
+      "Simple geometric line art; no gradients, textures, or realistic rendering.",
+      "Geist for words, Geist Mono for anything measured, labelled, or coded.",
+      "Sized in stage pixels and kept inside declared safe areas."
+    ],
+    "rules": [
+      {
+        "name": "The One Stamp Rule",
+        "body": "A composition gets exactly one vermilion accent. If two things are vermilion, one of them is wrong.",
+        "section": "colors"
+      },
+      {
+        "name": "The Dark-Only Coral Rule",
+        "body": "Coral Glow appears only on ink or dark surfaces. On cream, it fails contrast and fights the stamp.",
+        "section": "colors"
+      },
+      {
+        "name": "The Measured-Things-Are-Mono Rule",
+        "body": "Code, labels, counts, and numbers with units use Geist Mono. Prose and headlines never do.",
+        "section": "typography"
+      },
+      {
+        "name": "The Surfaces-Only Rule",
+        "body": "Shadows belong to cards and paper. Text, chips, and transparent icon controls never gain a shadow.",
+        "section": "elevation"
+      },
+      {
+        "name": "The One Recipe Rule",
+        "body": "Never hand-write a shadow string in a component; import `shadow`, `shadowLayers`, or `paperShadow`.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do import colours, radii, shadows, and fonts from `tokens.ts`; keep `globals.css` `--jbm-*` values in sync with it.",
+      "Do keep exactly one Stamp Vermilion accent per composition.",
+      "Do build illustrations from simple geometric primitives with flat fills and minimal contours.",
+      "Do use Geist Mono for labels, counts, code, and numbers with units.",
+      "Do inspect beginning, middle, and end frames in both orientations."
+    ],
+    "donts": [
+      "Don't add gradients, textures, or realistic anatomy and lighting.",
+      "Don't put shadows on text, chips, or transparent icon controls.",
+      "Don't use Coral Glow or Code Green on cream.",
+      "Don't autoplay or loop motion in the gallery.",
+      "Don't duplicate shadow strings or introduce colours outside the palette."
+    ]
+  }
+}
