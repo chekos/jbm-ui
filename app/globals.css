@@ -728,6 +728,80 @@ footer {
 .composition-options select { max-width: 100%; border: 1px solid var(--jbm-line); border-radius: 4px; padding: 4px; color: inherit; background: transparent; }
 .preview:has(.composition-options) { aspect-ratio: auto; }
 
+/* Illustration sliders (ProgressControl / RangeControl): label and mono readout on one line,
+   then the slider with its named presets beside it. Ink chrome, never vermilion (One Stamp). */
+.progress-control {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  font-size: 12px;
+}
+.composition-options .progress-control {
+  flex: 1 1 100%;
+}
+.progress-control-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+.progress-control-head label {
+  display: inline;
+}
+.progress-control output {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--jbm-dim);
+}
+.progress-control-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+}
+.progress-control-row input[type="range"] {
+  flex: 1 1 112px;
+  min-width: 0;
+  min-height: 24px;
+  margin: 0;
+}
+.progress-presets {
+  display: inline-flex;
+  flex: none;
+}
+.progress-presets button {
+  min-height: 28px;
+  padding: 3px 10px;
+  border: 1px solid var(--jbm-line);
+  background: transparent;
+  color: var(--jbm-ink);
+  font-size: 12px;
+}
+.progress-presets button:first-child {
+  border-radius: 6px 0 0 6px;
+}
+.progress-presets button:last-child {
+  border-radius: 0 6px 6px 0;
+}
+.progress-presets button + button {
+  margin-left: -1px;
+}
+.progress-presets button:hover {
+  position: relative;
+  border-color: var(--jbm-ink);
+}
+.progress-presets button[aria-pressed="true"] {
+  position: relative;
+  background: var(--jbm-ink);
+  border-color: var(--jbm-ink);
+  color: var(--jbm-bg);
+}
+.progress-presets button:focus-visible {
+  position: relative;
+  z-index: 1;
+  outline-offset: 2px;
+}
+
 /* Install once + per-card add command (agent-legible install path). */
 details.install-once {
   border-top: 1px solid var(--jbm-line);

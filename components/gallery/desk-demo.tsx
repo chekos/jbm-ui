@@ -9,6 +9,12 @@ import { Bandeja } from "@/registry/jbm/motion/bandeja"
 import { ToolCaddy } from "@/registry/jbm/motion/tool-caddy"
 import { Escritorio } from "@/registry/jbm/motion/escritorio"
 import { Burbuja } from "@/registry/jbm/motion/burbuja"
+import {
+  degrees,
+  ProgressControl,
+  RangeControl,
+  type Presets,
+} from "./progress-control"
 
 export { deskNames } from "./demo-data"
 
@@ -44,26 +50,20 @@ export function DeskDemo({ name }: { name: string }) {
     name === "cajon" ||
     name === "file-cabinet" ||
     (name === "escritorio" && cabinet)
+  // Card names prefix the accessible names so several cards on the index stay distinct.
   const range = (
     label: string,
     value: number,
     set: (n: number) => void,
-    min = 0,
-    max = 1,
-    step = 0.01
+    presets: Presets
   ) => (
-    <label style={{ display: "flex", gap: 12, alignItems: "center" }}>
-      {label}
-      <input
-        aria-label={`${name} ${label}`}
-        type="range"
-        min={min}
-        max={max}
-        step={step}
-        value={value}
-        onChange={(e) => set(Number(e.target.value))}
-      />
-    </label>
+    <ProgressControl
+      label={label}
+      ariaLabel={`${name} ${label}`}
+      value={value}
+      onChange={set}
+      presets={presets}
+    />
   )
   return (
     <div style={{ width: "100%" }}>
@@ -158,10 +158,14 @@ export function DeskDemo({ name }: { name: string }) {
                 ))}
               </select>
             </label>
-            {range("Open", open, setOpen)}
+            {range("Open", open, setOpen, ["Closed", "Half", "Open"])}
             {name !== "escritorio" &&
               count > 0 &&
-              range("Lift front folder", pull, setPull)}
+              range("Lift front folder", pull, setPull, [
+                "Filed",
+                "Half",
+                "Lifted",
+              ])}
           </>
         )}
         {name === "escritorio" && (
@@ -210,12 +214,37 @@ export function DeskDemo({ name }: { name: string }) {
         )}
         {name === "mano" && (
           <>
-            {range("Position", position, setPosition)}
-            {range("Rotation", angle, setAngle, -30, 30, 1)}
+            {range("Position", position, setPosition, [
+              "Left",
+              "Center",
+              "Right",
+            ])}
+            <RangeControl
+              label="Rotation"
+              ariaLabel={`${name} Rotation`}
+              value={angle}
+              onChange={setAngle}
+              min={-30}
+              max={30}
+              step={1}
+              format={degrees}
+            />
           </>
         )}
-        {name === "bandeja" && range("Sheets", count, setCount, 0, 12, 1)}
-        {name === "burbuja" && range("Highlight", progress, setProgress)}
+        {name === "bandeja" && (
+          <RangeControl
+            label="Sheets"
+            ariaLabel={`${name} Sheets`}
+            value={count}
+            onChange={setCount}
+            min={0}
+            max={12}
+            step={1}
+            format={(n) => `${n} ${n === 1 ? "sheet" : "sheets"}`}
+          />
+        )}
+        {name === "burbuja" &&
+          range("Highlight", progress, setProgress, ["None", "Half", "All"])}
       </div>
     </div>
   )

@@ -1,6 +1,6 @@
 "use client"
 import { FlipText } from "@/registry/jbm/ui/flip-text"
-import { color } from "@/registry/jbm/lib/tokens"
+import { ProgressControl } from "./progress-control"
 
 import { useState } from "react"
 import { TextFill } from "@/registry/jbm/ui/text-fill"
@@ -15,19 +15,13 @@ export function TextFillDemo() {
       <p style={{ margin: "0 0 24px", fontSize: "clamp(24px, 3vw, 40px)" }}>
         <TextFill text={text} progress={progress} />
       </p>
-      <label style={{ display: "grid", gap: 12 }}>
-        Fill progress · {Math.round(progress * 100)}%
-        <input
-          aria-label="Text fill progress"
-          type="range"
-          min={0}
-          max={1}
-          step={0.01}
-          value={progress}
-          onChange={(event) => setProgress(Number(event.target.value))}
-          style={{ width: "100%", accentColor: color.accent }}
-        />
-      </label>
+      <ProgressControl
+        label="Fill progress"
+        ariaLabel="Text fill progress"
+        value={progress}
+        onChange={setProgress}
+        presets={["Empty", "Half", "Full"]}
+      />
     </div>
   )
 }
