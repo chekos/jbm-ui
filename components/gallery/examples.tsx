@@ -176,26 +176,28 @@ export const examples = {
 }
 
 export const snippets: Record<string, string> = {
-  "scene-geometry": `import { pointOn, pathTilt } from "./jbm/lib/geometry"\nconst path = [{ x: 40, y: 170 }, { x: 220, y: 50 }, { x: 460, y: 130 }]\nconst at = pointOn(path, 0.5)\nconst angle = pathTilt(path, 0.5)`,
+  "scene-geometry": `import { pointOn, pathTilt } from "@/jbm/lib/geometry"\n\nconst path = [{ x: 40, y: 170 }, { x: 220, y: 50 }, { x: 460, y: 130 }]\nconst at = pointOn(path, 0.5)\nconst angle = pathTilt(path, 0.5)`,
   ticket:
-    '<Ticket header="ADMIT ONE · OCT 2026" stub="Tu nombre · Tu comunidad" tone="accent">\n  <h3>Un lugar para crear.</h3>\n  <p>Trae tu curiosidad.</p>\n</Ticket>\n\n// Work order: compose the same header and stub slots.\n<Ticket header="orden de trabajo" stub={<>Hecho es:<br />Las pruebas pasan.</>}>\n  <h3>Migrar los pagos</h3>\n  <p>Del cliente anterior al nuevo.</p>\n</Ticket>',
+    'import { Ticket } from "@/jbm/ui/ticket"\n\n<Ticket header="ADMIT ONE · OCT 2026" stub="Tu nombre · Tu comunidad" tone="accent">\n  <h3>Un lugar para crear.</h3>\n  <p>Trae tu curiosidad.</p>\n</Ticket>\n\n// Work order: compose the same header and stub slots.\n<Ticket header="orden de trabajo" stub={<>Hecho es:<br />Las pruebas pasan.</>}>\n  <h3>Migrar los pagos</h3>\n  <p>Del cliente anterior al nuevo.</p>\n</Ticket>',
   "chat-bubble":
-    '<ChatBubble speaker="Tú" side="end" tone="accent">\n  Una pieza a la vez.\n</ChatBubble>',
-  document: '<Document label="idea.md" accent style={{ width: 180 }} />',
+    'import { ChatBubble } from "@/jbm/ui/chat-bubble"\n\n<ChatBubble speaker="Tú" side="end" tone="accent">\n  Una pieza a la vez.\n</ChatBubble>',
+  document:
+    'import { Document } from "@/jbm/ui/document"\n\n<Document label="idea.md" accent style={{ width: 180 }} />',
   folder:
-    '<Folder label="Ideas" open={0.6} />\n// open: 0 (closed) to 1 (open); no internal timer.',
+    'import { Folder } from "@/jbm/ui/folder"\n\n<Folder label="Ideas" open={0.6} />\n// open: 0 (closed) to 1 (open); no internal timer.',
   "score-scale":
-    '<ScoreScale label="Claridad" value={6} min={0} max={10}\n  labels={["Por explorar", "Lista para compartir"]} />\n// Read-only meter; clamps values to the range.',
+    'import { ScoreScale } from "@/jbm/ui/score-scale"\n\n<ScoreScale label="Claridad" value={6} min={0} max={10}\n  labels={["Por explorar", "Lista para compartir"]} />\n// Read-only meter; clamps values to the range.',
   "comparison-bars":
-    '<ComparisonBars max={100} items={[\n  { label: "Contexto", value: 42 },\n  { label: "Una idea clara", value: 90, highlight: true },\n]} />\n// Values must be nonnegative; max must cover all values.',
+    'import { ComparisonBars } from "@/jbm/ui/comparison-bars"\n\n<ComparisonBars max={100} items={[\n  { label: "Contexto", value: 42 },\n  { label: "Una idea clara", value: 90, highlight: true },\n]} />\n// Values must be nonnegative; max must cover all values.',
   clock:
-    "<Clock hours={8} minutes={30} size={64} />\n// Explicit time keeps rendering deterministic. No autoplay.",
-  rule: '<Rule label="El siguiente capítulo" accent strong />',
-  "action-link": '<ActionLink href="/ideas">Explora las ideas</ActionLink>',
+    'import { Clock } from "@/jbm/ui/clock"\n\n<Clock hours={8} minutes={30} size={64} />\n// Explicit time keeps rendering deterministic. No autoplay.',
+  rule: 'import { Rule } from "@/jbm/ui/rule"\n\n<Rule label="El siguiente capítulo" accent strong />',
+  "action-link":
+    'import { ActionLink } from "@/jbm/ui/action-link"\n\n<ActionLink href="/ideas">Explora las ideas</ActionLink>',
   "index-row":
-    '<IndexRow index="01" title="El contexto" evidence="Empieza con una pregunta." href="/contexto" active />',
+    'import { IndexRow } from "@/jbm/ui/index-row"\n\n<IndexRow index="01" title="El contexto" evidence="Empieza con una pregunta." href="/contexto" active />',
   "figure-caption":
-    '<figure>\n  <img src="/chart.png" alt="Descripción del gráfico" />\n  <FigureCaption index="01" provenance="Fuente: nuestro estudio">\n    Menos ruido. Más señal.\n  </FigureCaption>\n</figure>',
+    'import { FigureCaption } from "@/jbm/ui/figure-caption"\n\n<figure>\n  <img src="/chart.png" alt="Descripción del gráfico" />\n  <FigureCaption index="01" provenance="Fuente: nuestro estudio">\n    Menos ruido. Más señal.\n  </FigureCaption>\n</figure>',
   "scroll-stack":
     'import { ScrollStack } from "@/jbm/ui/scroll-stack";\nimport { Card } from "@/jbm/ui/card"; // install @jbm/card separately\n\n<ScrollStack height={480} distance={120}>\n  <Card>First idea</Card>\n  <Card dark>Another idea</Card>\n  <YourComponent />\n</ScrollStack>\n\n// Each direct child is one item; group related content in a div.\n// Omit height for page scrolling; avoid overflow ancestors in page mode.\n// top: sticky inset; minScale: outgoing scale (0.5–1).\n// reducedMotion: true renders a plain list; defaults to system preference.\n// Oversized content automatically uses the list so it stays readable.\n// Keep child backgrounds opaque for a solid stack.',
   "flip-text":
@@ -204,48 +206,62 @@ export const snippets: Record<string, string> = {
     'import { TextFill } from "@/jbm/ui/text-fill";\n\n<TextFill text="Una idea toma forma." progress={0.5} />\n// progress: 0–1. Set reducedMotion to show the complete text.\n// Customize dimColor, accentColor, textColor, and style.',
   "scroll-text-fill":
     'import { ScrollTextFill } from "@/jbm/ui/scroll-text-fill";\n\n<ScrollTextFill\n  text="Una idea toma forma. Letra por letra."\n  height={320}\n  distance={640}\n  style={{ fontSize: 40 }}\n/>\n// Self-contained scroll region; respects prefers-reduced-motion.',
-  "ui-button": '<UiButton w={220} h={70} tone="accent" />',
-  "ui-input": "<UiInput w={220} h={70} cursorOn />",
-  "ui-card": "<UiCard w={220} h={170} />",
-  "phone-frame": "<PhoneFrame w={420} h={780}>{children}</PhoneFrame>",
-  badge: '<Badge kind="check" size={44} />',
-  "token-glyph": '<TokenGlyph kind="color" size={150} />',
-  piece: '<Piece kind="button" w={220} />',
+  "ui-button":
+    'import { UiButton } from "@/jbm/ui/ui-button"\n\n<UiButton w={220} h={70} tone="accent" />',
+  "ui-input":
+    'import { UiInput } from "@/jbm/ui/ui-input"\n\n<UiInput w={220} h={70} cursorOn />',
+  "ui-card":
+    'import { UiCard } from "@/jbm/ui/ui-card"\n\n<UiCard w={220} h={170} />',
+  "phone-frame":
+    'import { PhoneFrame } from "@/jbm/ui/phone-frame"\n\n<PhoneFrame w={420} h={780}>{children}</PhoneFrame>',
+  badge:
+    'import { Badge } from "@/jbm/ui/badge"\n\n<Badge kind="check" size={44} />',
+  "token-glyph":
+    'import { TokenGlyph } from "@/jbm/ui/token-glyph"\n\n<TokenGlyph kind="color" size={150} />',
+  piece:
+    'import { Piece } from "@/jbm/ui/piece"\n\n<Piece kind="button" w={220} />',
   "replay-button":
-    '<ReplayButton\n  progress={progress} // 0–1 from your animation\n  charging={isPlaying}\n  onReplay={restartAnimation}\n  label="Replay animation"\n/>',
-  label: "<Label>Una idea a la vez</Label>",
-  big: "<Big size={76}>Ideas que se entienden.</Big>",
-  card: "<Card dark><Big color={color.bg}>Surface</Big></Card>",
-  chip: "<Chip accent>Accent</Chip>\n<Chip mono>Mono</Chip>",
+    'import { ReplayButton } from "@/jbm/ui/replay-button"\n\n<ReplayButton\n  progress={progress} // 0–1 from your animation\n  charging={isPlaying}\n  onReplay={restartAnimation}\n  label="Replay animation"\n/>',
+  label:
+    'import { Label } from "@/jbm/ui/label"\n\n<Label>Una idea a la vez</Label>',
+  big: 'import { Big } from "@/jbm/ui/big"\n\n<Big size={76}>Ideas que se entienden.</Big>',
+  card: 'import { Card } from "@/jbm/ui/card"\nimport { color } from "@/jbm/lib/tokens"\nimport { Big } from "@/jbm/ui/big" // install @jbm/big separately\n\n<Card dark><Big color={color.bg}>Surface</Big></Card>',
+  chip: 'import { Chip } from "@/jbm/ui/chip"\n\n<Chip accent>Accent</Chip>\n<Chip mono>Mono</Chip>',
   "stat-card":
-    '<StatCard label="Contexto" value="1M" sub="tokens" />\n<StatCard row label="Latencia" value="0.8s" w={620} h={140} />',
-  callout: '<Callout variant="note">Al final, cómo se usa.</Callout>',
-  "bullet-list": '<BulletList items={["El contexto", "La pregunta"]} />',
-  brand: '<Brand tagline="Ideas, datos y código." />',
+    'import { StatCard } from "@/jbm/ui/stat-card"\n\n<StatCard label="Contexto" value="1M" sub="tokens" />\n<StatCard row label="Latencia" value="0.8s" w={620} h={140} />',
+  callout:
+    'import { Callout } from "@/jbm/ui/callout"\n\n<Callout variant="note">Al final, cómo se usa.</Callout>',
+  "bullet-list":
+    'import { BulletList } from "@/jbm/ui/bullet-list"\n\n<BulletList items={["El contexto", "La pregunta"]} />',
+  brand:
+    'import { Brand } from "@/jbm/ui/brand"\n\n<Brand tagline="Ideas, datos y código." />',
   paper:
-    '<Sticker size={72} rotate={-5}>¿otra vez?</Sticker>\n<Paper tone="paper" w={300} h={200} rotate={-2} />',
+    'import { Paper, Sticker } from "@/jbm/ui/paper"\n\n<Sticker size={72} rotate={-5}>¿otra vez?</Sticker>\n<Paper tone="paper" w={300} h={200} rotate={-2} />',
   "ui-bits":
-    '<PhoneFrame w={420} h={780}>\n  <UiCard w={290} />\n  <UiInput w={290} h={92} />\n  <UiButton w={290} h={92} tone="ink" />\n</PhoneFrame>',
+    'import { PhoneFrame, UiCard, UiInput, UiButton } from "@/jbm/ui/ui-bits"\n\n<PhoneFrame w={420} h={780}>\n  <UiCard w={290} />\n  <UiInput w={290} h={92} />\n  <UiButton w={290} h={92} tone="ink" />\n</PhoneFrame>',
   "rebuild-screens":
-    '<RebuildScreens w={936} h={1000}\n  pieces={[{ kind: "button", at: 1 }, { kind: "input", at: 2.8 }, { kind: "card", at: 5.3 }]}\n  again={[12.9, 14.5]} sticker={{ text: "¿otra vez?", at: 13 }} />',
+    'import { RebuildScreens } from "@/jbm/motion/rebuild-screens"\n\n<RebuildScreens w={936} h={1000}\n  pieces={[{ kind: "button", at: 1 }, { kind: "input", at: 2.8 }, { kind: "card", at: 5.3 }]}\n  again={[12.9, 14.5]} sticker={{ text: "¿otra vez?", at: 13 }} />',
   catalog:
-    '<Catalog w={936} at={3.2} title="catálogo"\n  items={[{ kind: "button", label: "botón", at: 7.4 }]}\n  tokens={[{ kind: "color", label: "color", at: 18.2 }]} />',
+    'import { Catalog } from "@/jbm/motion/catalog"\n\n<Catalog w={936} at={3.2} title="catálogo"\n  items={[{ kind: "button", label: "botón", at: 7.4 }]}\n  tokens={[{ kind: "color", label: "color", at: 18.2 }]} />',
   propagate:
-    '<Propagate w={936} h={1040} at={0.9} targets={6}\n  label={{ text: "una sola fuente de verdad", at: 4 }}\n  bug={5.8} fix={6.6} fixed={7.7} recolor={10.5} recolored={11.7} />',
+    'import { Propagate } from "@/jbm/motion/propagate"\n\n<Propagate w={936} h={1040} at={0.9} targets={6}\n  label={{ text: "una sola fuente de verdad", at: 4 }}\n  bug={5.8} fix={6.6} fixed={7.7} recolor={10.5} recolored={11.7} />',
   shelf:
-    '<Shelf w={936} items={[{ text: "shadcn/ui", at: 3.4 }, { text: "jbm-ui", at: 7.7, tone: "accent" }]} />\n<Twice w={936} at={13.1} second={14.6} strike={14.8} />',
+    'import { Shelf, Twice } from "@/jbm/motion/shelf"\n\n<Shelf w={936} items={[{ text: "shadcn/ui", at: 3.4 }, { text: "jbm-ui", at: 7.7, tone: "accent" }]} />\n<Twice w={936} at={13.1} second={14.6} strike={14.8} />',
   "scene-spec":
-    '<SceneFromSpec spec={scenes.scenes[0]} orientation="landscape" host={{ resolve: phrase => timings[phrase] }} />\n// Set composition: { layout: "headline-illustration", safeArea: "full" }.\n// variants.vertical overrides blocks, headlineRatio, gap, or subjectScale. See docs/scene-spec.md.',
-  scene: "<Scene><Big>Una idea a la vez.</Big></Scene>",
-  pop: '<Stagger at={0.2} step={0.35}>\n  {["Idea", "Datos"].map(text => <Chip key={text}>{text}</Chip>)}\n</Stagger>',
-  counter: "<Counter n={1024} at={0.2} dur={1.5} />",
-  "prob-bar": '<ProbBar label="Confianza" p={0.86} at={0.2} />',
+    'import { SceneFromSpec } from "@/jbm/motion/compile"\n\n<SceneFromSpec spec={scenes.scenes[0]} orientation="landscape" host={{ resolve: phrase => timings[phrase] }} />\n// Set composition: { layout: "headline-illustration", safeArea: "full" }.\n// variants.vertical overrides blocks, headlineRatio, gap, or subjectScale. See docs/scene-spec.md.',
+  scene:
+    'import { Scene } from "@/jbm/motion/scene"\nimport { Big } from "@/jbm/ui/big" // install @jbm/big separately\n\n<Scene><Big>Una idea a la vez.</Big></Scene>',
+  pop: 'import { Stagger } from "@/jbm/motion/pop"\nimport { Chip } from "@/jbm/ui/chip" // install @jbm/chip separately\n\n<Stagger at={0.2} step={0.35}>\n  {["Idea", "Datos"].map(text => <Chip key={text}>{text}</Chip>)}\n</Stagger>',
+  counter:
+    'import { Counter } from "@/jbm/motion/counter"\n\n<Counter n={1024} at={0.2} dur={1.5} />',
+  "prob-bar":
+    'import { ProbBar } from "@/jbm/motion/prob-bar"\n\n<ProbBar label="Confianza" p={0.86} at={0.2} />',
   "code-card":
-    '<CodeCard title="hello.ts" charsPerSecond={32} lines={[\n  { t: "const idea = \\\"simple\\\"", at: 0.2 },\n]} />',
+    'import { CodeCard } from "@/jbm/motion/code-card"\n\n<CodeCard title="hello.ts" charsPerSecond={32} lines={[\n  { t: "const idea = \\\"simple\\\"", at: 0.2 },\n]} />',
   captions:
-    '<Captions words={[\n  { w: "Una", s: 0, e: 0.7 },\n  { w: "idea.", s: 0.7, e: 1.5, emph: true },\n]} />',
+    'import { Captions } from "@/jbm/motion/captions"\n\n<Captions words={[\n  { w: "Una", s: 0, e: 0.7 },\n  { w: "idea.", s: 0.7, e: 1.5, emph: true },\n]} />',
   "motion-hooks":
-    "const seconds = useSec();\nconst entrance = useIn(0.2);\nconst opacity = useFade(0.2);\nconst progress = useProgress(0.2, 100, 1.5);",
+    'import { useSec, useIn, useFade, useProgress } from "@/jbm/motion/hooks"\n\nconst seconds = useSec();\nconst entrance = useIn(0.2);\nconst opacity = useFade(0.2);\nconst progress = useProgress(0.2, 100, 1.5);',
   tokens:
-    'import { color, font, stage } from "@/lib/tokens";\n\n<div style={{ color: color.ink, fontFamily: font.sans }} />',
+    'import { color, font } from "@/jbm/lib/tokens";\n\n<div style={{ color: color.ink, fontFamily: font.sans }} />',
 }

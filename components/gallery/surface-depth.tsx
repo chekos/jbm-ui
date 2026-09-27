@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { color, shadowLayers, surfaceBorder } from "@/registry/jbm/lib/tokens"
 
-export const surfaceUsage = `import { shadow, surfaceBorder } from "@/lib/tokens";
+export const surfaceUsage = `import { shadow, surfaceBorder } from "@/jbm/lib/tokens";
 
 // Light surface (use cardDark for dark surfaces)
 <div style={{

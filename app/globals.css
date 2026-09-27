@@ -463,3 +463,90 @@ footer {
 .composition-options label { display: flex; align-items: center; gap: 6px; }
 .composition-options select { max-width: 100%; border: 1px solid var(--jbm-line); border-radius: 4px; padding: 4px; color: inherit; background: transparent; }
 .preview:has(.composition-options) { aspect-ratio: auto; }
+
+/* Install once + per-card add command (agent-legible install path). */
+.install-once {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 16px 40px;
+  align-items: start;
+  border-top: 1px solid var(--jbm-line);
+  padding: 28px 0;
+}
+.install-once h2 {
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.6px;
+  margin: 0 0 8px;
+}
+.install-once p {
+  color: var(--jbm-dim);
+  font-size: 14px;
+  line-height: 1.6;
+  margin: 0 0 8px;
+  max-width: 62ch;
+}
+.install-once pre {
+  margin: 0;
+}
+.install-once-code .copy-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
+}
+.install-once code,
+.card-content code {
+  font-family: var(--font-mono);
+}
+.copy-button {
+  border: 1px solid var(--jbm-line);
+  border-radius: 6px;
+  padding: 9px 13px;
+  background: transparent;
+  color: var(--jbm-ink);
+  font-size: 13px;
+  flex: none;
+}
+.copy-button:hover {
+  border-color: var(--jbm-ink);
+}
+.copy-status {
+  color: var(--jbm-dim);
+  font-size: 12px;
+}
+.copy-status:empty {
+  display: none;
+}
+.add-command {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  margin: 16px 0;
+  padding: 8px 8px 8px 14px;
+  background: var(--jbm-bg);
+  border: 1px solid var(--jbm-line);
+  border-radius: 6px;
+}
+.add-command code {
+  flex: 1 1 16ch;
+  min-width: 0;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+.add-command .copy-status {
+  flex-basis: 100%;
+}
+details > p {
+  color: var(--jbm-dim);
+  font-size: 13px;
+  line-height: 1.6;
+  margin: 12px 0;
+}
+@media (max-width: 760px) {
+  .install-once {
+    grid-template-columns: 1fr;
+  }
+}
