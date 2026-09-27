@@ -952,7 +952,7 @@
     {
       "name": "mano",
       "title": "Mano",
-      "description": "Position and rotate the independent Hand illustration with controlled coordinates, optionally on a sleeve from the frame edge.",
+      "description": "Position and rotate the independent Hand illustration with controlled coordinates.",
       "category": "UI Bits",
       "capabilities": [
         "controls"

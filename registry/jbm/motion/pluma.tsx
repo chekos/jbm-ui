@@ -1,4 +1,4 @@
-import { Mano, type ManoArm } from "./mano"
+import { Mano } from "./mano"
 import { type Pt } from "../lib/geometry"
 import { color } from "../lib/tokens"
 export type PlumaProps = {
@@ -17,10 +17,6 @@ export type PlumaProps = {
   size?: number
   /** Draw the pinching Hand. `false` leaves the pen alone, e.g. released on the desk. */
   hand?: boolean
-  /** Sleeve from the frame edge, passed to Mano. */
-  arm?: boolean | ManoArm
-  /** Sleeve cuff, passed to Mano: ink or vermilion (the viewer's hand). */
-  cuff?: "ink" | "accent"
 }
 // Hand-viewBox geometry of the pen in the pinch pose (issue #137): the grip point sits in the
 // pocket between the bent index pad and the thumb; the nib leaves past the thumb tip and the
@@ -65,8 +61,6 @@ export function Pluma({
   nibOffset,
   size = 180,
   hand = true,
-  arm,
-  cuff,
 }: PlumaProps) {
   const s = size / 30
   const nib = nibOffset ?? defaultNib(size)
@@ -127,8 +121,6 @@ export function Pluma({
           angle={f(angle + follow)}
           anchor={GRIP}
           halo
-          arm={arm}
-          cuff={cuff}
         />
       )}
     </g>

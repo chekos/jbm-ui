@@ -158,8 +158,6 @@ function SlipDemo() {
   const [tape, setTape] = useBenchParam("tape", true)
   const [dashed, setDashed] = useBenchParam("dashed", false)
   const [hand, setHand] = useBenchParam("hand", true)
-  // The pinch enters on a sleeve from the stage edge by default: hands never float (#135).
-  const [arm, setArm] = useBenchParam("arm", true)
   const src: RegisterSpec = { kind: "mono", n: 6, ...SHEET, gapAt: 3, gap: GAP, reflow: 1 - smooth(carry) }
   const dst: RegisterSpec = { kind: "prose", n: 3, ...SHEET, gapAt: 4, gap: GAP, reflow: smooth(carry) }
   // Resting places come from the fully open gaps, so the path does not move while the gaps animate.
@@ -193,19 +191,14 @@ function SlipDemo() {
               width={stageW}
               height={stageH}
               viewBox={`0 0 ${stageW} ${stageH}`}
-              style={{ position: "absolute", inset: 0, overflow: arm ? "hidden" : "visible", pointerEvents: "none" }}
+              style={{ position: "absolute", inset: 0, overflow: "visible", pointerEvents: "none" }}
             >
-              {arm && (
-                // The stage edge the sleeve leaves through, so it never reads as a cut-off stump.
-                <rect x={1} y={1} width={stageW - 2} height={stageH - 2} fill="none" stroke={color.line} strokeWidth={2} />
-              )}
               <Mano
                 at={{ x: from.x + grip.x, y: from.y + grip.y }}
                 pose="pinch"
                 size={96}
                 anchor={{ x: 6, y: 10 }}
                 angle={-20}
-                arm={arm ? { frame: { x: 0, y: 0, w: stageW, h: stageH } } : undefined}
               />
             </svg>
           )}
@@ -217,7 +210,6 @@ function SlipDemo() {
         <Toggle label="Tape" value={tape} onChange={setTape} />
         <Toggle label="Dashed outline" value={dashed} onChange={setDashed} />
         <Toggle label="Hand" value={hand} onChange={setHand} />
-        {hand && <Toggle label="Arm from the bottom edge" value={arm} onChange={setArm} />}
       </div>
     </div>
   )

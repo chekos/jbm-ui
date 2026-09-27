@@ -12,37 +12,6 @@ export type HandProps = SVGProps<SVGSVGElement> & {
    */
   halo?: boolean
 }
-type Pt = { readonly x: number; readonly y: number }
-/**
- * The straight wrist edge of each pose in the 30×29 viewBox, thumb side first. The forearm
- * leaves along its normal (down and slightly right); Mano's `arm` attaches its sleeve here.
- */
-export const handWrist: Readonly<Record<HandPose, readonly [Pt, Pt]>> = {
-  open: [
-    { x: 12.54, y: 25.86 },
-    { x: 20.85, y: 23.61 },
-  ],
-  point: [
-    { x: 12.91, y: 25.7 },
-    { x: 21.16, y: 24.19 },
-  ],
-  pinch: [
-    { x: 12.6, y: 26.14 },
-    { x: 20.98, y: 24.61 },
-  ],
-  grip: [
-    { x: 12.91, y: 25.7 },
-    { x: 21.16, y: 24.19 },
-  ],
-  type: [
-    { x: 12.54, y: 25.86 },
-    { x: 20.85, y: 23.61 },
-  ],
-  hold: [
-    { x: 12.27, y: 26.38 },
-    { x: 20.73, y: 24.82 },
-  ],
-}
 // Based on the issue #50 cursor reference; open-palm joins share coordinates and stroke widths.
 // grip, type, and hold (issue #136) reuse that family. grip is the point pose with the index
 // curled into a fourth knuckle and the thumb folded in under it: a C-grip whose open slot, between

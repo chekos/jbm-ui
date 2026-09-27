@@ -25,12 +25,6 @@ export default {
       summary:
         "Every pose name in gallery order: open, point, pinch, grip, type, hold. HandPose is its element type.",
     },
-    {
-      export: "handWrist",
-      kind: "constant",
-      summary:
-        "Per pose, the straight wrist edge in the 30×29 viewBox as two points, thumb side first. The forearm leaves along its normal; Mano attaches its sleeve here.",
-    },
   ],
   stage: {
     mode: "declared",

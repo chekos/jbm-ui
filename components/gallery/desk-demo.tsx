@@ -47,9 +47,6 @@ const poseLabels: Record<HandPose, string> = {
   type: "Type",
   hold: "Hold",
 }
-type Cuff = "none" | "ink" | "accent"
-// The Mano and Pluma previews draw into a 500 × 340 viewBox; the sleeve runs to its edge.
-const frame = { x: 0, y: 0, w: 500, h: 340 }
 const line = { x: 40, y: 262, w: 270 }
 /**
  * Pluma writes a PaperLine: mono glyphs advance exactly 0.6 em, so the nib's x follows `write`
@@ -278,11 +275,6 @@ function DeskObjectDemo({ name }: { name: string }) {
   const [pose, setPose] = useBenchParam<HandPose>("pose", "point", {
     allowed: handPoses,
   })
-  const [arm, setArm] = useBenchParam("arm", name === "pluma" || name === "mano")
-  const [cardSleeve, setCardSleeve] = useBenchParam("card", false)
-  const [cuff, setCuff] = useBenchParam<Cuff>("cuff", "none", {
-    allowed: ["none", "ink", "accent"],
-  })
   const [write, setWrite] = useBenchParam("write", 0.6, unit)
   const [showHand, setShowHand] = useBenchParam("hand", true)
   const [wood, setWood] = useBenchParam("wood", false)
@@ -296,9 +288,6 @@ function DeskObjectDemo({ name }: { name: string }) {
     accent: i === 0,
     pulled: i === 0 ? pull : 0,
   }))
-  const sleeve = arm
-    ? { arm: { frame, tone: cardSleeve ? "card" : "ink" } as const, cuff: cuff === "none" ? undefined : cuff }
-    : {}
   // Pluma: solve the grip point from where the nib should be, so the ink ends under the nib.
   const nib = {
     x: line.x + writtenAdvance * writtenGlyphs * write,
@@ -380,25 +369,12 @@ function DeskObjectDemo({ name }: { name: string }) {
                 open={open}
               />
             )}
-            {((name === "mano" && arm) || name === "pluma") && (
-              // The stage edge the sleeve leaves through, so it never reads as a cut-off stump.
-              <rect
-                x={1}
-                y={1}
-                width={frame.w - 2}
-                height={frame.h - 2}
-                fill="none"
-                stroke={color.line}
-                strokeWidth={2}
-              />
-            )}
             {name === "mano" && (
               <Mano
                 at={{ x: 145 + position * 100, y: 35 }}
                 pose={pose}
                 size={155}
                 angle={angle}
-                {...sleeve}
               />
             )}
             {name === "pluma" && (
@@ -434,7 +410,6 @@ function DeskObjectDemo({ name }: { name: string }) {
                   angle={angle}
                   size={150}
                   hand={showHand}
-                  {...(showHand ? sleeve : {})}
                 />
               </>
             )}
@@ -531,42 +506,6 @@ function DeskObjectDemo({ name }: { name: string }) {
               />{" "}
               Hand
             </label>
-          </>
-        )}
-        {(name === "mano" || (name === "pluma" && showHand)) && (
-          <>
-            <label>
-              <input
-                type="checkbox"
-                checked={arm}
-                onChange={(e) => setArm(e.target.checked)}
-              />{" "}
-              Arm
-            </label>
-            {arm && (
-              <>
-                <label>
-                  <input
-                    type="checkbox"
-                    checked={cardSleeve}
-                    onChange={(e) => setCardSleeve(e.target.checked)}
-                  />{" "}
-                  Card sleeve
-                </label>
-                <label>
-                  Cuff{" "}
-                  <select
-                    aria-label={`${name} cuff`}
-                    value={cuff}
-                    onChange={(e) => setCuff(e.target.value as Cuff)}
-                  >
-                    <option value="none">None</option>
-                    <option value="ink">Ink</option>
-                    <option value="accent">Accent (yours)</option>
-                  </select>
-                </label>
-              </>
-            )}
           </>
         )}
         {(name === "mano" || name === "pluma") && (
