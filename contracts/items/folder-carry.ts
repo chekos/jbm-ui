@@ -82,4 +82,7 @@ export default {
     "Check the scale change reads as smooth growth with no jump in tab shape at the endpoints.",
     "Check narrow screens: the demo SVG scales to 100% width without clipping either resting place.",
   ],
+  docs: [
+    { title: "Paper and filing illustrations guide", url: "https://github.com/chekos/jbm-ui/blob/main/docs/design-video-components.md" },
+  ],
 } satisfies ItemContract

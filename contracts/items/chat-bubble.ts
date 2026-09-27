@@ -38,4 +38,7 @@ export default {
     "Turn off the tail and confirm the 10px gap below disappears.",
     "Check a long unbroken message on a narrow screen wraps inside the bubble instead of overflowing.",
   ],
+  docs: [
+    { title: "Visual primitives guide", url: "https://github.com/chekos/jbm-ui/blob/main/docs/visual-primitives.md" },
+  ],
 } satisfies ItemContract

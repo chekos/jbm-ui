@@ -74,4 +74,7 @@ export default {
     "Drag Lift front folder to 1: the folder body is complete behind the drawer front, keeps its size, and stays within the viewBox headroom.",
     "Check the preview at narrow widths; the SVG scales with its viewBox.",
   ],
+  docs: [
+    { title: "Desk illustrations guide", url: "https://github.com/chekos/jbm-ui/blob/main/docs/desk-components.md" },
+  ],
 } satisfies ItemContract

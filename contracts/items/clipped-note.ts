@@ -44,4 +44,7 @@ export default {
     "Drag Note rotation to both extremes: the clip rotates with the note and nothing is clipped by the preview.",
     "Check a long unbroken word wraps inside the 220px width on narrow screens.",
   ],
+  docs: [
+    { title: "Paper and filing illustrations guide", url: "https://github.com/chekos/jbm-ui/blob/main/docs/design-video-components.md" },
+  ],
 } satisfies ItemContract

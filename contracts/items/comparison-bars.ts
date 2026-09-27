@@ -38,4 +38,7 @@ export default {
     "At narrow widths long labels wrap above their values and bars stay full width.",
     "Read without the bars (they are aria-hidden): each dt/dd pair still states the label and value.",
   ],
+  docs: [
+    { title: "Visual primitives guide", url: "https://github.com/chekos/jbm-ui/blob/main/docs/visual-primitives.md" },
+  ],
 } satisfies ItemContract

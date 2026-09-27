@@ -13,9 +13,9 @@ export default {
       export: "SceneFromSpec",
       kind: "component",
       summary:
-        "Renders one SceneSpec as a full-canvas Scene for one orientation. Blocks (big, stat-row, note, callout, bullets, chips, code, spacer, screens, catalog, propagate, shelf, twice, brand, overlay) stack inside the safe area with `gap` between them; `composition` and `variants[orientation]` choose the layout (flow, hero, headline-illustration, illustration), safe area, headline ratio, subject scale, and optional block overrides. Anchors resolve through `host.resolve`, text through `host.t`. It does not fit, shrink, or paginate content, and throws on invalid layouts, anchors, gaps, or insets.",
+        "Renders one SceneSpec as a full-canvas Scene for one orientation. Blocks (big, stat-row, note, callout, bullets, chips, code, spacer, screens, catalog, propagate, shelf, twice, brand, overlay) stack inside the safe area with `gap` between them; `composition` and `variants[orientation]` choose the layout (flow, hero, headline-illustration, illustration), safe area, headline ratio, subject scale, and optional block overrides. Anchors resolve through `host.resolve`, text through `host.t`. It does not fit, shrink, or paginate content, and throws on invalid layouts, anchors, gaps, or insets. It does not validate the spec's shape (an unknown block type renders nothing): validate parsed YAML against the JSON Schema in `schemas` first. Every block, field, default, unit, and error is listed in the scene spec guide in `docs`.",
       props: {
-        spec: "Parsed scene (SceneSpec): id, anchors, blocks, and optional title, composition, variants, gap, and valign.",
+        spec: "One parsed scene (SceneSpec): id, anchors, blocks, and optional title, starts, composition, variants, gap, and valign. The compiler takes plain objects; parse YAML in the host (the guide uses js-yaml 4 `load`) and validate against #/$defs/SceneSpec of the JSON Schema.",
         showSafeArea: "Draws a dashed vermilion outline of the safe area for debugging; leave off for final renders.",
         orientation: "landscape (for a 1920 × 1080 composition) or vertical (1080 × 1920); picks stage geometry, block sizes, and variants.",
         host: "Injected services: `resolve(phrase)` returns seconds from scene start for an anchor's narration phrase; optional `t(string)` translates on-screen text.",
@@ -47,7 +47,11 @@ export default {
     { export: "ScenesFile", kind: "type", summary: "The parsed YAML file: `{ scenes: SceneSpec[] }`." },
     { export: "Block", kind: "type", summary: "Any block body plus an optional `until` exit cue." },
     { export: "CompositionOptions", kind: "type", summary: "safeArea, layout, headlineRatio, subjectScale, gap, valign, and an optional full blocks override." },
-    { export: "SafeArea", kind: "type", summary: '"legacy" | "full" | "social" | explicit pixel insets.' },
+    { export: "SafeArea", kind: "type", summary: '"legacy" | "full" | "social" | explicit pixel insets { top, right, bottom, left }. Social applies to vertical only; in landscape it falls back to full (90/120/90/120).' },
+    { export: "PerOrientation", kind: "type", summary: "`{ landscape, vertical }` pixel values, accepted wherever a size may differ per orientation (gap, spacer h, screens and propagate h)." },
+    { export: "StatItem", kind: "type", summary: "One stat-row card: at, label, value, optional sub and valueColor." },
+    { export: "Exit", kind: "type", summary: "The optional `until` cue every block accepts: fade out and drift up over 0.4 s." },
+    { export: "BlockBody", kind: "type", summary: "The block union without `until`, discriminated by `type`." },
     { export: "SceneLayout", kind: "type", summary: '"flow" | "hero" | "headline-illustration" | "illustration".' },
     { export: "At", kind: "type", summary: "A time: anchor name (optionally with an offset) or seconds." },
   ],
@@ -61,11 +65,15 @@ export default {
   examples: [
     {
       title: "Compile a parsed scene",
-      code: 'import { SceneFromSpec } from "@/jbm/motion/compile"\nimport type { ScenesFile } from "@/jbm/motion/spec"\n\nconst scenes: ScenesFile = parsedYaml\n<SceneFromSpec spec={scenes.scenes[0]} orientation="landscape"\n  host={{ resolve: (phrase) => timings[phrase] }} />\n// See docs/scene-spec.md for blocks, layouts, and safe areas.',
+      code: 'import { SceneFromSpec } from "@/jbm/motion/compile"\nimport type { ScenesFile } from "@/jbm/motion/spec"\n\nconst scenes: ScenesFile = parsedYaml\n<SceneFromSpec spec={scenes.scenes[0]} orientation="landscape"\n  host={{ resolve: (phrase) => timings[phrase] }} />\n// Every block and field: https://github.com/chekos/jbm-ui/blob/main/docs/scene-spec.md',
     },
     {
       title: "Headline and illustration, tuned for portrait",
       code: 'import type { SceneSpec } from "@/jbm/motion/spec"\n\nconst spec: SceneSpec = {\n  id: "library",\n  anchors: { build: "una biblioteca" },\n  composition: { safeArea: "full", layout: "headline-illustration", subjectScale: 1.3 },\n  variants: { vertical: { headlineRatio: 0.23, gap: 48 } },\n  blocks: [\n    { type: "big", at: 0, text: "Una biblioteca.\\nMuchas posibilidades.", align: "center", size: 90 },\n    { type: "screens", pieces: [{ kind: "card", at: "build" }, { kind: "button", at: "build+0.6" }], phoneScale: 1.5 },\n  ],\n}',
+    },
+    {
+      title: "Parse, validate, and compile a YAML scenes file",
+      code: 'import { load } from "js-yaml"\nimport Ajv2020 from "ajv/dist/2020"\nimport { SceneFromSpec } from "@/jbm/motion/compile"\nimport type { ScenesFile } from "@/jbm/motion/spec"\nimport schema from "./scene-spec.schema.json" // https://jbm-ui.bns.studio/schemas/scene-spec.json\n\nconst validate = new Ajv2020({ allErrors: true }).compile(schema)\nconst data = load(yamlText)\nif (!validate(data)) throw new Error(JSON.stringify(validate.errors))\nconst { scenes } = data as ScenesFile\n\n<SceneFromSpec spec={scenes[0]} orientation="vertical"\n  host={{ resolve: (phrase) => timings[phrase], t: translate }} />',
     },
   ],
   qa: [
@@ -73,5 +81,11 @@ export default {
     "Turn guides on to see the safe area, then confirm showSafeArea is off in final renders.",
     "Nothing auto-fits: check tall content (code, stat rows, long headlines) for overflow or clipping at the safe-area edges, especially in portrait.",
     "Exercise error paths: unknown anchors, headline-illustration with other than two blocks or with a title, and invalid gap or insets must throw with the scene id or a clear message.",
+  ],
+  docs: [
+    { title: "Scene spec guide", url: "https://github.com/chekos/jbm-ui/blob/main/docs/scene-spec.md" },
+  ],
+  schemas: [
+    { title: "Scene spec JSON Schema", url: "https://jbm-ui.bns.studio/schemas/scene-spec.json" },
   ],
 } satisfies ItemContract

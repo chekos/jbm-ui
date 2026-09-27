@@ -55,4 +55,7 @@ export default {
     "Toggle Reveal nested folders: hidden folders sit fully below the rim with complete outlines, clipped only at the container bottom.",
     "Uncertain: at open 1 the sheet and front folders extend above the 220-unit viewBox, so they rely on overflow visible; check clipping when overflow is left hidden.",
   ],
+  docs: [
+    { title: "Paper and filing illustrations guide", url: "https://github.com/chekos/jbm-ui/blob/main/docs/design-video-components.md" },
+  ],
 } satisfies ItemContract

@@ -4,12 +4,29 @@
 import { existsSync, readFileSync, readdirSync } from "node:fs"
 import { join, relative, resolve } from "node:path"
 import ts from "typescript"
+import { buildSceneSpecSchema, sceneSpecSchemaFile, sceneSpecSchemaPath } from "./scene-spec-schema.mjs"
 
 export const root = resolve(import.meta.dirname, "../..")
 export const itemsDir = join(root, "contracts/items")
 export const generatedDir = join(root, "contracts/generated")
 export const catalogPath = join(generatedDir, "catalog.json")
 export const galleryPath = join(generatedDir, "gallery.json")
+
+/** Production origin for absolute URLs in generated files (lib/site.ts falls back to the same). */
+export const publicOrigin = "https://jbm-ui.bns.studio"
+/** Contract `docs` links to repository files use GitHub blob URLs on main. */
+export const repoBlob = "https://github.com/chekos/jbm-ui/blob/main/"
+
+/** JSON Schemas generated from registry types, served statically from public/. */
+export function generatedSchemas() {
+  return [
+    {
+      file: join(root, sceneSpecSchemaFile),
+      url: publicOrigin + sceneSpecSchemaPath,
+      schema: buildSceneSpecSchema(root, { id: publicOrigin + sceneSpecSchemaPath }),
+    },
+  ]
+}
 
 const rel = (path) => relative(root, path).split("\\").join("/")
 const read = (path) => readFileSync(join(root, path), "utf8")
@@ -463,6 +480,7 @@ export function validateContract(name) {
   }
   if (!Array.isArray(contract.qa) || contract.qa.length === 0 || !contract.qa.every(nonEmpty))
     errors.push("qa lists at least one non-empty note")
+  for (const field of ["docs", "schemas"]) checkLinks(contract[field], field, errors)
 
   if (errors.length) return { errors, contract }
   const installName = inRegistry ? name : contract.install
@@ -491,7 +509,53 @@ export function validateContract(name) {
       stage,
       examples: contract.examples,
       qa: contract.qa,
+      ...(contract.docs ? { docs: contract.docs } : {}),
+      ...(contract.schemas ? { schemas: contract.schemas } : {}),
     },
+  }
+}
+
+const schemaUrls = new Set([publicOrigin + sceneSpecSchemaPath])
+
+/**
+ * `docs` and `schemas`: optional lists of { title, url } with absolute http(s) URLs. Links into
+ * this repository (GitHub blob URLs on main) and onto this site must point at files that exist.
+ */
+function checkLinks(links, field, errors) {
+  if (links === undefined) return
+  if (!Array.isArray(links) || links.length === 0) {
+    errors.push(`${field} must be a non-empty array of { title, url } when present`)
+    return
+  }
+  const seen = new Set()
+  for (const [index, link] of links.entries()) {
+    const label = `${field}[${index}]`
+    if (!link || typeof link !== "object") {
+      errors.push(`${label} must be { title, url }`)
+      continue
+    }
+    for (const key of Object.keys(link))
+      if (key !== "title" && key !== "url") errors.push(`${label}.${key} is not a link field`)
+    if (!nonEmpty(link.title)) errors.push(`${label}.title is required`)
+    let url
+    try {
+      url = new URL(link.url)
+    } catch {
+      errors.push(`${label}.url must be an absolute URL`)
+      continue
+    }
+    if (url.protocol !== "https:" && url.protocol !== "http:")
+      errors.push(`${label}.url must be an http(s) URL`)
+    if (seen.has(url.href)) errors.push(`${label}.url repeats`)
+    seen.add(url.href)
+    const bare = url.href.replace(/[#?].*$/, "")
+    if (bare.startsWith(repoBlob)) {
+      if (!existsSync(join(root, decodeURIComponent(bare.slice(repoBlob.length)))))
+        errors.push(`${label}.url: ${bare.slice(repoBlob.length)} does not exist in the repository`)
+    } else if (url.origin === publicOrigin) {
+      if (!schemaUrls.has(bare) && !existsSync(join(root, "public", decodeURIComponent(url.pathname))))
+        errors.push(`${label}.url: ${url.pathname} is not a static file this site serves`)
+    }
   }
 }
 

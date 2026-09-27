@@ -51,4 +51,7 @@ export default {
     "Press Copy token usage with and without clipboard access; the status line reports success or points to the Usage snippet.",
     "Exercise the buttons and checkboxes by keyboard and confirm visible focus.",
   ],
+  docs: [
+    { title: "Surface depth guide", url: "https://github.com/chekos/jbm-ui/blob/main/docs/surface-depth.md" },
+  ],
 } satisfies ItemContract

@@ -64,4 +64,7 @@ export default {
     "Without a label the source sits at the top of the box and its badge pokes 22px above it; leave room in the layout.",
     "Inspect landscape and vertical widths: the last screen's badge and tilt can cross the right edge by about 14px.",
   ],
+  docs: [
+    { title: "Scene spec guide", url: "https://github.com/chekos/jbm-ui/blob/main/docs/scene-spec.md" },
+  ],
 } satisfies ItemContract

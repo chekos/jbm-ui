@@ -427,7 +427,7 @@
         "@jbm/propagate",
         "@jbm/shelf"
       ],
-      "snippet": "import { SceneFromSpec } from \"@/jbm/motion/compile\"\nimport type { ScenesFile } from \"@/jbm/motion/spec\"\n\nconst scenes: ScenesFile = parsedYaml\n<SceneFromSpec spec={scenes.scenes[0]} orientation=\"landscape\"\n  host={{ resolve: (phrase) => timings[phrase] }} />\n// See docs/scene-spec.md for blocks, layouts, and safe areas.",
+      "snippet": "import { SceneFromSpec } from \"@/jbm/motion/compile\"\nimport type { ScenesFile } from \"@/jbm/motion/spec\"\n\nconst scenes: ScenesFile = parsedYaml\n<SceneFromSpec spec={scenes.scenes[0]} orientation=\"landscape\"\n  host={{ resolve: (phrase) => timings[phrase] }} />\n// Every block and field: https://github.com/chekos/jbm-ui/blob/main/docs/scene-spec.md",
       "installName": "scene-spec",
       "sourcePath": "registry/jbm/motion/compile.tsx",
       "inRegistry": true

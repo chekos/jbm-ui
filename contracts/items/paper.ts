@@ -98,4 +98,7 @@ export default {
     "Stickers never wrap; check the longest word at the chosen size fits the frame in portrait.",
     "Toggle edge and shadow off and confirm the piece still separates from the cream canvas where it is used.",
   ],
+  docs: [
+    { title: "Surface depth guide", url: "https://github.com/chekos/jbm-ui/blob/main/docs/surface-depth.md" },
+  ],
 } satisfies ItemContract
