@@ -18,6 +18,12 @@ import {
   designSnippets,
 } from "./design-video-demo"
 import { DeskDemo, deskNames, deskSnippets } from "./desk-demo"
+import {
+  AddCommand,
+  InstallOnce,
+  needsRemotion,
+  registryDependencies,
+} from "./install"
 
 const galleryItems = [
   registry.items[0],
@@ -47,45 +53,6 @@ function Canvas({ children }: { children: ReactNode }) {
   )
 }
 
-function Install({ name }: { name: string }) {
-  const [status, setStatus] = useState("")
-  async function copy() {
-    try {
-      const config = JSON.stringify(
-        { registries: { "@jbm": `${window.location.origin}/r/{name}.json` } },
-        null,
-        2
-      )
-      await navigator.clipboard.writeText(config)
-      setStatus("Registry configuration copied.")
-    } catch {
-      setStatus(
-        "Clipboard unavailable. Select and copy the configuration below."
-      )
-    }
-  }
-  return (
-    <div className="install">
-      <p>
-        Merge this namespace into your project’s <code>components.json</code>,
-        replacing <code>YOUR_GALLERY_URL</code> with this site’s origin.
-      </p>
-      <pre>
-        <code>
-          {
-            '{ "registries": { "@jbm": "https://YOUR_GALLERY_URL/r/{name}.json" } }'
-          }
-        </code>
-      </pre>
-      <button onClick={copy}>Copy config for this site</button>
-      <p role="status">{status}</p>
-      <pre>
-        <code>pnpm dlx shadcn@latest add @jbm/{name}</code>
-      </pre>
-    </div>
-  )
-}
-
 export function Gallery() {
   const [query, setQuery] = useState("")
   const [filter, setFilter] = useState<Category>("All")
@@ -98,6 +65,7 @@ export function Gallery() {
   )
   return (
     <>
+      <InstallOnce />
       <div className="toolbar">
         <div className="filters" role="group" aria-label="Component category">
           {categories.map((value) => (
@@ -251,11 +219,9 @@ export function Gallery() {
                         >
                           Source ↗
                         </a>
-                        <a
-                          href={`/r/${item.name === "surface-depth" ? "tokens" : item.name}.json`}
-                        >
-                          Registry JSON ↗
-                        </a>
+                        {item.name !== "surface-depth" && (
+                          <a href={`/r/${item.name}.json`}>Registry JSON ↗</a>
+                        )}
                       </div>
                       {item.name === "surface-depth" && (
                         <p>
@@ -266,13 +232,40 @@ export function Gallery() {
                       )}
                       <details>
                         <summary>Usage & installation</summary>
-                        {"dependencies" in item &&
-                        item.dependencies?.includes("remotion") ? (
+                        {item.name === "surface-depth" ? (
                           <p>
-                            Render inside a Remotion composition or Player.
-                            Timing values are in seconds.
+                            Documentation entry, not a registry item. Its shadow
+                            and border tokens install with{" "}
+                            <code>@jbm/tokens</code>.
                           </p>
                         ) : null}
+                        <AddCommand
+                          name={
+                            item.name === "surface-depth" ? "tokens" : item.name
+                          }
+                        />
+                        {registryDependencies(item.name).length > 0 && (
+                          <p>
+                            Also installs{" "}
+                            {registryDependencies(item.name).map(
+                              (dependency, i) => (
+                                <span key={dependency}>
+                                  {i > 0 && ", "}
+                                  <code>{dependency}</code>
+                                </span>
+                              )
+                            )}
+                            .
+                          </p>
+                        )}
+                        {needsRemotion(item.name) && (
+                          <p>
+                            Needs Remotion: render inside a Remotion{" "}
+                            <code>{"<Composition>"}</code> or{" "}
+                            <code>{"<Player>"}</code>, not a plain React tree.
+                            Timing values are in seconds.
+                          </p>
+                        )}
                         <pre>
                           <code>
                             {item.name === "surface-depth"
@@ -282,11 +275,6 @@ export function Gallery() {
                                 snippets[item.name])}
                           </code>
                         </pre>
-                        <Install
-                          name={
-                            item.name === "surface-depth" ? "tokens" : item.name
-                          }
-                        />
                       </details>
                     </div>
                   </article>
