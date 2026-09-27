@@ -15,10 +15,10 @@ export const galleryPath = join(generatedDir, "gallery.json")
 /** Production origin for absolute URLs in generated files (lib/site.ts falls back to the same). */
 export const publicOrigin = "https://jbm-ui.bns.studio"
 /**
- * The source repository is private, so agent-facing output never links to it. Guides are served by
- * the site instead: docs/<slug>.md is published at /docs/<slug>.md (app/docs/[file]/route.ts).
+ * Agent-facing output never links the source repository (public on GitHub, but agents get
+ * everything from the site). Guides are served by the site instead: docs/<slug>.md is published at /docs/<slug>.md (app/docs/[file]/route.ts).
  */
-export const privateRepo = "github.com/chekos/jbm-ui"
+export const sourceRepo = "github.com/chekos/jbm-ui"
 /** Site path prefix for published guides. */
 export const docsRoute = "/docs/"
 /** Guides published even when no contract links them. */
@@ -532,7 +532,7 @@ const schemaUrls = new Set([publicOrigin + sceneSpecSchemaPath])
 /**
  * `docs` and `schemas`: optional lists of { title, url } with absolute http(s) URLs. Links onto this
  * site must point at files it serves: /docs/<slug>.md needs docs/<slug>.md, anything else a file in
- * public/ or a generated schema. Links into the private source repository are rejected.
+ * public/ or a generated schema. Links into the source repository are rejected.
  */
 function checkLinks(links, field, errors) {
   if (links === undefined) return
@@ -562,8 +562,8 @@ function checkLinks(links, field, errors) {
     if (seen.has(url.href)) errors.push(`${label}.url repeats`)
     seen.add(url.href)
     const bare = url.href.replace(/[#?].*$/, "")
-    if (url.href.includes(privateRepo))
-      errors.push(`${label}.url: the source repository is private; link the guide at ${publicOrigin}${docsRoute}<slug>.md`)
+    if (url.href.includes(sourceRepo))
+      errors.push(`${label}.url: agent-facing links stay on the site; link the guide at ${publicOrigin}${docsRoute}<slug>.md`)
     else if (url.origin === publicOrigin && url.pathname.startsWith(docsRoute)) {
       const slug = docSlug(url.pathname)
       if (!slug || !existsSync(join(root, "docs", `${slug}.md`)))
@@ -644,7 +644,7 @@ export function buildGenerated(names = contractNames().filter(hasContract)) {
       inRegistry: entry.inRegistry,
     })),
   }
-  // Guides published at /docs/<slug>.md, so agents never need the private repository.
+  // Guides published at /docs/<slug>.md, so agents never need the source repository.
   const docs = { $comment: header, docs: publishedDocs(entries) }
   const routes = {
     $comment: header,

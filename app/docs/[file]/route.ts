@@ -1,7 +1,7 @@
 import { getPublishedDoc, getPublishedDocs } from "@/lib/docs"
 
-// Guides as Markdown at /docs/<slug>.md: the source repository is private, so contract `docs`
-// links and the agent catalogs point here. Content comes from contracts/generated/docs.json
+// Guides as Markdown at /docs/<slug>.md: agents read guides from the site, not
+// the source repository, so contract `docs` links and the agent catalogs point here. Content comes from contracts/generated/docs.json
 // (`pnpm contracts:build`), prerendered per guide; proxy.ts answers unknown names with a Markdown
 // 404 that lists the guides.
 export const dynamic = "force-static"
