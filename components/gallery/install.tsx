@@ -4,8 +4,6 @@ import { useEffect, useRef, useState, useSyncExternalStore } from "react"
 import { registryUrlTemplate, siteOrigin } from "@/lib/site"
 import { addCommand } from "./item-meta"
 
-export { addCommand, needsRemotion, registryDependencies } from "./item-meta"
-
 function CopyButton({
   text,
   label,

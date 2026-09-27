@@ -10,6 +10,7 @@ import {
 } from "@/components/gallery/item-meta"
 import { AddCommand } from "@/components/gallery/install"
 import { QaBench } from "@/components/gallery/qa-bench"
+import { siteOrigin } from "@/lib/site"
 
 type Props = { params: Promise<{ name: string }> }
 
@@ -26,6 +27,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: `${item.title} · jbm-ui`,
     description: item.description,
+    alternates: { canonical: `${siteOrigin()}/c/${item.name}` },
   }
 }
 

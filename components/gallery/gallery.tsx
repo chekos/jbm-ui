@@ -9,7 +9,6 @@ import {
 } from "react"
 import dynamic from "next/dynamic"
 import Link from "next/link"
-import registry from "@/registry.json"
 import {
   TextFillDemo,
   ScrollTextFillDemo,
@@ -18,34 +17,21 @@ import {
 import { videoPrimitiveExamples } from "./video-primitives-demo"
 import { editorialExamples } from "./editorial-demo"
 import { ScrollStackDemo } from "./scroll-stack-demo"
-import { SurfaceDepth, surfaceUsage } from "./surface-depth"
-import {
-  DesignVideoDemo,
-  designNames,
-  designSnippets,
-} from "./design-video-demo"
-import { DeskDemo, deskNames, deskSnippets } from "./desk-demo"
-import {
-  AddCommand,
-  InstallOnce,
-  needsRemotion,
-  registryDependencies,
-} from "./install"
-
-const galleryItems = [
-  registry.items[0],
-  {
-    name: "surface-depth",
-    title: "Surface depth",
-    description:
-      "Fine borders, inset edge lighting, and layered shadows. Compare the original surface and inspect each layer.",
-    files: [{ path: "registry/jbm/lib/tokens.ts" }],
-  },
-  ...registry.items.slice(1).filter((item) => item.name !== "ui-bits"),
-]
+import { SurfaceDepth } from "./surface-depth"
+import { DesignVideoDemo, designNames } from "./design-video-demo"
+import { DeskDemo, deskNames } from "./desk-demo"
+import { AddCommand, InstallOnce } from "./install"
 import { color } from "@/registry/jbm/lib/tokens"
-import { examples, snippets } from "./examples"
-import { categories, category, type Category } from "./categories"
+import { examples } from "./examples"
+import { categories, type Category } from "./categories"
+import {
+  categorySlug,
+  getGalleryItems,
+  type GalleryItemMeta,
+} from "./item-meta"
+
+// One source of truth for cards, /c/<name> pages, llms.txt, and catalog.json.
+const galleryItems = getGalleryItems()
 
 const MotionPreview = dynamic(() => import("./motion-preview"), {
   ssr: false,
@@ -60,65 +46,14 @@ function Canvas({ children }: { children: ReactNode }) {
   )
 }
 
-type GalleryItem = (typeof galleryItems)[number]
+type GalleryItem = GalleryItemMeta
 
 const groups = categories.filter(
   (value): value is Exclude<Category, "All"> => value !== "All"
 )
-const slug = (value: string) => value.toLowerCase().replaceAll(" ", "-")
+const slug = categorySlug
 const plural = (count: number) => (count === 1 ? "item" : "items")
 
-// Previews rendered by MotionPreview (the Remotion Player fallback below).
-const inPlayer = (name: string) =>
-  !designNames.includes(name) &&
-  !deskNames.includes(name) &&
-  !(name in examples) &&
-  !(name in editorialExamples) &&
-  !(name in videoPrimitiveExamples) &&
-  ![
-    "scroll-stack",
-    "flip-text",
-    "text-fill",
-    "scroll-text-fill",
-    "surface-depth",
-    "tokens",
-  ].includes(name)
-// Video-primitive demos that render their own inputs rather than a fixed example.
-const interactivePrimitives = ["ticket", "folder", "score-scale", "clock"]
-
-/** QA-bench signals for a card, derived from how its preview is rendered. */
-function capabilities(item: GalleryItem) {
-  const { name } = item
-  const player = inPlayer(name)
-  const tags: string[] = []
-  if (
-    designNames.includes(name) ||
-    deskNames.includes(name) ||
-    interactivePrimitives.includes(name) ||
-    ["scroll-stack", "flip-text", "text-fill", "surface-depth"].includes(
-      name
-    ) ||
-    name === "scene-spec"
-  )
-    tags.push("controls")
-  if (name.startsWith("scroll-")) tags.push("scroll")
-  // Scene is a static layout (a one-frame composition); every other Player preview replays.
-  if ((player && name !== "scene") || name === "replay-button")
-    tags.push("replay")
-  // scene-spec compiles one spec into landscape and vertical stages side by side.
-  if (name === "scene-spec") tags.push("portrait")
-  if (
-    player ||
-    ("dependencies" in item && item.dependencies?.includes("remotion"))
-  )
-    tags.push("remotion")
-  // No tag means a plain, static preview; an empty list says that without jargon.
-  return tags
-}
-
-const tagsByName = new Map(
-  galleryItems.map((item) => [item.name, capabilities(item)])
-)
 // Search covers names, copy, category, and capability tags ("remotion", "replay",
 // "controls"); every whitespace-separated term must match.
 const searchText = new Map(
@@ -128,8 +63,8 @@ const searchText = new Map(
       item.title,
       item.name,
       item.description,
-      category(item.name),
-      ...(tagsByName.get(item.name) ?? []),
+      item.category,
+      ...item.capabilities,
     ]
       .join(" ")
       .toLowerCase(),
@@ -137,7 +72,7 @@ const searchText = new Map(
 )
 
 function matches(item: GalleryItem, filter: Category, query: string) {
-  if (filter !== "All" && category(item.name) !== filter) return false
+  if (filter !== "All" && item.category !== filter) return false
   const text = searchText.get(item.name) ?? ""
   return query
     .toLowerCase()
@@ -237,8 +172,8 @@ function Preview({ item }: { item: GalleryItem }) {
 function ComponentCard({ item }: { item: GalleryItem }) {
   const { name } = item
   const documentation = name === "surface-depth"
-  const tags = tagsByName.get(name) ?? []
-  const dependencies = registryDependencies(name)
+  const tags = item.capabilities
+  const dependencies = item.registryDependencies
   return (
     <article id={name} className="component-card">
       <Preview item={item} />
@@ -265,7 +200,7 @@ function ComponentCard({ item }: { item: GalleryItem }) {
           )}
         </div>
         <p>{item.description}</p>
-        <AddCommand name={documentation ? "tokens" : name} />
+        <AddCommand name={item.installName} />
         <details>
           <summary>Usage</summary>
           {documentation && (
@@ -286,7 +221,7 @@ function ComponentCard({ item }: { item: GalleryItem }) {
               .
             </p>
           )}
-          {needsRemotion(name) && (
+          {item.needsRemotion && (
             <p>
               Needs Remotion: render inside a Remotion{" "}
               <code>{"<Composition>"}</code> or <code>{"<Player>"}</code>, not a
@@ -294,17 +229,11 @@ function ComponentCard({ item }: { item: GalleryItem }) {
             </p>
           )}
           <pre tabIndex={0}>
-            <code>
-              {documentation
-                ? surfaceUsage
-                : (designSnippets[name] ??
-                  deskSnippets[name] ??
-                  snippets[name])}
-            </code>
+            <code>{item.snippet}</code>
           </pre>
           <div className="card-links">
             <a
-              href={`https://github.com/chekos/jbm-ui/blob/main/${item.files[0].path}`}
+              href={`https://github.com/chekos/jbm-ui/blob/main/${item.sourcePath}`}
             >
               Source ↗
             </a>
@@ -440,7 +369,7 @@ export function Gallery() {
 
   const items = galleryItems.filter((item) => matches(item, filter, query))
   const visibleGroups = groups.filter((group) =>
-    items.some((item) => category(item.name) === group)
+    items.some((item) => item.category === group)
   )
   const active = filter !== "All" || query !== ""
   const everywhere =
@@ -552,7 +481,7 @@ export function Gallery() {
       </div>
       <div id="components" className="results" tabIndex={-1} ref={results}>
         {groups.map((group) => {
-          const members = items.filter((item) => category(item.name) === group)
+          const members = items.filter((item) => item.category === group)
           if (!members.length) return null
           const id = slug(group)
           return (
