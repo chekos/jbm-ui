@@ -16,6 +16,9 @@ import {
   type Presets,
 } from "./progress-control"
 
+import { deskSurfaceNames } from "./demo-data"
+import { DeskSurfaceDemo } from "./desk-surface-demo"
+
 export { deskNames } from "./demo-data"
 
 const names = [
@@ -33,6 +36,15 @@ const names = [
   "archivo",
 ]
 export function DeskDemo({ name }: { name: string }) {
+  // Top-down pieces keep their own controls; the rest share the ones below.
+  return deskSurfaceNames.includes(name) ? (
+    <DeskSurfaceDemo name={name} />
+  ) : (
+    <DeskObjectDemo name={name} />
+  )
+}
+
+function DeskObjectDemo({ name }: { name: string }) {
   // On /c/<name> benches each value lives in the URL (?open=0.5&pose=pinch); see bench-url.tsx.
   const unit = { clamp: [0, 1] } as const
   const [count, setCount] = useBenchParam(

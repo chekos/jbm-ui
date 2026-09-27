@@ -1092,6 +1092,66 @@
       ]
     },
     {
+      "name": "desk-top",
+      "title": "DeskTop",
+      "description": "A cream desk seen from above, with light, a tilt-revealed front edge, and an optional drawer region.",
+      "categories": [
+        "Layout"
+      ],
+      "type": "registry:component",
+      "registryDependencies": [
+        "@jbm/tokens",
+        "@jbm/scene-geometry"
+      ],
+      "files": [
+        {
+          "path": "registry/jbm/ui/desk-top.tsx",
+          "type": "registry:component",
+          "target": "src/jbm/ui/desk-top.tsx"
+        }
+      ]
+    },
+    {
+      "name": "ejes",
+      "title": "Ejes",
+      "description": "Two ink axes that split an area into four named quadrants, with quiet labels and a focus quadrant.",
+      "categories": [
+        "UI Bits"
+      ],
+      "type": "registry:component",
+      "registryDependencies": [
+        "@jbm/tokens",
+        "@jbm/scene-geometry"
+      ],
+      "files": [
+        {
+          "path": "registry/jbm/ui/ejes.tsx",
+          "type": "registry:component",
+          "target": "src/jbm/ui/ejes.tsx"
+        }
+      ]
+    },
+    {
+      "name": "desk-prop",
+      "title": "DeskProp",
+      "description": "A free-standing keycap, keyboard, or mug to place on a desk.",
+      "categories": [
+        "UI Bits"
+      ],
+      "type": "registry:component",
+      "registryDependencies": [
+        "@jbm/tokens",
+        "@jbm/scene-geometry"
+      ],
+      "files": [
+        {
+          "path": "registry/jbm/ui/desk-prop.tsx",
+          "type": "registry:component",
+          "target": "src/jbm/ui/desk-prop.tsx"
+        }
+      ]
+    },
+    {
       "name": "burbuja",
       "title": "Burbuja",
       "description": "Chat bubble whose selected words sweep to vermilion with a controlled 0–1 highlight.",
