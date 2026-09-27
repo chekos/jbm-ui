@@ -1216,7 +1216,7 @@
         "@jbm/paper",
         "@jbm/punched-tag"
       ],
-      "snippet": "import { VideoPrint } from \"@/jbm/ui/video-print\"\n\n<VideoPrint\n  scrub={1}\n  title=\"Alex Hormozi\"\n  date=\"YouTube · 4 nov 2025\"\n  link=\"youtube.com/watch?v=mr4Pw66_498\"\n/>",
+      "snippet": "import { VideoPrint } from \"@/jbm/ui/video-print\"\n\n<VideoPrint\n  scrub={1}\n  title=\"Sample talk\"\n  date=\"Video · 4 nov 2025\"\n  link=\"example.com/watch?v=sample-talk\"\n/>",
       "installName": "video-print",
       "sourcePath": "registry/jbm/ui/video-print.tsx",
       "inRegistry": true

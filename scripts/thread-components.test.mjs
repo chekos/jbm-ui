@@ -164,17 +164,54 @@ test("hilo snapAt 0 starts laid and draw drives only the snap; no snapAt never s
   assert.equal(hiloGeometry({ from, to, draw: 1, snapAt: 1 }).snapped, false)
 })
 
-test("hilo gap, fray, and notch: clean cut at fray 0, notch spans the tips, vermilion only when notch", () => {
+test("hilo gap, fray, and notch: clean cut at fray 0, the notch marks the gap without bridging it, vermilion only when notch", () => {
   const clean = hiloGeometry({ from, to, draw: 1, snapAt: 0, fray: 0 })
   assert.equal(clean.strands.length, 0)
   const frayed = hiloGeometry({ from, to, draw: 1, snapAt: 0, fray: 1, notch: true })
   assert.equal(frayed.strands.length, 10)
-  assert.ok(near(frayed.notch[0], frayed.pieces[0][3]))
-  assert.ok(near(frayed.notch[3], frayed.pieces[1][0]))
-  // With hanging ends the notch still spans tip to tip.
-  const limp = hiloGeometry({ from, to, draw: 1, snapAt: 0, slack: 1, notch: true })
-  assert.ok(near(limp.notch[0], limp.pieces[0][3]))
-  assert.ok(near(limp.notch[3], limp.pieces[1][0]))
+  // The notch is a straight bar strictly between the tips, with open paper between it and
+  // every tip and fiber (#168: a notch that touches the ends reads as an intact thread).
+  // Edge to edge: the notch's half width and each ink stroke's half width come off the distance.
+  const clearance = (g) => {
+    let min = Infinity
+    const ink = [
+      ...[g.pieces[0], g.pieces[1]].flatMap((c) =>
+        Array.from({ length: 81 }, (_, i) => ({ p: cubicPoint(c, i / 80), r: g.width / 2 }))
+      ),
+      ...g.strands.flatMap(([a, q, b]) =>
+        Array.from({ length: 21 }, (_, i) => {
+          const t = i / 20
+          return {
+            p: {
+              x: (1 - t) ** 2 * a.x + 2 * (1 - t) * t * q.x + t * t * b.x,
+              y: (1 - t) ** 2 * a.y + 2 * (1 - t) * t * q.y + t * t * b.y,
+            },
+            r: g.strandWidth / 2,
+          }
+        })
+      ),
+    ]
+    for (let i = 0; i <= 40; i++) {
+      const p = cubicPoint(g.notch, i / 40)
+      for (const { p: q, r } of ink)
+        min = Math.min(min, Math.hypot(p.x - q.x, p.y - q.y) - r - g.notchWidth / 2)
+    }
+    return min
+  }
+  for (const width of [1, 2, 4, 6])
+    for (const slack of [0, 0.35, 1])
+      for (const breakAt of [0.05, 0.5, 0.95])
+        for (const curve of ["s", "arc"]) {
+          const g = hiloGeometry({ from, to, curve, bend: curve === "s" ? 0.5 : 0.3, draw: 1, snapAt: 0, fray: 1, notch: true, width, slack, breakAt })
+          assert.ok(g.notch, `notch drawn at width ${width}, slack ${slack}, break ${breakAt}`)
+          const [p0, p1, p2, p3] = g.notch
+          const cross = (u, v) => (u.x - p0.x) * (v.y - p0.y) - (u.y - p0.y) * (v.x - p0.x)
+          assert.ok(Math.abs(cross(p1, p3)) < 1e-6 && Math.abs(cross(p2, p3)) < 1e-6, "the notch is straight")
+          assert.ok(
+            clearance(g) >= 2,
+            `open paper around the notch at width ${width}, slack ${slack}, break ${breakAt}: ${clearance(g)}`
+          )
+        }
   // The gap is about a fifth of the thread and never more than 90 units.
   const gap = Math.hypot(
     frayed.pieces[1][0].x - frayed.pieces[0][3].x,
@@ -197,6 +234,32 @@ test("hilo gap, fray, and notch: clean cut at fray 0, notch spans the tips, verm
     { from, to, draw: 0.2, snapAt: 0.5, notch: true },
   ])
     assert.ok(!render(Hilo, props).includes(color.accent))
+})
+
+test("hilo S curves never hook back around their anchors, at any bend or width (#168)", () => {
+  for (const bend of [-1, -0.5, 0, 0.5, 1, 1.5])
+    for (const width of [1, 6])
+      for (const slack of [0, 1]) {
+        const g = hiloGeometry({ from, to, curve: "s", bend, width, slack, draw: 1 })
+        let prev = -Infinity
+        for (let i = 0; i <= 200; i++) {
+          const x = cubicPoint(g.base, i / 200).x
+          assert.ok(x >= prev - 1e-9, `bend ${bend}: x runs from \`from\` to \`to\` without turning back`)
+          prev = x
+        }
+      }
+})
+
+test("hilo fibers are fine strands out of the cut, not legs along the thread (#168)", () => {
+  for (const width of [1, 2, 6]) {
+    const g = hiloGeometry({ from, to, draw: 1, snapAt: 0, fray: 1, width })
+    assert.ok(g.strandWidth <= Math.max(0.75, 0.4 * width) + 1e-9)
+    const tips = [g.pieces[0][3], g.pieces[1][0]]
+    for (const [root] of g.strands) {
+      const d = Math.min(...tips.map((t) => Math.hypot(root.x - t.x, root.y - t.y)))
+      assert.ok(d <= 0.8 * width, "every fiber leaves the cut itself")
+    }
+  }
 })
 
 test("hilo is deterministic and never renders NaN", () => {
@@ -227,7 +290,7 @@ test("video print marks sit on the scrub rule and ink only once the bar reaches 
     assert.equal(shifted.tag.y, at.y + shifted.h)
   }
   assert.equal(videoPrintLayout({}).tag, null)
-  const base = { title: "Alex Hormozi", date: "YouTube · 4 nov 2025", marks }
+  const base = { title: "Sample talk", date: "Video · 4 nov 2025", marks }
   const count = (scrub) =>
     (render(VideoPrint, { ...base, scrub }).match(/data-mark=/g) ?? []).length
   assert.equal(count(0), 0)
@@ -239,11 +302,11 @@ test("video print marks sit on the scrub rule and ink only once the bar reaches 
 })
 
 test("video print composes Paper and PunchedTag, shows the link only when opened, and adds no vermilion", () => {
-  const base = { title: "Alex Hormozi", date: "YouTube · 4 nov 2025", scrub: 1 }
-  const link = "youtube.com/watch?v=mr4Pw66_498"
+  const base = { title: "Sample talk", date: "Video · 4 nov 2025", scrub: 1 }
+  const link = "example.com/watch?v=sample-talk"
   assert.ok(render(VideoPrint, { ...base, link }).includes(link))
   assert.ok(!render(VideoPrint, { ...base, link, opened: 0 }).includes(link))
-  assert.ok(!render(VideoPrint, base).includes("youtube.com"))
+  assert.ok(!render(VideoPrint, base).includes("example.com"))
   for (const props of [base, { ...base, link }])
     assert.ok(!render(VideoPrint, props).includes(color.accent))
   assert.ok(render(VideoPrint, base).includes(color.card))
@@ -294,4 +357,35 @@ test("hilo and video-print typecheck with only their own published dependencies"
   } finally {
     rmSync(temp, { recursive: true, force: true })
   }
+})
+
+test("video print: declared bounds hold the link tag, the tag never passes the sheet, and the still tint ignores the sheet (#168)", () => {
+  for (const w of [276, 300, 480, 720]) {
+    const bare = videoPrintLayout({ w })
+    assert.equal(bare.bounds.h, bare.h, "no link, no overhang")
+    const l = videoPrintLayout({ w, link: "x" })
+    const s = w / 480
+    // The tag's height: a 14 × s line at 1.3, 6 × s padding above and below, and a 2px edge.
+    const tagH = 14 * 1.3 * s + 12 * s + 4
+    assert.ok(Math.abs(l.bounds.h - (l.h + tagH / 2)) < 1e-9)
+    assert.equal(l.bounds.w, l.w)
+    assert.ok(l.tagX + l.tagMaxW <= l.w - l.pad + 1e-9, "the tag stops short of the right edge")
+  }
+  // The contract's declared stage covers the default print with its tag.
+  const l = videoPrintLayout({ link: "x" })
+  assert.ok(l.bounds.h <= 385 && l.bounds.h > 384)
+  const long = render(VideoPrint, {
+    title: "Sample talk",
+    date: "Video · 4 nov 2025",
+    scrub: 1,
+    link: "example.com/" + "a".repeat(200),
+  })
+  assert.ok(long.includes("text-overflow:ellipsis"))
+  assert.ok(long.includes(`max-width:${Math.round(l.tagMaxW * 100) / 100}px`))
+  // The still is one opaque fill, the same with or without the sheet.
+  const fill = (markup) => markup.match(/<rect[^>]*fill="(#[0-9a-f]{6})"[^>]*>/i)?.[1]
+  const withSheet = render(VideoPrint, { title: "t", date: "d", scrub: 0 })
+  const without = render(VideoPrint, { title: "t", date: "d", scrub: 0, sheet: false })
+  assert.equal(fill(withSheet), fill(without))
+  assert.ok(!withSheet.includes("fill-opacity"))
 })

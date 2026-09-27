@@ -11,9 +11,9 @@ export type VideoPrintProps = {
   marks?: readonly number[]
   /** The video's title, set in bold type under the rule (one line, ellipsis when long). */
   title: string
-  /** The line under the title, usually source and date ("YouTube · 4 nov 2025"). */
+  /** The line under the title, usually source and date ("Video · 4 nov 2025"). */
   date: string
-  /** A URL set in mono on a punched tag hanging from the bottom edge. Its presence means "this page was opened". */
+  /** A URL set in mono on a punched tag hanging from the bottom edge (one line, ellipsis past the print's width). Its presence means "this page was opened". */
   link?: string
   /** 0–1: the tag drops into place. Only used with `link`. */
   opened?: number
@@ -26,6 +26,20 @@ export type VideoPrintProps = {
 }
 
 const BASE = 480
+
+/** `over` laid on `under` at `alpha`, as an opaque hex colour. */
+function mix(under: string, over: string, alpha: number) {
+  const channel = (hex: string, i: number) => parseInt(hex.slice(1 + 2 * i, 3 + 2 * i), 16)
+  return `#${[0, 1, 2]
+    .map((i) =>
+      Math.round(channel(under, i) * (1 - alpha) + channel(over, i) * alpha)
+        .toString(16)
+        .padStart(2, "0")
+    )
+    .join("")}`
+}
+/** The still's pale tint: 8% ink on card stock, opaque, so it reads the same with or without the sheet under it. */
+const stillTint = mix(color.card, color.ink, 0.08)
 
 /**
  * Where everything on the print sits, in pixels from the print's top-left corner (or from `at`,
@@ -49,6 +63,9 @@ export function videoPrintLayout(
   const dateY = titleY + 30 * s
   const h = dateY - at.y + 18 * s + pad
   const tagX = at.x + 2 * pad
+  // The link tag straddles the bottom edge: half its height (a 14 × s line and 6 × s padding
+  // above and below, inside a 2px edge) hangs below the sheet.
+  const tagHang = link ? (14 * 1.3 * s + 12 * s + 4) / 2 : 0
   return {
     scale: s,
     w: BASE * s,
@@ -63,6 +80,10 @@ export function videoPrintLayout(
     // Sheet edge (2) + left padding + the hole's radius and ring, all scaled with the print.
     tag: link ? { x: tagX + 2 + 10 * s + 7 * s + Math.max(1, 2 * s), y: at.y + h } : null,
     tagX,
+    /** The link tag's widest extent, from tagX: it ends a padding short of the sheet's right edge. */
+    tagMaxW: BASE * s - 3 * pad,
+    /** The box everything draws in, from `at`: the sheet plus, with a link, the tag hanging below it. */
+    bounds: { w: BASE * s, h: h + tagHang },
   }
 }
 
@@ -125,8 +146,7 @@ export function VideoPrint({
           width={r2(frame.w)}
           height={r2(frame.h)}
           rx={2 * s}
-          fill={color.ink}
-          fillOpacity={0.08}
+          fill={stillTint}
           stroke="none"
         />
         <g
@@ -223,7 +243,7 @@ export function VideoPrint({
             style={{
               gap: 10 * s,
               padding: `${6 * s}px ${14 * s}px ${6 * s}px ${10 * s}px`,
-              maxWidth: "none",
+              maxWidth: r2(l.tagMaxW),
             }}
           >
             <span
@@ -234,6 +254,8 @@ export function VideoPrint({
                 fontSize: 14 * s,
                 lineHeight: 1.3,
                 whiteSpace: "nowrap",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
               }}
             >
               {link}
