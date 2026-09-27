@@ -92,3 +92,21 @@ test("agent endpoints answer unknown names in their own format", async () => {
   assert.equal(run("/catalog/Folder.json").headers.get("location"), `${origin}/catalog/folder.json`)
   assert.equal(run("/docs/zzz.md").status, 404)
 })
+
+test("unknown agent names suggest only genuinely similar items", async () => {
+  const noise = await run("/catalog/zzz.json").json()
+  assert.equal(noise.didYouMean, null)
+  assert.equal(noise.suggestion, null)
+  const markdown = await run("/catalog/zzz.md").text()
+  assert.ok(!markdown.includes("Did you mean"))
+  assert.ok(!(await run("/docs/zzz.md").text()).includes("Did you mean"))
+  const typo = await run("/docs/scene.md").text()
+  assert.match(typo, /Did you mean \[Scene specs\]\([^)]*\/docs\/scene-spec\.md\)/)
+})
+
+test("known guides pass through, and other casings redirect", () => {
+  assert.equal(run("/docs/scene-spec.md").headers.get("x-middleware-next"), "1")
+  const response = run("/docs/Scene-Spec.MD")
+  assert.equal(response.status, 308)
+  assert.equal(response.headers.get("location"), `${origin}/docs/scene-spec.md`)
+})

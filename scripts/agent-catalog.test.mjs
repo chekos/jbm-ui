@@ -50,6 +50,7 @@ const {
   catalogNotFoundJson,
   catalogNotFoundMarkdown,
 } = catalogModule
+const { docsNotFoundMarkdown } = await import(pathToFileURL(join(root, "lib/agent-routes.ts")).href)
 
 const generated = JSON.parse(readFileSync(join(root, "contracts/generated/catalog.json"), "utf8"))
 const registry = JSON.parse(readFileSync(join(root, "registry.json"), "utf8"))
@@ -220,9 +221,40 @@ test("the /c 404 suggests a few close names, or none for noise", () => {
   assert.deepEqual(nearestItemNames("zz", 3, ["folder", "zzap"]), ["zzap"])
 })
 
-// The source repository is private: nothing an agent reads may link into it, and every guide link
-// on this site resolves to a published guide.
-const privateRepo = /github\.com\/chekos\/jbm-ui/i
+// One matcher and threshold (SUGGESTION_THRESHOLD) serves /catalog/<x>.md, /catalog/<x>.json,
+// /docs/<x>.md, and the /c/<x> page, so the same query gets the same answer everywhere.
+test("noise suggests nothing on every surface", () => {
+  for (const query of ["zzz", "qqqq", "xylophone", "a"]) {
+    assert.equal(nearestItemName(query), undefined, query)
+    assert.deepEqual(nearestItemNames(query), [], query)
+    const json = catalogNotFoundJson(query)
+    assert.equal(json.didYouMean, null, query)
+    assert.equal(json.suggestion, null, query)
+    const md = catalogNotFoundMarkdown(query)
+    assert.ok(!md.includes("Did you mean"), query)
+    assert.ok(md.includes("No item has a similar name."), query)
+    assert.ok(!docsNotFoundMarkdown(query).includes("Did you mean"), query)
+  }
+})
+
+test("typos, casing, and partial words suggest the same names on every surface", () => {
+  for (const query of ["foldr", "Folder", "FOLDR", "flder", "folders"]) {
+    assert.equal(nearestItemName(query), "folder", query)
+    assert.equal(catalogNotFoundJson(query).didYouMean, "folder", query)
+    assert.ok(catalogNotFoundMarkdown(query).includes("/catalog/folder.md"), query)
+  }
+  assert.deepEqual(nearestItemNames("paper", 4), ["paper", "paper-clip", "paper-line", "paper-tape"])
+  assert.deepEqual(nearestItemNames("clip", 2), ["paper-clip", "clipped-note"])
+  assert.equal(nearestItemName("clcok"), "clock")
+  assert.equal(nearestItemName("Tool Caddy"), "tool-caddy")
+  assert.match(docsNotFoundMarkdown("scene"), /Did you mean \[Scene specs\]\([^)]*\/docs\/scene-spec\.md\)/)
+  assert.match(docsNotFoundMarkdown("surface-dept"), /\/docs\/surface-depth\.md\)\?/)
+})
+
+// Agent outputs stay on this site: the source repository is public and humans get "Source ↗"
+// links (lib/site.ts repoSourceUrl), but nothing an agent reads links into it, and every guide
+// link resolves to a published guide.
+const repoUrl = /github\.com\/chekos\/jbm-ui/i
 const publishedDocs = JSON.parse(readFileSync(join(root, "contracts/generated/docs.json"), "utf8")).docs
 const publicJson = (dir) =>
   readdirSync(join(root, dir))
@@ -242,8 +274,8 @@ const agentOutputs = () => [
   ["contracts/generated/catalog.json", readFileSync(join(root, "contracts/generated/catalog.json"), "utf8")],
 ]
 
-test("no agent-facing output links to the private source repository", () => {
-  for (const [label, text] of agentOutputs()) assert.ok(!privateRepo.test(text), `${label} links the private repository`)
+test("no agent-facing output links to the source repository", () => {
+  for (const [label, text] of agentOutputs()) assert.ok(!repoUrl.test(text), `${label} links the source repository`)
 })
 
 test("every /docs/ link maps to a published guide", () => {
