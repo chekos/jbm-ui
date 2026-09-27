@@ -95,8 +95,9 @@
 
 html {
   scroll-behavior: smooth;
-  /* Anchors and focused elements land below the sticky gallery toolbar. */
-  scroll-padding-top: calc(var(--toolbar-h, 0px) + 16px);
+  /* Anchors and focused elements land below the sticky gallery bars
+     (--sticky-h is measured by the gallery: toolbar plus a sticking status row). */
+  scroll-padding-top: calc(var(--sticky-h, 0px) + 16px);
 }
 .skip-link {
   position: absolute;
@@ -190,7 +191,7 @@ pre:focus-visible {
   padding: 14px 0 10px;
   grid-template-columns: minmax(0, 1fr);
   background: var(--jbm-bg);
-  border-block: 1px solid var(--jbm-line);
+  border-top: 1px solid var(--jbm-line);
 }
 .toolbar-row {
   display: flex;
@@ -200,9 +201,21 @@ pre:focus-visible {
   gap: 12px 20px;
 }
 .toolbar-status {
-  justify-content: flex-start;
+  position: sticky;
+  top: var(--toolbar-h, 0px);
+  z-index: 19;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
   gap: 4px 16px;
   min-height: 28px;
+  padding-bottom: 10px;
+  background: var(--jbm-bg);
+  border-bottom: 1px solid var(--jbm-line);
+}
+/* The search toggle only exists on narrow screens. */
+.search-toggle {
+  display: none;
 }
 .toolbar-clear {
   min-height: 24px;
@@ -328,22 +341,37 @@ pre:focus-visible {
   gap: 28px;
   align-items: start;
 }
+@media (min-width: 1200px) {
+  .gallery-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 24px;
+  }
+}
 .component-card {
   border: 1px solid var(--jbm-line);
   border-radius: 10px;
   overflow: hidden;
 }
-.card-tags {
+/* Title and capability tags share a baseline row; tags appear only when informative. */
+.card-heading {
   display: flex;
   flex-wrap: wrap;
-  margin: 0;
-  padding: 14px 22px;
-  list-style: none;
-  color: var(--jbm-dim);
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px 16px;
+  margin-bottom: 8px;
 }
-.card-tags li + li::before {
-  content: "·" / "";
-  padding: 0 8px;
+.card-content .card-heading h3 {
+  margin: 0;
+}
+.card-content .card-tags {
+  margin: 0;
+  color: var(--jbm-dim);
+  font-size: 12px;
+  line-height: 1.4;
+}
+.card-tag-separator {
+  padding: 0 6px;
 }
 .preview {
   background: var(--jbm-bg);
@@ -388,6 +416,9 @@ pre:focus-visible {
 .card-content h3 a {
   text-decoration: none;
 }
+.card-content h3 a:hover {
+  text-decoration: underline;
+}
 .card-content p {
   color: var(--jbm-dim);
   font-size: 14px;
@@ -395,9 +426,10 @@ pre:focus-visible {
 }
 .card-links {
   display: flex;
-  gap: 24px;
+  flex-wrap: wrap;
+  gap: 4px 24px;
   font-size: 12px;
-  margin: 16px 0;
+  margin: 0 0 4px;
 }
 /* WCAG 2.2 target size: 24px-tall hit areas; margins absorb the extra height. */
 .card-links a,
@@ -503,20 +535,62 @@ footer {
   .search input {
     font-size: 16px; /* iOS zooms focused fields below 16px */
   }
-  /* Keep the sticky bar compact: one scrolling row of filters, no anchor row. */
+  /* Keep the sticky bar compact (<=110px): one scrolling row of filters beside a
+     search icon; the field expands below on demand; the status row scrolls away. */
   .toolbar {
-    gap: 8px;
-    padding: 10px 0 6px;
+    gap: 6px;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--jbm-line);
+  }
+  .toolbar-row {
+    flex-wrap: nowrap;
+    gap: 6px;
   }
   .filters {
+    flex: 1 1 auto;
+    min-width: 0;
     flex-wrap: nowrap;
     overflow-x: auto;
     scrollbar-width: none;
-    margin-inline: -20px;
-    padding: 4px 20px;
+    margin-left: -20px;
+    padding: 4px 28px 4px 20px;
+    /* Right-edge fade says "more chips this way". */
+    mask-image: linear-gradient(to right, #000 calc(100% - 32px), transparent);
   }
   .filters button {
     flex: none;
+    padding: 8px 12px;
+  }
+  .search-toggle {
+    display: inline-grid;
+    place-items: center;
+    flex: none;
+    width: 40px;
+    height: 40px;
+    border: 1px solid var(--jbm-line);
+    border-radius: 6px;
+    background: transparent;
+    color: var(--jbm-ink);
+  }
+  .search-toggle[aria-expanded="true"] {
+    border-color: var(--jbm-ink);
+  }
+  .toolbar[data-search="closed"] .search {
+    display: none;
+  }
+  .toolbar[data-search="open"] .toolbar-row {
+    flex-wrap: wrap;
+  }
+  .toolbar[data-search="open"] .filters {
+    flex-basis: calc(100% - 46px);
+  }
+  .search input {
+    padding-block: 8px;
+  }
+  .toolbar-status {
+    position: static;
+    padding: 8px 0 0;
+    border-bottom: 0;
   }
   .filters button:focus-visible {
     outline-offset: 1px;
@@ -537,7 +611,8 @@ footer {
 }
 /* Short viewports (landscape phones, 200% zoom): let the toolbar scroll away. */
 @media (max-height: 560px) {
-  .toolbar {
+  .toolbar,
+  .toolbar-status {
     position: static;
   }
   html {
@@ -622,8 +697,13 @@ footer {
   gap: 7px;
   align-items: center;
 }
-.surface-lab input {
-  accent-color: var(--jbm-accent);
+/* One Stamp: gallery controls (sliders, checkboxes) are chrome and use ink, so the
+   component under test keeps the page's single vermilion mark. !important beats the
+   demos' inline accentColor. */
+.results input[type="range"],
+.results input[type="checkbox"],
+.results input[type="radio"] {
+  accent-color: var(--jbm-ink) !important;
 }
 .surface-lab fieldset:disabled {
   opacity: 0.45;
@@ -647,19 +727,53 @@ footer {
 .preview:has(.composition-options) { aspect-ratio: auto; }
 
 /* Install once + per-card add command (agent-legible install path). */
-.install-once {
+details.install-once {
+  border-top: 1px solid var(--jbm-line);
+  padding: 20px 0 28px;
+  font-size: inherit;
+}
+.install-once:not([open]) {
+  padding-bottom: 20px;
+}
+.install-once > summary {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: fit-content;
+  min-height: 32px;
+  list-style: none;
+}
+.install-once > summary::-webkit-details-marker {
+  display: none;
+}
+/* Drawn disclosure chevron: points right when closed, down when open. */
+.install-once > summary::after {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-right: 1.5px solid var(--jbm-dim);
+  border-bottom: 1.5px solid var(--jbm-dim);
+  transform: translateY(-1px) rotate(-45deg);
+  transition: transform 160ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.install-once[open] > summary::after {
+  transform: translateY(-3px) rotate(45deg);
+}
+.install-once > summary:hover::after {
+  border-color: var(--jbm-ink);
+}
+.install-once-body {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 16px 40px;
   align-items: start;
-  border-top: 1px solid var(--jbm-line);
-  padding: 28px 0;
+  padding-top: 12px;
 }
 .install-once h2 {
   font-size: 22px;
   font-weight: 600;
   letter-spacing: -0.6px;
-  margin: 0 0 8px;
+  margin: 0;
 }
 .install-once p {
   color: var(--jbm-dim);
@@ -736,9 +850,26 @@ details > p {
   margin: 12px 0;
 }
 @media (max-width: 760px) {
-  .install-once {
+  details.install-once {
+    padding: 14px 0;
+  }
+  .install-once-body {
     grid-template-columns: minmax(0, 1fr);
-    padding: 20px 0;
+  }
+  /* Phones start collapsed; until hydration decides, keep the SSR-open body hidden
+     so the catalog does not jump. Without scripting the body stays readable. */
+  @media (scripting: enabled) {
+    .install-once:not([data-hydrated]) > .install-once-body {
+      display: none;
+    }
+  }
+  /* The registries line is wider than a phone: fade the right edge and keep a
+     thin visible scrollbar so it reads as scrollable. */
+  .install-once pre {
+    padding-right: 32px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--jbm-line) transparent;
+    mask-image: linear-gradient(to right, #000 calc(100% - 40px), transparent);
   }
 }
 

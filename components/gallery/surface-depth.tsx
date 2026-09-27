@@ -96,7 +96,7 @@ export function SurfaceDepth() {
             setStatus("Token usage copied.")
           } catch {
             setStatus(
-              "Clipboard unavailable. Copy from Usage & installation below."
+              "Clipboard unavailable. Copy it from Usage below."
             )
           }
         }}
