@@ -434,12 +434,12 @@ function InlineScript({ html }: { html: string }) {
 // publishes --bench-top (the bench's distance from the top of the document, see `.bench` in
 // globals.css) and points the skeleton at the view and orientation in the query, the only bench
 // state that changes its size; the prerendered HTML cannot know the query. The header above
-// reflows when the web fonts swap in (the description can lose a line), so the script measures
-// again as soon as they load, before the next rendering update lays the page out with them (a
+// reflows when each web font swaps in (the description can lose a line), so the script measures
+// again as soon as each face loads, before the next rendering update lays the page out with it (a
 // ResizeObserver alone reacts one layout late, which Chrome counts as a layout shift), and on any
 // later body resize. useBenchTop takes over after hydration; the observer stops once its host
 // leaves the page.
-const benchTopScript = `(function(s){var h=s&&s.parentElement;if(!h)return;var o=new ResizeObserver(m);function m(){if(!h.isConnected)return o.disconnect();h.style.setProperty("--bench-top",Math.round(h.getBoundingClientRect().top+scrollY)+"px")}m();o.observe(document.body);var f=document.fonts;if(f){f.addEventListener("loadingdone",m);f.ready.then(m)}var k=h.querySelector(":scope>.bench-skeleton");if(!k)return;var q=new URLSearchParams(location.search);if(q.get("view")==="strip")k.setAttribute("data-view","strip");var p=q.get("orientation");if(k.getAttribute("data-layout")==="rail"&&(p==="portrait"||p==="vertical"))k.style.setProperty("--stage-ratio","${
+const benchTopScript = `(function(s){var h=s&&s.parentElement;if(!h)return;var o=new ResizeObserver(m);function m(){if(!h.isConnected)return o.disconnect();h.style.setProperty("--bench-top",Math.round(h.getBoundingClientRect().top+scrollY)+"px")}m();o.observe(document.body);var f=document.fonts;if(f){f.forEach(function(x){x.loaded.then(m,m)});f.ready.then(m)}var k=h.querySelector(":scope>.bench-skeleton");if(!k)return;var q=new URLSearchParams(location.search);if(q.get("view")==="strip")k.setAttribute("data-view","strip");var p=q.get("orientation");if(k.getAttribute("data-layout")==="rail"&&(p==="portrait"||p==="vertical"))k.style.setProperty("--stage-ratio","${
   stage.vertical.w / stage.vertical.h
 }")})(document.currentScript)`
 
