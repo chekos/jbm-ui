@@ -102,9 +102,8 @@ function BundlePage({ bundle }: { bundle: BundleNotice }) {
       <div className="item-head">
         <h1>{bundle.title} has no page of its own</h1>
         <p className="item-description">
-          <code>@jbm/{bundle.name}</code> is a bundle: one install that brings
-          in {bundle.members.length} items and re-exports them from a single
-          file. {bundle.description}
+          <code>@jbm/{bundle.name}</code> is a bundle that re-exports{" "}
+          {bundle.members.length} items from a single file. {bundle.description}
         </p>
       </div>
       <div className="item-docs">

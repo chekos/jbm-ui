@@ -505,6 +505,11 @@ export function getLlmsText(catalog = getCatalog()) {
     `- ${origin}/catalog/<name>.json: one item as JSON, with the install setup`,
     `- ${origin}/c/<name>: the item's QA page in the gallery (components only)`,
     `- ${origin}/r/<name>.json: the shadcn registry item`,
+    ...catalog.items.flatMap((item) =>
+      ((item.schemas as { title: string; url: string }[] | undefined) ?? []).map(
+        (schema) => `- ${schema.url}: ${schema.title} for @jbm/${item.name}; validate input against it before use`
+      )
+    ),
     "",
   ]
   for (const group of catalog.categories) {
@@ -696,7 +701,7 @@ export function getItemMarkdown(name: string, catalog = getCatalog()) {
         .map((entry) => entry.name)
       if (!names.length) continue
       // tokens is installed by nearly everything; a list that long is noise.
-      if (names.length > 12) {
+      if (relation === "installed-by" && names.length > 12) {
         lines.push("", `${relationLabel[relation]}: ${names.length} items (see ${catalog.links.catalog}).`)
         continue
       }

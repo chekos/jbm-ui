@@ -304,6 +304,20 @@
       "description": "Wordmark and breadcrumb over a hairline rule at the top of each /c/<name> QA bench page.",
       "html": "<header class=\"ds-itembar\"><a class=\"ds-itembar-mark\" href=\"#\">jbm<span>—</span>ui</a><nav aria-label=\"Breadcrumb\"><ol class=\"ds-crumbs\"><li><a href=\"#\">Gallery</a></li><li><a href=\"#\">Motion</a></li><li aria-current=\"page\">Counter</li></ol></nav></header>",
       "css": ".ds-itembar { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 24px; row-gap: 6px; padding: 28px 0 20px; border-bottom: 1px solid #D5D1C6; font-family: Geist, system-ui, sans-serif; font-size: 14px; color: #20241F; background: #FFF6E8; } .ds-itembar-mark { font-family: 'Geist Mono', ui-monospace, monospace; font-size: 26px; font-weight: 700; letter-spacing: -2px; color: #20241F; text-decoration: none; } .ds-itembar-mark span { color: #C63D24; } .ds-crumbs { display: flex; flex-wrap: wrap; align-items: center; margin: 0; padding: 0; list-style: none; color: #65675F; } .ds-crumbs li + li::before { content: \"/\"; padding: 0 10px; } .ds-crumbs a { color: #65675F; text-decoration: none; } .ds-crumbs a:hover { color: #20241F; } .ds-crumbs a:focus-visible, .ds-itembar-mark:focus-visible { outline: 2px solid #C63D24; outline-offset: 5px; } .ds-crumbs [aria-current=\"page\"] { color: #20241F; }"
+    },
+    {
+      "name": "Reference Row",
+      "kind": "custom",
+      "description": "Docs / Schema definition list under the item page Install links: mono Graphite labels beside ink links, over a hairline rule. Shown only when the contract lists docs or schemas.",
+      "html": "<dl class=\"ds-refs\"><div><dt>Docs</dt><dd><a href=\"#\">Scene spec guide ↗</a></dd></div><div><dt>Schema</dt><dd><a href=\"#\">Scene spec JSON Schema</a></dd></div></dl>",
+      "css": ".ds-refs { display: grid; gap: 4px; margin: 12px 0 0; padding-top: 12px; border-top: 1px solid #D5D1C6; font-family: Geist, system-ui, sans-serif; font-size: 12px; background: #FFF6E8; } .ds-refs > div { display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: 0 16px; align-items: baseline; } .ds-refs dt { color: #65675F; font-family: 'Geist Mono', ui-monospace, monospace; } .ds-refs dd { margin: 0; } .ds-refs a { display: inline-flex; align-items: center; min-height: 24px; color: #20241F; text-decoration: none; } .ds-refs a:focus-visible { outline: 2px solid #C63D24; outline-offset: 5px; }"
+    },
+    {
+      "name": "Not Found",
+      "kind": "custom",
+      "description": "Branded 404: headline, Graphite explanation, one solid ink gallery button, and a For agents block with machine-readable links.",
+      "html": "<section class=\"ds-404\"><h1>Nothing is filed here</h1><p>This address does not match a page in the gallery.</p><a class=\"ds-404-btn\" href=\"#\">Open the gallery</a><h2>For agents</h2><ul><li><a href=\"#\">llms.txt index</a></li><li><a href=\"#\">catalog.json</a></li><li><a href=\"#\">Registry index</a></li></ul></section>",
+      "css": ".ds-404 { background: #FFF6E8; color: #20241F; font-family: Geist, system-ui, sans-serif; padding: 32px 0; } .ds-404 h1 { font-size: 36px; font-weight: 650; letter-spacing: -0.035em; margin: 0 0 8px; } .ds-404 p { color: #65675F; font-size: 18px; line-height: 1.6; margin: 0 0 20px; } .ds-404-btn { display: inline-block; padding: 9px 13px; border-radius: 6px; background: #20241F; color: #FFF6E8; font-size: 14px; text-decoration: none; } .ds-404 h2 { font-size: 22px; font-weight: 600; letter-spacing: -0.6px; margin: 32px 0 8px; padding-top: 32px; border-top: 1px solid #D5D1C6; } .ds-404 ul { display: flex; gap: 24px; padding: 0; list-style: none; font-size: 12px; } .ds-404 a:focus-visible { outline: 2px solid #C63D24; outline-offset: 5px; }"
     }
   ],
   "narrative": {
