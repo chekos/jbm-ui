@@ -1600,7 +1600,7 @@ details > p {
     column-gap: 14px;
   }
   .item-qa .item-description {
-    font-size: 16px;
+    font-size: 14px;
   }
   /* Phones (78px bar): steps, readout, and replay on one row, the scrubber full width under
      them, all in thumb reach directly below the stage. */
