@@ -80,57 +80,27 @@ export default function MotionBench({
   return (
     <div
       className="bench"
+      data-layout={orientationAware ? "rail" : "bar"}
       style={{ "--stage-ratio": size.w / size.h } as CSSProperties}
     >
+      {/* Rail layout: the orientation switch leads the rail on wide screens and sits above the
+          stage on narrow ones, so toggling never moves the switch itself. */}
       {orientationAware && (
-        <div className="bench-options">
-          <div
-            className="bench-segmented"
-            role="group"
-            aria-label="Stage orientation"
-          >
-            {orientations.map((option) => (
-              <button
-                key={option.value}
-                type="button"
-                aria-pressed={orientation === option.value}
-                onClick={() => setOrientation(option.value)}
-              >
-                {option.label}
-              </button>
-            ))}
-          </div>
-          <label>
-            Layout
-            <select
-              value={layout}
-              onChange={(e) => setLayout(e.target.value as SceneLayout)}
+        <div
+          className="bench-segmented bench-orient"
+          role="group"
+          aria-label="Stage orientation"
+        >
+          {orientations.map((option) => (
+            <button
+              key={option.value}
+              type="button"
+              aria-pressed={orientation === option.value}
+              onClick={() => setOrientation(option.value)}
             >
-              <option value="hero">Centered hero</option>
-              <option value="headline-illustration">
-                Headline + illustration
-              </option>
-              <option value="illustration">Illustration</option>
-            </select>
-          </label>
-          <label>
-            Safe area
-            <select
-              value={safeArea}
-              onChange={(e) => setSafeArea(e.target.value as "full" | "social")}
-            >
-              <option value="full">Full frame</option>
-              <option value="social">Social</option>
-            </select>
-          </label>
-          <label className="bench-check">
-            <input
-              type="checkbox"
-              checked={guides}
-              onChange={(e) => setGuides(e.target.checked)}
-            />
-            Safe-area guides
-          </label>
+              {option.label}
+            </button>
+          ))}
         </div>
       )}
 
@@ -212,6 +182,42 @@ export default function MotionBench({
         <p className="bench-note">
           Static layout: one frame, nothing to step or replay.
         </p>
+      )}
+
+      {orientationAware && (
+        <div className="bench-options" role="group" aria-label="Scene options">
+          <label>
+            Layout
+            <select
+              value={layout}
+              onChange={(e) => setLayout(e.target.value as SceneLayout)}
+            >
+              <option value="hero">Centered hero</option>
+              <option value="headline-illustration">
+                Headline + illustration
+              </option>
+              <option value="illustration">Illustration</option>
+            </select>
+          </label>
+          <label>
+            Safe area
+            <select
+              value={safeArea}
+              onChange={(e) => setSafeArea(e.target.value as "full" | "social")}
+            >
+              <option value="full">Full frame</option>
+              <option value="social">Social</option>
+            </select>
+          </label>
+          <label className="bench-check">
+            <input
+              type="checkbox"
+              checked={guides}
+              onChange={(e) => setGuides(e.target.checked)}
+            />
+            Safe-area guides
+          </label>
+        </div>
       )}
       <span className="sr-only" role="status">
         {status}

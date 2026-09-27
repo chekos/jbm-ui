@@ -765,4 +765,5 @@ export {
   catalogNotFoundJson,
   catalogNotFoundMarkdown,
   nearestItemName,
+  nearestItemNames,
 } from "@/lib/agent-routes"

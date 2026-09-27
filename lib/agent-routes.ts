@@ -43,6 +43,34 @@ export function nearestItemName(query: string, names = itemNames) {
   return best
 }
 
+/**
+ * Up to `count` plausible names for `query`, closest first: prefix matches, then names that
+ * contain the query (or it them), then small edit distances. Unlike nearestItemName this can be
+ * empty: a query with nothing close (`zzz`) suggests nothing rather than a random item.
+ */
+export function nearestItemNames(query: string, count = 3, names = itemNames) {
+  const lower = query.toLowerCase()
+  const long = lower.length >= 3
+  const limit = Math.max(2, Math.floor(lower.length / 2))
+  return names
+    .map((name, order) => {
+      const distance = editDistance(lower, name)
+      const tier =
+        long && (name.startsWith(lower) || lower.startsWith(name))
+          ? 0
+          : long && (name.includes(lower) || (name.length >= 3 && lower.includes(name)))
+            ? 1
+            : distance <= limit
+              ? 2
+              : 3
+      return { name, order, distance, tier }
+    })
+    .filter((match) => match.tier < 3)
+    .sort((a, b) => a.tier - b.tier || a.distance - b.distance || a.order - b.order)
+    .slice(0, count)
+    .map((match) => match.name)
+}
+
 /** Body of a /catalog/<name>.json 404. */
 export function catalogNotFoundJson(name: string, origin = siteOrigin()) {
   const suggestion = nearestItemName(name)

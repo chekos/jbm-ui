@@ -1,49 +1,9 @@
 "use client"
 
-import { useEffect, useRef, useState, useSyncExternalStore } from "react"
+import { useState, useSyncExternalStore } from "react"
 import { registryUrlTemplate, siteOrigin } from "@/lib/site"
+import { CodeLines, CopyButton } from "./code-block"
 import { addCommand } from "./item-meta"
-
-function CopyButton({
-  text,
-  label,
-  children,
-  copied,
-}: {
-  text: string
-  label: string
-  children: string
-  copied: string
-}) {
-  const [status, setStatus] = useState("")
-  const timer = useRef<ReturnType<typeof setTimeout>>(undefined)
-  useEffect(() => () => clearTimeout(timer.current), [])
-  async function copy() {
-    clearTimeout(timer.current)
-    try {
-      await navigator.clipboard.writeText(text)
-      setStatus(copied)
-      timer.current = setTimeout(() => setStatus(""), 4000)
-    } catch {
-      setStatus("Clipboard unavailable. Select the text and copy it.")
-    }
-  }
-  return (
-    <>
-      <button
-        type="button"
-        className="copy-button"
-        aria-label={label}
-        onClick={copy}
-      >
-        {children}
-      </button>
-      <span className="copy-status" role="status" aria-live="polite">
-        {status}
-      </span>
-    </>
-  )
-}
 
 const noop = () => () => {}
 const canonicalOrigin = siteOrigin()
@@ -110,17 +70,21 @@ export function InstallOnce() {
             <code>./src/*</code> path alias in <code>tsconfig.json</code>.
           </p>
         </div>
-        <div className="install-once-code">
-          <pre tabIndex={0}>
-            <code>{`{\n  "registries": {\n    ${entry}\n  }\n}`}</code>
+        <div className="code-block install-once-code">
+          <div className="code-block-actions">
+            <CopyButton
+              text={entry}
+              label="Copy @jbm entry for the components.json registries"
+              copied="Copied"
+            >
+              Copy @jbm entry
+            </CopyButton>
+          </div>
+          <pre>
+            <code>
+              <CodeLines code={`{\n  "registries": {\n    ${entry}\n  }\n}`} />
+            </code>
           </pre>
-          <CopyButton
-            text={entry}
-            label="Copy the @jbm registries entry"
-            copied="Copied the @jbm registries entry."
-          >
-            Copy @jbm entry
-          </CopyButton>
         </div>
       </div>
     </details>

@@ -1,13 +1,12 @@
 "use client"
 
 import Link from "next/link"
-import { createContext, useContext } from "react"
 import { AddCommand } from "./install"
 
-// Branded 404s and the bundle notice. The site-wide page (app/not-found.tsx) and /c/<name>
-// (app/c/[name]/not-found.tsx) share the item-page chrome. A bundle such as ui-bits has no QA page
-// of its own, so app/c/[name]/page.tsx renders BundlePage (noindex) to explain what it is and link
-// to the items it re-exports.
+// Branded 404s and the bundle notice. The site-wide 404 (app/not-found.tsx) and the /c/<name> 404
+// (app/c-missing/[name], which proxy.ts serves with a 404 status) share the item-page chrome. A
+// bundle such as ui-bits has no QA page of its own, so app/c/[name]/page.tsx renders BundlePage
+// (noindex) to explain what it is and link to the items it re-exports.
 
 export type BundleNotice = {
   name: string
@@ -63,20 +62,13 @@ const agentLinks = (
 )
 
 /** Site-wide 404: calm, one way back to the gallery, and the agent catalogs. */
-export function SiteNotFound({ name }: { name?: string }) {
+export function SiteNotFound() {
   return (
     <Shell crumb="Not found">
       <div className="item-head">
         <h1>Nothing is filed here</h1>
         <p className="item-description">
-          {name ? (
-            <>
-              No gallery item is named <code>{name}</code>.{" "}
-            </>
-          ) : (
-            "This address does not match a page in the gallery. "
-          )}
-          Every component has a QA page at <code>/c/&lt;name&gt;</code>; browse
+          This address does not match a page in the gallery. Every component has a QA page at <code>/c/&lt;name&gt;</code>; browse
           them all, or search by name, in the gallery.
         </p>
         <p className="not-found-actions">
@@ -145,21 +137,57 @@ export function BundlePage({ bundle }: { bundle: BundleNotice }) {
   )
 }
 
-// not-found.tsx receives no params, and useParams() makes the prerender bail out to client
-// rendering, so app/c/[name]/layout.tsx hands the name down through context instead.
-const ItemNameContext = createContext<string | undefined>(undefined)
+export type ItemPageRef = { name: string; title: string }
 
-export function ItemNameProvider({
+/**
+ * /c/<name> 404: names the missing item, then offers the closest item pages, a gallery search for
+ * the same words, and the agent index. Server-rendered by app/c-missing/[name]/page.tsx, which
+ * ranks the matches.
+ */
+export function ItemNotFound({
   name,
-  children,
+  matches,
 }: {
   name: string
-  children: React.ReactNode
+  matches: ItemPageRef[]
 }) {
-  return <ItemNameContext value={name}>{children}</ItemNameContext>
-}
-
-/** /c/<name> 404: names the missing item. */
-export function ItemNotFound() {
-  return <SiteNotFound name={useContext(ItemNameContext)} />
+  return (
+    <Shell crumb="Not found">
+      <div className="item-head">
+        <h1 className="not-found-title">No gallery item is named “{name}”.</h1>
+        <p className="item-description">
+          {matches.length > 0
+            ? "Check the spelling. These item pages have the closest names."
+            : "No item page has a similar name. Search the gallery by title or description instead."}
+        </p>
+        {matches.length > 0 && (
+          <ul className="not-found-members" aria-label="Closest item pages">
+            {matches.map((match) => (
+              <li key={match.name}>
+                <Link href={`/c/${match.name}`}>{match.title}</Link>
+                <code>/c/{match.name}</code>
+              </li>
+            ))}
+          </ul>
+        )}
+        <p className="not-found-actions">
+          <Link
+            className="not-found-primary"
+            href={`/?q=${encodeURIComponent(name)}`}
+          >
+            Search the gallery for “{name}”
+          </Link>
+          <Link href="/">Browse every item</Link>
+        </p>
+      </div>
+      <section className="not-found-agents" aria-labelledby="agents-heading">
+        <h2 id="agents-heading">For agents</h2>
+        <p>
+          Every item name with its install command, props, and stage size, as
+          plain text and JSON. <code>/llms.txt</code> is the place to start.
+        </p>
+        {agentLinks}
+      </section>
+    </Shell>
+  )
 }
