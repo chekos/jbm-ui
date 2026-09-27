@@ -5,7 +5,7 @@ export default {
   entry: "component",
   title: "Mano",
   description: "Position and rotate the independent Hand illustration with controlled coordinates.",
-  category: "Motion",
+  category: "Interactive",
   capabilities: ["controls"],
   api: [
     {

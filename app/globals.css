@@ -1297,11 +1297,15 @@ details > p {
   }
   /* Landscape frames stack in a column and the portrait frames stand beside them, so portrait cells
      get the full strip height instead of what a landscape row leaves. The column heights add up
-     to the strip height: three 16:9 frames with captions, or one 9:16 frame with its caption. */
+     to the strip height: one 16:9 frame per cell with captions, or one 9:16 frame with its
+     caption. */
   .bench[data-layout="rail"][data-view="strip"] .bench-strip {
     --strip-h: max(420px, calc(var(--bench-h) - 36px - 20px));
     --land-w: calc(
-      (var(--strip-h) - 3 * var(--strip-cap) - 2 * var(--strip-gap)) * 16 / 27
+      (
+          var(--strip-h) - var(--strip-n) * var(--strip-cap) -
+            (var(--strip-n) - 1) * var(--strip-gap)
+        ) * 16 / (9 * var(--strip-n))
     );
     grid-template-columns: var(--land-w) auto;
     column-gap: 24px;
@@ -1313,9 +1317,14 @@ details > p {
   .bench[data-layout="rail"][data-view="strip"]
     .bench-strip-row[data-orientation="vertical"] {
     grid-template-columns: repeat(
-      3,
+      var(--strip-n),
       min(
-        calc((100cqw - var(--land-w) - 24px - 2 * var(--strip-gap)) / 3),
+        calc(
+          (
+              100cqw - var(--land-w) - 24px - (var(--strip-n) - 1) *
+                var(--strip-gap)
+            ) / var(--strip-n)
+        ),
         calc((var(--strip-h) - var(--strip-cap)) * 9 / 16)
       )
     );
@@ -1469,19 +1478,25 @@ details > p {
   white-space: nowrap;
   text-overflow: ellipsis;
 }
-/* Strip view: Begin / Middle / End side by side; orientation-aware items add a portrait row whose
-   height is what the landscape row leaves of the bench height. */
+/* Strip view: Begin, the item's cues, and End side by side. StripLayout sets --strip-n (cells),
+   --strip-cols and --strip-rows (one row up to five cells, then balanced rows). Orientation-aware
+   items add a portrait row whose height is what the landscape rows leave of the bench height. */
 .bench-strip {
   --strip-gap: 12px;
   --strip-cap: 30px; /* caption row: 24px target plus the 6px gap above it */
+  --strip-n: 3;
+  --strip-cols: 3;
+  --strip-rows: 1;
   container-type: inline-size;
   display: grid;
   gap: 16px;
 }
 .bench-strip-row {
-  --cell-w: calc((100cqw - 2 * var(--strip-gap)) / 3);
+  --cell-w: calc(
+    (100cqw - (var(--strip-cols) - 1) * var(--strip-gap)) / var(--strip-cols)
+  );
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, var(--cell-w)));
+  grid-template-columns: repeat(var(--strip-cols), minmax(0, var(--cell-w)));
   gap: var(--strip-gap);
   margin: 0;
   padding: 0;
@@ -1491,17 +1506,23 @@ details > p {
   --portrait-h: max(
     180px,
     calc(
-      var(--bench-h) - var(--cell-w) * 0.5625 - 2 * var(--strip-cap) - 16px
+      (
+          var(--bench-h) - var(--strip-rows) *
+            (var(--cell-w) * 0.5625 + 2 * var(--strip-cap)) -
+            2 * (var(--strip-rows) - 1) * var(--strip-gap) - 16px
+        ) / var(--strip-rows)
     )
   );
   grid-template-columns: repeat(
-    3,
+    var(--strip-cols),
     minmax(0, min(var(--cell-w), calc(var(--portrait-h) * 0.5625)))
   );
 }
 .bench-strip-cell {
   position: relative;
   display: grid;
+  /* A long caption truncates instead of widening its frame past the cell. */
+  grid-template-columns: minmax(0, 1fr);
   gap: 6px;
   margin: 0;
 }
@@ -1549,7 +1570,16 @@ details > p {
 .bench-strip-cell:focus-within .bench-strip-frame {
   border-color: var(--jbm-ink);
 }
+/* Cue labels say what happens; a long one ends in an ellipsis (the button's accessible name has
+   it in full) so every caption row keeps one height. */
+.bench-strip-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 .bench-strip-frame-no {
+  flex-shrink: 0;
   color: var(--jbm-dim);
   font-family: var(--font-mono);
   font-size: 12px;
@@ -1912,13 +1942,17 @@ details > p {
     justify-content: space-between;
     margin-left: 0;
   }
-  /* Phones stack landscape frames one per row; the three portrait frames share a row, so the
-     strip stays about one screen of scrolling under the toolbar and scene options. */
+  /* Phones stack three landscape frames one per row, or two per row when cues add cells; the
+     portrait frames share one row, so the strip stays about one screen of scrolling under the
+     toolbar and scene options. */
   .bench-strip-row {
     grid-template-columns: minmax(0, 1fr);
   }
-  .bench-strip-row[data-orientation="vertical"] {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+  .bench-strip:not([data-cells="3"]) .bench-strip-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .bench-strip .bench-strip-row[data-orientation="vertical"] {
+    grid-template-columns: repeat(var(--strip-n), minmax(0, 1fr));
   }
   .bench-frames {
     gap: 10px 8px;

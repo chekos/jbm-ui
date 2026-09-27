@@ -83,6 +83,20 @@ export type Link = {
   url: string
 }
 
+/**
+ * A moment on the gallery preview timeline worth inspecting. The QA strip shows Begin, each cue,
+ * then End (a fixed Middle frame when there are no cues). Author cues by reading the demo timings
+ * in components/gallery/timing.ts; `pnpm contracts:check` rejects cues outside the timeline.
+ */
+export type Cue = {
+  /** What the frame shows, in a few words ("Bug appears", "Fix lands"). At most 24 characters. */
+  label: string
+  /** Seconds from the start of the gallery preview; the frame is round(at × 30). */
+  at: number
+  /** What to check on this frame. */
+  note?: string
+}
+
 export type ItemContract = {
   /** Registry item name, or the gallery entry name for documentation entries. */
   name: string
@@ -111,6 +125,11 @@ export type ItemContract = {
   examples: Example[]
   /** What to inspect before accepting a change: states, extremes, orientations. */
   qa: string[]
+  /**
+   * Player items only: up to four timeline moments the QA strip shows between Begin and End, in
+   * order, each strictly inside the preview timeline.
+   */
+  cues?: Cue[]
   /** `doc` entries only: the registry item that installs the documented code. */
   install?: string
   /** `bundle` entries only: why there is no page and which items to open instead. */
@@ -122,6 +141,9 @@ export type ItemContract = {
 }
 
 // --- Generated shapes (contracts/generated/*.json) -----------------------------------------
+
+/** A cue with its zero-based frame on the 30 fps gallery preview timeline. */
+export type GeneratedCue = Cue & { frame: number }
 
 /** A prop or parameter: type, required, and default are extracted from source. */
 export type ApiField = {
@@ -178,6 +200,8 @@ export type ContractEntry = {
   stage: StageSize
   examples: Example[]
   qa: string[]
+  /** Present only when the contract lists cues. */
+  cues?: GeneratedCue[]
   /** Present only when the contract lists docs. */
   docs?: Link[]
   /** Present only when the contract lists schemas. */

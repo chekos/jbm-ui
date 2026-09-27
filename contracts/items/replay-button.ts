@@ -6,7 +6,7 @@ export default {
   title: "ReplayButton",
   description:
     "Controlled replay icon whose arrow charges from tail to arrowhead as the host animation progresses, then unlocks.",
-  category: "Motion",
+  category: "Interactive",
   capabilities: ["replay"],
   api: [
     {

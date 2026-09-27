@@ -6,7 +6,7 @@ export default {
   title: "FlipText",
   description:
     "Letters tumble on hover with a vermilion accent. Click, tap, or use the keyboard to flip the whole phrase. Respects reduced motion.",
-  category: "Motion",
+  category: "Interactive",
   capabilities: ["controls"],
   api: [
     {

@@ -43,6 +43,11 @@ export default {
       code: 'import { Catalog } from "@/jbm/motion/catalog"\n\n<Catalog w={936} at={0.2} title="catálogo"\n  items={[\n    { kind: "button", label: "botón", at: 0.8 },\n    { kind: "card", label: "tarjeta", at: 1.2 },\n    { kind: "input", label: "input", at: 1.6 },\n  ]}\n  tokensAt={2.6}\n  tokens={[\n    { kind: "color", label: "color", at: 3.0 },\n    { kind: "type", label: "tipografía", at: 3.4 },\n    { kind: "space", label: "espaciado", at: 3.8 },\n  ]}\n  stamp={{ text: "design tokens", at: 4.4 }} />',
     },
   ],
+  cues: [
+    { label: "Pieces tested", at: 2.6, note: "Button, card, and input sit in their slots with checks; the token row is still folded." },
+    { label: "Tokens arriving", at: 3.5, note: "The sheet has unfolded and the colour glyph is in; type and spacing are still arriving." },
+    { label: "Tokens in", at: 4.3, note: "All three token glyphs have landed, just before the stamp." },
+  ],
   qa: [
     "Step to the sheet entrance, each item arrival and its check badge, the middle of the unfold (token row partially revealed and clipped), and the end (all glyphs in, stamp settled).",
     "Check the fully unfolded sheet plus the title sticker above it fits the safe area in both orientations; the height grows by the token block when it unfolds.",

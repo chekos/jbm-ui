@@ -6,7 +6,7 @@ export default {
   title: "ScrollStack",
   description:
     "Stack any React content as you scroll. Successive items scale into place while earlier ones fade. Page or contained scrolling, keyboard access, and a plain-list fallback.",
-  category: "Motion",
+  category: "Interactive",
   capabilities: ["controls", "scroll"],
   api: [
     {

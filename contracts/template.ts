@@ -49,4 +49,7 @@ export default {
     },
   ],
   qa: ["What to inspect before accepting a change: states, extremes, orientations."],
+  // Player items: the moments the QA strip shows between Begin and End (seconds on the gallery
+  // preview timeline in components/gallery/timing.ts). Say what happens, in a few words.
+  // cues: [{ label: "Bug appears", at: 2.3, note: "What to check on this frame." }],
 } satisfies ItemContract

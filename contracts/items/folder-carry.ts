@@ -6,7 +6,7 @@ export default {
   title: "FolderCarry",
   description:
     "Folder carried along a path by its tab, interpolating size and label between two resting places.",
-  category: "Motion",
+  category: "Interactive",
   capabilities: ["controls"],
   api: [
     {

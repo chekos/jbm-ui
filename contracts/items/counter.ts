@@ -39,6 +39,9 @@ export default {
       code: 'import { Counter } from "@/jbm/motion/counter"\nimport { color } from "@/jbm/lib/tokens"\n\n<Counter n={42} at={1} size={96} color={color.ink} />\n// Render inside a Remotion <Composition> or <Player>.',
     },
   ],
+  cues: [
+    { label: "Counting up", at: 0.5, note: "The number is mid-count (about halfway), easing toward 1024." },
+  ],
   qa: [
     "Step to the first, middle, and last frames: 0 before `at`, an intermediate whole number mid-count, and exactly `n` at rest.",
     "In a host composition, check the widest value of `n` stays inside the safe area at the chosen size in both orientations (the gallery bench previews landscape only).",
