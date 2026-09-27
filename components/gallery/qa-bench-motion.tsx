@@ -69,7 +69,10 @@ type Query = { get(key: string): string | null }
 
 // MotionBench is client-only (next/dynamic with ssr: false), so it reads the query during its
 // first render: the bench mounts in its requested state with no second layout pass.
-export function readBenchState(query: Query, orientationAware: boolean): BenchState {
+export function readBenchState(
+  query: Query,
+  orientationAware: boolean
+): BenchState {
   const pick = <T extends string>(key: string, allowed: readonly T[]) => {
     const value = query.get(key) as T | null
     return value !== null && allowed.includes(value) ? value : undefined
@@ -78,7 +81,11 @@ export function readBenchState(query: Query, orientationAware: boolean): BenchSt
   const frame =
     frameText !== null && /^\d{1,6}$/.test(frameText) ? Number(frameText) : null
   if (!orientationAware)
-    return { ...defaults, view: pick("view", ["single", "strip"]) ?? "single", frame }
+    return {
+      ...defaults,
+      view: pick("view", ["single", "strip"]) ?? "single",
+      frame,
+    }
   const orientation = pick("orientation", ["landscape", "portrait", "vertical"])
   return {
     view: pick("view", ["single", "strip"]) ?? defaults.view,
@@ -104,11 +111,14 @@ function benchParams(
   const scene = (value: string | null) => (orientationAware ? value : null)
   return {
     view: state.view !== defaults.view ? state.view : null,
-    orientation: scene(state.orientation !== defaults.orientation ? "portrait" : null),
+    orientation: scene(
+      state.orientation !== defaults.orientation ? "portrait" : null
+    ),
     layout: scene(state.layout !== defaults.layout ? state.layout : null),
     safe: scene(state.safeArea !== defaults.safeArea ? state.safeArea : null),
     guides: scene(state.guides ? "1" : null),
-    frame: state.frame !== null && state.frame !== last ? String(state.frame) : null,
+    frame:
+      state.frame !== null && state.frame !== last ? String(state.frame) : null,
   }
 }
 
@@ -133,7 +143,9 @@ export default function MotionBench({
   const [initial] = useState(() => readBenchState(query, orientationAware))
   const [layout, setLayout] = useState<SceneLayout>(initial.layout)
   const [safeArea, setSafeArea] = useState<BenchSafeArea>(initial.safeArea)
-  const [orientation, setOrientation] = useState<Orientation>(initial.orientation)
+  const [orientation, setOrientation] = useState<Orientation>(
+    initial.orientation
+  )
   const [guides, setGuides] = useState(initial.guides)
   const durationInFrames = previewDuration(name, layout)
   const { player, last, frame, progress, charging, status, replay, seek } =
@@ -159,7 +171,11 @@ export default function MotionBench({
   const href = stateHref(
     pathname,
     query,
-    benchParams({ view, orientation, layout, safeArea, guides, frame }, last, orientationAware)
+    benchParams(
+      { view, orientation, layout, safeArea, guides, frame },
+      last,
+      orientationAware
+    )
   )
   // Mirror the state into the address bar once it settles: not while the timeline plays.
   useMirrorUrl(href, pathname, charging)
@@ -199,6 +215,40 @@ export default function MotionBench({
     scrub.current?.focus({ preventScroll: true })
   }, [view])
 
+  const sceneOptions = (
+    <div className="bench-options" role="group" aria-label="Scene options">
+      <label>
+        Layout
+        <select
+          value={layout}
+          onChange={(e) => setLayout(e.target.value as SceneLayout)}
+        >
+          <option value="hero">Centered hero</option>
+          <option value="headline-illustration">Headline + illustration</option>
+          <option value="illustration">Illustration</option>
+        </select>
+      </label>
+      <label>
+        Safe area
+        <select
+          value={safeArea}
+          onChange={(e) => setSafeArea(e.target.value as BenchSafeArea)}
+        >
+          <option value="full">Full frame</option>
+          <option value="social">Social</option>
+        </select>
+      </label>
+      <label className="bench-check">
+        <input
+          type="checkbox"
+          checked={guides}
+          onChange={(e) => setGuides(e.target.checked)}
+        />
+        Safe-area guides
+      </label>
+    </div>
+  )
+
   return (
     <div
       ref={bench}
@@ -226,6 +276,10 @@ export default function MotionBench({
         )}
         <CopyBenchLink href={href} />
       </div>
+
+      {/* Strip view: the scene options come straight after the toolbar, above the frames (a phone
+          strip runs about a screen long); the single view keeps them after the stepper. */}
+      {orientationAware && strip && sceneOptions}
 
       {/* The strip shows both orientations, so the switch only applies to the single view. */}
       {orientationAware && !strip && (
@@ -304,7 +358,9 @@ export default function MotionBench({
               <button
                 key={label}
                 type="button"
-                aria-current={frame === target && !charging ? "step" : undefined}
+                aria-current={
+                  frame === target && !charging ? "step" : undefined
+                }
                 onClick={() => seek(target)}
               >
                 {label}
@@ -361,41 +417,7 @@ export default function MotionBench({
         </p>
       )}
 
-      {orientationAware && (
-        <div className="bench-options" role="group" aria-label="Scene options">
-          <label>
-            Layout
-            <select
-              value={layout}
-              onChange={(e) => setLayout(e.target.value as SceneLayout)}
-            >
-              <option value="hero">Centered hero</option>
-              <option value="headline-illustration">
-                Headline + illustration
-              </option>
-              <option value="illustration">Illustration</option>
-            </select>
-          </label>
-          <label>
-            Safe area
-            <select
-              value={safeArea}
-              onChange={(e) => setSafeArea(e.target.value as BenchSafeArea)}
-            >
-              <option value="full">Full frame</option>
-              <option value="social">Social</option>
-            </select>
-          </label>
-          <label className="bench-check">
-            <input
-              type="checkbox"
-              checked={guides}
-              onChange={(e) => setGuides(e.target.checked)}
-            />
-            Safe-area guides
-          </label>
-        </div>
-      )}
+      {orientationAware && !strip && sceneOptions}
       <span className="sr-only" role="status">
         {status}
       </span>

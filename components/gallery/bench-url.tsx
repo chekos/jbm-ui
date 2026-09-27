@@ -139,8 +139,7 @@ function codecFor<T extends number | boolean | string>(
       parse: (text) => {
         const n = Number(text)
         return (text.trim() !== "" && Number.isFinite(n) ? n : undefined) as
-          | T
-          | undefined
+          T | undefined
       },
       // Two decimals cover every 0.01 slider step; whole-number ranges stay whole.
       format: (value) => String(Math.round((value as number) * 100) / 100),
@@ -150,16 +149,14 @@ function codecFor<T extends number | boolean | string>(
     return {
       parse: (text) =>
         (text === "1" ? true : text === "0" ? false : undefined) as
-          | T
-          | undefined,
+          T | undefined,
       format: (value) => (value ? "1" : "0"),
       equal: (a, b) => a === b,
     }
   return {
     parse: (text) =>
       (!allowed || allowed.includes(text as T) ? text : undefined) as
-        | T
-        | undefined,
+        T | undefined,
     format: (value) => String(value),
     equal: (a, b) => a === b,
   }
@@ -170,7 +167,10 @@ function codecFor<T extends number | boolean | string>(
  * cards). Numbers are written with two decimals and booleans as 1/0; a value outside `allowed` is
  * ignored and a number outside `clamp` falls back to the nearest bound.
  */
-type ParamOptions<T> = { allowed?: readonly T[]; clamp?: readonly [number, number] }
+type ParamOptions<T> = {
+  allowed?: readonly T[]
+  clamp?: readonly [number, number]
+}
 export function useBenchParam(
   key: string,
   initial: number,
@@ -196,7 +196,11 @@ export function useBenchParam<T extends number | boolean | string>(
   const codec = codecFor(initial, options.allowed)
   const text = store.get(key)
   let value = text === null ? undefined : codec.parse(text)
-  if (value !== undefined && options.allowed && !options.allowed.includes(value))
+  if (
+    value !== undefined &&
+    options.allowed &&
+    !options.allowed.includes(value)
+  )
     value = undefined
   if (typeof value === "number" && options.clamp)
     value = Math.min(options.clamp[1], Math.max(options.clamp[0], value)) as T

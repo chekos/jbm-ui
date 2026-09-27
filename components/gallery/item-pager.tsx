@@ -39,10 +39,7 @@ function PagerLinks({
       <span className="item-pager-count">
         {position} of {count}
       </span>
-      <Link
-        href={href(next)}
-        aria-label={`Next in ${category}: ${next.title}`}
-      >
+      <Link href={href(next)} aria-label={`Next in ${category}: ${next.title}`}>
         {next.title} <span aria-hidden="true">→</span>
       </Link>
     </nav>
@@ -52,7 +49,10 @@ function PagerLinks({
 function PagerFromUrl(props: PagerProps) {
   const query = useSearchParams()
   return (
-    <PagerLinks {...props} strip={props.player && query.get("view") === "strip"} />
+    <PagerLinks
+      {...props}
+      strip={props.player && query.get("view") === "strip"}
+    />
   )
 }
 

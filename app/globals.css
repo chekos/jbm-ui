@@ -1211,7 +1211,7 @@ details > p {
   max-width: calc(var(--bench-col-max) + 304px);
 }
 .bench[data-layout="rail"][data-view="strip"] {
-  --bench-above: calc(var(--bench-gap) + 36px);
+  --bench-above: calc(2 * (var(--bench-gap) + 36px));
   --bench-below: 0px;
 }
 .bench[data-layout="rail"] .bench-stage {
@@ -1243,12 +1243,14 @@ details > p {
     align-items: start;
     min-height: var(--bench-h);
   }
+  /* Strip view: the scene options move to a row beside the toolbar (which keeps its place), and
+     the strip spans both columns under them. */
   .bench[data-layout="rail"][data-view="strip"] {
-    grid-template-rows: auto auto minmax(0, 1fr);
+    --bench-above: 0px;
+    grid-template-rows: auto minmax(0, 1fr);
     grid-template-areas:
-      "stage tools"
-      "stage options"
-      "stage .";
+      "options tools"
+      "stage stage";
   }
   .bench[data-layout="rail"] .bench-toolbar {
     grid-area: tools;
@@ -1275,6 +1277,38 @@ details > p {
   }
   .bench[data-layout="rail"] .bench-options label:not(.bench-check) {
     justify-content: space-between;
+  }
+  .bench[data-layout="rail"][data-view="strip"] .bench-options {
+    flex-direction: row;
+    align-items: center;
+    min-height: 36px;
+    padding-top: 0;
+    border-top: 0;
+  }
+  /* Landscape frames stack in a column and the portrait frames stand beside them, so portrait cells
+     get the full strip height instead of what a landscape row leaves. The column heights add up
+     to the strip height: three 16:9 frames with captions, or one 9:16 frame with its caption. */
+  .bench[data-layout="rail"][data-view="strip"] .bench-strip {
+    --strip-h: max(420px, calc(var(--bench-h) - 36px - 20px));
+    --land-w: calc(
+      (var(--strip-h) - 3 * var(--strip-cap) - 2 * var(--strip-gap)) * 16 / 27
+    );
+    grid-template-columns: var(--land-w) auto;
+    column-gap: 24px;
+    align-items: start;
+  }
+  .bench[data-layout="rail"][data-view="strip"] .bench-strip-row {
+    grid-template-columns: var(--land-w);
+  }
+  .bench[data-layout="rail"][data-view="strip"]
+    .bench-strip-row[data-orientation="vertical"] {
+    grid-template-columns: repeat(
+      3,
+      min(
+        calc((100cqw - var(--land-w) - 24px - 2 * var(--strip-gap)) / 3),
+        calc((var(--strip-h) - var(--strip-cap)) * 9 / 16)
+      )
+    );
   }
   /* Rail stepper: Begin / Middle / End across the rail, the scrubber, then readout and replay. */
   .bench[data-layout="rail"] .bench-steps,
@@ -1868,13 +1902,13 @@ details > p {
     justify-content: space-between;
     margin-left: 0;
   }
-  /* Phones stack the strip: one frame per row, portrait frames at a readable width. */
-  .bench-strip-row,
-  .bench-strip-row[data-orientation="vertical"] {
+  /* Phones stack landscape frames one per row; the three portrait frames share a row, so the
+     strip stays about one screen of scrolling under the toolbar and scene options. */
+  .bench-strip-row {
     grid-template-columns: minmax(0, 1fr);
   }
-  .bench-strip-row[data-orientation="vertical"] .bench-strip-cell {
-    width: min(100%, 220px);
+  .bench-strip-row[data-orientation="vertical"] {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
   .bench-frames {
     gap: 10px 8px;
