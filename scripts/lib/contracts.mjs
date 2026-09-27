@@ -58,9 +58,10 @@ function evalModule(path) {
 
 export const registry = JSON.parse(read("registry.json"))
 const registryByName = new Map(registry.items.map((item) => [item.name, item]))
-export const categories = evalModule("components/gallery/categories.ts").categories.filter(
-  (value) => value !== "All"
-)
+const categoryModule = evalModule("components/gallery/categories.ts")
+export const categories = categoryModule.categories.filter((value) => value !== "All")
+/** Index sub-headings per category (categories.ts `categoryFamilies`), in index order. */
+export const categoryFamilies = categoryModule.categoryFamilies
 
 // The gallery preview timelines (fps and each Player demo's length), read from the same module the
 // previews use, so cues are checked against the frames the strip actually shows.
@@ -383,6 +384,13 @@ export function validateContract(name) {
     errors.push(`title must be "${expectedTitle(contract)}" (the primary component export, else the name in PascalCase)`)
   if (!categories.includes(contract.category))
     errors.push(`category must be one of ${categories.join(", ")}`)
+  // A category that lists families groups every card under one; others, and bundles (which have
+  // no card), take none.
+  const families = contract.entry === "bundle" ? undefined : categoryFamilies[contract.category]
+  if (families && !families.includes(contract.family))
+    errors.push(`family must be one of ${families.join(", ")} (${contract.category} groups its items by family)`)
+  if (!families && contract.family !== undefined)
+    errors.push(`family is only for cards in categories that list families (${Object.keys(categoryFamilies).join(", ")})`)
 
   const capabilities = contract.capabilities
   if (!Array.isArray(capabilities)) errors.push("capabilities must be an array (empty for a still preview)")
@@ -531,6 +539,7 @@ export function validateContract(name) {
       title: contract.title,
       description: contract.description,
       category: contract.category,
+      ...(contract.family !== undefined ? { family: contract.family } : {}),
       capabilities: contract.capabilities,
       needsRemotion: needsRemotion(installName),
       registryDependencies: inRegistry ? install.registryDependencies ?? [] : [],
@@ -767,6 +776,7 @@ export function buildGenerated(names = contractNames().filter(hasContract)) {
       title: entry.title,
       description: entry.description,
       category: entry.category,
+      ...(entry.family !== undefined ? { family: entry.family } : {}),
       capabilities: entry.capabilities,
       needsRemotion: entry.needsRemotion,
       registryDependencies: entry.registryDependencies,

@@ -4,7 +4,7 @@
 // the only source; run `pnpm contracts:build` after editing one.
 import generated from "@/contracts/generated/gallery.json"
 import type { Capability } from "@/contracts/schema"
-import type { Category } from "./categories"
+import { categoryFamilies, type Category, type Family } from "./categories"
 
 export type { Capability }
 
@@ -22,6 +22,8 @@ export type GalleryItemMeta = {
   title: string
   description: string
   category: Exclude<Category, "All">
+  /** The index sub-heading within the category, for categories that list families. */
+  family?: Family
   /** What the preview lets you inspect. Empty for a static example. */
   capabilities: Capability[]
   /** True when the item, or anything it installs, depends on Remotion. */
@@ -50,8 +52,23 @@ export type GalleryItemMeta = {
 export type StripCue = { label: string; frame: number }
 
 // Gallery order: tokens, the surface-depth note, then the registry. Bundles (ui-bits) have no
-// card of their own; each member does.
-const galleryItems = generated.items as GalleryItemMeta[]
+// card of their own; each member does. A category that lists families (categories.ts) orders its
+// members by family, keeping gallery order within each, so the index sub-headings and the
+// /c/<name> pager walk the same sequence.
+const galleryItems = orderByFamily(generated.items as GalleryItemMeta[])
+
+function orderByFamily(items: GalleryItemMeta[]) {
+  const out = [...items]
+  for (const [category, families] of Object.entries(categoryFamilies)) {
+    const order: readonly string[] = families
+    const rank = (item: GalleryItemMeta) =>
+      item.family ? order.indexOf(item.family) : order.length
+    const slots = out.flatMap((item, i) => (item.category === category ? [i] : []))
+    const members = slots.map((i) => out[i]).sort((a, b) => rank(a) - rank(b))
+    slots.forEach((slot, k) => (out[slot] = members[k]))
+  }
+  return out
+}
 const byName = new Map(galleryItems.map((item) => [item.name, item]))
 
 export function addCommand(name: string) {
