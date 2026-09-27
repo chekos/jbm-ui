@@ -187,6 +187,7 @@ summary:focus-visible {
   display: grid;
   gap: 10px;
   padding: 14px 0 10px;
+  grid-template-columns: minmax(0, 1fr);
   background: var(--jbm-bg);
   border-block: 1px solid var(--jbm-line);
 }
@@ -661,6 +662,7 @@ footer {
 }
 .install-once pre {
   margin: 0;
+  overflow-x: auto;
 }
 .install-once-code .copy-row {
   display: flex;
@@ -714,12 +716,13 @@ footer {
 }
 details > p {
   color: var(--jbm-dim);
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.6;
   margin: 12px 0;
 }
 @media (max-width: 760px) {
   .install-once {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
+    padding: 20px 0;
   }
 }

@@ -147,7 +147,7 @@
       },
       "headline": {
         "displayName": "Headline",
-        "purpose": "Gallery page title; one vermilion word allowed."
+        "purpose": "Gallery section headings; outrank the card titles."
       },
       "title": {
         "displayName": "Title",
@@ -155,7 +155,7 @@
       },
       "body": {
         "displayName": "Body",
-        "purpose": "Gallery intro copy in Graphite."
+        "purpose": "Long-form copy in Graphite."
       },
       "body-small": {
         "displayName": "Body small",
