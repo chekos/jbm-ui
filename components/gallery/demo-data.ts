@@ -41,6 +41,8 @@ export const urlStateNames = [
   "clock",
   "ticket",
   "text-fill",
+  "register",
+  "slip",
 ]
 
 /** Desk illustration pieces, previewed by DeskDemo. */
@@ -54,3 +56,6 @@ export const deskNames = [
   "escritorio",
   "burbuja",
 ]
+
+/** Drawn writing registers and the slip, previewed by RegisterDemo. */
+export const registerNames = ["register", "slip"]

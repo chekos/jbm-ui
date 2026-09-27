@@ -61,6 +61,8 @@
     "clipped-note",
     "punched-tag",
     "paper-line",
+    "register",
+    "slip",
     "stamp",
     "tape-marker",
     "paper-tape",
@@ -92,6 +94,10 @@
     {
       "slug": "visual-primitives",
       "title": "Visual primitives from Design"
+    },
+    {
+      "slug": "writing-registers",
+      "title": "Writing registers"
     }
   ]
 }

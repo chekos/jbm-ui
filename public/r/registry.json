@@ -1233,6 +1233,49 @@
       ]
     },
     {
+      "name": "register",
+      "title": "Register",
+      "description": "Paper sheet of drawn writing whose shape says who reads it: steps, lists, tables, sourced prose, or a mixed page.",
+      "categories": [
+        "UI Bits"
+      ],
+      "type": "registry:ui",
+      "registryDependencies": [
+        "@jbm/tokens",
+        "@jbm/scene-geometry",
+        "@jbm/paper"
+      ],
+      "files": [
+        {
+          "path": "registry/jbm/ui/register.tsx",
+          "type": "registry:ui",
+          "target": "src/jbm/ui/register.tsx"
+        }
+      ]
+    },
+    {
+      "name": "slip",
+      "title": "Slip",
+      "description": "Taped paper slip of out-of-register writing that peels, lifts, and travels while registers reflow around it.",
+      "categories": [
+        "UI Bits"
+      ],
+      "type": "registry:ui",
+      "registryDependencies": [
+        "@jbm/tokens",
+        "@jbm/scene-geometry",
+        "@jbm/paper",
+        "@jbm/register"
+      ],
+      "files": [
+        {
+          "path": "registry/jbm/ui/slip.tsx",
+          "type": "registry:ui",
+          "target": "src/jbm/ui/slip.tsx"
+        }
+      ]
+    },
+    {
       "name": "stamp",
       "title": "Stamp",
       "description": "Vermilion rubber-stamp impression that drops, makes contact, and inks in as a 0–1 press progresses.",

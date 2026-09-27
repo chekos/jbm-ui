@@ -6920,6 +6920,614 @@
       ]
     },
     {
+      "name": "register",
+      "entry": "component",
+      "title": "Register",
+      "description": "Paper sheet of drawn writing whose shape says who reads it: steps, lists, tables, sourced prose, or a mixed page.",
+      "category": "UI Bits",
+      "capabilities": [
+        "controls"
+      ],
+      "needsRemotion": false,
+      "registryDependencies": [
+        "@jbm/tokens",
+        "@jbm/scene-geometry",
+        "@jbm/paper"
+      ],
+      "installName": "register",
+      "inRegistry": true,
+      "page": "/c/register",
+      "registryItem": "/r/register.json",
+      "sourcePath": "registry/jbm/ui/register.tsx",
+      "files": [
+        "registry/jbm/ui/register.tsx"
+      ],
+      "api": [
+        {
+          "export": "Register",
+          "kind": "component",
+          "summary": "A Paper sheet (2px ink edge, house paper shadow) carrying one register of drawn writing: bars, boxes, and rules, never legible prose. `mono` is a prompt chevron, prompt bar, and outlined result box per step; `plain` short numbered lists in two columns; `grid` ruled tables with an ink header; `prose` a justified block with paragraph ends and a block of source ticks; `mixed` stacks registers on one long page. Every quantity is a prop (no timer), so a slider or video frame drives it. Anchors, seams, and the gap are in the sheet's px from its outer top-left corner, the same space `children` draw in.",
+          "props": [
+            {
+              "name": "kind",
+              "type": "RegisterKind",
+              "required": true,
+              "default": null,
+              "description": "Register: mono, plain, grid, prose, or mixed."
+            },
+            {
+              "name": "n",
+              "type": "number",
+              "required": false,
+              "default": null,
+              "description": "Steps (mono, 1–24, default 7), list groups (plain, 1–24, default 10), tables (grid, 1–12, default 7; one column up to 4, then two, then three), source ticks (prose, 0–16, default 8), or bands (mixed, 1–4 of mono, plain, grid, prose; default 4). Rounded and clamped. More items tighten the packing; the sheet never grows."
+            },
+            {
+              "name": "w",
+              "type": "number",
+              "required": true,
+              "default": null,
+              "description": "Sheet width in stage px."
+            },
+            {
+              "name": "h",
+              "type": "number",
+              "required": true,
+              "default": null,
+              "description": "Sheet height in stage px."
+            },
+            {
+              "name": "sources",
+              "type": "number",
+              "required": false,
+              "default": null,
+              "description": "Prose only: source ticks, overriding n. In mixed, the prose band's ticks (default 3)."
+            },
+            {
+              "name": "bands",
+              "type": "readonly RegisterBand[]",
+              "required": false,
+              "default": null,
+              "description": "Mixed only: the stacked registers, top to bottom, each `{ kind, n?, weight? }` (weight is its share of the writing height; by default each band gets the height its writing naturally runs, so a page reads evenly filled; at most 8 bands). Overrides n."
+            },
+            {
+              "name": "gapAt",
+              "type": "number",
+              "required": false,
+              "default": null,
+              "description": "Row index where a gap opens: mono steps, plain and grid rows of cells, prose lines then the spacer then source rows; for mixed, the band index (0 = above the first band, bands.length = below the last). Rows from here down move to make room; omit for no gap."
+            },
+            {
+              "name": "gap",
+              "type": "number",
+              "required": false,
+              "default": null,
+              "description": "Gap height in px when fully open. Defaults to a quarter of the writing height; clamped to 60% of it. Marks are sized for the open gap at every reflow value, so reflow moves writing without resizing it."
+            },
+            {
+              "name": "reflow",
+              "type": "number",
+              "required": false,
+              "default": null,
+              "description": "How open the gap is, 0–1 (default 1): run 1 → 0 on the sheet a slip leaves (it closes) and 0 → 1 on the sheet it lands on (it makes room)."
+            },
+            {
+              "name": "scale",
+              "type": "number",
+              "required": false,
+              "default": null,
+              "description": "Mark scale: bar thickness, strokes, and spacing. Defaults to w / 360 (clamped 0.4–4), so a 360 px sheet draws 6 px prompt bars and 1.5 px outlines."
+            },
+            {
+              "name": "pad",
+              "type": "number",
+              "required": false,
+              "default": null,
+              "description": "Inset from the sheet edge to the writing in px (default 20 × scale)."
+            },
+            {
+              "name": "reveal",
+              "type": "number",
+              "required": false,
+              "default": null,
+              "description": "Writing drawn so far, 0–1: cells ink in reading order, each one left to right; 0 is a blank sheet. The sheet itself is always there."
+            },
+            {
+              "name": "accent",
+              "type": "readonly number[]",
+              "required": false,
+              "default": null,
+              "description": "Cell indices (reading order, see registerLayout) whose lead mark is vermilion: the prompt bar, list heading, table header, prose line, or source tick. Everything else stays ink."
+            },
+            {
+              "name": "rotate",
+              "type": "number",
+              "required": false,
+              "default": "0",
+              "description": "Sheet rotation in degrees (Paper's rotate)."
+            },
+            {
+              "name": "label",
+              "type": "string",
+              "required": false,
+              "default": null,
+              "description": "Accessible name of the drawing; defaults to “Page of <kind> writing”."
+            },
+            {
+              "name": "children",
+              "type": "ReactNode",
+              "required": false,
+              "default": null,
+              "description": "Laid over the sheet in sheet px (a Slip at registerGap, a tab, a thread origin)."
+            },
+            {
+              "name": "style",
+              "type": "CSSProperties",
+              "required": false,
+              "default": null,
+              "description": "Styles merged onto the Paper sheet, e.g. position."
+            }
+          ],
+          "passthrough": []
+        },
+        {
+          "export": "RegisterInk",
+          "kind": "component",
+          "summary": "The writing alone as an SVG <g> in sheet px, for SVG scenes, tear pieces, or any other surface. Takes the RegisterSpec props plus reveal and accent. Render inside an <svg>.",
+          "props": [
+            {
+              "name": "kind",
+              "type": "RegisterKind",
+              "required": true,
+              "default": null,
+              "description": "Register: mono, plain, grid, prose, or mixed."
+            },
+            {
+              "name": "n",
+              "type": "number",
+              "required": false,
+              "default": null,
+              "description": "Steps (mono, 1–24, default 7), list groups (plain, 1–24, default 10), tables (grid, 1–12, default 7; one column up to 4, then two, then three), source ticks (prose, 0–16, default 8), or bands (mixed, 1–4 of mono, plain, grid, prose; default 4). Rounded and clamped. More items tighten the packing; the sheet never grows."
+            },
+            {
+              "name": "w",
+              "type": "number",
+              "required": true,
+              "default": null,
+              "description": "Sheet width in stage px."
+            },
+            {
+              "name": "h",
+              "type": "number",
+              "required": true,
+              "default": null,
+              "description": "Sheet height in stage px."
+            },
+            {
+              "name": "sources",
+              "type": "number",
+              "required": false,
+              "default": null,
+              "description": "Prose only: source ticks, overriding n. In mixed, the prose band's ticks (default 3)."
+            },
+            {
+              "name": "bands",
+              "type": "readonly RegisterBand[]",
+              "required": false,
+              "default": null,
+              "description": "Mixed only: the stacked registers, top to bottom, each `{ kind, n?, weight? }` (weight is its share of the writing height; by default each band gets the height its writing naturally runs, so a page reads evenly filled; at most 8 bands). Overrides n."
+            },
+            {
+              "name": "gapAt",
+              "type": "number",
+              "required": false,
+              "default": null,
+              "description": "Row index where a gap opens: mono steps, plain and grid rows of cells, prose lines then the spacer then source rows; for mixed, the band index (0 = above the first band, bands.length = below the last). Rows from here down move to make room; omit for no gap."
+            },
+            {
+              "name": "gap",
+              "type": "number",
+              "required": false,
+              "default": null,
+              "description": "Gap height in px when fully open. Defaults to a quarter of the writing height; clamped to 60% of it. Marks are sized for the open gap at every reflow value, so reflow moves writing without resizing it."
+            },
+            {
+              "name": "reflow",
+              "type": "number",
+              "required": false,
+              "default": null,
+              "description": "How open the gap is, 0–1 (default 1): run 1 → 0 on the sheet a slip leaves (it closes) and 0 → 1 on the sheet it lands on (it makes room)."
+            },
+            {
+              "name": "scale",
+              "type": "number",
+              "required": false,
+              "default": null,
+              "description": "Mark scale: bar thickness, strokes, and spacing. Defaults to w / 360 (clamped 0.4–4), so a 360 px sheet draws 6 px prompt bars and 1.5 px outlines."
+            },
+            {
+              "name": "pad",
+              "type": "number",
+              "required": false,
+              "default": null,
+              "description": "Inset from the sheet edge to the writing in px (default 20 × scale)."
+            },
+            {
+              "name": "reveal",
+              "type": "number",
+              "required": false,
+              "default": "1",
+              "description": "Writing drawn so far, 0–1: cells ink in reading order, each one left to right; 0 is a blank sheet. The sheet itself is always there."
+            },
+            {
+              "name": "accent",
+              "type": "readonly number[]",
+              "required": false,
+              "default": "[]",
+              "description": "Cell indices (reading order, see registerLayout) whose lead mark is vermilion: the prompt bar, list heading, table header, prose line, or source tick. Everything else stays ink."
+            }
+          ],
+          "passthrough": []
+        },
+        {
+          "export": "registerLayout",
+          "kind": "function",
+          "summary": "Pure geometry for a register: every cell (reading order, band, row, kind, box, lead point, anchor, marks), row slots, band boxes, mixed seams, prose anchors, and the gap box, in sheet px. Register and RegisterInk draw exactly this, so hosts can attach threads and tears to the same points.",
+          "params": [
+            {
+              "name": "spec",
+              "type": "RegisterSpec",
+              "required": true,
+              "default": null,
+              "description": "RegisterSpec: kind, n, w, h, sources, bands, gapAt, gap, reflow, scale, pad."
+            }
+          ],
+          "returns": "RegisterLayout { w, h, scale, cells, rows, bands, seams, anchors, gap }."
+        },
+        {
+          "export": "registerAnchors",
+          "kind": "function",
+          "summary": "Prose source tick centres (prose kind or the prose band of mixed), top to bottom, in sheet px: where threads leave the sheet.",
+          "params": [
+            {
+              "name": "spec",
+              "type": "RegisterSpec",
+              "required": true,
+              "default": null,
+              "description": "RegisterSpec."
+            }
+          ],
+          "returns": "Pt[]; empty when there is no prose."
+        },
+        {
+          "export": "registerSeams",
+          "kind": "function",
+          "summary": "Mixed only: the y of each seam between bands, top to bottom, in sheet px, halfway through the space between bands. Tear lines follow them.",
+          "params": [
+            {
+              "name": "spec",
+              "type": "RegisterSpec",
+              "required": true,
+              "default": null,
+              "description": "RegisterSpec."
+            }
+          ],
+          "returns": "number[] (bands − 1 values); empty for single registers."
+        },
+        {
+          "export": "registerGap",
+          "kind": "function",
+          "summary": "The gap's box in sheet px: full writing width, height gap × reflow. Place a slip at the fully open gap (reflow 1) so its resting place does not move while the gap animates.",
+          "params": [
+            {
+              "name": "spec",
+              "type": "RegisterSpec",
+              "required": true,
+              "default": null,
+              "description": "RegisterSpec with gapAt."
+            }
+          ],
+          "returns": "Box, or null without gapAt."
+        },
+        {
+          "export": "RegisterKind",
+          "kind": "type",
+          "summary": "\"mono\" | \"plain\" | \"grid\" | \"prose\" | \"mixed\"."
+        },
+        {
+          "export": "RegisterBand",
+          "kind": "type",
+          "summary": "One band of a mixed page: `{ kind, n?, weight? }`."
+        },
+        {
+          "export": "RegisterSpec",
+          "kind": "type",
+          "summary": "The geometry props shared by Register, RegisterInk, and the layout helpers."
+        },
+        {
+          "export": "RegisterTone",
+          "kind": "type",
+          "summary": "\"ink\" | \"dim\" | \"accent\": the fill of a bar mark."
+        },
+        {
+          "export": "RegisterMark",
+          "kind": "type",
+          "summary": "One drawn mark: bar, outlined box, rule, chevron, or numeral, in sheet px."
+        },
+        {
+          "export": "RegisterCell",
+          "kind": "type",
+          "summary": "One unit of writing: index, band, row, kind, box, lead, optional anchor, marks."
+        },
+        {
+          "export": "RegisterLayout",
+          "kind": "type",
+          "summary": "registerLayout's result."
+        },
+        {
+          "export": "RegisterInkProps",
+          "kind": "type",
+          "summary": "RegisterSpec plus reveal and accent."
+        },
+        {
+          "export": "RegisterProps",
+          "kind": "type",
+          "summary": "RegisterInkProps plus rotate, label, children, style."
+        }
+      ],
+      "stage": {
+        "mode": "declared",
+        "landscape": {
+          "width": 300,
+          "height": 380
+        },
+        "vertical": {
+          "width": 300,
+          "height": 380
+        },
+        "basis": "Exactly w × h stage px (the gallery uses 300 × 380, and 300 × 440 for mixed); n, reveal, gap, and reflow never change the box. Rotation and the paper shadow draw outside it. On a 1920 × 1080 stage the board's quadrant sheets are about 440 × 280 and the long mixed page about 460 × 1000."
+      },
+      "examples": [
+        {
+          "title": "Four readers, four registers",
+          "code": "import { Register } from \"@/jbm/ui/register\"\n\n<div style={{ display: \"flex\", gap: 24 }}>\n  <Register kind=\"mono\" n={7} w={300} h={380} />\n  <Register kind=\"plain\" n={10} w={300} h={380} />\n  <Register kind=\"grid\" n={7} w={300} h={380} />\n  <Register kind=\"prose\" sources={8} w={300} h={380} />\n</div>"
+        },
+        {
+          "title": "Long mixed page with seams and source anchors",
+          "code": "import { Register, registerSeams, registerAnchors } from \"@/jbm/ui/register\"\n\nconst page = { kind: \"mixed\", w: 380, h: 840 } as const\nconst seams = registerSeams(page) // three y positions: tear lines\nconst anchors = registerAnchors(page) // prose source ticks: thread origins\n\n<Register {...page} reveal={0.6} />"
+        },
+        {
+          "title": "A destination making room",
+          "code": "import { Register, registerGap } from \"@/jbm/ui/register\"\n\nconst reflow = 0.5 // from a slider or frame\nconst sheet = { kind: \"prose\", n: 3, w: 250, h: 300, gapAt: 4, gap: 66 } as const\nconst landing = registerGap({ ...sheet, reflow: 1 }) // where the slip settles\n\n<Register {...sheet} reflow={reflow} />"
+        }
+      ],
+      "qa": [
+        "Switch Kind through all five: each reads as one register at a glance (steps with result boxes, numbered lists, ruled tables, a justified block with source ticks, a stacked page) and no mark forms a legible word.",
+        "Step Count from 1 to its maximum for every kind: marks pack tighter inside the same sheet, nothing crosses the pad or the sheet edge, and grid switches to two columns above 4 tables.",
+        "Drag Reveal 0 → 1: a blank sheet, then cells ink in reading order, each left to right; no mark appears early or pops.",
+        "Turn on Gap and drag Reflow 1 → 0 → 1: rows below the gap slide while every mark keeps its size; at 0 the writing is evenly spaced again.",
+        "Show seams, anchors, gap: seams sit between mixed bands, anchor circles sit on the source ticks, and the gap box is empty.",
+        "Accent first mark: only that lead mark turns vermilion.",
+        "Check 2× zoom: chevrons, result-box corners, and table rules are crisp and consistent; outlines never exceed the prompt bar's weight."
+      ],
+      "docs": [
+        {
+          "title": "Writing registers guide",
+          "url": "https://jbm-ui.bns.studio/docs/writing-registers.md"
+        }
+      ]
+    },
+    {
+      "name": "slip",
+      "entry": "component",
+      "title": "Slip",
+      "description": "Taped paper slip of out-of-register writing that peels, lifts, and travels while registers reflow around it.",
+      "category": "UI Bits",
+      "capabilities": [
+        "controls"
+      ],
+      "needsRemotion": false,
+      "registryDependencies": [
+        "@jbm/tokens",
+        "@jbm/scene-geometry",
+        "@jbm/paper",
+        "@jbm/register"
+      ],
+      "installName": "slip",
+      "inRegistry": true,
+      "page": "/c/slip",
+      "registryItem": "/r/slip.json",
+      "sourcePath": "registry/jbm/ui/slip.tsx",
+      "files": [
+        "registry/jbm/ui/slip.tsx"
+      ],
+      "api": [
+        {
+          "export": "Slip",
+          "kind": "component",
+          "summary": "A small paper strip carrying a few marks of one register (RegisterInk), with torn masking tape across its top edge. Controlled and timer-free: `lift` peels the tape flap (fully by 0.4), deepens the shadow, raises the slip by 10 × scale px, tilts it 3°, and scales it 4%; `offset` translates it from its resting place. It owns no hand and no path: place it absolutely where it rests (usually registerGap on the source sheet), drive offset along your own path, and hold it with Mano at slipGrip.",
+          "props": [
+            {
+              "name": "lift",
+              "type": "number",
+              "required": false,
+              "default": null,
+              "description": "0 flat on a sheet, 1 held above it. Clamped."
+            },
+            {
+              "name": "offset",
+              "type": "Pt",
+              "required": false,
+              "default": null,
+              "description": "Translation in px from the resting place (default { x: 0, y: 0 })."
+            },
+            {
+              "name": "tape",
+              "type": "boolean",
+              "required": false,
+              "default": null,
+              "description": "Masking tape across the top edge with torn ends (default true). Its right third is a flap that peels up about its fold as lift goes 0 → 0.4 and sticks again on landing."
+            },
+            {
+              "name": "dashed",
+              "type": "boolean",
+              "required": false,
+              "default": null,
+              "description": "Dashed ink outline instead of solid: the slip flagged as out of place (default false). Ink, not vermilion."
+            },
+            {
+              "name": "kind",
+              "type": "Exclude<RegisterKind, \"mixed\">",
+              "required": false,
+              "default": null,
+              "description": "Register drawn on the slip: mono, plain, grid, or prose (default prose)."
+            },
+            {
+              "name": "n",
+              "type": "number",
+              "required": false,
+              "default": null,
+              "description": "Count for that register: prose source ticks (default 2), mono steps (1), plain groups or grid tables (2)."
+            },
+            {
+              "name": "w",
+              "type": "number",
+              "required": false,
+              "default": null,
+              "description": "Slip width in px (default 240)."
+            },
+            {
+              "name": "h",
+              "type": "number",
+              "required": false,
+              "default": null,
+              "description": "Slip height in px (default 72)."
+            },
+            {
+              "name": "rotate",
+              "type": "number",
+              "required": false,
+              "default": null,
+              "description": "Resting rotation in degrees (default −2)."
+            },
+            {
+              "name": "scale",
+              "type": "number",
+              "required": false,
+              "default": null,
+              "description": "Mark scale; pass the source sheet's scale (Register uses w / 360) so the slip's bars match the page it sits on. Default 1."
+            },
+            {
+              "name": "reveal",
+              "type": "number",
+              "required": false,
+              "default": null,
+              "description": "Writing drawn on the slip so far, 0–1 (default 1)."
+            },
+            {
+              "name": "accent",
+              "type": "readonly number[]",
+              "required": false,
+              "default": null,
+              "description": "Cell indices whose lead mark is vermilion."
+            },
+            {
+              "name": "style",
+              "type": "CSSProperties",
+              "required": false,
+              "default": null,
+              "description": "Styles merged onto the outer box, e.g. position, left, top."
+            }
+          ],
+          "passthrough": []
+        },
+        {
+          "export": "slipPoint",
+          "kind": "function",
+          "summary": "Maps a point on the slip (local px from its top-left) to the host's px after lift, rotation, and offset, relative to the slip's resting top-left.",
+          "params": [
+            {
+              "name": "props",
+              "type": "SlipProps",
+              "required": true,
+              "default": null,
+              "description": "The Slip's props (lift, offset, w, h, rotate, scale)."
+            },
+            {
+              "name": "local",
+              "type": "Pt",
+              "required": true,
+              "default": null,
+              "description": "Point on the slip in its own px."
+            }
+          ],
+          "returns": "Pt in the host's px."
+        },
+        {
+          "export": "slipGrip",
+          "kind": "function",
+          "summary": "Where a pinch holds the slip: the middle of its bottom edge (default) or top edge, in the host's px relative to the resting top-left. Put Mano's pinch there (pose \"pinch\", anchor { x: 6, y: 10 }).",
+          "params": [
+            {
+              "name": "props",
+              "type": "SlipProps",
+              "required": true,
+              "default": null,
+              "description": "The Slip's props."
+            },
+            {
+              "name": "edge",
+              "type": "\"top\" | \"bottom\"",
+              "required": false,
+              "default": "\"bottom\"",
+              "description": "\"bottom\" (default) or \"top\"."
+            }
+          ],
+          "returns": "Pt in the host's px."
+        },
+        {
+          "export": "SlipProps",
+          "kind": "type",
+          "summary": "Slip's props."
+        }
+      ],
+      "stage": {
+        "mode": "declared",
+        "landscape": {
+          "width": 240,
+          "height": 72
+        },
+        "vertical": {
+          "width": 240,
+          "height": 72
+        },
+        "basis": "w × h stage px at the defaults (240 × 72). The tape reaches about 7 × scale px above the top edge, and a peeled flap about 20 × scale px more; lift adds up to 10 × scale px of rise and 4% scale, and offset moves it anywhere, all without affecting layout."
+      },
+      "examples": [
+        {
+          "title": "A taped prose slip, flagged",
+          "code": "import { Slip } from \"@/jbm/ui/slip\"\n\n<Slip kind=\"prose\" w={240} h={72} dashed />"
+        },
+        {
+          "title": "Lift from one register, land in another",
+          "code": "import { Register, registerGap } from \"@/jbm/ui/register\"\nimport { Slip, slipGrip } from \"@/jbm/ui/slip\"\nimport { Mano } from \"@/jbm/motion/mano\" // install @jbm/mano separately\n\nconst t = 0.5 // carry progress from a slider or frame\nconst sheet = { w: 250, h: 300, gap: 66 } as const\nconst src = { ...sheet, kind: \"mono\", n: 6, gapAt: 3 } as const\nconst dst = { ...sheet, kind: \"prose\", n: 3, gapAt: 4 } as const\nconst a = registerGap({ ...src, reflow: 1 })!\nconst b = registerGap({ ...dst, reflow: 1 })!\nconst from = { x: a.x + 30, y: a.y + 7 } // dst sheet sits 300 px to the right\nconst to = { x: 300 + b.x + 30, y: b.y + 7 }\nconst slip = { w: 190, h: 52, scale: 250 / 360, lift: 1,\n  offset: { x: (to.x - from.x) * t, y: (to.y - from.y) * t } }\nconst grip = slipGrip(slip)\n\n<div style={{ position: \"relative\", width: 560, height: 320 }}>\n  <Register {...src} reflow={1 - t} style={{ position: \"absolute\", left: 0, top: 0 }} />\n  <Register {...dst} reflow={t} style={{ position: \"absolute\", left: 300, top: 0 }} />\n  <Slip {...slip} style={{ position: \"absolute\", left: from.x, top: from.y }} />\n  <svg width={560} height={320} style={{ position: \"absolute\", inset: 0, overflow: \"visible\", pointerEvents: \"none\" }}>\n    <Mano at={{ x: from.x + grip.x, y: from.y + grip.y }} pose=\"pinch\" size={96} anchor={{ x: 6, y: 10 }} />\n  </svg>\n</div>"
+        }
+      ],
+      "qa": [
+        "Drag Lift 0 → 0.4 → 1: the tape flap peels up about its fold (a wedge opens under it, no gap along the fold's top), then the slip rises, tilts, and its shadow deepens; back to 0 it lies flat and the flap sticks down continuously.",
+        "Drag Carry 0 → 1 with Lift at Held: the slip leaves the Tutorial's gap, arcs over, and settles in the Explicación's gap; the source closes to evenly spaced steps while the destination opens exactly one slip-height of room, and no writing passes under the landed slip.",
+        "Toggle Tape, Dashed outline, and Hand independently: each changes only its own object; the dashed outline is ink.",
+        "With Hand on, check the pinch stays on the slip's bottom edge at every Carry and Lift value, including the extremes.",
+        "Check 2× zoom: torn tape teeth, the fold, and the outline corners join cleanly with even stroke widths."
+      ],
+      "docs": [
+        {
+          "title": "Writing registers guide",
+          "url": "https://jbm-ui.bns.studio/docs/writing-registers.md"
+        }
+      ]
+    },
+    {
       "name": "stamp",
       "entry": "component",
       "title": "Stamp",

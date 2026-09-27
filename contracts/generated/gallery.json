@@ -1144,6 +1144,45 @@
       "inRegistry": true
     },
     {
+      "name": "register",
+      "title": "Register",
+      "description": "Paper sheet of drawn writing whose shape says who reads it: steps, lists, tables, sourced prose, or a mixed page.",
+      "category": "UI Bits",
+      "capabilities": [
+        "controls"
+      ],
+      "needsRemotion": false,
+      "registryDependencies": [
+        "@jbm/tokens",
+        "@jbm/scene-geometry",
+        "@jbm/paper"
+      ],
+      "snippet": "import { Register } from \"@/jbm/ui/register\"\n\n<div style={{ display: \"flex\", gap: 24 }}>\n  <Register kind=\"mono\" n={7} w={300} h={380} />\n  <Register kind=\"plain\" n={10} w={300} h={380} />\n  <Register kind=\"grid\" n={7} w={300} h={380} />\n  <Register kind=\"prose\" sources={8} w={300} h={380} />\n</div>",
+      "installName": "register",
+      "sourcePath": "registry/jbm/ui/register.tsx",
+      "inRegistry": true
+    },
+    {
+      "name": "slip",
+      "title": "Slip",
+      "description": "Taped paper slip of out-of-register writing that peels, lifts, and travels while registers reflow around it.",
+      "category": "UI Bits",
+      "capabilities": [
+        "controls"
+      ],
+      "needsRemotion": false,
+      "registryDependencies": [
+        "@jbm/tokens",
+        "@jbm/scene-geometry",
+        "@jbm/paper",
+        "@jbm/register"
+      ],
+      "snippet": "import { Slip } from \"@/jbm/ui/slip\"\n\n<Slip kind=\"prose\" w={240} h={72} dashed />",
+      "installName": "slip",
+      "sourcePath": "registry/jbm/ui/slip.tsx",
+      "inRegistry": true
+    },
+    {
       "name": "stamp",
       "title": "Stamp",
       "description": "Vermilion rubber-stamp impression that drops, makes contact, and inks in as a 0–1 press progresses.",
