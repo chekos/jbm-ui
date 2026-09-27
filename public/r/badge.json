@@ -2,7 +2,7 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "badge",
   "title": "Badge",
-  "description": "Check and cross badges in paper, ink, and accent tones.",
+  "description": "Round check or cross badge in accent, ink, or paper tones for fixed and broken states.",
   "registryDependencies": [
     "@jbm/tokens",
     "@jbm/paper"

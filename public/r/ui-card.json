@@ -2,7 +2,7 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "ui-card",
   "title": "UiCard",
-  "description": "Illustrated card with a picture and text bars.",
+  "description": "Illustrated content card with a line-art picture (hills and a vermilion sun) over two text bars.",
   "registryDependencies": [
     "@jbm/tokens",
     "@jbm/paper"

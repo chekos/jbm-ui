@@ -2,7 +2,7 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "burbuja",
   "title": "Burbuja",
-  "description": "The existing ChatBubble with selected words highlighted by TextFill.",
+  "description": "Chat bubble whose selected words sweep to vermilion with a controlled 0–1 highlight.",
   "registryDependencies": [
     "@jbm/tokens",
     "@jbm/chat-bubble",

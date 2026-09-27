@@ -2,7 +2,7 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "rebuild-screens",
   "title": "RebuildScreens",
-  "description": "A phone screen built piece by piece, then rebuilt on new screens on each cue; Stamp for a loud sticker.",
+  "description": "A phone screen assembled piece by piece, then rebuilt on each new screen that springs onto the pile; Stamp slams a loud word on top.",
   "dependencies": [
     "remotion"
   ],

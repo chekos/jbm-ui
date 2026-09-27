@@ -2,7 +2,7 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "bullet-list",
   "title": "BulletList",
-  "description": "Arrow or dot list.",
+  "description": "Vertical list of short strings with a vermilion arrow or dot marker.",
   "registryDependencies": [
     "@jbm/tokens"
   ],

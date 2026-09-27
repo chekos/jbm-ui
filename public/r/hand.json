@@ -2,7 +2,7 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "hand",
   "title": "Hand",
-  "description": "An independent hand illustration with open, pointing and pinching poses.",
+  "description": "Static line-art hand in open-palm, pointing, or pinching pose, independent of placement and props.",
   "registryDependencies": [
     "@jbm/tokens"
   ],

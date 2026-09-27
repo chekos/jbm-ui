@@ -2,7 +2,7 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "captions",
   "title": "Captions",
-  "description": "Kinetic subtitle pill from aligned words.",
+  "description": "Kinetic subtitle pill that groups aligned words into phrases and lights each word as it is spoken.",
   "dependencies": [
     "remotion"
   ],

@@ -2,7 +2,7 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "brand",
   "title": "Brand",
-  "description": "tacosdedatos lockup.",
+  "description": "Centered tacosdedatos wordmark in Geist Mono with an optional tagline.",
   "registryDependencies": [
     "@jbm/tokens"
   ],

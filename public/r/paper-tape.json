@@ -2,7 +2,7 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "paper-tape",
   "title": "Paper tape",
-  "description": "Feeding paper with shared coordinates for writing, markers, and attached notes.",
+  "description": "Strip of paper fed out by length, with printed marks, checkpoint markers, and attachments on one coordinate system.",
   "registryDependencies": [
     "@jbm/tokens",
     "@jbm/paper",

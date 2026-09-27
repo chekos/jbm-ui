@@ -2,7 +2,7 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "phone-frame",
   "title": "PhoneFrame",
-  "description": "Phone silhouette that holds your own content.",
+  "description": "Phone silhouette with a thick ink edge and speaker slot that stacks your content at the bottom of its screen.",
   "registryDependencies": [
     "@jbm/tokens",
     "@jbm/paper"

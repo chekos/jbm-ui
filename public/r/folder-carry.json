@@ -2,7 +2,7 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "folder-carry",
   "title": "Folder carry",
-  "description": "Continuous folder transport with shared tab contact geometry.",
+  "description": "Folder carried along a path by its tab, interpolating size and label between two resting places.",
   "registryDependencies": [
     "@jbm/tokens",
     "@jbm/scene-geometry",

@@ -2,7 +2,7 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "catalog",
   "title": "Catalog",
-  "description": "Catalogue sheet of interface pieces that unfolds a second row of design-token glyphs.",
+  "description": "Catalogue sheet whose interface pieces arrive and get checked off, then unfolds a second row of design-token glyphs.",
   "dependencies": [
     "remotion"
   ],

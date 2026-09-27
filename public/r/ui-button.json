@@ -2,7 +2,7 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "ui-button",
   "title": "UiButton",
-  "description": "Illustrated button with paper, ink, and accent tones.",
+  "description": "Illustrated pill button with a label bar, in ink, accent, or outlined paper tones.",
   "registryDependencies": [
     "@jbm/tokens",
     "@jbm/paper"

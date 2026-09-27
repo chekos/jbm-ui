@@ -2,7 +2,7 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "token-glyph",
   "title": "TokenGlyph",
-  "description": "Color, typography, and spacing illustrations.",
+  "description": "Square glyphs for design tokens: overlapping colour swatches, an Aa type sample, or a spacing dimension line.",
   "registryDependencies": [
     "@jbm/tokens",
     "@jbm/paper"

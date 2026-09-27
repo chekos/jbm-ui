@@ -2,7 +2,7 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "tape-marker",
   "title": "Tape marker",
-  "description": "Independent folded paper checkpoint marker.",
+  "description": "Folded vermilion paper checkpoint marker with an optional label above it.",
   "registryDependencies": [
     "@jbm/tokens",
     "@jbm/paper"

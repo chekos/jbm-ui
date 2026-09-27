@@ -2,7 +2,7 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "clipped-note",
   "title": "Clipped note",
-  "description": "Paper note with an optional independent clip, rotation, and paper tones.",
+  "description": "Paper note with an optional paper clip, rotation, and paper, accent, or ink stock.",
   "registryDependencies": [
     "@jbm/tokens",
     "@jbm/paper",

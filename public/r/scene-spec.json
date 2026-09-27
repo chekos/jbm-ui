@@ -2,7 +2,7 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "scene-spec",
   "title": "Scene spec",
-  "description": "Compose timed blocks with explicit portrait layouts, orientation overrides, and configurable safe areas.",
+  "description": "Compiles a YAML-shaped scene spec into a Remotion scene for either orientation, with timed blocks, explicit layouts, orientation overrides, and configurable safe areas.",
   "dependencies": [
     "remotion"
   ],

@@ -2,7 +2,7 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "paper",
   "title": "Paper",
-  "description": "Paper cut-out primitives: Paper shape, Sticker (slanted note with display type), Caption.",
+  "description": "Paper cut-out primitives: a flat card-stock shape, a slanted Sticker with display type, and a centered Caption.",
   "registryDependencies": [
     "@jbm/tokens"
   ],

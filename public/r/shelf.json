@@ -2,7 +2,7 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "shelf",
   "title": "Shelf",
-  "description": "Pile of library cards on their own cues, plus Twice: a button, the same button again, a cross through the second.",
+  "description": "A pile of tilted library cards that slide in on their own cues, plus Twice: a button, the same button again, and a vermilion cross drawn over the second.",
   "dependencies": [
     "remotion"
   ],

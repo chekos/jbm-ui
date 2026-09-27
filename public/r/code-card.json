@@ -2,7 +2,7 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "code-card",
   "title": "CodeCard",
-  "description": "Dark code card that types each line in place.",
+  "description": "Dark code card that types each line in place at a steady character rate, one line after another.",
   "dependencies": [
     "remotion"
   ],

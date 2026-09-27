@@ -2,7 +2,7 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "label",
   "title": "Label",
-  "description": "Uppercase tracked kicker.",
+  "description": "Uppercase, tracked, muted kicker that names a scene or page section.",
   "registryDependencies": [
     "@jbm/tokens"
   ],

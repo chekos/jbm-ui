@@ -7,7 +7,7 @@
       "name": "tokens",
       "type": "registry:lib",
       "title": "Tokens",
-      "description": "Cream/vermilion palette, Geist stacks, radii, shadow, stage safe areas; CSS vars string for Tailwind consumers.",
+      "description": "Cream, ink, and vermilion palette, Geist font stacks, radii, surface shadows and borders, stage safe areas, and a CSS variables string.",
       "categories": [
         "Foundations"
       ],
@@ -23,7 +23,7 @@
       "name": "label",
       "type": "registry:ui",
       "title": "Label",
-      "description": "Uppercase tracked kicker.",
+      "description": "Uppercase, tracked, muted kicker that names a scene or page section.",
       "categories": [
         "UI"
       ],
@@ -42,7 +42,7 @@
       "name": "big",
       "type": "registry:ui",
       "title": "Big",
-      "description": "Display heading, 800 weight.",
+      "description": "Display heading in Geist at weight 800 with tight tracking.",
       "categories": [
         "UI"
       ],
@@ -80,7 +80,7 @@
       "name": "chip",
       "type": "registry:ui",
       "title": "Chip",
-      "description": "Outline, accent or solid pill; sans or mono.",
+      "description": "Inline pill in outline, vermilion accent, or solid ink, with sans or mono type.",
       "categories": [
         "UI"
       ],
@@ -99,7 +99,7 @@
       "name": "stat-card",
       "type": "registry:ui",
       "title": "StatCard",
-      "description": "Label, big value, sub; stacked or row layout.",
+      "description": "One number with its context on a raised Card: mono label, large value, and a short sub line, stacked or in a row.",
       "categories": [
         "UI"
       ],
@@ -119,7 +119,7 @@
       "name": "callout",
       "type": "registry:ui",
       "title": "Callout",
-      "description": "Sentence in an accent, ink or note pill.",
+      "description": "Short sentence in a vermilion, ink, or outlined note pill.",
       "categories": [
         "UI"
       ],
@@ -138,7 +138,7 @@
       "name": "bullet-list",
       "type": "registry:ui",
       "title": "BulletList",
-      "description": "Arrow or dot list.",
+      "description": "Vertical list of short strings with a vermilion arrow or dot marker.",
       "categories": [
         "UI"
       ],
@@ -157,7 +157,7 @@
       "name": "brand",
       "type": "registry:ui",
       "title": "Brand",
-      "description": "tacosdedatos lockup.",
+      "description": "Centered tacosdedatos wordmark in Geist Mono with an optional tagline.",
       "categories": [
         "UI"
       ],
@@ -176,7 +176,7 @@
       "name": "paper",
       "type": "registry:ui",
       "title": "Paper",
-      "description": "Paper cut-out primitives: Paper shape, Sticker (slanted note with display type), Caption.",
+      "description": "Paper cut-out primitives: a flat card-stock shape, a slanted Sticker with display type, and a centered Caption.",
       "categories": [
         "UI"
       ],
@@ -195,7 +195,7 @@
       "name": "ui-bits",
       "type": "registry:ui",
       "title": "UI bits",
-      "description": "Illustrated interface pieces as paper cut-outs: UiButton, UiInput, UiCard, PhoneFrame, Badge, TokenGlyph.",
+      "description": "One install for the paper cut-out interface pieces: UiButton, UiInput, UiCard, Piece, PhoneFrame, Badge, and TokenGlyph.",
       "categories": [
         "UI Bits"
       ],
@@ -220,7 +220,7 @@
       "name": "replay-button",
       "type": "registry:ui",
       "title": "ReplayButton",
-      "description": "Controlled replay icon that charges from tail to arrowhead. Supply progress and charging state from any animation.",
+      "description": "Controlled replay icon whose arrow charges from tail to arrowhead as the host animation progresses, then unlocks.",
       "categories": [
         "Motion"
       ],
@@ -239,7 +239,7 @@
       "name": "motion-hooks",
       "type": "registry:hook",
       "title": "Motion hooks",
-      "description": "useSec, useIn, useFade, useProgress for Remotion.",
+      "description": "Remotion timing hooks in seconds: elapsed time, a spring entrance, a cubic-out fade, and an eased progress value.",
       "categories": [
         "Foundations"
       ],
@@ -258,7 +258,7 @@
       "name": "scene",
       "type": "registry:component",
       "title": "Scene",
-      "description": "Full-bleed canvas frame.",
+      "description": "Full-bleed cream canvas that fills its composition and clips overflow; one per scene.",
       "categories": [
         "Layout"
       ],
@@ -277,7 +277,7 @@
       "name": "pop",
       "type": "registry:component",
       "title": "Pop",
-      "description": "Spring entrance + Stagger + Leave (exit).",
+      "description": "Spring entrances for Remotion: Pop slides or scales one block in, Stagger cascades a list, and Leave fades a block out.",
       "categories": [
         "Motion"
       ],
@@ -322,7 +322,7 @@
       "name": "prob-bar",
       "type": "registry:component",
       "title": "ProbBar",
-      "description": "Labelled probability bar that fills.",
+      "description": "Labelled probability bar that slides in and fills to its value while the number counts up.",
       "categories": [
         "Motion"
       ],
@@ -346,7 +346,7 @@
       "name": "code-card",
       "type": "registry:component",
       "title": "CodeCard",
-      "description": "Dark code card that types each line in place.",
+      "description": "Dark code card that types each line in place at a steady character rate, one line after another.",
       "categories": [
         "Motion"
       ],
@@ -379,7 +379,7 @@
       "name": "captions",
       "type": "registry:component",
       "title": "Captions",
-      "description": "Kinetic subtitle pill from aligned words.",
+      "description": "Kinetic subtitle pill that groups aligned words into phrases and lights each word as it is spoken.",
       "categories": [
         "Motion"
       ],
@@ -402,7 +402,7 @@
       "name": "rebuild-screens",
       "type": "registry:component",
       "title": "RebuildScreens",
-      "description": "A phone screen built piece by piece, then rebuilt on new screens on each cue; Stamp for a loud sticker.",
+      "description": "A phone screen assembled piece by piece, then rebuilt on each new screen that springs onto the pile; Stamp slams a loud word on top.",
       "categories": [
         "Motion"
       ],
@@ -427,7 +427,7 @@
       "name": "catalog",
       "type": "registry:component",
       "title": "Catalog",
-      "description": "Catalogue sheet of interface pieces that unfolds a second row of design-token glyphs.",
+      "description": "Catalogue sheet whose interface pieces arrive and get checked off, then unfolds a second row of design-token glyphs.",
       "categories": [
         "Motion"
       ],
@@ -454,7 +454,7 @@
       "name": "propagate",
       "type": "registry:component",
       "title": "Propagate",
-      "description": "One source card fanning out to a row of screens; bug, fix and recolour cues travel down the lines.",
+      "description": "One source card fans ink lines out to a row of phone screens; bug, fix, and recolour cues travel down the lines to every screen.",
       "categories": [
         "Motion"
       ],
@@ -480,7 +480,7 @@
       "name": "shelf",
       "type": "registry:component",
       "title": "Shelf",
-      "description": "Pile of library cards on their own cues, plus Twice: a button, the same button again, a cross through the second.",
+      "description": "A pile of tilted library cards that slide in on their own cues, plus Twice: a button, the same button again, and a vermilion cross drawn over the second.",
       "categories": [
         "Motion"
       ],
@@ -506,7 +506,7 @@
       "name": "scene-spec",
       "type": "registry:component",
       "title": "Scene spec",
-      "description": "Compose timed blocks with explicit portrait layouts, orientation overrides, and configurable safe areas.",
+      "description": "Compiles a YAML-shaped scene spec into a Remotion scene for either orientation, with timed blocks, explicit layouts, orientation overrides, and configurable safe areas.",
       "categories": [
         "Layout"
       ],
@@ -547,7 +547,7 @@
       "name": "ui-button",
       "type": "registry:ui",
       "title": "UiButton",
-      "description": "Illustrated button with paper, ink, and accent tones.",
+      "description": "Illustrated pill button with a label bar, in ink, accent, or outlined paper tones.",
       "categories": [
         "UI Bits"
       ],
@@ -567,7 +567,7 @@
       "name": "ui-input",
       "type": "registry:ui",
       "title": "UiInput",
-      "description": "Illustrated text field with a controllable cursor.",
+      "description": "Illustrated outlined text field with a placeholder bar and a cursor you switch on or off.",
       "categories": [
         "UI Bits"
       ],
@@ -587,7 +587,7 @@
       "name": "ui-card",
       "type": "registry:ui",
       "title": "UiCard",
-      "description": "Illustrated card with a picture and text bars.",
+      "description": "Illustrated content card with a line-art picture (hills and a vermilion sun) over two text bars.",
       "categories": [
         "UI Bits"
       ],
@@ -607,7 +607,7 @@
       "name": "piece",
       "type": "registry:ui",
       "title": "Piece",
-      "description": "Choose a button, input, or card illustration by kind.",
+      "description": "Picks the button, input, or card illustration by kind and sizes it from one width.",
       "categories": [
         "UI Bits"
       ],
@@ -629,7 +629,7 @@
       "name": "phone-frame",
       "type": "registry:ui",
       "title": "PhoneFrame",
-      "description": "Phone silhouette that holds your own content.",
+      "description": "Phone silhouette with a thick ink edge and speaker slot that stacks your content at the bottom of its screen.",
       "categories": [
         "UI Bits"
       ],
@@ -649,7 +649,7 @@
       "name": "badge",
       "type": "registry:ui",
       "title": "Badge",
-      "description": "Check and cross badges in paper, ink, and accent tones.",
+      "description": "Round check or cross badge in accent, ink, or paper tones for fixed and broken states.",
       "categories": [
         "UI Bits"
       ],
@@ -669,7 +669,7 @@
       "name": "token-glyph",
       "type": "registry:ui",
       "title": "TokenGlyph",
-      "description": "Color, typography, and spacing illustrations.",
+      "description": "Square glyphs for design tokens: overlapping colour swatches, an Aa type sample, or a spacing dimension line.",
       "categories": [
         "UI Bits"
       ],
@@ -1094,7 +1094,7 @@
     {
       "name": "burbuja",
       "title": "Burbuja",
-      "description": "The existing ChatBubble with selected words highlighted by TextFill.",
+      "description": "Chat bubble whose selected words sweep to vermilion with a controlled 0–1 highlight.",
       "categories": [
         "UI"
       ],
@@ -1115,7 +1115,7 @@
     {
       "name": "hand",
       "title": "Hand",
-      "description": "An independent hand illustration with open, pointing and pinching poses.",
+      "description": "Static line-art hand in open-palm, pointing, or pinching pose, independent of placement and props.",
       "categories": [
         "UI Bits"
       ],
@@ -1134,7 +1134,7 @@
     {
       "name": "file-cabinet",
       "title": "File cabinet",
-      "description": "A reusable cabinet containing a controlled filing drawer.",
+      "description": "SVG cabinet enclosure around a controlled filing drawer whose folders slide out and lift.",
       "categories": [
         "UI Bits"
       ],
@@ -1155,7 +1155,7 @@
     {
       "name": "paper-clip",
       "title": "Paper clip",
-      "description": "Independent wire clip for paper edges.",
+      "description": "Independent ink wire clip to lay across a paper edge.",
       "categories": [
         "UI Bits"
       ],
@@ -1174,7 +1174,7 @@
     {
       "name": "clipped-note",
       "title": "Clipped note",
-      "description": "Paper note with an optional independent clip, rotation, and paper tones.",
+      "description": "Paper note with an optional paper clip, rotation, and paper, accent, or ink stock.",
       "categories": [
         "UI Bits"
       ],
@@ -1195,7 +1195,7 @@
     {
       "name": "punched-tag",
       "title": "Punched tag",
-      "description": "Card-stock label with a punched hole and configurable content.",
+      "description": "Card-stock luggage-style label with a punched hole and bold content, in paper, accent, or ink stock.",
       "categories": [
         "UI Bits"
       ],
@@ -1215,7 +1215,7 @@
     {
       "name": "paper-line",
       "title": "Paper line",
-      "description": "Controlled grapheme reveal, ink lift, dotted underline, and strike-through.",
+      "description": "Line of text with controlled grapheme reveal, ink lift, strike-through, and dotted underline.",
       "categories": [
         "Motion"
       ],
@@ -1235,7 +1235,7 @@
     {
       "name": "stamp",
       "title": "Stamp",
-      "description": "Controlled ink impression with press and angle controls.",
+      "description": "Vermilion rubber-stamp impression that drops, makes contact, and inks in as a 0–1 press progresses.",
       "categories": [
         "UI Bits"
       ],
@@ -1255,7 +1255,7 @@
     {
       "name": "tape-marker",
       "title": "Tape marker",
-      "description": "Independent folded paper checkpoint marker.",
+      "description": "Folded vermilion paper checkpoint marker with an optional label above it.",
       "categories": [
         "UI Bits"
       ],
@@ -1275,7 +1275,7 @@
     {
       "name": "paper-tape",
       "title": "Paper tape",
-      "description": "Feeding paper with shared coordinates for writing, markers, and attached notes.",
+      "description": "Strip of paper fed out by length, with printed marks, checkpoint markers, and attachments on one coordinate system.",
       "categories": [
         "UI Bits"
       ],
@@ -1296,7 +1296,7 @@
     {
       "name": "frontmatter",
       "title": "Frontmatter",
-      "description": "Metadata fields with YAML delimiters, emphasis, dimming, and stacked layout.",
+      "description": "Key/value metadata between literal YAML delimiters, with per-row emphasis, dimming, and a stacked layout.",
       "categories": [
         "UI"
       ],
@@ -1316,7 +1316,7 @@
     {
       "name": "folder-contents",
       "title": "Folder contents",
-      "description": "Nested folders and documents with independent extraction and rigid-object reveal.",
+      "description": "Folder that opens to reveal a sheet and a fan of nested folders whose documents extract independently.",
       "categories": [
         "UI Bits"
       ],
@@ -1337,7 +1337,7 @@
     {
       "name": "folder-carry",
       "title": "Folder carry",
-      "description": "Continuous folder transport with shared tab contact geometry.",
+      "description": "Folder carried along a path by its tab, interpolating size and label between two resting places.",
       "categories": [
         "Motion"
       ],

@@ -2,7 +2,7 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "replay-button",
   "title": "ReplayButton",
-  "description": "Controlled replay icon that charges from tail to arrowhead. Supply progress and charging state from any animation.",
+  "description": "Controlled replay icon whose arrow charges from tail to arrowhead as the host animation progresses, then unlocks.",
   "registryDependencies": [
     "@jbm/tokens"
   ],

@@ -2,7 +2,7 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "chip",
   "title": "Chip",
-  "description": "Outline, accent or solid pill; sans or mono.",
+  "description": "Inline pill in outline, vermilion accent, or solid ink, with sans or mono type.",
   "registryDependencies": [
     "@jbm/tokens"
   ],

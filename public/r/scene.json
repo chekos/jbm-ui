@@ -2,7 +2,7 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "scene",
   "title": "Scene",
-  "description": "Full-bleed canvas frame.",
+  "description": "Full-bleed cream canvas that fills its composition and clips overflow; one per scene.",
   "registryDependencies": [
     "@jbm/tokens"
   ],
