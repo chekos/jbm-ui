@@ -1024,7 +1024,7 @@
       "name": "escritorio",
       "title": "Escritorio",
       "description": "An empty desk with separate finish and optional file cabinet.",
-      "category": "Layout",
+      "category": "UI Bits",
       "capabilities": [
         "controls"
       ],
@@ -1043,8 +1043,8 @@
     {
       "name": "desk-top",
       "title": "DeskTop",
-      "description": "A cream desk seen from above, with light, a tilt-revealed front edge, and an optional drawer region.",
-      "category": "Layout",
+      "description": "A cream desk seen from above, with light, a tilt-revealed front edge, and an optional pulled-out drawer.",
+      "category": "UI Bits",
       "capabilities": [
         "controls"
       ],
@@ -1062,7 +1062,7 @@
       "name": "ejes",
       "title": "Ejes",
       "description": "Two ink axes that split an area into four named quadrants, with quiet labels and a focus quadrant.",
-      "category": "UI Bits",
+      "category": "UI",
       "capabilities": [
         "controls"
       ],

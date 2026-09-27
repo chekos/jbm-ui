@@ -28,7 +28,10 @@ export type EjesProps = {
   origin?: "center" | "start"
   /** Quadrant(s) called out: one, or several at once (all four for "cuatro"). */
   focus?: Quadrant | readonly Quadrant[]
-  /** ink outline (default), fill (light ink wash), or accent (vermilion outline, opt-in). */
+  /**
+   * ink outline (default), fill (light ink wash), or accent: a vermilion outline, opt-in, on the
+   * first focused quadrant only (the others stay ink), so the set carries one stamp.
+   */
   focusTone?: EjesFocusTone
   /** Focus outline draw / fill progress, 0–1. Defaults to 1. Clamped. */
   focusProgress?: number
@@ -134,11 +137,24 @@ export function ejesLayout({
   const vStrip = (side: EjesSide) =>
     has(side) ? Math.max(focusInset, PAD + size + 6) : focusInset
   const topStrip = Math.max(vStrip("left"), vStrip("right"))
-  const inset = (b: Box, top = focusInset, bottom = focusInset): Box => ({
-    x: b.x + focusInset,
-    y: b.y + top,
-    w: Math.max(0, b.w - 2 * focusInset),
-    h: Math.max(0, b.h - top - bottom),
+  // All four outlines are one size: as tall as the shorter row allows and as wide as the narrower
+  // column, each hugging the axes' crossing, so the set is symmetric about both axes.
+  const rowH = Math.max(
+    0,
+    Math.min(
+      c.y - box.y - topStrip - hStrip("top"),
+      bottom - c.y - hStrip("bottom") - focusInset
+    )
+  )
+  const colW = Math.max(
+    0,
+    Math.min(c.x - box.x, right - c.x) - 2 * focusInset
+  )
+  const focusBox = (q: Quadrant): Box => ({
+    x: q === "tl" || q === "bl" ? c.x - focusInset - colW : c.x + focusInset,
+    y: q === "tl" || q === "tr" ? c.y - hStrip("top") - rowH : c.y + hStrip("bottom"),
+    w: colW,
+    h: rowH,
   })
   return {
     box,
@@ -158,17 +174,10 @@ export function ejesLayout({
     range,
     /** The rounded focus outline box for each quadrant (w and h 0 when too small to draw). */
     focus: Object.fromEntries(
-      (
-        [
-          ["tl", inset(quad.tl, topStrip, hStrip("top"))],
-          ["tr", inset(quad.tr, topStrip, hStrip("top"))],
-          ["bl", inset(quad.bl, hStrip("bottom"))],
-          ["br", inset(quad.br, hStrip("bottom"))],
-        ] as const
-      ).map(([k, b]) => [
-        k,
-        b.w < FOCUS_MIN || b.h < FOCUS_MIN ? { ...b, w: 0, h: 0 } : b,
-      ])
+      quadrants.map((k) => {
+        const b = focusBox(k)
+        return [k, b.w < FOCUS_MIN || b.h < FOCUS_MIN ? { ...b, w: 0, h: 0 } : b]
+      })
     ) as Record<Quadrant, Box>,
   }
 }
@@ -190,7 +199,8 @@ export function Ejes({
     focus === undefined ? [] : typeof focus === "string" ? [focus] : focus
   ).filter((f, i, all) => quadrants.includes(f) && all.indexOf(f) === i)
   const fp = unit(focusProgress)
-  const tone = focusTone === "accent" ? color.accent : color.ink
+  // One stamp: accent marks only the first focused quadrant; any others keep the ink outline.
+  const tone = (i: number) => (focusTone === "accent" && i === 0 ? color.accent : color.ink)
   // Geist is variable: the weight eases from 650 to 500 with the size, no mid-way jump.
   const weightText = Math.round(650 - 150 * l.type.quiet)
   return (
@@ -199,7 +209,7 @@ export function Ejes({
       aria-label={`Axes: ${labels.top} above, ${labels.bottom} below, ${labels.left} left, ${labels.right} right${focused.length ? `; focus ${focused.join(", ")}` : ""}`}
     >
       {fp > 0 &&
-        focused.map((f) => {
+        focused.map((f, i) => {
           const b = l.focus[f]
           if (!(b.w > 0 && b.h > 0)) return null
           return focusTone === "fill" ? (
@@ -224,7 +234,7 @@ export function Ejes({
               height={b.h}
               rx={12}
               fill="none"
-              stroke={tone}
+              stroke={tone(i)}
               strokeWidth={weight}
               pathLength={1}
               strokeDasharray={fp < 1 ? `${fp} 1` : undefined}

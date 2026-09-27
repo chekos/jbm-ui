@@ -1096,7 +1096,7 @@
       "title": "Escritorio",
       "description": "An empty desk with separate finish and optional file cabinet.",
       "categories": [
-        "Layout"
+        "UI Bits"
       ],
       "type": "registry:component",
       "registryDependencies": [
@@ -1116,9 +1116,9 @@
     {
       "name": "desk-top",
       "title": "DeskTop",
-      "description": "A cream desk seen from above, with light, a tilt-revealed front edge, and an optional drawer region.",
+      "description": "A cream desk seen from above, with light, a tilt-revealed front edge, and an optional pulled-out drawer.",
       "categories": [
-        "Layout"
+        "UI Bits"
       ],
       "type": "registry:component",
       "registryDependencies": [
@@ -1138,7 +1138,7 @@
       "title": "Ejes",
       "description": "Two ink axes that split an area into four named quadrants, with quiet labels and a focus quadrant.",
       "categories": [
-        "UI Bits"
+        "UI"
       ],
       "type": "registry:component",
       "registryDependencies": [

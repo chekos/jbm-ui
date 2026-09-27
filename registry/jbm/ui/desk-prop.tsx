@@ -7,8 +7,10 @@ export type DeskPropProps = {
   /** Centre of the prop's footprint, in parent SVG units. */
   x: number
   y: number
-  /** Uniform size multiplier; the ink stroke stays 2 parent units. Defaults to 1. */
+  /** Uniform size multiplier; the ink stroke stays `weight` parent units. Defaults to 1. */
   scale?: number
+  /** Ink stroke width in parent units at any scale. Default 2, the desk's line weight. */
+  weight?: number
   /** Rotation in degrees around the centre. Defaults to 0. */
   rotate?: number
   /** Key travel, 0–1: the keycap sinks, or the keyboard keys listed in `keys` do. Clamped. */
@@ -45,8 +47,10 @@ export const deskPropKeys: readonly Key[] = (() => {
   return keys
 })()
 
-// Mug in side view: body on the left, the handle ring on the right.
-const MUG = { left: -45, right: 19, top: -39, bottom: 39 }
+// Mug from above, like the keycap and keyboard: a round body with its rim, the handle to the right.
+const MUG = { cx: -8, r: 36, rim: 28, handle: { x0: 20, x1: 44, half: 8 } }
+/** Ink wash on a pressed key face at full travel: the visual language's deepest light, 0.72. */
+const PRESS_WASH = 0.28
 
 /** Placement, footprint corners, and contact points in parent units. */
 export function deskPropLayout({
@@ -80,7 +84,7 @@ export function deskPropLayout({
       ? toParent({ x: 0, y: -3 + sink })
       : kind === "keyboard"
         ? keyCenters[13] // the middle key of the home row
-        : toParent({ x: MUG.right + 22, y: -2 }) // on the handle ring
+        : toParent({ x: (MUG.cx + MUG.r + MUG.handle.x1) / 2, y: 0 }) // on the handle
   return {
     kind,
     center: { x, y } satisfies Pt,
@@ -100,12 +104,14 @@ export function DeskProp({
   rotate = 0,
   press = 0,
   keys = [],
+  weight = 2,
   ...props
 }: DeskPropProps) {
   const { kind } = props
   const l = deskPropLayout({ ...props, scale, rotate, press })
   const p = unit(press)
-  const stroke = 2 / (scale || 1)
+  // The group is scaled, so the stroke is divided by scale to stay `weight` parent units.
+  const stroke = weight / (scale || 1)
   return (
     <g
       transform={l.transform}
@@ -137,7 +143,7 @@ export function DeskProp({
               height={38 - 8 * p}
               rx={5}
               fill={color.ink}
-              fillOpacity={+(0.12 * p).toFixed(3)}
+              fillOpacity={+(PRESS_WASH * p).toFixed(3)}
               stroke="none"
             />
           )}
@@ -164,7 +170,7 @@ export function DeskProp({
                   <rect
                     {...face}
                     fill={color.ink}
-                    fillOpacity={+(0.12 * down).toFixed(3)}
+                    fillOpacity={+(PRESS_WASH * down).toFixed(3)}
                     stroke="none"
                   />
                 )}
@@ -175,13 +181,16 @@ export function DeskProp({
       )}
       {kind === "mug" && (
         <>
-          <path
-            fillRule="evenodd"
-            d={`M${MUG.right - 4} -28h4a26 26 0 0 1 0 52h-4ZM${MUG.right - 4} -19h4a17 17 0 0 1 0 34h-4Z`}
+          {/* The handle runs under the body, so only its free end shows. */}
+          <rect
+            x={MUG.handle.x0}
+            y={-MUG.handle.half}
+            width={MUG.handle.x1 - MUG.handle.x0}
+            height={2 * MUG.handle.half}
+            rx={MUG.handle.half}
           />
-          <path
-            d={`M${MUG.left + 6} ${MUG.top}H${MUG.right - 6}A6 6 0 0 1 ${MUG.right} ${MUG.top + 6}V${MUG.bottom - 10}A10 10 0 0 1 ${MUG.right - 10} ${MUG.bottom}H${MUG.left + 10}A10 10 0 0 1 ${MUG.left} ${MUG.bottom - 10}V${MUG.top + 6}A6 6 0 0 1 ${MUG.left + 6} ${MUG.top}Z`}
-          />
+          <circle cx={MUG.cx} cy={0} r={MUG.r} />
+          <circle cx={MUG.cx} cy={0} r={MUG.rim} fill={color.line} />
         </>
       )}
     </g>
