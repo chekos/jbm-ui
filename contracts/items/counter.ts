@@ -41,7 +41,7 @@ export default {
   ],
   qa: [
     "Step to the first, middle, and last frames: 0 before `at`, an intermediate whole number mid-count, and exactly `n` at rest.",
-    "Check the widest value of `n` stays inside the safe area at the chosen size in both orientations.",
+    "In a host composition, check the widest value of `n` stays inside the safe area at the chosen size in both orientations (the gallery bench previews landscape only).",
     "Confirm only one element on the stage uses the accent color.",
   ],
 } satisfies ItemContract

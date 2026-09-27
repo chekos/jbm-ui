@@ -1691,7 +1691,7 @@
       ],
       "qa": [
         "Step to the first, middle, and last frames: 0 before `at`, an intermediate whole number mid-count, and exactly `n` at rest.",
-        "Check the widest value of `n` stays inside the safe area at the chosen size in both orientations.",
+        "In a host composition, check the widest value of `n` stays inside the safe area at the chosen size in both orientations (the gallery bench previews landscape only).",
         "Confirm only one element on the stage uses the accent color."
       ]
     },
@@ -1737,7 +1737,7 @@
               "type": "number",
               "required": true,
               "default": null,
-              "description": "Target probability, 0–1; the fill ends at p × track width and the value reads p to two decimals."
+              "description": "Target probability, 0–1; the fill ends at p × track width and the value reads p to two decimals. Not clamped: values above 1 overflow the track and are clipped."
             },
             {
               "name": "at",
@@ -4405,14 +4405,14 @@
               "type": "React.ReactNode",
               "required": false,
               "default": null,
-              "description": "SVG contents in the 260×220 folder space, drawn behind its front panel."
+              "description": "Replaces the default sheet entirely. Rendered untransformed, so `open` does not move custom contents; animate them yourself or use FolderContents."
             },
             {
               "name": "label",
               "type": "string",
               "required": false,
               "default": null,
-              "description": "Mono label printed on the front panel; also names the image for assistive technology. Truncated after 16 characters."
+              "description": "Mono label printed on the front panel; also names the image for assistive technology. Labels longer than 16 characters show their first 15 characters plus an ellipsis."
             },
             {
               "name": "open",

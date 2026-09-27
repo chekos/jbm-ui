@@ -15,9 +15,10 @@ export default {
       summary:
         "Accent or ink folder whose sheet rotates upright and clears the front panel as `open` goes from 0 to 1. Pure React with no internal timer; drive `open` from a slider or a video timeline.",
       props: {
-        label: "Mono label printed on the front panel; also names the image for assistive technology. Truncated after 16 characters.",
+        label: "Mono label printed on the front panel; also names the image for assistive technology. Labels longer than 16 characters show their first 15 characters plus an ellipsis.",
         open: "Opening progress from 0 (closed) to 1 (sheet upright). Clamped; non-finite values render closed.",
         tone: "Folder fill: vermilion accent or ink.",
+        children: "Replaces the default sheet entirely. Rendered untransformed, so `open` does not move custom contents; animate them yourself or use FolderContents.",
       },
     },
     {

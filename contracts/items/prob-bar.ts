@@ -15,7 +15,7 @@ export default {
         "One row: a 24px mono label, a rounded track whose vermilion fill eases to `p` over 0.7 s, and the live value to two decimals. The row pops in from the left by 12px at `at`.",
       props: {
         label: "Mono label on the left, in ink.",
-        p: "Target probability, 0–1; the fill ends at p × track width and the value reads p to two decimals.",
+        p: "Target probability, 0–1; the fill ends at p × track width and the value reads p to two decimals. Not clamped: values above 1 overflow the track and are clipped.",
         at: "Start of the entrance and fill in seconds relative to the enclosing Sequence.",
         w: "Row width budget in stage pixels; the track is w − labelW − 90 wide.",
         labelW: "Width reserved for the label in stage pixels; long labels wrap inside it.",
