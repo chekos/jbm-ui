@@ -17,6 +17,7 @@ export default {
   title: "DeskProp",
   description: "A free-standing keycap, keyboard, or mug to place on a desk.",
   category: "UI Bits",
+  family: "Desk objects",
   capabilities: ["controls"],
   api: [
     {

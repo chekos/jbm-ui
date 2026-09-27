@@ -7,6 +7,7 @@ export default {
   description:
     "Folder that opens to reveal a sheet and a fan of nested folders whose documents extract independently.",
   category: "UI Bits",
+  family: "Folders & drawers",
   capabilities: ["controls"],
   api: [
     {

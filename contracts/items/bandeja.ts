@@ -14,6 +14,7 @@ export default {
   title: "Bandeja",
   description: "A shallow paper tray with optional sheets.",
   category: "UI Bits",
+  family: "Desk objects",
   capabilities: ["controls"],
   api: [
     {

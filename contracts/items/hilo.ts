@@ -22,6 +22,7 @@ export default {
   description:
     "An ink thread tied between two points that lays out, sags, and snaps into frayed ends with an optional vermilion notch.",
   category: "UI Bits",
+  family: "Paper & writing",
   capabilities: ["controls"],
   api: [
     {

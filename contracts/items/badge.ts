@@ -6,6 +6,7 @@ export default {
   title: "Badge",
   description: "Round check or cross badge in accent, ink, or paper tones for fixed and broken states.",
   category: "UI Bits",
+  family: "Interface bits",
   capabilities: [],
   api: [
     {

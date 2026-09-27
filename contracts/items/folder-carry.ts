@@ -7,6 +7,7 @@ export default {
   description:
     "Folder carried along a path by its tab, interpolating size and label between two resting places.",
   category: "UI Bits",
+  family: "Folders & drawers",
   capabilities: ["controls"],
   api: [
     {

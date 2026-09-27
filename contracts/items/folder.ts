@@ -7,6 +7,7 @@ export default {
   description:
     "Controlled folder illustration that pulls its sheet upright from 0 to 1.",
   category: "UI Bits",
+  family: "Folders & drawers",
   capabilities: ["controls"],
   api: [
     {

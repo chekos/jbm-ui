@@ -6,6 +6,7 @@ export default {
   title: "UiCard",
   description: "Illustrated content card with a line-art picture (hills and a vermilion sun) over two text bars.",
   category: "UI Bits",
+  family: "Interface bits",
   capabilities: [],
   api: [
     {

@@ -7,6 +7,7 @@ export default {
   description:
     "SVG cabinet enclosure around a controlled filing drawer whose folders slide out and lift.",
   category: "UI Bits",
+  family: "Folders & drawers",
   capabilities: ["controls"],
   api: [
     {

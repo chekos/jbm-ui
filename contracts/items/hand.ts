@@ -7,6 +7,7 @@ export default {
   description:
     "Static line-art hand in open-palm, pointing, pinching, gripping, typing, or holding pose, independent of placement and props.",
   category: "UI Bits",
+  family: "Hands",
   capabilities: ["controls"],
   api: [
     {

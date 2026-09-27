@@ -6,6 +6,7 @@ export default {
   title: "TokenGlyph",
   description: "Square glyphs for design tokens: overlapping colour swatches, an Aa type sample, or a spacing dimension line.",
   category: "UI Bits",
+  family: "Interface bits",
   capabilities: [],
   api: [
     {

@@ -14,6 +14,7 @@ export default {
   description:
     "A printed video still on a Paper sheet: a pale 16:9 line sketch, an ink scrub rule with anchor ticks, title and date, and an optional punched link tag.",
   category: "UI Bits",
+  family: "Paper & writing",
   capabilities: ["controls"],
   api: [
     {

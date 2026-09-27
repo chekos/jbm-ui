@@ -7,6 +7,7 @@ export default {
   description:
     "Vermilion rubber-stamp impression that drops, makes contact, and inks in as a 0–1 press progresses.",
   category: "UI Bits",
+  family: "Tape, clips & marks",
   capabilities: ["controls"],
   api: [
     {

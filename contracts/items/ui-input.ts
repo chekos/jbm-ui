@@ -6,6 +6,7 @@ export default {
   title: "UiInput",
   description: "Illustrated outlined text field with a placeholder bar and a cursor you switch on or off.",
   category: "UI Bits",
+  family: "Interface bits",
   capabilities: [],
   api: [
     {
