@@ -699,10 +699,13 @@ footer {
 }
 /* One Stamp: gallery controls (sliders, checkboxes) are chrome and use ink, so the
    component under test keeps the page's single vermilion mark. !important beats the
-   demos' inline accentColor. */
+   demos' inline accentColor. Applies to index cards and /c/<name> bench previews. */
 .results input[type="range"],
 .results input[type="checkbox"],
-.results input[type="radio"] {
+.results input[type="radio"],
+.bench-preview input[type="range"],
+.bench-preview input[type="checkbox"],
+.bench-preview input[type="radio"] {
   accent-color: var(--jbm-ink) !important;
 }
 .surface-lab fieldset:disabled {
@@ -931,12 +934,24 @@ details > p {
   max-width: 65ch;
   margin: 0 0 14px;
   color: var(--jbm-dim);
-  font-size: 16px;
+  font-size: 18px;
   line-height: 1.6;
   text-wrap: pretty;
 }
+/* Category and capability tags as one mono line (the index cards' list rules moved to
+   a <p>; the item page keeps a list so each tag is a separate item). */
 .item-tags {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  margin: 0;
   padding: 0;
+  list-style: none;
+  color: var(--jbm-dim);
+}
+.item-tags li + li::before {
+  content: "·" / "";
+  padding: 0 8px;
 }
 .item-tags a {
   display: inline-flex;
@@ -1027,7 +1042,7 @@ details > p {
   padding: 6px 12px;
   background: transparent;
   color: var(--jbm-ink);
-  font-size: 13px;
+  font-size: 14px;
 }
 .bench-segmented button:first-child,
 .bench-steps button:first-child {
@@ -1079,7 +1094,7 @@ details > p {
   background: var(--jbm-bg);
   color: var(--jbm-accent2);
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 12px;
   font-variant-numeric: tabular-nums;
 }
 .bench-frames {
