@@ -14,5 +14,8 @@
       "target": "src/jbm/motion/scene.tsx"
     }
   ],
+  "categories": [
+    "Layout"
+  ],
   "type": "registry:component"
 }

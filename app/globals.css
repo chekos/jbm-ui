@@ -95,8 +95,9 @@
 
 html {
   scroll-behavior: smooth;
-  /* Anchors and focused elements land below the sticky gallery toolbar. */
-  scroll-padding-top: calc(var(--toolbar-h, 0px) + 16px);
+  /* Anchors and focused elements land below the sticky gallery bars
+     (--sticky-h is measured by the gallery: toolbar plus a sticking status row). */
+  scroll-padding-top: calc(var(--sticky-h, 0px) + 16px);
 }
 .skip-link {
   position: absolute;
@@ -190,7 +191,7 @@ pre:focus-visible {
   padding: 14px 0 10px;
   grid-template-columns: minmax(0, 1fr);
   background: var(--jbm-bg);
-  border-block: 1px solid var(--jbm-line);
+  border-top: 1px solid var(--jbm-line);
 }
 .toolbar-row {
   display: flex;
@@ -200,9 +201,21 @@ pre:focus-visible {
   gap: 12px 20px;
 }
 .toolbar-status {
-  justify-content: flex-start;
+  position: sticky;
+  top: var(--toolbar-h, 0px);
+  z-index: 19;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
   gap: 4px 16px;
   min-height: 28px;
+  padding-bottom: 10px;
+  background: var(--jbm-bg);
+  border-bottom: 1px solid var(--jbm-line);
+}
+/* The search toggle only exists on narrow screens. */
+.search-toggle {
+  display: none;
 }
 .toolbar-clear {
   min-height: 24px;
@@ -328,22 +341,37 @@ pre:focus-visible {
   gap: 28px;
   align-items: start;
 }
+@media (min-width: 1200px) {
+  .gallery-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 24px;
+  }
+}
 .component-card {
   border: 1px solid var(--jbm-line);
   border-radius: 10px;
   overflow: hidden;
 }
-.card-tags {
+/* Title and capability tags share a baseline row; tags appear only when informative. */
+.card-heading {
   display: flex;
   flex-wrap: wrap;
-  margin: 0;
-  padding: 14px 22px;
-  list-style: none;
-  color: var(--jbm-dim);
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px 16px;
+  margin-bottom: 8px;
 }
-.card-tags li + li::before {
-  content: "·" / "";
-  padding: 0 8px;
+.card-content .card-heading h3 {
+  margin: 0;
+}
+.card-content .card-tags {
+  margin: 0;
+  color: var(--jbm-dim);
+  font-size: 12px;
+  line-height: 1.4;
+}
+.card-tag-separator {
+  padding: 0 6px;
 }
 .preview {
   background: var(--jbm-bg);
@@ -388,6 +416,9 @@ pre:focus-visible {
 .card-content h3 a {
   text-decoration: none;
 }
+.card-content h3 a:hover {
+  text-decoration: underline;
+}
 .card-content p {
   color: var(--jbm-dim);
   font-size: 14px;
@@ -395,9 +426,10 @@ pre:focus-visible {
 }
 .card-links {
   display: flex;
-  gap: 24px;
+  flex-wrap: wrap;
+  gap: 4px 24px;
   font-size: 12px;
-  margin: 16px 0;
+  margin: 0 0 4px;
 }
 /* WCAG 2.2 target size: 24px-tall hit areas; margins absorb the extra height. */
 .card-links a,
@@ -503,20 +535,62 @@ footer {
   .search input {
     font-size: 16px; /* iOS zooms focused fields below 16px */
   }
-  /* Keep the sticky bar compact: one scrolling row of filters, no anchor row. */
+  /* Keep the sticky bar compact (<=110px): one scrolling row of filters beside a
+     search icon; the field expands below on demand; the status row scrolls away. */
   .toolbar {
-    gap: 8px;
-    padding: 10px 0 6px;
+    gap: 6px;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--jbm-line);
+  }
+  .toolbar-row {
+    flex-wrap: nowrap;
+    gap: 6px;
   }
   .filters {
+    flex: 1 1 auto;
+    min-width: 0;
     flex-wrap: nowrap;
     overflow-x: auto;
     scrollbar-width: none;
-    margin-inline: -20px;
-    padding: 4px 20px;
+    margin-left: -20px;
+    padding: 4px 28px 4px 20px;
+    /* Right-edge fade says "more chips this way". */
+    mask-image: linear-gradient(to right, #000 calc(100% - 32px), transparent);
   }
   .filters button {
     flex: none;
+    padding: 8px 12px;
+  }
+  .search-toggle {
+    display: inline-grid;
+    place-items: center;
+    flex: none;
+    width: 40px;
+    height: 40px;
+    border: 1px solid var(--jbm-line);
+    border-radius: 6px;
+    background: transparent;
+    color: var(--jbm-ink);
+  }
+  .search-toggle[aria-expanded="true"] {
+    border-color: var(--jbm-ink);
+  }
+  .toolbar[data-search="closed"] .search {
+    display: none;
+  }
+  .toolbar[data-search="open"] .toolbar-row {
+    flex-wrap: wrap;
+  }
+  .toolbar[data-search="open"] .filters {
+    flex-basis: calc(100% - 46px);
+  }
+  .search input {
+    padding-block: 8px;
+  }
+  .toolbar-status {
+    position: static;
+    padding: 8px 0 0;
+    border-bottom: 0;
   }
   .filters button:focus-visible {
     outline-offset: 1px;
@@ -537,7 +611,8 @@ footer {
 }
 /* Short viewports (landscape phones, 200% zoom): let the toolbar scroll away. */
 @media (max-height: 560px) {
-  .toolbar {
+  .toolbar,
+  .toolbar-status {
     position: static;
   }
   html {
@@ -622,8 +697,16 @@ footer {
   gap: 7px;
   align-items: center;
 }
-.surface-lab input {
-  accent-color: var(--jbm-accent);
+/* One Stamp: gallery controls (sliders, checkboxes) are chrome and use ink, so the
+   component under test keeps the page's single vermilion mark. !important beats the
+   demos' inline accentColor. Applies to index cards and /c/<name> bench previews. */
+.results input[type="range"],
+.results input[type="checkbox"],
+.results input[type="radio"],
+.bench-preview input[type="range"],
+.bench-preview input[type="checkbox"],
+.bench-preview input[type="radio"] {
+  accent-color: var(--jbm-ink) !important;
 }
 .surface-lab fieldset:disabled {
   opacity: 0.45;
@@ -647,19 +730,53 @@ footer {
 .preview:has(.composition-options) { aspect-ratio: auto; }
 
 /* Install once + per-card add command (agent-legible install path). */
-.install-once {
+details.install-once {
+  border-top: 1px solid var(--jbm-line);
+  padding: 20px 0 28px;
+  font-size: inherit;
+}
+.install-once:not([open]) {
+  padding-bottom: 20px;
+}
+.install-once > summary {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: fit-content;
+  min-height: 32px;
+  list-style: none;
+}
+.install-once > summary::-webkit-details-marker {
+  display: none;
+}
+/* Drawn disclosure chevron: points right when closed, down when open. */
+.install-once > summary::after {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-right: 1.5px solid var(--jbm-dim);
+  border-bottom: 1.5px solid var(--jbm-dim);
+  transform: translateY(-1px) rotate(-45deg);
+  transition: transform 160ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.install-once[open] > summary::after {
+  transform: translateY(-3px) rotate(45deg);
+}
+.install-once > summary:hover::after {
+  border-color: var(--jbm-ink);
+}
+.install-once-body {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 16px 40px;
   align-items: start;
-  border-top: 1px solid var(--jbm-line);
-  padding: 28px 0;
+  padding-top: 12px;
 }
 .install-once h2 {
   font-size: 22px;
   font-weight: 600;
   letter-spacing: -0.6px;
-  margin: 0 0 8px;
+  margin: 0;
 }
 .install-once p {
   color: var(--jbm-dim);
@@ -736,8 +853,361 @@ details > p {
   margin: 12px 0;
 }
 @media (max-width: 760px) {
-  .install-once {
+  details.install-once {
+    padding: 14px 0;
+  }
+  .install-once-body {
     grid-template-columns: minmax(0, 1fr);
-    padding: 20px 0;
+  }
+  /* Phones start collapsed; until hydration decides, keep the SSR-open body hidden
+     so the catalog does not jump. Without scripting the body stays readable. */
+  @media (scripting: enabled) {
+    .install-once:not([data-hydrated]) > .install-once-body {
+      display: none;
+    }
+  }
+  /* The registries line is wider than a phone: fade the right edge and keep a
+     thin visible scrollbar so it reads as scrollable. */
+  .install-once pre {
+    padding-right: 32px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--jbm-line) transparent;
+    mask-image: linear-gradient(to right, #000 calc(100% - 40px), transparent);
+  }
+}
+
+/* item pages */
+/* /c/<name>: the QA bench for one item. Same backroom chrome as the index; the preview leads. */
+.item-topbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: 24px;
+  row-gap: 6px;
+  padding: 28px 0 20px;
+  border-bottom: 1px solid var(--jbm-line);
+  font-size: 14px;
+}
+.item-topbar .wordmark {
+  color: var(--jbm-ink);
+  text-decoration: none;
+}
+.breadcrumb {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: var(--jbm-dim);
+}
+.breadcrumb li + li::before {
+  content: "/" / "";
+  padding: 0 10px;
+  color: var(--jbm-dim);
+}
+.breadcrumb a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  color: var(--jbm-dim);
+}
+.breadcrumb a:hover {
+  color: var(--jbm-ink);
+}
+.breadcrumb [aria-current="page"] {
+  color: var(--jbm-ink);
+}
+.item-head {
+  padding: 40px 0 24px;
+}
+.item-head h1 {
+  margin: 0 0 10px;
+  font-size: clamp(28px, 2.8vw, 36px);
+  font-weight: 650;
+  line-height: 1.1;
+  letter-spacing: -0.035em;
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+}
+.item-description {
+  max-width: 65ch;
+  margin: 0 0 14px;
+  color: var(--jbm-dim);
+  font-size: 18px;
+  line-height: 1.6;
+  text-wrap: pretty;
+}
+/* Category and capability tags as one mono line (the index cards' list rules moved to
+   a <p>; the item page keeps a list so each tag is a separate item). */
+.item-tags {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: var(--jbm-dim);
+}
+.item-tags li + li::before {
+  content: "·" / "";
+  padding: 0 8px;
+}
+.item-tags a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  color: var(--jbm-ink);
+}
+.item-bench {
+  margin-bottom: 48px;
+}
+.item-bench:focus {
+  outline: none;
+}
+/* The stage fits the viewport height at its own aspect ratio (8:5 previews, 16:9 or 9:16 stages). */
+.bench {
+  --bench-w: min(100%, calc(72svh * var(--stage-ratio, 1.6)));
+  display: grid;
+  gap: 14px;
+  font-size: 14px;
+}
+.bench-stage,
+.bench-preview,
+.bench-loading,
+.bench-frames {
+  width: var(--bench-w);
+  min-width: min(100%, 320px);
+}
+.bench-stage,
+.bench-preview,
+.bench-loading {
+  overflow: hidden;
+  border: 1px solid var(--jbm-line);
+  border-radius: 10px;
+  background: var(--jbm-bg);
+}
+.bench-stage {
+  position: relative;
+}
+.bench-loading {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 8 / 5;
+  margin: 0;
+}
+.bench-options {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 20px;
+}
+.bench-options label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 24px;
+}
+.bench-options select {
+  min-height: 32px;
+  border: 1px solid var(--jbm-line);
+  border-radius: 6px;
+  padding: 4px 8px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+}
+.bench-options select:focus-visible,
+.bench-check input:focus-visible {
+  outline: 2px solid var(--jbm-accent);
+  outline-offset: 3px;
+}
+.bench-check input,
+.bench-scrub input {
+  accent-color: var(--jbm-ink);
+}
+.bench-check input {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+}
+.bench-segmented,
+.bench-steps {
+  display: inline-flex;
+}
+.bench-segmented button,
+.bench-steps button {
+  min-height: 36px;
+  border: 1px solid var(--jbm-line);
+  padding: 6px 12px;
+  background: transparent;
+  color: var(--jbm-ink);
+  font-size: 14px;
+}
+.bench-segmented button:first-child,
+.bench-steps button:first-child {
+  border-radius: 6px 0 0 6px;
+}
+.bench-segmented button:last-child,
+.bench-steps button:last-child {
+  border-radius: 0 6px 6px 0;
+}
+.bench-segmented button + button,
+.bench-steps button + button {
+  margin-left: -1px;
+}
+.bench-segmented button:hover,
+.bench-steps button:hover {
+  position: relative;
+  border-color: var(--jbm-ink);
+}
+.bench-segmented button[aria-pressed="true"],
+.bench-steps button[aria-current="step"] {
+  position: relative;
+  background: var(--jbm-ink);
+  border-color: var(--jbm-ink);
+  color: var(--jbm-bg);
+}
+.bench-segmented button:focus-visible,
+.bench-steps button:focus-visible {
+  position: relative;
+  z-index: 1;
+  outline-offset: 2px;
+}
+/* QA overlay only: drawn over the Player, never inside a composition or a render. */
+.bench-guides {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.bench-guides-area {
+  position: absolute;
+  outline: 2px dashed var(--jbm-accent2);
+  outline-offset: -1px;
+}
+.bench-guides-area span {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: var(--jbm-bg);
+  color: var(--jbm-accent2);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+.bench-frames {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 16px;
+}
+.bench-scrub {
+  display: flex;
+  flex: 1 1 200px;
+  align-items: center;
+  min-width: 160px;
+}
+.bench-scrub input {
+  width: 100%;
+  height: 24px;
+  margin: 0;
+}
+.bench-scrub input:focus-visible {
+  outline: 2px solid var(--jbm-accent);
+  outline-offset: 4px;
+}
+.bench-readout {
+  display: inline-flex;
+  gap: 10px;
+  color: var(--jbm-dim);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.bench-readout span:first-child {
+  color: var(--jbm-ink);
+}
+.bench-note {
+  margin: 0;
+  color: var(--jbm-dim);
+  font-size: 14px;
+}
+.item-docs {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr);
+  gap: 24px 48px;
+  align-items: start;
+  padding: 32px 0 8px;
+  border-top: 1px solid var(--jbm-line);
+}
+.item-docs h2 {
+  margin: 0 0 8px;
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.6px;
+}
+.item-docs p {
+  max-width: 62ch;
+  margin: 12px 0;
+  color: var(--jbm-dim);
+  font-size: 14px;
+  line-height: 1.6;
+}
+.item-docs code {
+  font-family: var(--font-mono);
+}
+.item-docs pre {
+  margin: 12px 0 0;
+  scrollbar-width: thin;
+  scrollbar-color: var(--jbm-line) transparent;
+}
+/* Match the Usage block's top edge so both columns start on one line. */
+.item-docs .add-command {
+  margin: 12px 0;
+}
+/* Links inside prose need a cue beyond colour: ink text on a pencil underline. */
+.item-docs p a {
+  color: var(--jbm-ink);
+  text-decoration: underline;
+  text-decoration-color: var(--jbm-line);
+  text-underline-offset: 3px;
+}
+.item-docs p a:hover {
+  text-decoration-color: currentColor;
+}
+.item-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 24px;
+  margin: 16px 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 12px;
+}
+.item-links a,
+.item-docs p a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+}
+@media (max-width: 760px) {
+  .item-topbar {
+    padding: 20px 0 16px;
+  }
+  .item-head {
+    padding: 28px 0 20px;
+  }
+  .item-docs {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .bench-frames {
+    gap: 10px 12px;
+  }
+  .bench-scrub {
+    flex-basis: 100%;
+    order: 3;
   }
 }

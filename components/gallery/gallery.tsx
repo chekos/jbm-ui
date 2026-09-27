@@ -3,11 +3,12 @@
 import {
   useEffect,
   useRef,
+  useState,
   useSyncExternalStore,
   type ReactNode,
 } from "react"
 import dynamic from "next/dynamic"
-import registry from "@/registry.json"
+import Link from "next/link"
 import {
   TextFillDemo,
   ScrollTextFillDemo,
@@ -16,34 +17,21 @@ import {
 import { videoPrimitiveExamples } from "./video-primitives-demo"
 import { editorialExamples } from "./editorial-demo"
 import { ScrollStackDemo } from "./scroll-stack-demo"
-import { SurfaceDepth, surfaceUsage } from "./surface-depth"
-import {
-  DesignVideoDemo,
-  designNames,
-  designSnippets,
-} from "./design-video-demo"
-import { DeskDemo, deskNames, deskSnippets } from "./desk-demo"
-import {
-  AddCommand,
-  InstallOnce,
-  needsRemotion,
-  registryDependencies,
-} from "./install"
-
-const galleryItems = [
-  registry.items[0],
-  {
-    name: "surface-depth",
-    title: "Surface depth",
-    description:
-      "Fine borders, inset edge lighting, and layered shadows. Compare the original surface and inspect each layer.",
-    files: [{ path: "registry/jbm/lib/tokens.ts" }],
-  },
-  ...registry.items.slice(1).filter((item) => item.name !== "ui-bits"),
-]
+import { SurfaceDepth } from "./surface-depth"
+import { DesignVideoDemo, designNames } from "./design-video-demo"
+import { DeskDemo, deskNames } from "./desk-demo"
+import { AddCommand, InstallOnce } from "./install"
 import { color } from "@/registry/jbm/lib/tokens"
-import { examples, snippets } from "./examples"
-import { categories, category, type Category } from "./categories"
+import { examples } from "./examples"
+import { categories, type Category } from "./categories"
+import {
+  categorySlug,
+  getGalleryItems,
+  type GalleryItemMeta,
+} from "./item-meta"
+
+// One source of truth for cards, /c/<name> pages, llms.txt, and catalog.json.
+const galleryItems = getGalleryItems()
 
 const MotionPreview = dynamic(() => import("./motion-preview"), {
   ssr: false,
@@ -58,68 +46,38 @@ function Canvas({ children }: { children: ReactNode }) {
   )
 }
 
-type GalleryItem = (typeof galleryItems)[number]
+type GalleryItem = GalleryItemMeta
 
 const groups = categories.filter(
   (value): value is Exclude<Category, "All"> => value !== "All"
 )
-const slug = (value: string) => value.toLowerCase().replaceAll(" ", "-")
+const slug = categorySlug
 const plural = (count: number) => (count === 1 ? "item" : "items")
 
+// Search covers names, copy, category, and capability tags ("remotion", "replay",
+// "controls"); every whitespace-separated term must match.
+const searchText = new Map(
+  galleryItems.map((item) => [
+    item.name,
+    [
+      item.title,
+      item.name,
+      item.description,
+      item.category,
+      ...item.capabilities,
+    ]
+      .join(" ")
+      .toLowerCase(),
+  ])
+)
+
 function matches(item: GalleryItem, filter: Category, query: string) {
-  return (
-    (filter === "All" || category(item.name) === filter) &&
-    `${item.title} ${item.name} ${item.description}`
-      .toLowerCase()
-      .includes(query.trim().toLowerCase())
-  )
-}
-
-// Previews rendered by MotionPreview (the Remotion Player fallback below).
-const inPlayer = (name: string) =>
-  !designNames.includes(name) &&
-  !deskNames.includes(name) &&
-  !(name in examples) &&
-  !(name in editorialExamples) &&
-  !(name in videoPrimitiveExamples) &&
-  ![
-    "scroll-stack",
-    "flip-text",
-    "text-fill",
-    "scroll-text-fill",
-    "surface-depth",
-    "tokens",
-  ].includes(name)
-// Video-primitive demos that render their own inputs rather than a fixed example.
-const interactivePrimitives = ["ticket", "folder", "score-scale", "clock"]
-
-/** QA-bench signals for a card, derived from how its preview is rendered. */
-function capabilities(item: GalleryItem) {
-  const { name } = item
-  const player = inPlayer(name)
-  const tags: string[] = []
-  if (
-    designNames.includes(name) ||
-    deskNames.includes(name) ||
-    interactivePrimitives.includes(name) ||
-    ["scroll-stack", "flip-text", "text-fill", "surface-depth"].includes(
-      name
-    ) ||
-    name === "scene-spec"
-  )
-    tags.push("controls")
-  if (name.startsWith("scroll-")) tags.push("scroll")
-  // Scene is a static layout (a one-frame composition); every other Player preview replays.
-  if ((player && name !== "scene") || name === "replay-button")
-    tags.push("replay")
-  // scene-spec compiles one spec into landscape and vertical stages side by side.
-  if (name === "scene-spec") tags.push("portrait")
-  if (
-    player ||
-    ("dependencies" in item && item.dependencies?.includes("remotion"))
-  )
-    tags.push("remotion")
-  return tags.length ? tags : ["static"]
+  if (filter !== "All" && item.category !== filter) return false
+  const text = searchText.get(item.name) ?? ""
+  return query
+    .toLowerCase()
+    .split(/\s+/)
+    .every((term) => text.includes(term))
 }
 
 // The URL is the source of truth for the category filter and query (?cat=motion&q=card).
@@ -153,28 +111,193 @@ function isTyping(target: EventTarget | null) {
   )
 }
 
+function Preview({ item }: { item: GalleryItem }) {
+  const { name } = item
+  return (
+    <div
+      style={
+        designNames.includes(name) ||
+        name === "scroll-stack" ||
+        name === "flip-text" ||
+        name === "text-fill" ||
+        name === "scroll-text-fill" ||
+        name in editorialExamples ||
+        name in videoPrimitiveExamples
+          ? { aspectRatio: "auto", minHeight: 300 }
+          : undefined
+      }
+      className={name === "surface-depth" ? "surface-preview" : "preview"}
+    >
+      {designNames.includes(name) ? (
+        <DesignVideoDemo name={name} />
+      ) : name === "scroll-stack" ? (
+        <ScrollStackDemo />
+      ) : name === "flip-text" ? (
+        <FlipTextDemo />
+      ) : name === "text-fill" ? (
+        <TextFillDemo />
+      ) : name === "scroll-text-fill" ? (
+        <ScrollTextFillDemo />
+      ) : name === "surface-depth" ? (
+        <SurfaceDepth />
+      ) : name === "tokens" ? (
+        <div className="swatches">
+          {Object.entries(color).map(([key, value]) => (
+            <div key={key}>
+              <span style={{ background: value }} />
+              <strong>{key}</strong>
+              <code>{value}</code>
+            </div>
+          ))}
+        </div>
+      ) : name in videoPrimitiveExamples ? (
+        <div style={{ padding: 28, width: "100%", boxSizing: "border-box" }}>
+          {videoPrimitiveExamples[name as keyof typeof videoPrimitiveExamples]}
+        </div>
+      ) : name in editorialExamples ? (
+        <div style={{ padding: 28, width: "100%", boxSizing: "border-box" }}>
+          {editorialExamples[name as keyof typeof editorialExamples]}
+        </div>
+      ) : deskNames.includes(name) ? (
+        <DeskDemo name={name} />
+      ) : name in examples ? (
+        <Canvas>{examples[name as keyof typeof examples]}</Canvas>
+      ) : (
+        <MotionPreview name={name} />
+      )}
+    </div>
+  )
+}
+
+function ComponentCard({ item }: { item: GalleryItem }) {
+  const { name } = item
+  const documentation = name === "surface-depth"
+  const tags = item.capabilities
+  const dependencies = item.registryDependencies
+  return (
+    <article id={name} className="component-card">
+      <Preview item={item} />
+      <div className="card-content">
+        <div className="card-heading">
+          <h3>
+            <Link href={`/c/${name}`}>{item.title}</Link>
+          </h3>
+          {tags.length > 0 && (
+            <p className="card-tags">
+              <span className="sr-only">Preview: </span>
+              {tags.map((tag, i) => (
+                <span key={tag}>
+                  {i > 0 && (
+                    <span className="card-tag-separator" aria-hidden="true">
+                      ·
+                    </span>
+                  )}
+                  {tag}
+                  {i < tags.length - 1 && <span className="sr-only">, </span>}
+                </span>
+              ))}
+            </p>
+          )}
+        </div>
+        <p>{item.description}</p>
+        <AddCommand name={item.installName} />
+        <details>
+          <summary>Usage</summary>
+          {documentation && (
+            <p>
+              Documentation entry, not a registry item. Its shadow and border
+              tokens install with <code>@jbm/tokens</code>.
+            </p>
+          )}
+          {dependencies.length > 0 && (
+            <p>
+              Also installs{" "}
+              {dependencies.map((dependency, i) => (
+                <span key={dependency}>
+                  {i > 0 && ", "}
+                  <code>{dependency}</code>
+                </span>
+              ))}
+              .
+            </p>
+          )}
+          {item.needsRemotion && (
+            <p>
+              Needs Remotion: render inside a Remotion{" "}
+              <code>{"<Composition>"}</code> or <code>{"<Player>"}</code>, not a
+              plain React tree. Timing values are in seconds.
+            </p>
+          )}
+          <pre tabIndex={0}>
+            <code>{item.snippet}</code>
+          </pre>
+          <div className="card-links">
+            <a
+              href={`https://github.com/chekos/jbm-ui/blob/main/${item.sourcePath}`}
+            >
+              Source ↗
+            </a>
+            {documentation ? (
+              <a href="https://github.com/chekos/jbm-ui/blob/main/docs/surface-depth.md">
+                Design note ↗
+              </a>
+            ) : (
+              <a href={`/r/${name}.json`}>Registry JSON ↗</a>
+            )}
+          </div>
+        </details>
+      </div>
+    </article>
+  )
+}
+
 export function Gallery() {
   const search = useSyncExternalStore(subscribeUrl, readUrl, readServerUrl)
   const params = new URLSearchParams(search)
   const filter: Category =
     groups.find((value) => slug(value) === params.get("cat")) ?? "All"
   const query = params.get("q") ?? ""
+  // On narrow screens (CSS only) search collapses to an icon button; a query
+  // keeps it open. Wider screens always show the field and hide the button.
+  const [searchOpen, setSearchOpen] = useState(false)
+  const searchShown = searchOpen || query !== ""
   const searchInput = useRef<HTMLInputElement>(null)
+  const searchToggle = useRef<HTMLButtonElement>(null)
   const toolbar = useRef<HTMLDivElement>(null)
+  const status = useRef<HTMLDivElement>(null)
   const results = useRef<HTMLDivElement>(null)
+
+  // Height of everything stuck to the top of the viewport (toolbar, plus the
+  // status row where it sticks too). Anchors and new result sets land below it.
+  function stickyHeight() {
+    const bar = toolbar.current
+    if (!bar || getComputedStyle(bar).position !== "sticky") return 0
+    const row = status.current
+    const rowSticks = row && getComputedStyle(row).position === "sticky"
+    return bar.offsetHeight + (rowSticks ? row.offsetHeight : 0)
+  }
 
   // When the toolbar is stuck, a new result set starts at its top instead of mid-scroll.
   function update(nextFilter: Category, nextQuery: string) {
     writeUrl(nextFilter, nextQuery)
     requestAnimationFrame(() => {
       const top = results.current?.getBoundingClientRect().top ?? 0
-      if (top < (toolbar.current?.offsetHeight ?? 0))
+      if (top < stickyHeight())
         results.current?.scrollIntoView({ block: "start" })
     })
   }
   const setFilter = (value: Category) => update(value, query)
   const setQuery = (value: string) => update(filter, value)
   const clear = () => update("All", "")
+
+  function openSearch() {
+    setSearchOpen(true)
+    // The input mounts visible on the next frame.
+    requestAnimationFrame(() => {
+      searchInput.current?.focus()
+      searchInput.current?.select()
+    })
+  }
 
   // "/" focuses search from anywhere except another text field.
   useEffect(() => {
@@ -188,32 +311,65 @@ export function Gallery() {
       )
         return
       event.preventDefault()
-      searchInput.current?.focus()
-      searchInput.current?.select()
+      setSearchOpen(true)
+      requestAnimationFrame(() => {
+        searchInput.current?.focus()
+        searchInput.current?.select()
+      })
     }
     document.addEventListener("keydown", onKey)
     return () => document.removeEventListener("keydown", onKey)
   }, [])
 
-  // Anchors and focus scroll clear of the sticky toolbar (WCAG 2.4.11).
+  // Anchors and focus scroll clear of the sticky bars (WCAG 2.4.11). The first
+  // measurement happens after the browser has already jumped to a #hash, so
+  // re-scroll to it once the real height is known, and again when late layout
+  // (fonts, dynamic previews) settles — unless the reader has scrolled since.
   useEffect(() => {
-    const element = toolbar.current
-    if (!element) return
+    const bar = toolbar.current
+    const row = status.current
+    if (!bar || !row) return
     const root = document.documentElement
-    const measure = () =>
-      root.style.setProperty("--toolbar-h", `${element.offsetHeight}px`)
+    const measure = () => {
+      root.style.setProperty("--toolbar-h", `${bar.offsetHeight}px`)
+      root.style.setProperty("--sticky-h", `${stickyHeight()}px`)
+    }
     measure()
     const observer = new ResizeObserver(measure)
-    observer.observe(element)
+    observer.observe(bar)
+    observer.observe(row)
+
+    let userScrolled = false
+    const stop = () => (userScrolled = true)
+    const intents = ["wheel", "touchstart", "keydown", "pointerdown"] as const
+    intents.forEach((type) =>
+      window.addEventListener(type, stop, { once: true, passive: true })
+    )
+    const toHash = () => {
+      if (userScrolled) return
+      const id = decodeURIComponent(window.location.hash.slice(1))
+      const target = id && document.getElementById(id)
+      if (target) target.scrollIntoView({ block: "start", behavior: "instant" })
+    }
+    const frame = requestAnimationFrame(toHash)
+    const settled = setTimeout(toHash, 600)
+    document.fonts?.ready.then(toHash)
+    window.addEventListener("load", toHash, { once: true })
     return () => {
       observer.disconnect()
+      cancelAnimationFrame(frame)
+      clearTimeout(settled)
+      userScrolled = true
+      intents.forEach((type) => window.removeEventListener(type, stop))
+      window.removeEventListener("load", toHash)
       root.style.removeProperty("--toolbar-h")
+      root.style.removeProperty("--sticky-h")
     }
   }, [])
 
   const items = galleryItems.filter((item) => matches(item, filter, query))
   const visibleGroups = groups.filter((group) =>
-    items.some((item) => category(item.name) === group)
+    items.some((item) => item.category === group)
   )
   const active = filter !== "All" || query !== ""
   const everywhere =
@@ -223,11 +379,18 @@ export function Gallery() {
   const summary = `${items.length} ${filter === "All" ? "" : filter + " "}${plural(items.length)}${
     query ? ` matching “${query}”` : active ? "" : " in the collection"
   }`
+  // Chip counts follow the query: how many matches each category holds right now.
+  const count = (value: Category) =>
+    galleryItems.filter((item) => matches(item, value, query)).length
 
   return (
     <>
       <InstallOnce />
-      <div className="toolbar" ref={toolbar}>
+      <div
+        className="toolbar"
+        ref={toolbar}
+        data-search={searchShown ? "open" : "closed"}
+      >
         <div className="toolbar-row">
           <div className="filters" role="group" aria-label="Component category">
             {categories.map((value) => (
@@ -237,52 +400,88 @@ export function Gallery() {
                 onClick={() => setFilter(value)}
               >
                 {value}
-                <span>
-                  {value === "All"
-                    ? galleryItems.length
-                    : galleryItems.filter(
-                        (item) => category(item.name) === value
-                      ).length}
-                </span>
+                <span>{count(value)}</span>
               </button>
             ))}
           </div>
+          <button
+            type="button"
+            className="search-toggle"
+            ref={searchToggle}
+            aria-label="Search components"
+            aria-expanded={searchShown}
+            aria-controls="gallery-search"
+            onClick={() => {
+              if (!searchShown) openSearch()
+              else if (query === "") setSearchOpen(false)
+              else searchInput.current?.focus()
+            }}
+          >
+            <svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true">
+              <circle
+                cx="8.5"
+                cy="8.5"
+                r="5.5"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.75"
+              />
+              <path
+                d="M12.5 12.5 17 17"
+                stroke="currentColor"
+                strokeWidth="1.75"
+                strokeLinecap="round"
+              />
+            </svg>
+          </button>
           <label className="search">
             <span className="sr-only">Search components</span>
             <input
+              id="gallery-search"
               ref={searchInput}
               type="search"
-              placeholder="Search components…"
+              placeholder="Search name or tag…"
               aria-keyshortcuts="/"
               value={query}
               onChange={(event) => setQuery(event.target.value)}
+              onKeyDown={(event) => {
+                if (
+                  event.key === "Escape" &&
+                  query === "" &&
+                  searchToggle.current?.checkVisibility()
+                ) {
+                  setSearchOpen(false)
+                  searchToggle.current?.focus()
+                }
+              }}
             />
             <kbd aria-hidden="true">/</kbd>
           </label>
         </div>
-        <div className="toolbar-row toolbar-status">
-          <p className="result-count" role="status">
-            {summary}
-          </p>
-          {active && (
-            <button className="toolbar-clear" onClick={clear}>
-              Clear
-            </button>
-          )}
-          {visibleGroups.length > 1 && (
-            <nav className="section-jump" aria-label="Jump to section">
-              {visibleGroups.map((group) => (
-                <a key={group} href={`#${slug(group)}`}>
-                  {group}
-                </a>
-              ))}
-            </nav>
-          )}
-        </div>
+      </div>
+      <div className="toolbar-status" ref={status}>
+        <p className="result-count" role="status">
+          {summary}
+        </p>
+        {/* The empty state carries its own Clear; never show two. */}
+        {active && items.length > 0 && (
+          <button className="toolbar-clear" onClick={clear}>
+            Clear
+          </button>
+        )}
+        {visibleGroups.length > 1 && (
+          <nav className="section-jump" aria-label="Jump to section">
+            {visibleGroups.map((group) => (
+              <a key={group} href={`#${slug(group)}`}>
+                {group}
+              </a>
+            ))}
+          </nav>
+        )}
       </div>
       <div id="components" className="results" tabIndex={-1} ref={results}>
         {groups.map((group) => {
-          const members = items.filter((item) => category(item.name) === group)
+          const members = items.filter((item) => item.category === group)
           if (!members.length) return null
           const id = slug(group)
           return (
@@ -308,164 +507,7 @@ export function Gallery() {
               )}
               <div className="gallery-grid">
                 {members.map((item) => (
-                  <article
-                    id={item.name}
-                    key={item.name}
-                    className="component-card"
-                  >
-                    <ul className="card-tags" aria-label="Preview capabilities">
-                      {capabilities(item).map((tag) => (
-                        <li key={tag}>{tag}</li>
-                      ))}
-                    </ul>
-                    <div
-                      style={
-                        designNames.includes(item.name) ||
-                        item.name === "scroll-stack" ||
-                        item.name === "flip-text" ||
-                        item.name === "text-fill" ||
-                        item.name === "scroll-text-fill" ||
-                        item.name in editorialExamples ||
-                        item.name in videoPrimitiveExamples
-                          ? { aspectRatio: "auto", minHeight: 300 }
-                          : undefined
-                      }
-                      className={
-                        item.name === "surface-depth"
-                          ? "surface-preview"
-                          : "preview"
-                      }
-                    >
-                      {designNames.includes(item.name) ? (
-                        <DesignVideoDemo name={item.name} />
-                      ) : item.name === "scroll-stack" ? (
-                        <ScrollStackDemo />
-                      ) : item.name === "flip-text" ? (
-                        <FlipTextDemo />
-                      ) : item.name === "text-fill" ? (
-                        <TextFillDemo />
-                      ) : item.name === "scroll-text-fill" ? (
-                        <ScrollTextFillDemo />
-                      ) : item.name === "surface-depth" ? (
-                        <SurfaceDepth />
-                      ) : item.name === "tokens" ? (
-                        <div className="swatches">
-                          {Object.entries(color).map(([name, value]) => (
-                            <div key={name}>
-                              <span style={{ background: value }} />
-                              <strong>{name}</strong>
-                              <code>{value}</code>
-                            </div>
-                          ))}
-                        </div>
-                      ) : item.name in videoPrimitiveExamples ? (
-                        <div
-                          style={{
-                            padding: 28,
-                            width: "100%",
-                            boxSizing: "border-box",
-                          }}
-                        >
-                          {
-                            videoPrimitiveExamples[
-                              item.name as keyof typeof videoPrimitiveExamples
-                            ]
-                          }
-                        </div>
-                      ) : item.name in editorialExamples ? (
-                        <div
-                          style={{
-                            padding: 28,
-                            width: "100%",
-                            boxSizing: "border-box",
-                          }}
-                        >
-                          {
-                            editorialExamples[
-                              item.name as keyof typeof editorialExamples
-                            ]
-                          }
-                        </div>
-                      ) : deskNames.includes(item.name) ? (
-                        <DeskDemo name={item.name} />
-                      ) : item.name in examples ? (
-                        <Canvas>
-                          {examples[item.name as keyof typeof examples]}
-                        </Canvas>
-                      ) : (
-                        <MotionPreview name={item.name} />
-                      )}
-                    </div>
-                    <div className="card-content">
-                      <h3>
-                        <a href={`#${item.name}`}>{item.title}</a>
-                      </h3>
-                      <p>{item.description}</p>
-                      <div className="card-links">
-                        <a
-                          href={`https://github.com/chekos/jbm-ui/blob/main/${item.files[0].path}`}
-                        >
-                          Source ↗
-                        </a>
-                        {item.name !== "surface-depth" && (
-                          <a href={`/r/${item.name}.json`}>Registry JSON ↗</a>
-                        )}
-                      </div>
-                      {item.name === "surface-depth" && (
-                        <p>
-                          <a href="https://github.com/chekos/jbm-ui/blob/main/docs/surface-depth.md">
-                            Surface depth design note ↗
-                          </a>
-                        </p>
-                      )}
-                      <details>
-                        <summary>Usage & installation</summary>
-                        {item.name === "surface-depth" ? (
-                          <p>
-                            Documentation entry, not a registry item. Its shadow
-                            and border tokens install with{" "}
-                            <code>@jbm/tokens</code>.
-                          </p>
-                        ) : null}
-                        <AddCommand
-                          name={
-                            item.name === "surface-depth" ? "tokens" : item.name
-                          }
-                        />
-                        {registryDependencies(item.name).length > 0 && (
-                          <p>
-                            Also installs{" "}
-                            {registryDependencies(item.name).map(
-                              (dependency, i) => (
-                                <span key={dependency}>
-                                  {i > 0 && ", "}
-                                  <code>{dependency}</code>
-                                </span>
-                              )
-                            )}
-                            .
-                          </p>
-                        )}
-                        {needsRemotion(item.name) && (
-                          <p>
-                            Needs Remotion: render inside a Remotion{" "}
-                            <code>{"<Composition>"}</code> or{" "}
-                            <code>{"<Player>"}</code>, not a plain React tree.
-                            Timing values are in seconds.
-                          </p>
-                        )}
-                        <pre tabIndex={0}>
-                          <code>
-                            {item.name === "surface-depth"
-                              ? surfaceUsage
-                              : (designSnippets[item.name] ??
-                                deskSnippets[item.name] ??
-                                snippets[item.name])}
-                          </code>
-                        </pre>
-                      </details>
-                    </div>
-                  </article>
+                  <ComponentCard key={item.name} item={item} />
                 ))}
               </div>
             </section>
@@ -479,7 +521,7 @@ export function Gallery() {
             <p>
               {everywhere > 0
                 ? `${everywhere} ${plural(everywhere)} match in other categories.`
-                : "Try another name, or browse the full collection."}
+                : "Try another name or tag, or browse the full collection."}
             </p>
             <div className="empty-actions">
               {everywhere > 0 && (

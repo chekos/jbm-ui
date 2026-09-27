@@ -14,5 +14,8 @@
       "target": "src/jbm/ui/scroll-stack.tsx"
     }
   ],
+  "categories": [
+    "Motion"
+  ],
   "type": "registry:ui"
 }

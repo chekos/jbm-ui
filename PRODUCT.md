@@ -34,7 +34,8 @@ One set of tokens and components works in plain React pages and in Remotion comp
 
 - The registry publishes `ui`, `motion`, and `lib` items (the inventory lives in `registry.json`); `public/r/` is generated output.
 - `ui/` never imports Remotion; anything time-dependent lives in `motion/`.
-- The gallery gives every item a working preview, a usage example, and a behavior-based category. It has search and category filters.
+- The gallery gives every item a working preview, a usage example, and a behavior-based category. It has search and category filters, and each item has a `/c/<name>` QA page with a frame stepper for motion.
+- Agents can read the whole catalog without rendering the gallery: `/llms.txt` (plain text) and `/catalog.json` list each item's category, capabilities, install command, dependencies, and usage snippet.
 - Motion previews never autoplay or loop; replay is explicit.
 - Published components must pass the consumer contract (`docs/consumer-contract.md`).
 - Components are sized in stage pixels and declare their heights so layout checks can enforce safe areas.

@@ -15,5 +15,8 @@
       "target": "src/jbm/motion/mano.tsx"
     }
   ],
+  "categories": [
+    "Motion"
+  ],
   "type": "registry:component"
 }

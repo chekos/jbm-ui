@@ -16,5 +16,8 @@
       "target": "src/jbm/motion/burbuja.tsx"
     }
   ],
+  "categories": [
+    "UI"
+  ],
   "type": "registry:component"
 }

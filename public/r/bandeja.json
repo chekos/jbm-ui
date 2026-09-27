@@ -15,5 +15,8 @@
       "target": "src/jbm/motion/bandeja.tsx"
     }
   ],
+  "categories": [
+    "UI Bits"
+  ],
   "type": "registry:component"
 }

@@ -14,5 +14,8 @@
       "target": "src/jbm/ui/figure-caption.tsx"
     }
   ],
+  "categories": [
+    "UI"
+  ],
   "type": "registry:ui"
 }

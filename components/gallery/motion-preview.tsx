@@ -8,7 +8,7 @@ import type {
   SceneLayout,
   SafeArea,
 } from "@/registry/jbm/motion/spec"
-import { stage } from "@/registry/jbm/lib/tokens"
+import { stage, type Orientation } from "@/registry/jbm/lib/tokens"
 import { Scene } from "@/registry/jbm/motion/scene"
 import { Pop, Stagger } from "@/registry/jbm/motion/pop"
 import { Counter } from "@/registry/jbm/motion/counter"
@@ -81,55 +81,83 @@ function HooksDemo() {
   )
 }
 
-function Composition({
+/** The reference scene the gallery compiles into both stage orientations. */
+export function referenceSpec(
+  layout: SceneLayout,
+  safeArea: SafeArea
+): SceneSpec {
+  const subject = {
+    type: "screens" as const,
+    phoneScale: 1.5,
+    pieces: [
+      { kind: "card" as const, at: 0.2 },
+      { kind: "input" as const, at: 0.5 },
+      { kind: "button" as const, at: 0.8 },
+    ],
+  }
+  return {
+    id: "portrait-reference",
+    composition: { safeArea, layout, subjectScale: 1.3 },
+    blocks:
+      layout === "illustration"
+        ? [subject]
+        : layout === "hero"
+          ? [
+              {
+                type: "big",
+                at: 0,
+                text: "Hazlo una vez.\nÚsalo siempre.",
+                align: "center",
+                size: 140,
+              },
+            ]
+          : [
+              {
+                type: "big",
+                at: 0,
+                text: "Una biblioteca.\nMuchas posibilidades.",
+                align: "center",
+                size: 90,
+              },
+              subject,
+            ],
+    variants: { vertical: { headlineRatio: 0.23, gap: 48 } },
+  }
+}
+
+/** Timeline length for a preview; the scene-spec hero layout has a single entrance. */
+export function previewDuration(name: string, layout: SceneLayout) {
+  return name === "scene-spec" && layout === "hero"
+    ? springFrames + 1
+    : durationFor(name)
+}
+
+export function Composition({
   name,
   layout = "headline-illustration",
   safeArea = "full",
   guides = false,
+  orientation,
 }: {
   name: string
   layout?: SceneLayout
   safeArea?: SafeArea
   guides?: boolean
+  /** Bench only: render one full-size stage instead of both orientations side by side. */
+  orientation?: Orientation
 }) {
+  if (name === "scene-spec" && orientation) {
+    // Guides stay out of the composition; the bench draws them as a DOM overlay.
+    return (
+      <SceneFromSpec
+        spec={referenceSpec(layout, safeArea)}
+        orientation={orientation}
+        host={{ resolve: () => 0 }}
+      />
+    )
+  }
   if (name === "scene-spec") {
-    const subject = {
-      type: "screens" as const,
-      phoneScale: 1.5,
-      pieces: [
-        { kind: "card" as const, at: 0.2 },
-        { kind: "input" as const, at: 0.5 },
-        { kind: "button" as const, at: 0.8 },
-      ],
-    }
-    const spec: SceneSpec = {
-      id: "portrait-reference",
-      composition: { safeArea, layout, subjectScale: 1.3 },
-      blocks:
-        layout === "illustration"
-          ? [subject]
-          : layout === "hero"
-            ? [
-                {
-                  type: "big",
-                  at: 0,
-                  text: "Hazlo una vez.\nÚsalo siempre.",
-                  align: "center",
-                  size: 140,
-                },
-              ]
-            : [
-                {
-                  type: "big",
-                  at: 0,
-                  text: "Una biblioteca.\nMuchas posibilidades.",
-                  align: "center",
-                  size: 90,
-                },
-                subject,
-              ],
-      variants: { vertical: { headlineRatio: 0.23, gap: 48 } },
-    }
+    const spec = referenceSpec(layout, safeArea)
     return (
       <Scene>
         {(["landscape", "vertical"] as const).map((orientation) => {
@@ -315,43 +343,107 @@ function Composition({
   )
 }
 
-export default function MotionPreview({ name }: { name: string }) {
-  const [layout, setLayout] = useState<SceneLayout>("headline-illustration")
-  const [safeArea, setSafeArea] = useState<"full" | "social">("full")
-  const [guides, setGuides] = useState(false)
-  const durationInFrames =
-    name === "scene-spec" && layout === "hero"
-      ? springFrames + 1
-      : durationFor(name)
+/**
+ * Player state shared by the gallery card and the QA bench. Previews rest on their final frame
+ * (the finished state), replay is explicit, and playback start/end is announced politely.
+ */
+export function usePlayback(durationInFrames: number, label: string) {
   const player = useRef<PlayerRef>(null)
+  const last = Math.max(0, durationInFrames - 1)
+  const [frame, setFrame] = useState(last)
   const [phase, setPhase] = useState<"ready" | "playing">("ready")
-  const [progress, setProgress] = useState(1)
-  const charging = phase !== "ready"
+  const [status, setStatus] = useState("")
+  // A different timeline (scene-spec layouts) returns to its own final frame.
+  const [restingOn, setRestingOn] = useState(last)
+  if (restingOn !== last) {
+    setRestingOn(last)
+    setFrame(last)
+    setPhase("ready")
+  }
+  useEffect(() => {
+    player.current?.pause()
+    player.current?.seekTo(last)
+  }, [last])
 
   useEffect(() => {
     const current = player.current
     if (!current) return
-    const onPlay = () => setPhase("playing")
-    const onEnd = () => setPhase("ready")
-    const onFrame = ({ detail }: { detail: { frame: number } }) => {
-      setProgress(
-        Math.min(
-          1,
-          Math.max(0, detail.frame / Math.max(1, durationInFrames - 1))
-        )
-      )
+    const onPlay = () => {
+      setPhase("playing")
+      setStatus(`Playing ${label}`)
     }
+    const onPause = () => setPhase("ready")
+    const onEnd = () => {
+      setPhase("ready")
+      setStatus(`${label} done`)
+    }
+    const onError = () => {
+      setPhase("ready")
+      setStatus(`${label} could not play`)
+    }
+    const onFrame = ({ detail }: { detail: { frame: number } }) =>
+      setFrame(detail.frame)
     current.addEventListener("play", onPlay)
+    current.addEventListener("pause", onPause)
     current.addEventListener("ended", onEnd)
-    current.addEventListener("error", onEnd)
+    current.addEventListener("error", onError)
     current.addEventListener("frameupdate", onFrame)
+    current.addEventListener("seeked", onFrame)
     return () => {
       current.removeEventListener("play", onPlay)
+      current.removeEventListener("pause", onPause)
       current.removeEventListener("ended", onEnd)
-      current.removeEventListener("error", onEnd)
+      current.removeEventListener("error", onError)
       current.removeEventListener("frameupdate", onFrame)
+      current.removeEventListener("seeked", onFrame)
     }
-  }, [durationInFrames])
+  }, [label])
+
+  return {
+    player,
+    last,
+    frame: Math.min(frame, last),
+    progress: last ? Math.min(1, Math.max(0, frame / last)) : 1,
+    charging: phase === "playing",
+    status,
+    replay() {
+      if (!player.current) return
+      setFrame(0)
+      setPhase("playing")
+      player.current.seekTo(0)
+      player.current.play()
+    },
+    /** Pause and show one frame (bench stepper and scrubber). */
+    seek(next: number) {
+      const target = Math.min(last, Math.max(0, Math.round(next)))
+      player.current?.pause()
+      player.current?.seekTo(target)
+      setFrame(target)
+      setPhase("ready")
+      setStatus("")
+    },
+  }
+}
+
+export const playerChrome = {
+  controls: false,
+  loop: false,
+  moveToBeginningWhenEnded: false,
+  spaceKeyToPlayOrPause: false,
+  clickToPlay: false,
+  doubleClickToFullscreen: false,
+  autoPlay: false,
+} as const
+
+export default function MotionPreview({ name }: { name: string }) {
+  const [layout, setLayout] = useState<SceneLayout>("headline-illustration")
+  const [safeArea, setSafeArea] = useState<"full" | "social">("full")
+  const [guides, setGuides] = useState(false)
+  const durationInFrames = previewDuration(name, layout)
+  const { player, last, progress, charging, status, replay } = usePlayback(
+    durationInFrames,
+    name
+  )
 
   return (
     <div className="motion-preview">
@@ -401,14 +493,9 @@ export default function MotionPreview({ name }: { name: string }) {
         compositionWidth={800}
         compositionHeight={500}
         style={{ width: "100%", aspectRatio: "8 / 5" }}
-        controls={false}
-        loop={false}
-        moveToBeginningWhenEnded={false}
-        spaceKeyToPlayOrPause={false}
-        clickToPlay={false}
-        doubleClickToFullscreen={false}
-        initialFrame={Math.min(45, durationInFrames - 1)}
-        autoPlay={false}
+        {...playerChrome}
+        // Rest on the finished state; the first frame of most demos is an empty stage.
+        initialFrame={last}
         aria-label={`${name} motion preview`}
       />
       {durationInFrames > 1 && (
@@ -417,16 +504,13 @@ export default function MotionPreview({ name }: { name: string }) {
             progress={progress}
             charging={charging}
             label={`Replay ${name} animation`}
-            onReplay={() => {
-              if (!player.current) return
-              setProgress(0)
-              setPhase("playing")
-              player.current.seekTo(0)
-              player.current.play()
-            }}
+            onReplay={replay}
           />
         </div>
       )}
+      <span className="sr-only" role="status">
+        {status}
+      </span>
     </div>
   )
 }

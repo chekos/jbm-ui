@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-09-27T05:04:25.877Z",
+  "generatedAt": "2026-09-27T05:43:21.000Z",
   "title": "Design System: jbm-ui",
   "extensions": {
     "colorMeta": {
@@ -167,7 +167,7 @@
       },
       "mono-label": {
         "displayName": "Mono label",
-        "purpose": "Counts, result status, capability tags, codes, numbers with units."
+        "purpose": "Counts, result status, tag lines, the QA frame readout, codes, numbers with units."
       }
     },
     "shadows": [
@@ -273,6 +273,29 @@
       "description": "Signature cut-out: flat card stock with a 2px ink edge and the paper drop.",
       "html": "<div class=\"ds-paper-row\"><div class=\"ds-paper\"></div><div class=\"ds-paper ds-paper-accent\"></div></div>",
       "css": ".ds-paper-row { display: flex; gap: 32px; padding: 24px; background: #FFF6E8; } .ds-paper { width: 120px; height: 150px; background: #FFFCF5; border: 2px solid #20241F; border-radius: 22px; box-shadow: 0 1px 1px -0.5px rgba(32,36,31,0.08), 0 3px 3px -1.5px rgba(32,36,31,0.06), 0 6px 6px -3px rgba(32,36,31,0.05), 0 12px 12px -6px rgba(32,36,31,0.04), 0 24px 24px -12px rgba(32,36,31,0.04), 0 18px 28px -14px rgba(32,36,31,0.22); } .ds-paper-accent { background: #C63D24; border-color: #C63D24; transform: rotate(-4deg); }"
+    },
+    {
+      "name": "Add Command Row",
+      "kind": "custom",
+      "refersTo": "add-command",
+      "description": "One-line install for a single item with a Copy button; on every card face and the item page.",
+      "html": "<div class=\"ds-add\"><code>npx shadcn@latest add @jbm/counter</code><button class=\"ds-add-copy\" type=\"button\">Copy</button></div>",
+      "css": ".ds-add { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; max-width: 420px; padding: 8px 8px 8px 14px; background: #FFF6E8; color: #20241F; border: 1px solid #D5D1C6; border-radius: 6px; font-family: Geist, system-ui, sans-serif; } .ds-add code { flex: 1 1 16ch; min-width: 0; font-family: 'Geist Mono', ui-monospace, monospace; font-size: 12px; overflow-wrap: anywhere; } .ds-add-copy { flex: none; border: 1px solid #D5D1C6; border-radius: 6px; padding: 9px 13px; background: transparent; color: #20241F; font: inherit; font-size: 14px; cursor: pointer; } .ds-add-copy:hover { border-color: #20241F; } .ds-add-copy:focus-visible { outline: 2px solid #C63D24; outline-offset: 5px; }"
+    },
+    {
+      "name": "QA Frame Stepper",
+      "kind": "custom",
+      "refersTo": "qa-stepper",
+      "description": "Item-page bench controls for Player items: Begin/Middle/End, frame scrubber, mono readout.",
+      "html": "<div class=\"ds-frames\"><div class=\"ds-steps\" role=\"group\" aria-label=\"Frame stepper\"><button type=\"button\">Begin</button><button type=\"button\">Middle</button><button type=\"button\" aria-current=\"step\">End</button></div><input class=\"ds-scrub\" type=\"range\" min=\"0\" max=\"51\" value=\"51\" aria-label=\"Frame\"><output class=\"ds-readout\"><span>51/51</span><span>1.70 s</span></output></div>",
+      "css": ".ds-frames { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; max-width: 640px; font-family: Geist, system-ui, sans-serif; } .ds-steps { display: inline-flex; } .ds-steps button { min-height: 36px; border: 1px solid #D5D1C6; padding: 6px 12px; background: transparent; color: #20241F; font: inherit; font-size: 14px; cursor: pointer; } .ds-steps button:first-child { border-radius: 6px 0 0 6px; } .ds-steps button:last-child { border-radius: 0 6px 6px 0; } .ds-steps button + button { margin-left: -1px; } .ds-steps button:hover { position: relative; border-color: #20241F; } .ds-steps button[aria-current=\"step\"] { position: relative; background: #20241F; border-color: #20241F; color: #FFF6E8; } .ds-steps button:focus-visible { position: relative; z-index: 1; outline: 2px solid #C63D24; outline-offset: 2px; } .ds-scrub { flex: 1 1 200px; min-width: 160px; height: 24px; margin: 0; accent-color: #20241F; } .ds-scrub:focus-visible { outline: 2px solid #C63D24; outline-offset: 4px; } .ds-readout { display: inline-flex; gap: 10px; color: #65675F; font-family: 'Geist Mono', ui-monospace, monospace; font-size: 12px; font-variant-numeric: tabular-nums; white-space: nowrap; } .ds-readout span:first-child { color: #20241F; }"
+    },
+    {
+      "name": "Item Page Top Bar",
+      "kind": "nav",
+      "description": "Wordmark and breadcrumb over a hairline rule at the top of each /c/<name> QA bench page.",
+      "html": "<header class=\"ds-itembar\"><a class=\"ds-itembar-mark\" href=\"#\">jbm<span>—</span>ui</a><nav aria-label=\"Breadcrumb\"><ol class=\"ds-crumbs\"><li><a href=\"#\">Gallery</a></li><li><a href=\"#\">Motion</a></li><li aria-current=\"page\">Counter</li></ol></nav></header>",
+      "css": ".ds-itembar { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 24px; row-gap: 6px; padding: 28px 0 20px; border-bottom: 1px solid #D5D1C6; font-family: Geist, system-ui, sans-serif; font-size: 14px; color: #20241F; background: #FFF6E8; } .ds-itembar-mark { font-family: 'Geist Mono', ui-monospace, monospace; font-size: 26px; font-weight: 700; letter-spacing: -2px; color: #20241F; text-decoration: none; } .ds-itembar-mark span { color: #C63D24; } .ds-crumbs { display: flex; flex-wrap: wrap; align-items: center; margin: 0; padding: 0; list-style: none; color: #65675F; } .ds-crumbs li + li::before { content: \"/\"; padding: 0 10px; } .ds-crumbs a { color: #65675F; text-decoration: none; } .ds-crumbs a:hover { color: #20241F; } .ds-crumbs a:focus-visible, .ds-itembar-mark:focus-visible { outline: 2px solid #C63D24; outline-offset: 5px; } .ds-crumbs [aria-current=\"page\"] { color: #20241F; }"
     }
   ],
   "narrative": {
@@ -317,7 +340,8 @@
       "Do keep exactly one Stamp Vermilion accent per composition.",
       "Do build illustrations from simple geometric primitives with flat fills and minimal contours.",
       "Do use Geist Mono for labels, counts, code, and numbers with units.",
-      "Do inspect beginning, middle, and end frames in both orientations."
+      "Do inspect beginning, middle, and end frames in both orientations.",
+      "Do rest motion previews on their final frame and keep replay focusable (aria-disabled while charging)."
     ],
     "donts": [
       "Don't add gradients, textures, or realistic anatomy and lighting.",

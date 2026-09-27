@@ -102,6 +102,22 @@ components:
     rounded: "{rounded.control}"
     padding: "9px 13px"
     width: "240px"
+  add-command:
+    backgroundColor: "{colors.cream-canvas}"
+    textColor: "{colors.press-ink}"
+    rounded: "{rounded.control}"
+    padding: "8px 8px 8px 14px"
+  qa-stepper:
+    textColor: "{colors.press-ink}"
+    rounded: "{rounded.control}"
+    padding: "6px 12px"
+    height: "36px"
+  qa-stepper-active:
+    backgroundColor: "{colors.press-ink}"
+    textColor: "{colors.cream-canvas}"
+    rounded: "{rounded.control}"
+    padding: "6px 12px"
+    height: "36px"
 ---
 
 # Design System: jbm-ui
@@ -128,7 +144,7 @@ The gallery is the stage's backroom. It uses the same palette and type, but it i
 A warm two-colour print palette: ink on cream, with vermilion used like a rubber stamp.
 
 ### Primary
-- **Stamp Vermilion** (`stamp-vermilion`): the one mark per composition that makes something official: the key number, the accent chip, the word in a headline, the focus ring, the sticky-note paper tone. It is also the gallery's focus outline and wordmark accent.
+- **Stamp Vermilion** (`stamp-vermilion`): the one mark per composition that makes something official: the key number, the accent chip, the word in a headline, the focus ring, the sticky-note paper tone. It is also the gallery's focus outline and wordmark accent. Gallery chrome never uses it for control fills: sliders, checkboxes, and radios in previews and on the QA bench take an ink `accent-color`, so the component's own stamp stays the only one.
 
 ### Secondary
 - **Rust Annotation** (`rust-annotation`): annotations only, such as notes, arrows, and marginal callouts that comment on the content without competing with the vermilion stamp.
@@ -166,7 +182,7 @@ Components read `--font-sans` / `--font-mono` when the host sets them (next/font
 - **Body** (400, 18px, 1.7): long-form explanatory copy in Graphite, capped near 550px.
 - **Body small** (400, 14px, 1.6): card descriptions and secondary copy.
 - **Label** (600, 26px stage pixels, 4px tracking, uppercase): the scene kicker that sits top-left of every scene.
-- **Mono label** (400, 12px, 2px tracking when uppercase): filter and section counts, the result status, card capability tags, swatch codes, and numbers with units.
+- **Mono label** (400, 12px, 2px tracking when uppercase): filter and section counts, the result status, card and item-page tag lines, the QA frame readout, swatch codes, and numbers with units.
 
 ### Named Rules
 **The Measured-Things-Are-Mono Rule.** Code, labels, counts, and numbers with units use Geist Mono. Prose and headlines never do.
@@ -175,7 +191,9 @@ Components read `--font-sans` / `--font-mono` when the host sets them (next/font
 
 Scenes are laid out on fixed stages: landscape is 1920×1080 with 120px side padding and content between y 90 and 920; vertical is 1080×1920 with 72px padding and content between y 100 and 1440. Captions live below the safe area. Components declare their height so layout checks can enforce these bounds. A component that must fit both orientations takes a `w` or `row` prop, not a second file. Portrait needs deliberate subject sizing, not a stretched landscape layout.
 
-The gallery is a centred 1440px shell with 56px gutters (20px under 760px). A one-row header sits above the Install once block and a sticky toolbar of filters, search, result status, and section anchors, followed by a two-column grid of component cards with 28px gaps that collapses to one column on narrow screens. Each preview renders an 800×500 stage scaled to the card width through a container query, so previews show true proportions at any width.
+The gallery is a centred 1440px shell with 56px gutters (20px under 760px). A one-row header sits above the Install once disclosure and two sticky bars: the toolbar (filters and search), then a status row (result status, Clear, and section anchors). Below them is a grid of component cards: three columns with 24px gaps at 1200px and wider, two columns with 28px gaps below that, and one column under 760px. Each preview renders an 800×500 stage scaled to the card width through a container query, so previews show true proportions at any width. Motion previews rest on their final frame.
+
+Every item also has its own page at `/c/<name>`, a QA bench in the Operate register: calm, dense, and precise. A hairline top bar holds the wordmark and a breadcrumb (Gallery / category / item). Under it come a headline-sized `h1`, an 18px Graphite description, and one mono tag line (the category link, then capability tags separated by `·`). The bench is next. Its stage keeps the item's own aspect ratio (8:5 previews, 16:9 or 9:16 scene stages) and is sized to fit 72% of the viewport height, inside a 10px-radius Pencil Rule frame. Under a hairline rule, an Install column (add-command row, requirements, and Source / Registry JSON / Gallery card links) sits beside a Usage column with the snippet; the two stack under 760px.
 
 ## Elevation & Depth
 
@@ -220,16 +238,25 @@ Corners are soft and generous on the stage and tight in the gallery chrome. Card
 
 ### Navigation
 - **Style:** a one-row site header with a mono wordmark (26px, 700, -2px tracking, vermilion suffix), a one-line purpose, a mono item count, and a hairline bottom rule.
-- **Toolbar:** sticky on Cream Canvas between hairline rules. Category filters are the primary navigation, with 12px mono counts at 65% opacity; a mono result status, a Clear action while filtered, and section anchors sit on the row below. On narrow screens the filters scroll in one row and the anchors hide; on short viewports the toolbar stops sticking.
+- **Toolbar:** sticky on Cream Canvas between hairline rules. Category filters are the primary navigation, with 12px mono counts at 65% opacity that follow the search query. The search field sits at the right and matches names, descriptions, categories, and tags. A separate sticky status row below holds the mono result status, one Clear action while filtered, and section anchors. On narrow screens the filters scroll in one row beside a 40px search toggle that opens the field below, the status row scrolls away, and the anchors hide; on short viewports the bars stop sticking.
+- **Item page top bar:** the mono wordmark and a 14px Graphite breadcrumb separated by `/`, with the current item in Press Ink, over a hairline rule. The category link in the breadcrumb and the tag line both open the gallery filtered to that category.
 
 ### Install block
-- **Style:** a two-column block under the header: 22px title and 14px Graphite prose on the left, the `components.json` snippet in a code block on the right with its copy button in the top-right corner. It stacks on narrow screens. Each card repeats only its own `npx shadcn@latest add @jbm/<name>` command, in the same code-row style.
+- **Style:** an Install once disclosure under the header: a 22px `h2` summary with a chevron, then 14px Graphite prose on the left and the `components.json` snippet in a code block on the right, with its copy button in the top-right corner. It is open on wide screens and starts closed on phones, where the body stacks. The server-rendered snippet uses the canonical site address; after hydration it shows the current origin.
+
+### Add-command row
+- **Style:** the one-line install for a single item: `npx shadcn@latest add @jbm/<name>` in 12px Geist Mono on Cream Canvas, inside a Pencil Rule frame with a 6px radius and 8px 8px 8px 14px padding, and a trailing Copy button in the gallery button style. The command wraps anywhere on narrow cards. A 12px Graphite status confirms the copy.
+- **Placement:** on every card face under the description, and at the top of the item page's Install column. The card's Usage disclosure holds the snippet, requirements, and Source / Registry JSON links.
+
+### QA frame stepper
+- **Style:** on the item page, under the stage of every Remotion Player item: a segmented Begin / Middle / End control, a frame scrubber, a mono readout, and the replay control, all in one row. The segments are joined 36px buttons with Pencil Rule borders and 6px outer corners. The current step fills Press Ink with cream text, and hover darkens the border to Press Ink. The scrubber is a native range input with an ink `accent-color`. The readout shows the zero-padded frame over the last frame in Press Ink, then seconds in Graphite, in tabular 12px mono. On phones the scrubber moves to its own full-width line.
+- **Behaviour:** the stage rests on the final frame. The scrubber's value text reads "Frame N of M, S s", and a polite status announces playing and done. Orientation-aware stages add a segmented Landscape 16:9 / Portrait 9:16 control, layout and safe-area selects, and a safe-area guides checkbox. The guides are drawn over the Player, never inside the composition. Single-frame layouts show a note instead of the stepper.
 
 ### Paper (signature)
 The cut-out primitive behind illustrations and UI bits: a flat shape in `paper`, `accent`, or `ink` tone with a 2px edge, `paperShadow`, and an optional rotation. Compose illustrations from Paper and the other primitives rather than drawing new surfaces.
 
 ### Replay control (signature)
-A heavy, icon-only replay button that traces its arrow from tail to head as the animation plays, disables while charging, and shows a fully charged icon at rest. Motion previews never autoplay or loop; this control is the only way to play them.
+A heavy, icon-only replay button that traces its arrow from tail to head as the animation plays and shows a fully charged icon at rest. While charging it sets `aria-disabled` rather than `disabled`, so keyboard focus stays on it. Motion previews never autoplay or loop; this control is the only way to play them.
 
 ## Do's and Don'ts
 

@@ -2,14 +2,9 @@
 
 import { useState } from "react"
 import { color, shadowLayers, surfaceBorder } from "@/registry/jbm/lib/tokens"
+import { surfaceUsage } from "./demo-data"
 
-export const surfaceUsage = `import { shadow, surfaceBorder } from "@/jbm/lib/tokens";
-
-// Light surface (use cardDark for dark surfaces)
-<div style={{
-  boxShadow: shadow.card,
-  border: surfaceBorder.card,
-}} />`
+export { surfaceUsage }
 
 export function SurfaceDepth() {
   const [before, setBefore] = useState(false)
@@ -101,7 +96,7 @@ export function SurfaceDepth() {
             setStatus("Token usage copied.")
           } catch {
             setStatus(
-              "Clipboard unavailable. Copy from Usage & installation below."
+              "Clipboard unavailable. Copy it from Usage below."
             )
           }
         }}

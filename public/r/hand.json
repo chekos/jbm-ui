@@ -14,5 +14,8 @@
       "target": "src/jbm/ui/hand.tsx"
     }
   ],
+  "categories": [
+    "UI Bits"
+  ],
   "type": "registry:component"
 }

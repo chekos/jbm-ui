@@ -21,5 +21,8 @@
       "target": "src/jbm/motion/propagate.tsx"
     }
   ],
+  "categories": [
+    "Motion"
+  ],
   "type": "registry:component"
 }

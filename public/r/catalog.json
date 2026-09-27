@@ -22,5 +22,8 @@
       "target": "src/jbm/motion/catalog.tsx"
     }
   ],
+  "categories": [
+    "Motion"
+  ],
   "type": "registry:component"
 }

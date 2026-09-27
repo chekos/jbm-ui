@@ -30,5 +30,8 @@
       "target": "src/jbm/motion/code-card-timing.d.ts"
     }
   ],
+  "categories": [
+    "Motion"
+  ],
   "type": "registry:component"
 }

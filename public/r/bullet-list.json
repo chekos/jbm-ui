@@ -14,5 +14,8 @@
       "target": "src/jbm/ui/bullet-list.tsx"
     }
   ],
+  "categories": [
+    "UI"
+  ],
   "type": "registry:ui"
 }
