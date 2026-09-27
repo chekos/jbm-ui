@@ -3,7 +3,7 @@ import type { ItemContract } from "../schema"
 export default {
   name: "ui-bits",
   entry: "bundle",
-  title: "UI bits",
+  title: "UiBits",
   description:
     "One install for the paper cut-out interface pieces: UiButton, UiInput, UiCard, Piece, PhoneFrame, Badge, and TokenGlyph.",
   category: "UI Bits",

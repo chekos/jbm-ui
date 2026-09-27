@@ -35,4 +35,7 @@ export default {
     "Compare the light and dark surfaces on cream: fine border, layered shadow, and the inset highlight on the upper edge.",
     "Check that content-driven height plus the 82px of padding and border still fits the safe area.",
   ],
+  docs: [
+    { title: "Surface depth guide", url: "https://jbm-ui.bns.studio/docs/surface-depth.md" },
+  ],
 } satisfies ItemContract

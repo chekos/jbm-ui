@@ -43,4 +43,7 @@ export default {
     "Scale with style.width at narrow widths: the fold and 2px ink edge keep their 160:200 proportions.",
     "Without a label the SVG is aria-hidden; with one it exposes role img and the label as its name.",
   ],
+  docs: [
+    { title: "Visual primitives guide", url: "https://jbm-ui.bns.studio/docs/visual-primitives.md" },
+  ],
 } satisfies ItemContract

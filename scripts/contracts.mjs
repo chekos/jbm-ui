@@ -1,16 +1,19 @@
 // Agent contract CLI.
-//   node scripts/contracts.mjs build             write contracts/generated/*.json and sync registry.json
-//   node scripts/contracts.mjs check             fail when generated JSON or registry.json is stale
+//   node scripts/contracts.mjs build             write contracts/generated/*.json (catalog, gallery, published guides) and public/schemas/*.json, sync registry.json
+//   node scripts/contracts.mjs check             fail when generated JSON, schemas, or registry.json are stale
 //   node scripts/contracts.mjs validate a b …    validate named contracts only (no writes)
 //   node scripts/contracts.mjs status            list gallery items still missing a contract
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs"
-import { join } from "node:path"
+import { dirname, join } from "node:path"
 import {
   buildGenerated,
   catalogPath,
+  contractDocsPath,
   contractNames,
+  routesPath,
   galleryPath,
   generatedDir,
+  generatedSchemas,
   hasContract,
   json,
   root,
@@ -58,7 +61,7 @@ if (command === "status") {
   process.exit(0)
 }
 
-const { catalog, gallery, failures } = buildGenerated()
+const { catalog, gallery, docs, routes, failures } = buildGenerated()
 if (failures.length) {
   report(failures)
   console.error("\nFix the contracts above, then rerun.")
@@ -67,12 +70,18 @@ if (failures.length) {
 const outputs = [
   [catalogPath, json(catalog)],
   [galleryPath, json(gallery)],
+  [contractDocsPath, json(docs)],
+  [routesPath, json(routes)],
   [registryPath, json(syncedRegistry(catalog.items))],
+  ...generatedSchemas().map(({ file, schema }) => [file, json(schema)]),
 ]
 
 if (command === "build") {
   mkdirSync(generatedDir, { recursive: true })
-  for (const [path, content] of outputs) writeFileSync(path, content)
+  for (const [path, content] of outputs) {
+    mkdirSync(dirname(path), { recursive: true })
+    writeFileSync(path, content)
+  }
   console.log(`Wrote ${catalog.items.length} contracts. Run pnpm registry:build if registry.json changed.`)
 } else if (command === "check") {
   const stale = outputs.filter(([path, content]) => readOr(path) !== content)

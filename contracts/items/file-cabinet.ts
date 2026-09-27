@@ -3,7 +3,7 @@ import type { ItemContract } from "../schema"
 export default {
   name: "file-cabinet",
   entry: "component",
-  title: "File cabinet",
+  title: "FileCabinet",
   description:
     "SVG cabinet enclosure around a controlled filing drawer whose folders slide out and lift.",
   category: "UI Bits",
@@ -73,5 +73,8 @@ export default {
     "Try folder counts 0, 1, 3, 6, and 12: the drawer size is unchanged and extra folders pack toward the back.",
     "Drag Lift front folder to 1: the folder body is complete behind the drawer front, keeps its size, and stays within the viewBox headroom.",
     "Check the preview at narrow widths; the SVG scales with its viewBox.",
+  ],
+  docs: [
+    { title: "Desk illustrations guide", url: "https://jbm-ui.bns.studio/docs/desk-components.md" },
   ],
 } satisfies ItemContract

@@ -35,7 +35,7 @@ export default {
     },
     {
       title: "Blink the cursor on a Remotion timeline",
-      code: 'import { UiInput } from "@/jbm/ui/ui-input"\nimport { useSec } from "@/jbm/motion/hooks" // install @jbm/motion-hooks separately\n\nconst sec = useSec()\n<UiInput w={420} h={120} cursorOn={Math.floor(sec * 2) % 2 === 0} />',
+      code: 'import { UiInput } from "@/jbm/ui/ui-input"\nimport { useSec } from "@/jbm/motion/hooks" // install @jbm/motion-hooks separately\n\n// Render inside a Remotion <Composition> or <Player>: hooks run in the component body.\nexport function BlinkingInput() {\n  const sec = useSec()\n  return <UiInput w={420} h={120} cursorOn={Math.floor(sec * 2) % 2 === 0} />\n}',
     },
   ],
   qa: [

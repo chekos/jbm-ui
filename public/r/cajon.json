@@ -1,7 +1,7 @@
 {
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "cajon",
-  "title": "Cajón",
+  "title": "Cajon",
   "description": "A fixed-size filing drawer with complete folders packed front to back.",
   "registryDependencies": [
     "@jbm/tokens",

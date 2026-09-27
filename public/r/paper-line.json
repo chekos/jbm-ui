@@ -1,7 +1,7 @@
 {
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "paper-line",
-  "title": "Paper line",
+  "title": "PaperLine",
   "description": "Line of text with controlled grapheme reveal, ink lift, strike-through, and dotted underline.",
   "registryDependencies": [
     "@jbm/tokens",

@@ -1,7 +1,7 @@
 {
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "motion-hooks",
-  "title": "Motion hooks",
+  "title": "MotionHooks",
   "description": "Remotion timing hooks in seconds: elapsed time, a spring entrance, a cubic-out fade, and an eased progress value.",
   "dependencies": [
     "remotion"

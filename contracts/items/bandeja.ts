@@ -60,4 +60,7 @@ export default {
     "Step landing through 0, 0.5, and 1: the incoming sheet fades in while descending and rests exactly on the stack at 1, then increment layers to settle it.",
     "Check the front notch stays centred when w changes.",
   ],
+  docs: [
+    { title: "Desk illustrations guide", url: "https://jbm-ui.bns.studio/docs/desk-components.md" },
+  ],
 } satisfies ItemContract

@@ -3,7 +3,7 @@ import type { ItemContract } from "../schema"
 export default {
   name: "folder-carry",
   entry: "component",
-  title: "Folder carry",
+  title: "FolderCarry",
   description:
     "Folder carried along a path by its tab, interpolating size and label between two resting places.",
   category: "Motion",
@@ -81,5 +81,8 @@ export default {
     "Toggle Show hand and sweep progress: the pinch stays on the tab's grip throughout; adjust Hand angle and confirm the contact point does not drift.",
     "Check the scale change reads as smooth growth with no jump in tab shape at the endpoints.",
     "Check narrow screens: the demo SVG scales to 100% width without clipping either resting place.",
+  ],
+  docs: [
+    { title: "Paper and filing illustrations guide", url: "https://jbm-ui.bns.studio/docs/design-video-components.md" },
   ],
 } satisfies ItemContract

@@ -71,4 +71,7 @@ export default {
     "Try a narrow box: the cabinet shrinks to fit between the legs; very small widths are untested and may collapse it.",
     "The Mano anchor in the second example is an estimate of the pinch fingertip; verify it visually.",
   ],
+  docs: [
+    { title: "Desk illustrations guide", url: "https://jbm-ui.bns.studio/docs/desk-components.md" },
+  ],
 } satisfies ItemContract

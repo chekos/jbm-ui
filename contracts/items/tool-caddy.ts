@@ -3,7 +3,7 @@ import type { ItemContract } from "../schema"
 export default {
   name: "tool-caddy",
   entry: "component",
-  title: "Tool caddy",
+  title: "ToolCaddy",
   description: "An empty divided desktop organizer.",
   category: "UI Bits",
   capabilities: [],
@@ -37,5 +37,8 @@ export default {
     "The gallery preview is a still at w 300; there are no controls to exercise.",
     "Check the handle is fully inside the viewBox (it sits above y) and its gap reads as a hole.",
     "Scale w up and down: the 2px ink stroke scales with the drawing, so thin or thick edges at extreme sizes are expected; confirm they still match nearby objects.",
+  ],
+  docs: [
+    { title: "Desk illustrations guide", url: "https://jbm-ui.bns.studio/docs/desk-components.md" },
   ],
 } satisfies ItemContract

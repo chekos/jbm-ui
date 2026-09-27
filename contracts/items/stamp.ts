@@ -38,4 +38,7 @@ export default {
     "Drag Stamp angle to both extremes: the rotated box stays inside the preview on narrow screens.",
     "Check the offset second impression reads as ink texture, not a duplicate label, and screen readers hear the text once.",
   ],
+  docs: [
+    { title: "Paper and filing illustrations guide", url: "https://jbm-ui.bns.studio/docs/design-video-components.md" },
+  ],
 } satisfies ItemContract

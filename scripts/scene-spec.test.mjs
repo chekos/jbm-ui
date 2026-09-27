@@ -179,3 +179,31 @@ test('portrait variants replace blocks while sharing anchors; subjects fit alloc
   assert.equal(find(SceneFromSpec({spec,orientation:'landscape',host}),RebuildScreens).length,0);
   for(const composition of [{layout:'headline-illustration'},{layout:'illustration',subjectScale:0},{headlineRatio:1}]) assert.throws(()=>SceneFromSpec({spec:{id:'invalid',blocks:[],composition},orientation:'vertical',host}));
 });
+
+// Contract examples declare their placeholders, so each one compiles as written (with the schema
+// saved beside it, as the examples instruct).
+test("every scene-spec contract example typechecks in a strict fresh video consumer", () => {
+  const catalog=JSON.parse(readFileSync(join(root,"contracts/generated/catalog.json"),"utf8"));
+  const examples=catalog.items.find(i=>i.name==="scene-spec").examples;
+  assert.ok(examples.some(e=>e.code.includes("<Series.Sequence")), "multi-scene example");
+  const tmp=mkdtempSync(join(tmpdir(),"jbm-scene-examples-"));
+  try {
+    const seen=new Set();
+    function install(name) {
+      if(seen.has(name)) return; seen.add(name);
+      const item=JSON.parse(readFileSync(join(root,"public/r",name+".json"),"utf8"));
+      for(const dep of item.registryDependencies??[]) install(dep.replace("@jbm/",""));
+      for(const f of item.files) {
+        const target=join(tmp,f.target);
+        mkdirSync(dirname(target),{recursive:true});writeFileSync(target,f.content);
+      }
+    }
+    install("scene-spec");
+    symlinkSync(join(root,"node_modules"),join(tmp,"node_modules"),"dir");
+    writeFileSync(join(tmp,"src/scene-spec.schema.json"),readFileSync(join(root,"public/schemas/scene-spec.json")));
+    examples.forEach((example,i)=>writeFileSync(join(tmp,`src/example-${i}.tsx`),example.code+"\n"));
+    writeFileSync(join(tmp,"tsconfig.json"),JSON.stringify({compilerOptions:{target:"ES2020",lib:["es2020","dom"],module:"Preserve",moduleResolution:"Bundler",jsx:"react-jsx",strict:true,noEmit:true,skipLibCheck:true,esModuleInterop:true,resolveJsonModule:true,paths:{"@/*":["./src/*"]}},include:["src/**/*"]}));
+    try { execFileSync(join(root,"node_modules/.bin/tsc"),["-p",tmp],{encoding:"utf8"}); }
+    catch(error) { assert.fail(error.stdout||error.message); }
+  } finally {rmSync(tmp,{recursive:true,force:true});}
+});

@@ -64,4 +64,7 @@ export default {
     "Rebuilt pieces stagger in `pieces` array order while pieces always stack card, input, button; confirm the rebuild order reads as intended. Duplicate kinds share a React key and are not supported.",
     "Confirm the input cursor blink is visible but not distracting at the final render scale.",
   ],
+  docs: [
+    { title: "Scene spec guide", url: "https://jbm-ui.bns.studio/docs/scene-spec.md" },
+  ],
 } satisfies ItemContract

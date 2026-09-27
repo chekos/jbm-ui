@@ -1,7 +1,7 @@
 {
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "action-link",
-  "title": "Action Link",
+  "title": "ActionLink",
   "description": "A text anchor with an optional arrow and visible hover and keyboard focus.",
   "registryDependencies": [
     "@jbm/tokens"

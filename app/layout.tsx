@@ -23,8 +23,9 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${sans.variable} ${mono.variable}`}>
       <body>
-        <a className="skip-link" href="#components">
-          Skip to components
+        {/* Every page renders <main id="main" tabIndex={-1}>, including the 404s. */}
+        <a className="skip-link" href="#main">
+          Skip to content
         </a>
         {children}
       </body>

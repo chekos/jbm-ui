@@ -13,7 +13,7 @@ const drawerProps = {
 export default {
   name: "cajon",
   entry: "component",
-  title: "Cajón",
+  title: "Cajon",
   description: "A fixed-size filing drawer with complete folders packed front to back.",
   category: "UI Bits",
   capabilities: ["controls"],
@@ -63,5 +63,8 @@ export default {
     "Try 0, 1, 3, 6, and 12 folders: tabs stagger across three positions, back folders stay visible above the front ones, and 12 folders still fit the back edge.",
     "Long folder names truncate with an ellipsis and tab widths cap at 55% of the folder width.",
     "The Mano anchor in the second example is an estimate of the pinch fingertip; verify it visually for your pose.",
+  ],
+  docs: [
+    { title: "Desk illustrations guide", url: "https://jbm-ui.bns.studio/docs/desk-components.md" },
   ],
 } satisfies ItemContract

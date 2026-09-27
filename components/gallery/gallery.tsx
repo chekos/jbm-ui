@@ -233,17 +233,10 @@ function ComponentCard({ item }: { item: GalleryItem }) {
             <code>{item.snippet}</code>
           </pre>
           <div className="card-links">
-            <a
-              href={`https://github.com/chekos/jbm-ui/blob/main/${item.sourcePath}`}
-            >
-              Source ↗
-            </a>
             {documentation ? (
-              <a href="https://github.com/chekos/jbm-ui/blob/main/docs/surface-depth.md">
-                Design note ↗
-              </a>
+              <a href="/docs/surface-depth.md">Design note</a>
             ) : (
-              <a href={`/r/${name}.json`}>Registry JSON ↗</a>
+              <a href={`/r/${name}.json`}>Registry JSON (source) ↗</a>
             )}
           </div>
         </details>

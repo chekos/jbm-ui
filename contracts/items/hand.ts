@@ -42,4 +42,7 @@ export default {
     "Check the card fill and ink stroke read on cream, and the aria-label follows the pose.",
     "Scale with width at narrow screens: the 30:29 aspect ratio holds.",
   ],
+  docs: [
+    { title: "Desk illustrations guide", url: "https://jbm-ui.bns.studio/docs/desk-components.md" },
+  ],
 } satisfies ItemContract

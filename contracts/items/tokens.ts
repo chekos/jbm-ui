@@ -86,4 +86,7 @@ export default {
     "When adding a color, decide whether cssVars should expose it; today it exports eight of the eleven colors.",
     "Verify text using dim or dimOnDark keeps readable contrast on its background.",
   ],
+  docs: [
+    { title: "Surface depth guide", url: "https://jbm-ui.bns.studio/docs/surface-depth.md" },
+  ],
 } satisfies ItemContract

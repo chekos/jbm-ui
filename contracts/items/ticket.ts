@@ -41,4 +41,7 @@ export default {
     "Remove header or stub and confirm no empty band or dashed line remains.",
     "Check long content on a narrow screen wraps inside the ticket (overflowWrap anywhere) and the surface border and shadow match Card.",
   ],
+  docs: [
+    { title: "Visual primitives guide", url: "https://jbm-ui.bns.studio/docs/visual-primitives.md" },
+  ],
 } satisfies ItemContract

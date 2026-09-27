@@ -3,7 +3,7 @@ import type { ItemContract } from "../schema"
 export default {
   name: "chat-bubble",
   entry: "component",
-  title: "Chat Bubble",
+  title: "ChatBubble",
   description: "Messages with optional speakers and tails, incoming/outgoing alignment, and three palette tones.",
   category: "UI",
   capabilities: [],
@@ -37,5 +37,8 @@ export default {
     "Check start and end alignment: the tail sits 22px in from the aligned corner and points toward that side.",
     "Turn off the tail and confirm the 10px gap below disappears.",
     "Check a long unbroken message on a narrow screen wraps inside the bubble instead of overflowing.",
+  ],
+  docs: [
+    { title: "Visual primitives guide", url: "https://jbm-ui.bns.studio/docs/visual-primitives.md" },
   ],
 } satisfies ItemContract

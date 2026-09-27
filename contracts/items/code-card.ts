@@ -73,4 +73,7 @@ export default {
     "Check the longest line and the line count fit inside `w` × `h` at the chosen `size`; overflow is clipped, not wrapped.",
     "Inspect the dark surface border and shadow at display scale (docs/surface-depth.md).",
   ],
+  docs: [
+    { title: "Scene spec guide", url: "https://jbm-ui.bns.studio/docs/scene-spec.md" },
+  ],
 } satisfies ItemContract

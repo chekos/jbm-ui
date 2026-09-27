@@ -17,7 +17,7 @@ export const color = {
   codeGreen: "#9BE59B",
 } as const
 
-/** Font stacks: the CSS variable when a host app sets one (next/font), else the family loaded by @remotion/fonts. */
+/** Font stacks: the CSS variable when a host app sets one (next/font), else the Geist / Geist Mono family loaded in Remotion (@remotion/google-fonts or @remotion/fonts). */
 export const font = {
   sans: "var(--font-sans, Geist), Geist, system-ui, sans-serif",
   mono: "var(--font-mono, 'Geist Mono'), 'Geist Mono', ui-monospace, monospace",

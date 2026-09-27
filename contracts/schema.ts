@@ -72,6 +72,17 @@ export type Example = {
   code: string
 }
 
+/**
+ * A public link an agent can fetch without the repository checked out. `url` must be absolute.
+ * Guides in docs/ are published by the site at https://jbm-ui.bns.studio/docs/<slug>.md and other
+ * site files at https://jbm-ui.bns.studio/…; both are checked to exist. The source repository is
+ * private, so links into it are rejected.
+ */
+export type Link = {
+  title: string
+  url: string
+}
+
 export type ItemContract = {
   /** Registry item name, or the gallery entry name for documentation entries. */
   name: string
@@ -81,7 +92,10 @@ export type ItemContract = {
    * `doc`: a gallery documentation entry with no registry item; `install` names what to add.
    */
   entry: "component" | "bundle" | "doc"
-  /** Synced into registry.json by `pnpm contracts:build`. */
+  /**
+   * The primary export when the first `api` entry is a component (ToolCaddy, UiButton), otherwise
+   * the name in PascalCase (Tokens, MotionHooks). Synced into registry.json by `pnpm contracts:build`.
+   */
   title: string
   /** Synced into registry.json by `pnpm contracts:build`. */
   description: string
@@ -101,6 +115,10 @@ export type ItemContract = {
   install?: string
   /** `bundle` entries only: why there is no page and which items to open instead. */
   pageReason?: string
+  /** Guides that genuinely cover this item (not passing mentions). Omit when there are none. */
+  docs?: Link[]
+  /** Machine-readable schemas for the item's input data, e.g. the scene-spec JSON Schema. */
+  schemas?: Link[]
 }
 
 // --- Generated shapes (contracts/generated/*.json) -----------------------------------------
@@ -148,8 +166,8 @@ export type ContractEntry = {
   /** Registry item that `npx shadcn add` installs (a doc entry's `install`). */
   installName: string
   inRegistry: boolean
-  /** Site-relative QA page path, or "n/a" for bundles (see pageReason). */
-  page: string
+  /** Site-relative QA page path, or null for bundles (see pageReason). */
+  page: string | null
   pageReason?: string
   /** Site-relative registry JSON path for installName. */
   registryItem: string
@@ -160,4 +178,8 @@ export type ContractEntry = {
   stage: StageSize
   examples: Example[]
   qa: string[]
+  /** Present only when the contract lists docs. */
+  docs?: Link[]
+  /** Present only when the contract lists schemas. */
+  schemas?: Link[]
 }

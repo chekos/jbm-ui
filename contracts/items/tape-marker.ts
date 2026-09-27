@@ -3,7 +3,7 @@ import type { ItemContract } from "../schema"
 export default {
   name: "tape-marker",
   entry: "component",
-  title: "Tape marker",
+  title: "TapeMarker",
   description:
     "Folded vermilion paper checkpoint marker with an optional label above it.",
   category: "UI Bits",
@@ -38,5 +38,8 @@ export default {
     "Toggle Marker label: the marker box does not move or resize, and the label centers above it.",
     "Check the top fold reads as a darker band and the shadow matches other paper surfaces.",
     "Check long labels at narrow widths: they do not wrap, so make sure they are not clipped by a parent.",
+  ],
+  docs: [
+    { title: "Paper and filing illustrations guide", url: "https://jbm-ui.bns.studio/docs/design-video-components.md" },
   ],
 } satisfies ItemContract

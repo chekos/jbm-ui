@@ -3,7 +3,7 @@ import type { ItemContract } from "../schema"
 export default {
   name: "action-link",
   entry: "component",
-  title: "Action Link",
+  title: "ActionLink",
   description: "A text anchor with an optional arrow and visible hover and keyboard focus.",
   category: "UI",
   capabilities: [],

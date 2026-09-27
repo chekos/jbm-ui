@@ -53,7 +53,7 @@ export default {
     },
     {
       title: "Drive it from a Remotion timeline",
-      code: 'import { Folder } from "@/jbm/ui/folder"\nimport { useProgress } from "@/jbm/motion/hooks" // install @jbm/motion-hooks separately\n\nconst open = useProgress(0.5, 1, 0.8)\n<Folder label="proyecto" tone="ink" open={open} style={{ width: 390 }} />',
+      code: 'import { Folder } from "@/jbm/ui/folder"\nimport { useProgress } from "@/jbm/motion/hooks" // install @jbm/motion-hooks separately\n\n// Render inside a Remotion <Composition> or <Player>: hooks run in the component body.\nexport function OpeningFolder() {\n  const open = useProgress(0.5, 1, 0.8)\n  return <Folder label="proyecto" tone="ink" open={open} style={{ width: 390 }} />\n}',
     },
   ],
   qa: [
@@ -61,5 +61,9 @@ export default {
     "Check the label stays on the front plane while it foreshortens, and long labels truncate with an ellipsis.",
     "Compare accent and ink tones; the ink folder keeps a visible 2px edge on cream.",
     "Scale with style.width at narrow widths: the silhouette keeps its 260:220 proportions.",
+  ],
+  docs: [
+    { title: "Paper and filing illustrations guide", url: "https://jbm-ui.bns.studio/docs/design-video-components.md" },
+    { title: "Visual primitives guide", url: "https://jbm-ui.bns.studio/docs/visual-primitives.md" },
   ],
 } satisfies ItemContract

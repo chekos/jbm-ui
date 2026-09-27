@@ -46,4 +46,7 @@ export default {
     "Drag Dim optional field from 0 to 1: key and value fade together to about 28% opacity and stay legible.",
     "Check a long unbroken value on a narrow screen: it wraps inside the block instead of overflowing.",
   ],
+  docs: [
+    { title: "Paper and filing illustrations guide", url: "https://jbm-ui.bns.studio/docs/design-video-components.md" },
+  ],
 } satisfies ItemContract

@@ -1,7 +1,7 @@
 {
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "paper-clip",
-  "title": "Paper clip",
+  "title": "PaperClip",
   "description": "Independent ink wire clip to lay across a paper edge.",
   "registryDependencies": [
     "@jbm/tokens"

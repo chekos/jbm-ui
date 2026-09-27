@@ -1,7 +1,7 @@
 {
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "scroll-text-fill",
-  "title": "Scroll text fill",
+  "title": "ScrollTextFill",
   "description": "Scroll to bring text into focus, one character at a time. Keyboard scrolling, reversible progress, and reduced-motion support.",
   "registryDependencies": [
     "@jbm/text-fill",

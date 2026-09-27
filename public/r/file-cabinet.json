@@ -1,7 +1,7 @@
 {
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "file-cabinet",
-  "title": "File cabinet",
+  "title": "FileCabinet",
   "description": "SVG cabinet enclosure around a controlled filing drawer whose folders slide out and lift.",
   "registryDependencies": [
     "@jbm/tokens",

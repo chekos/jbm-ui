@@ -1,7 +1,7 @@
 {
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "chat-bubble",
-  "title": "Chat Bubble",
+  "title": "ChatBubble",
   "description": "Messages with optional speakers and tails, incoming/outgoing alignment, and three palette tones.",
   "registryDependencies": [
     "@jbm/tokens"

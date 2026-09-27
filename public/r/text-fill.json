@@ -1,7 +1,7 @@
 {
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "text-fill",
-  "title": "Text fill",
+  "title": "TextFill",
   "description": "A controlled character sweep from muted text through vermilion into ink. Drive progress with a slider, scroll, or a video timeline.",
   "registryDependencies": [
     "@jbm/tokens"

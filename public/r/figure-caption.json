@@ -1,7 +1,7 @@
 {
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "figure-caption",
-  "title": "Figure Caption",
+  "title": "FigureCaption",
   "description": "An editorial figure label, caption, and provenance that wraps on narrow screens.",
   "registryDependencies": [
     "@jbm/tokens"

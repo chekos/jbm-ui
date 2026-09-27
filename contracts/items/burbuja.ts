@@ -39,7 +39,7 @@ export default {
     },
     {
       title: "Drive the highlight from a Remotion timeline",
-      code: 'import { Burbuja } from "@/jbm/motion/burbuja"\nimport { useProgress } from "@/jbm/motion/hooks" // install @jbm/motion-hooks separately\n\nconst progress = useProgress(0.5, 1, 0.8)\n<Burbuja side="end" words={["Una", "pieza", "a", "la", "vez."]} highlight={[1, 4]} progress={progress} />',
+      code: 'import { Burbuja } from "@/jbm/motion/burbuja"\nimport { useProgress } from "@/jbm/motion/hooks" // install @jbm/motion-hooks separately\n\n// Render inside a Remotion <Composition> or <Player>: hooks run in the component body.\nexport function SpeakingBubble() {\n  const progress = useProgress(0.5, 1, 0.8)\n  return <Burbuja side="end" words={["Una", "pieza", "a", "la", "vez."]} highlight={[1, 4]} progress={progress} />\n}',
     },
   ],
   qa: [
@@ -47,5 +47,8 @@ export default {
     "Check spacing and wrapping are unchanged by the highlight: highlighted words keep the bubble's font size, weight, and line height.",
     "Compare paper, ink, and accent tones and both sides; note that the accent tone hides an accent highlight.",
     "Verify at a narrow width that long words wrap inside the bubble and the tail stays attached.",
+  ],
+  docs: [
+    { title: "Desk illustrations guide", url: "https://jbm-ui.bns.studio/docs/desk-components.md" },
   ],
 } satisfies ItemContract
