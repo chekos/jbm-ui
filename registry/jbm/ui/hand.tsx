@@ -17,10 +17,12 @@ export type HandProps = SVGProps<SVGSVGElement> & {
 // "hands") in the open palm's construction: same transform, 2.57 outline, wrist cut, and 6.4-wide
 // round capsule fingers. grip is a front-view fist: four finger capsules with knuckle bumps on top
 // and curled fingertips in a row below, the thumb lying across under them, pointing in. type is the
-// hand from above on a keyboard: middle, ring, and pinky leaning together, the index bent up-left at
-// its middle knuckle, the thumb low and pointing left toward the space bar. hold is the side-view
-// mug grip turned so the wrist sits at the bottom: four stacked fingers with their curled tips on
-// the palm and the thumb's back continuing the back of the hand, opening from the index in a V.
+// hand from above on a keyboard: the four fingers are concentric curved bands around one centre,
+// so neighbours share a side exactly; each rises straight from the palm and arcs up-left, the index
+// curling furthest and the middle tallest, and the thumb lies low, pointing left toward the space
+// bar. hold is the side-view mug grip turned so the wrist sits at the bottom: four stacked fingers
+// with their curled tips on the palm and the thumb's back continuing the back of the hand, opening
+// from the index in a V.
 // In every pose, including point and pinch, dividers start on the outline's valley points and use
 // the outline's stroke width.
 const poses = {
@@ -178,7 +180,7 @@ const poses = {
   ],
   type: [
     {
-      d: "M55.5 45.2 C55.5 42.2 53.53 32.06 53.06 29.1 A3.2 3.2 0 0 0 46.74 30.1 L45.52 22.4 A3.2 3.2 0 0 0 39.2 23.4 L39.26 23.8 A3.2 3.2 0 0 0 32.94 24.8 L33.65 29.29 L28.36 24.85 A3.2 3.2 0 0 0 24.24 29.75 L25.25 30.6 C26.72 31.83 27.91 33.92 28.21 35.82 L29.53 44.17 L24 41.93 A3.2 3.2 0 0 0 21.6 47.87 C24.38 48.99 28.5 54.5 32.9 57.6 C33.6 58.4 34.5 59 35.3 59.4 L36.8 64.8 L54.1 60.1 C53.9 59 53.5 56.9 53.5 56 C53.5 53.8 55.5 50.2 55.5 45.2 Z",
+      d: "M55.5 45.2 C55.5 39.2 53.6 37.45 53.25 32.46 L53.18 31.46 A31.4 31.4 0 0 0 52.57 27.13 A3.2 3.2 0 0 0 46.31 28.46 A25 25 0 0 0 44.87 23.89 A3.2 3.2 0 0 0 38.98 26.39 A18.6 18.6 0 0 0 34.78 20.27 A3.2 3.2 0 0 0 30.33 24.88 A12.2 12.2 0 0 0 27.95 23.09 A3.2 3.2 0 0 0 24.75 28.63 A5.8 5.8 0 0 1 27.64 33.25 L28.37 43.7 L24 41.93 A3.2 3.2 0 0 0 21.6 47.87 C24.38 48.99 29.4 53.6 32.9 57.6 C33.6 58.4 34.5 59 35.3 59.4 L36.8 64.8 L54.1 60.1 C53.9 59 53.5 56.9 53.5 56 C53.5 53.8 55.5 50.2 55.5 45.2 Z",
       fill: "#FFFFFF",
       stroke: "#111212",
       strokeWidth: "2.57",
@@ -186,7 +188,7 @@ const poses = {
       strokeLinejoin: "round",
     },
     {
-      d: "M46.74 30.1 L48.28 39.8",
+      d: "M30.33 24.88 A12.2 12.2 0 0 1 34.02 32.8 L34.41 38.29",
       fill: "none",
       stroke: "#111212",
       strokeWidth: "2.57",
@@ -194,7 +196,7 @@ const poses = {
       strokeLinejoin: "round",
     },
     {
-      d: "M39.26 23.8 L41.64 38.8",
+      d: "M38.98 26.39 A18.6 18.6 0 0 1 40.41 32.36 L40.79 37.84",
       fill: "none",
       stroke: "#111212",
       strokeWidth: "2.57",
@@ -202,7 +204,7 @@ const poses = {
       strokeLinejoin: "round",
     },
     {
-      d: "M33.65 29.29 L35.06 38.2",
+      d: "M46.31 28.46 A25 25 0 0 1 46.79 31.91 L47.18 37.4",
       fill: "none",
       stroke: "#111212",
       strokeWidth: "2.57",
