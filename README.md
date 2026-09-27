@@ -35,7 +35,7 @@ then `npx shadcn add @jbm/stat-card`. Items pull their own dependencies (`@jbm/t
 
 ## Developing
 
-`pnpm dev` runs the preview site. `pnpm registry:build` regenerates `public/r/`. Add a component by writing it under `registry/jbm/`, registering it in `registry.json`, and adding its preview and usage snippet under `components/gallery/`.
+`pnpm dev` runs the preview site. `pnpm registry:build` regenerates `public/r/`. Add a component by writing it under `registry/jbm/`, registering it in `registry.json`, adding its preview under `components/gallery/`, and writing its agent contract in `contracts/items/<name>.ts` (category, capabilities, props, stage, examples; see `docs/agent-contract.md`).
 
 The gallery includes all registry items, category filters, search across names, descriptions, categories, and tags, and namespace installation instructions. Each card shows its `npx shadcn@latest add @jbm/<name>` command with a Copy button and links its title to the item's `/c/<name>` QA page. For agents, `/llms.txt` (plain text) and `/catalog.json` list every gallery item with its category, capabilities, Remotion requirement, registry dependencies, install command, page, registry JSON, props, declared stage size, examples, and QA notes. Both are generated at build time from the per-item agent contracts in `contracts/items/` (see `docs/agent-contract.md`), the same source as the gallery; `<link rel="alternate">` tags on every page point to them. Motion examples use a lazily loaded Remotion Player with frameless previews, a heavy icon-only replay control that traces its arrow from tail to head with frame progress and unlocks on completion, and no autoplay or looping. Keep `remotion` and `@remotion/player` on the same exact version.
 

@@ -20,7 +20,7 @@ import { pointOn } from "@/registry/jbm/lib/geometry"
 import { Ticket } from "@/registry/jbm/ui/ticket"
 import { color } from "@/registry/jbm/lib/tokens"
 
-export { designNames, designSnippets } from "./demo-data"
+export { designNames } from "./demo-data"
 
 function Range({
   label,

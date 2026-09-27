@@ -166,27 +166,6 @@
       "inRegistry": true
     },
     {
-      "name": "ui-bits",
-      "title": "UI bits",
-      "description": "One install for the paper cut-out interface pieces: UiButton, UiInput, UiCard, Piece, PhoneFrame, Badge, and TokenGlyph.",
-      "category": "UI Bits",
-      "capabilities": [],
-      "needsRemotion": false,
-      "registryDependencies": [
-        "@jbm/ui-button",
-        "@jbm/ui-input",
-        "@jbm/ui-card",
-        "@jbm/piece",
-        "@jbm/phone-frame",
-        "@jbm/badge",
-        "@jbm/token-glyph"
-      ],
-      "snippet": "import { PhoneFrame, UiCard, UiInput, UiButton } from \"@/jbm/ui/ui-bits\"\n\n<PhoneFrame w={420} h={780}>\n  <UiCard w={290} />\n  <UiInput w={290} h={92} />\n  <UiButton w={290} h={92} tone=\"ink\" />\n</PhoneFrame>",
-      "installName": "ui-bits",
-      "sourcePath": "registry/jbm/ui/ui-bits.tsx",
-      "inRegistry": true
-    },
-    {
       "name": "replay-button",
       "title": "ReplayButton",
       "description": "Controlled replay icon whose arrow charges from tail to arrowhead as the host animation progresses, then unlocks.",

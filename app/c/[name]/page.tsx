@@ -45,9 +45,7 @@ export default async function ItemPage({ params }: Props) {
   if (!item) notFound()
   const player = isPlayerPreview(item.name)
   const contract = getContract(item.name)
-  const examples =
-    contract?.examples ??
-    (item.snippet ? [{ title: "", code: item.snippet }] : [])
+  const { examples } = contract
   const categoryHref = `/?cat=${categorySlug(item.category)}`
 
   return (
@@ -171,7 +169,7 @@ export default async function ItemPage({ params }: Props) {
         )}
       </div>
 
-      {contract && <ItemApi contract={contract} />}
+      <ItemApi contract={contract} />
 
       <footer>
         Made for tacosdedatos. Built to be used again.

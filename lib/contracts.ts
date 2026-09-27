@@ -10,6 +10,9 @@ export function getContracts(): ContractEntry[] {
   return entries
 }
 
-export function getContract(name: string): ContractEntry | undefined {
-  return byName.get(name)
+export function getContract(name: string): ContractEntry {
+  const contract = byName.get(name)
+  if (!contract)
+    throw new Error(`Missing agent contract for ${name}; run pnpm contracts:build`)
+  return contract
 }

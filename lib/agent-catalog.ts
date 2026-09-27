@@ -1,21 +1,14 @@
 // Machine-readable catalog served at /llms.txt and /catalog.json, built from the agent
 // contracts (contracts/items → contracts/generated/catalog.json). See docs/agent-contract.md.
-import {
-  addCommand,
-  getGalleryItems,
-  registryDependencies,
-  needsRemotion,
-  capabilities,
-} from "@/components/gallery/item-meta"
-import { category, categories } from "@/components/gallery/categories"
+import { addCommand, getGalleryItems } from "@/components/gallery/item-meta"
+import { categories } from "@/components/gallery/categories"
 import type {
   ApiField,
   ContractEntry,
   GeneratedApiEntry,
   StageSize,
 } from "@/contracts/schema"
-import { getContract } from "@/lib/contracts"
-import registry from "@/registry.json"
+import { getContract, getContracts } from "@/lib/contracts"
 import { registryUrlTemplate, siteOrigin } from "@/lib/site"
 
 export const purpose =
@@ -45,20 +38,12 @@ export type CatalogItem = {
   page: string
   pageReason?: string
   registryItem: string
-  snippet?: string
-  /** Present once the item has an agent contract. */
-  api?: GeneratedApiEntry[]
-  stage?: StageSize
-  examples?: ContractEntry["examples"]
-  qa?: string[]
+  snippet: string
+  api: GeneratedApiEntry[]
+  stage: StageSize
+  examples: ContractEntry["examples"]
+  qa: string[]
 }
-
-const bundleReason = (name: string) =>
-  `${name} is a compatibility bundle that re-exports other registry items; open each member's page instead: ${registryDependencies(
-    name
-  )
-    .map((dependency) => dependency.replace(/^@jbm\//, ""))
-    .join(", ")}.`
 
 export function getCatalog() {
   const origin = siteOrigin()
@@ -83,47 +68,13 @@ export function getCatalog() {
     examples: contract.examples,
     qa: contract.qa,
   })
-  const entries: CatalogItem[] = galleryItems.map((item) => {
-    const contract = getContract(item.name)
-    if (contract) return fromContract(contract)
-    return {
-      name: item.name,
-      entry: item.inRegistry ? "component" : "doc",
-      title: item.title,
-      description: item.description,
-      category: item.category,
-      capabilities: item.capabilities,
-      needsRemotion: item.needsRemotion,
-      registryDependencies: item.registryDependencies,
-      install: addCommand(item.installName),
-      page: `${origin}/c/${item.name}`,
-      registryItem: `${origin}/r/${item.installName}.json`,
-      ...(item.snippet ? { snippet: item.snippet } : {}),
-    }
-  })
-  // Installable composites without their own gallery card (the ui-bits bundle).
-  for (const item of registry.items) {
-    if (onGallery.has(item.name)) continue
-    const contract = getContract(item.name)
-    entries.push(
-      contract
-        ? fromContract(contract)
-        : {
-            name: item.name,
-            entry: "bundle",
-            title: item.title,
-            description: item.description,
-            category: category(item.name),
-            capabilities: capabilities(item.name),
-            needsRemotion: needsRemotion(item.name),
-            registryDependencies: registryDependencies(item.name),
-            install: addCommand(item.name),
-            page: "n/a",
-            pageReason: bundleReason(item.name),
-            registryItem: `${origin}/r/${item.name}.json`,
-          }
-    )
-  }
+  // Gallery cards first, then installable composites without a card of their own (ui-bits).
+  const entries: CatalogItem[] = [
+    ...galleryItems.map((item) => fromContract(getContract(item.name))),
+    ...getContracts()
+      .filter((contract) => !onGallery.has(contract.name))
+      .map(fromContract),
+  ]
   return {
     name: "jbm-ui",
     namespace: "@jbm",
@@ -263,11 +214,11 @@ export function getLlmsText() {
           ? `- QA page: none. ${item.pageReason}`
           : `- QA page: ${item.page}`,
         `- Registry item: ${item.registryItem}`,
-        ...(item.stage ? [`- Stage: ${stageLine(item.stage)}`] : [])
+        `- Stage: ${stageLine(item.stage)}`
       )
-      if (item.api?.length) lines.push("", "API:", "", ...apiLines(item.api))
-      if (item.snippet) lines.push("", "```tsx", item.snippet, "```")
-      if (item.qa?.length)
+      if (item.api.length) lines.push("", "API:", "", ...apiLines(item.api))
+      lines.push("", "```tsx", item.snippet, "```")
+      if (item.qa.length)
         lines.push("", "QA:", "", ...item.qa.map((note) => `- ${note}`))
     }
   }

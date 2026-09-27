@@ -9,8 +9,8 @@ Every gallery item has one typed contract in `contracts/items/<name>.ts`. It is 
 | `name` | yes | Registry item name; equals the file name. |
 | `entry` | yes | `component` has a `/c/<name>` page. `bundle` re-exports other items and has no page (`pageReason` says which pages to open; `ui-bits`). `doc` is a gallery documentation entry without a registry item (`install` names the item that ships its code; `surface-depth` → `tokens`). |
 | `title`, `description` | yes | Written back into `registry.json` by `pnpm contracts:build`. |
-| `category` | yes | Behaviour-based category from `components/gallery/categories.ts`; written back into `registry.json` `categories`. |
-| `capabilities` | yes | What the preview offers: `controls`, `scroll`, `replay`, `portrait`, `player` (previews in a Remotion Player). `player` and `portrait` must match the gallery's `playerNames` and `orientationNames`. |
+| `category` | yes | Behaviour-based category, one of the list in `components/gallery/categories.ts`; written back into `registry.json` `categories`. |
+| `capabilities` | yes | What the preview offers: `controls`, `scroll`, `replay`, `portrait`, `player` (previews in a Remotion Player; the gallery routes the preview from this tag). `portrait` (landscape and vertical stage toggle) requires `player`. Search for "remotion" matches items whose `needsRemotion` is true, not the `player` tag. |
 | `api` | descriptions only | Every runtime export of the item's files, or listed in `omit` with a reason. Components list `props`; hooks and functions list `params` and `returns`; constants and types need a `summary`; bundles use `re-export` with `from`. Prop and parameter types, required flags, and defaults are extracted from source; a JSDoc comment on a prop's declaration can stand in for its description. |
 | `stage` | yes | `declared` with `landscape` and `vertical` boxes (`width` in stage px, `"auto"`, or `"fill"`; `height` in stage px) and a `basis`, or `fluid` / `n/a` with a `reason`. |
 | `examples` | yes | At least one. `code` uses real `@/jbm/…` imports; the first is the card and page snippet. Imports from items the install does not bring in carry `// install @jbm/<item> separately`. |
@@ -24,7 +24,7 @@ Derived at build time from `registry.json`: `needsRemotion` (the item or anythin
 2. Run `pnpm contracts:validate <name>` until it passes. It checks required fields, props against source, example imports, and stage sizes, without writing files.
 3. Run `pnpm contracts:build`, then `pnpm registry:build`, and commit `contracts/generated/`, `registry.json`, and `public/r/`.
 
-`pnpm contracts:status` lists items that still need a contract; the gallery derives their metadata the old way until they have one.
+`pnpm contracts:status` lists items that still need a contract. Contracts are the only source of gallery metadata: an item without one fails `pnpm contracts:check` and the full contract test.
 
 ## How generation works
 
