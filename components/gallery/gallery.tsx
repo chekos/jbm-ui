@@ -21,6 +21,7 @@ import { ScrollStackDemo } from "./scroll-stack-demo"
 import { SurfaceDepth } from "./surface-depth"
 import { DesignVideoDemo, designNames } from "./design-video-demo"
 import { DeskDemo, deskNames } from "./desk-demo"
+import { ThreadDemo, threadNames } from "./thread-demo"
 import { AddCommand, InstallOnce } from "./install"
 import { CodeBlock } from "./code-block"
 import { color } from "@/registry/jbm/lib/tokens"
@@ -163,6 +164,7 @@ function Preview({ item }: { item: GalleryItem }) {
     <div
       style={
         designNames.includes(name) ||
+        threadNames.includes(name) ||
         name === "scroll-stack" ||
         name === "flip-text" ||
         name === "text-fill" ||
@@ -206,6 +208,8 @@ function Preview({ item }: { item: GalleryItem }) {
         </div>
       ) : deskNames.includes(name) ? (
         <DeskDemo name={name} />
+      ) : threadNames.includes(name) ? (
+        <ThreadDemo name={name} />
       ) : name in examples ? (
         <Canvas>{examples[name as keyof typeof examples]}</Canvas>
       ) : (

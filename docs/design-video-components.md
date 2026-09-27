@@ -24,9 +24,15 @@ The gallery's Ticket example demonstrates a work order using the existing header
 
 Install `@jbm/mano` separately to add a hand. Its optional `anchor` is in the Hand artwork's 30×29 coordinate system; `{ x: 6, y: 10 }` places the pinch opening at `at`. Rotation occurs around that contact point. Omit `anchor` to preserve the existing placement behavior.
 
+## Thread and video print
+
+`@jbm/hilo` is the ink thread from the Doorways film: an SVG `<g>` tied from `from` to `to` in the parent SVG's units. It has no arrowheads. `curve="s"` leaves and arrives level (a line of writing tied to a folder tab); `curve="arc"` bows sideways by `bend`. `draw` lays it by arc length. With `snapAt`, the same `draw` first lays the thread (0 → snapAt) and then snaps it (snapAt → 1): the thread parts at `breakAt`, the two ends recoil about a fifth of its length apart (never more than 90 units), and curled fibers peel off each end according to `fray`. `slack` sags a tied thread and lets snapped ends hang. Both ends stay tied: the first piece always starts at `from`, and once laid the last piece ends at `to`, with the anchor tangents unchanged. `notch` bridges the gap tip to tip with a vermilion bar, the only accent the thread draws. `hiloGeometry` returns the exact cubics it draws.
+
+`@jbm/video-print` composes `Paper` and `PunchedTag` unchanged. The 16:9 frame is a pale sketch (tinted fill, ink outline, head and shoulders), never a solid block. The ink scrub bar advances with `scrub` and leaves a tick at each mark it reaches. `link` hangs a mono URL tag over the bottom edge, meaning the page was opened. `videoPrintLayout(props, at)` returns the mark points on the rule and the tag hole in stage coordinates, so a Hilo can tie on as the tick appears.
+
 ## Verification
 
-Run `node --test scripts/design-video-components.test.mjs` for isolated installation, paper-coordinate and bounded-rendering checks, grapheme behavior, and carry/contact invariants. `pnpm consumer:check` exercises the components through both source copying and real registry installation.
+Run `node --test scripts/design-video-components.test.mjs scripts/thread-components.test.mjs` for isolated installation, paper-coordinate and bounded-rendering checks, grapheme behavior, carry/contact invariants, pinned thread ends, snap continuity, and scrub marks. `pnpm consumer:check` exercises the components through both source copying and real registry installation.
 
 Inspect open/closed folders, extracted documents, zero/one/crowded contents, horizontal/vertical tape, and separate control combinations at desktop and mobile widths. Check caption playback too: emphasized words now move vertically without scaling into their neighbors.
 

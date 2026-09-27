@@ -13,7 +13,8 @@ import { ScrollStackDemo } from "./scroll-stack-demo"
 import { SurfaceDepth } from "./surface-depth"
 import { DesignVideoDemo } from "./design-video-demo"
 import { DeskDemo } from "./desk-demo"
-import { designNames, deskNames } from "./demo-data"
+import { ThreadDemo } from "./thread-demo"
+import { designNames, deskNames, threadNames } from "./demo-data"
 import { examples } from "./examples"
 
 function Canvas({ children }: { children: ReactNode }) {
@@ -32,6 +33,7 @@ const padded = { padding: 24, width: "100%", boxSizing: "border-box" } as const
 function autoHeight(name: string) {
   return (
     designNames.includes(name) ||
+    threadNames.includes(name) ||
     ["scroll-stack", "flip-text", "text-fill", "scroll-text-fill"].includes(
       name
     ) ||
@@ -43,6 +45,7 @@ function autoHeight(name: string) {
 function Demo({ name }: { name: string }) {
   if (designNames.includes(name)) return <DesignVideoDemo name={name} />
   if (deskNames.includes(name)) return <DeskDemo name={name} />
+  if (threadNames.includes(name)) return <ThreadDemo name={name} />
   switch (name) {
     case "scroll-stack":
       return <ScrollStackDemo />

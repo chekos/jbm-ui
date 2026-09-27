@@ -41,6 +41,8 @@ export const urlStateNames = [
   "clock",
   "ticket",
   "text-fill",
+  "hilo",
+  "video-print",
 ]
 
 /** Desk illustration pieces, previewed by DeskDemo. */
@@ -54,3 +56,6 @@ export const deskNames = [
   "escritorio",
   "burbuja",
 ]
+
+/** Thread and video print pieces from the Doorways film, previewed by ThreadDemo. */
+export const threadNames = ["hilo", "video-print"]

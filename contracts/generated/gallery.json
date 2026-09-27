@@ -1126,6 +1126,44 @@
       "inRegistry": true
     },
     {
+      "name": "video-print",
+      "title": "VideoPrint",
+      "description": "A printed video still on a Paper sheet: a pale 16:9 line sketch, an ink scrub rule with anchor ticks, title and date, and an optional punched link tag.",
+      "category": "UI Bits",
+      "capabilities": [
+        "controls"
+      ],
+      "needsRemotion": false,
+      "registryDependencies": [
+        "@jbm/tokens",
+        "@jbm/scene-geometry",
+        "@jbm/paper",
+        "@jbm/punched-tag"
+      ],
+      "snippet": "import { VideoPrint } from \"@/jbm/ui/video-print\"\n\n<VideoPrint\n  scrub={1}\n  title=\"Alex Hormozi\"\n  date=\"YouTube · 4 nov 2025\"\n  link=\"youtube.com/watch?v=mr4Pw66_498\"\n/>",
+      "installName": "video-print",
+      "sourcePath": "registry/jbm/ui/video-print.tsx",
+      "inRegistry": true
+    },
+    {
+      "name": "hilo",
+      "title": "Hilo",
+      "description": "An ink thread tied between two points that lays out, sags, and snaps into frayed ends with an optional vermilion notch.",
+      "category": "UI Bits",
+      "capabilities": [
+        "controls"
+      ],
+      "needsRemotion": false,
+      "registryDependencies": [
+        "@jbm/tokens",
+        "@jbm/scene-geometry"
+      ],
+      "snippet": "import { Hilo } from \"@/jbm/ui/hilo\"\n\ndeclare const progress: number\n// Draw it over the stage, in the same units as your sheet and drawer.\n<svg viewBox=\"0 0 1920 1080\" style={{ position: \"absolute\", inset: 0 }}>\n  <Hilo from={{ x: 520, y: 402 }} to={{ x: 1340, y: 236 }} curve=\"s\" bend={0.5} draw={progress} />\n</svg>",
+      "installName": "hilo",
+      "sourcePath": "registry/jbm/ui/hilo.tsx",
+      "inRegistry": true
+    },
+    {
       "name": "paper-line",
       "title": "PaperLine",
       "description": "Line of text with controlled grapheme reveal, ink lift, strike-through, and dotted underline.",
