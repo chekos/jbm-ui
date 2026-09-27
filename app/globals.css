@@ -784,23 +784,59 @@ details.install-once {
   margin: 0 0 8px;
   max-width: 62ch;
 }
-.install-once-code {
-  position: relative;
+/* Code blocks: copyable snippets that soft-wrap instead of scrolling sideways. The Copy button
+   floats in the top-right corner so the first lines flow around it and later lines use the
+   full width. Each source line is a block that hangs its wrapped remainder 2ch past its own
+   indentation, so nested JSX keeps its shape at phone widths. */
+.code-block {
+  margin: 16px 0;
+  padding: 8px 8px 14px 14px;
+  background: var(--jbm-bg);
+  border: 1px solid var(--jbm-line);
+  border-radius: 6px;
 }
-.install-once pre {
+.install-once .code-block {
   margin: 0;
-  overflow-x: auto;
 }
-/* The copy button rides in the code block's top-right corner, clear of the short first lines. */
-.install-once-code .copy-button {
-  position: absolute;
-  top: 8px;
-  right: 8px;
+.code-block-actions {
+  position: relative;
+  float: right;
+  margin: 0 0 4px 12px;
+}
+.code-block-actions .copy-button {
   background: var(--jbm-bg);
 }
-.install-once-code .copy-status:not(:empty) {
+/* The status is transient: it sits beside the button rather than reflowing the code. */
+.code-block-actions .copy-status {
+  position: absolute;
+  top: 50%;
+  right: calc(100% + 4px);
+  translate: 0 -50%;
+  padding: 2px 6px;
+  background: var(--jbm-bg);
+  white-space: nowrap;
+}
+.code-block pre {
+  margin: 0;
+  padding: 6px 0 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  overflow: visible;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  tab-size: 2;
+}
+.code-block pre,
+.code-block code {
+  font-family: var(--font-mono);
+}
+.code-line {
+  --hang: calc(var(--indent, 0ch) + 2ch);
   display: block;
-  margin-top: 10px;
+  min-height: 1lh;
+  padding-left: var(--hang);
+  text-indent: calc(-1 * var(--hang));
 }
 .install-once code,
 .card-content code {
@@ -864,14 +900,6 @@ details > p {
     .install-once:not([data-hydrated]) > .install-once-body {
       display: none;
     }
-  }
-  /* The registries line is wider than a phone: fade the right edge and keep a
-     thin visible scrollbar so it reads as scrollable. */
-  .install-once pre {
-    padding-right: 32px;
-    scrollbar-width: thin;
-    scrollbar-color: var(--jbm-line) transparent;
-    mask-image: linear-gradient(to right, #000 calc(100% - 40px), transparent);
   }
 }
 
@@ -1272,10 +1300,8 @@ details > p {
 .item-docs code {
   font-family: var(--font-mono);
 }
-.item-docs pre {
+.item-docs .code-block {
   margin: 12px 0 0;
-  scrollbar-width: thin;
-  scrollbar-color: var(--jbm-line) transparent;
 }
 /* Match the Usage block's top edge so both columns start on one line. */
 .item-docs .add-command {
@@ -1353,7 +1379,7 @@ details > p {
   color: var(--jbm-dim);
   font-size: 14px;
 }
-.item-example figcaption + pre {
+.item-example figcaption + .code-block {
   margin-top: 8px;
 }
 /* Contract section: declared stage size and one compact table per export. */
@@ -1610,8 +1636,40 @@ details > p {
   font-family: var(--font-mono);
   font-size: 0.85em;
 }
+/* The missing name is the reader's own input: let a long or unbroken one wrap. */
+.not-found-title {
+  overflow-wrap: anywhere;
+}
 .not-found-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 24px;
   margin: 24px 0 0;
+  font-size: 14px;
+}
+.not-found-actions a:not(.not-found-primary) {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  color: var(--jbm-ink);
+  text-decoration: underline;
+  text-decoration-color: var(--jbm-line);
+  text-underline-offset: 3px;
+}
+.not-found-actions a:not(.not-found-primary):hover {
+  text-decoration-color: currentColor;
+}
+.not-found-primary {
+  overflow-wrap: anywhere;
+}
+.not-found .item-head .not-found-members {
+  max-width: 62ch;
+}
+.not-found-members code {
+  color: var(--jbm-dim);
+  font-family: var(--font-mono);
+  font-size: 12px;
 }
 .not-found-primary {
   display: inline-flex;

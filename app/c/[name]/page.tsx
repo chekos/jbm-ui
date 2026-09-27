@@ -9,6 +9,7 @@ import {
   supportsOrientation,
 } from "@/components/gallery/item-meta"
 import { AddCommand } from "@/components/gallery/install"
+import { CodeBlock } from "@/components/gallery/code-block"
 import { QaBench } from "@/components/gallery/qa-bench"
 import { ItemApi } from "@/components/gallery/item-api"
 import { BundlePage, type BundleNotice } from "@/components/gallery/not-found"
@@ -20,7 +21,7 @@ type Props = { params: Promise<{ name: string }> }
 
 // One static QA page per gallery item. Bundles (ui-bits) have no QA page: /c/<bundle> renders a
 // noindex page that explains them and links to their members. Any other name is the 404
-// (./not-found.tsx).
+// (app/not-found.tsx, which names the missing item; see proxy.ts).
 export const dynamicParams = false
 
 const bundleNames = () =>
@@ -233,14 +234,15 @@ export default async function ItemPage({ params }: Props) {
                 {example.title && (
                   <figcaption id={`example-${index}`}>{example.title}</figcaption>
                 )}
-                <pre
-                  tabIndex={0}
-                  aria-labelledby={
-                    example.title ? `example-${index}` : "usage-heading"
+                <CodeBlock
+                  code={example.code}
+                  title={
+                    example.title ??
+                    (examples.length > 1
+                      ? `${item.title} ${index + 1}`
+                      : item.title)
                   }
-                >
-                  <code>{example.code}</code>
-                </pre>
+                />
               </figure>
             ))}
           </section>
