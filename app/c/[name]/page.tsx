@@ -15,7 +15,7 @@ import { ItemApi } from "@/components/gallery/item-api"
 import { BundlePage, type BundleNotice } from "@/components/gallery/not-found"
 import { itemAlternateTypes } from "@/lib/agent-catalog"
 import { getContract, getContracts } from "@/lib/contracts"
-import { siteOrigin } from "@/lib/site"
+import { repoSourceUrl, siteOrigin } from "@/lib/site"
 
 type Props = { params: Promise<{ name: string }> }
 
@@ -83,6 +83,24 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 }
 
+/**
+ * The previous and next item in the same category, in gallery order, wrapping at either end, so a
+ * QA pass can walk a category without returning to the index. Null for a category of one.
+ */
+function categorySiblings(name: string, category: string) {
+  const members = getGalleryItems().filter((item) => item.category === category)
+  const index = members.findIndex((item) => item.name === name)
+  if (members.length < 2 || index < 0) return null
+  const at = (offset: number) =>
+    members[(index + offset + members.length) % members.length]
+  return {
+    previous: at(-1),
+    next: at(1),
+    position: index + 1,
+    count: members.length,
+  }
+}
+
 // Contract links on the production origin resolve on this deployment, so previews stay local.
 const localHref = (url: string) =>
   url.startsWith("https://jbm-ui.bns.studio/")
@@ -103,6 +121,7 @@ export default async function ItemPage({ params }: Props) {
     { label: "Schema", links: contract.schemas ?? [] },
   ].filter((row) => row.links.length > 0)
   const categoryHref = `/?cat=${categorySlug(item.category)}`
+  const siblings = categorySiblings(item.name, item.category)
 
   return (
     <main className="site-shell item-page item-qa" id="main" tabIndex={-1}>
@@ -121,6 +140,25 @@ export default async function ItemPage({ params }: Props) {
             <li aria-current="page">{item.title}</li>
           </ol>
         </nav>
+        {siblings && (
+          <nav className="item-pager" aria-label={`Items in ${item.category}`}>
+            <Link
+              href={`/c/${siblings.previous.name}`}
+              aria-label={`Previous in ${item.category}: ${siblings.previous.title}`}
+            >
+              <span aria-hidden="true">←</span> {siblings.previous.title}
+            </Link>
+            <span className="item-pager-count">
+              {siblings.position} of {siblings.count}
+            </span>
+            <Link
+              href={`/c/${siblings.next.name}`}
+              aria-label={`Next in ${item.category}: ${siblings.next.title}`}
+            >
+              {siblings.next.title} <span aria-hidden="true">→</span>
+            </Link>
+          </nav>
+        )}
       </header>
 
       {/* Compact intro: the title and its tag line share a row so the bench fits the first
@@ -185,9 +223,12 @@ export default async function ItemPage({ params }: Props) {
             </p>
           )}
           <ul className="item-links">
+            <li>
+              <a href={repoSourceUrl(item.sourcePath)}>Source ↗</a>
+            </li>
             {item.inRegistry ? (
               <li>
-                <a href={`/r/${item.name}.json`}>Registry JSON (source) ↗</a>
+                <a href={`/r/${item.name}.json`}>Registry JSON ↗</a>
               </li>
             ) : (
               <li>
