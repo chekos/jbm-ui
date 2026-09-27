@@ -18,7 +18,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${sans.variable} ${mono.variable}`}>
-      <body>{children}</body>
+      <body>
+        <a className="skip-link" href="#components">
+          Skip to components
+        </a>
+        {children}
+      </body>
     </html>
   )
 }
