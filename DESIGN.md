@@ -48,6 +48,18 @@ typography:
     fontFamily: "Geist Mono, ui-monospace, monospace"
     fontSize: "12px"
     letterSpacing: "2px"
+  field-phone:
+    fontFamily: "Geist, system-ui, sans-serif"
+    fontSize: "16px"
+    fontWeight: 400
+  demo-fluid:
+    fontFamily: "Geist, system-ui, sans-serif"
+    fontSize: "clamp(24px, 3vw, 40px)"
+    fontWeight: 400
+  demo-fluid-large:
+    fontFamily: "Geist, system-ui, sans-serif"
+    fontSize: "clamp(32px, 4vw, 56px)"
+    fontWeight: 400
 rounded:
   swatch: "4px"
   control: "6px"
@@ -184,6 +196,11 @@ Components read `--font-sans` / `--font-mono` when the host sets them (next/font
 - **Label** (600, 26px stage pixels, 4px tracking, uppercase): the scene kicker that sits top-left of every scene.
 - **Mono label** (400, 12px, 2px tracking when uppercase): filter and section counts, the result status, card and item-page tag lines, the QA frame readout, swatch codes, and numbers with units.
 
+### Named Exceptions
+Three sizes sit outside the ramp on purpose and are listed as tokens so the design detector reads them:
+- **Field phone** (`field-phone`, 16px): the search field's text under 760px. iOS Safari zooms any focused field below 16px, so the field steps up from 14px on phones only.
+- **Demo fluid** (`demo-fluid`, clamp(24px, 3vw, 40px)) and **Demo fluid large** (`demo-fluid-large`, clamp(32px, 4vw, 56px)): the sample sentences inside the Text fill, Scroll text fill, and Flip text previews. They scale with the preview so the per-letter effect stays legible on a phone card and fills a desktop bench; they are demo content, never gallery chrome.
+
 ### Named Rules
 **The Measured-Things-Are-Mono Rule.** Code, labels, counts, and numbers with units use Geist Mono. Prose and headlines never do.
 
@@ -242,7 +259,7 @@ Corners are soft and generous on the stage and tight in the gallery chrome. Card
 - **Item page top bar:** the mono wordmark and a 14px Graphite breadcrumb separated by `/`, with the current item in Press Ink, over a hairline rule. The category link in the breadcrumb and the tag line both open the gallery filtered to that category.
 
 ### Install block
-- **Style:** an Install once disclosure under the header: a 22px `h2` summary with a chevron, then 14px Graphite prose on the left and the `components.json` snippet in a code block on the right. It is open on wide screens and starts closed on phones, where the body stacks; once a reader toggles it, that choice is remembered in the browser. The server-rendered snippet uses the canonical site address; after hydration it shows the current origin.
+- **Style:** an Install once disclosure under the header: a 22px `h2` summary with a chevron, then 14px Graphite prose on the left and the `components.json` snippet in a code block on the right. It is open on wide screens and starts closed on phones, where the body stacks; once a reader toggles it, that choice is remembered in the browser and applied by an inline script before first paint, so a returning reader never sees it flash open or shut. The server-rendered snippet uses the canonical site address; after hydration it shows the current origin.
 
 ### Code block
 - **Style:** every usage snippet (the card Usage disclosure, the item page's Usage examples, and Install once) is a copyable code block: 12px Geist Mono on Cream Canvas inside a Pencil Rule frame with a 6px radius, and a Copy button in the gallery button style floated top-right, so only the first lines flow around it. Code soft-wraps instead of scrolling sideways; each wrapped line hangs 2ch past its own indentation, so nested JSX keeps its shape at phone widths.
@@ -269,11 +286,12 @@ Corners are soft and generous on the stage and tight in the gallery chrome. Card
 ### Bench strip view and URL state
 - **Style:** motion benches carry a toolbar above the stage: a segmented Single / Strip control on the left and a Copy link button on the right. Strip shows Begin, each cue from the item's contract, and End side by side (Begin, Middle, and End when there are no cues) as exact-frame thumbnails in 10px-radius Pencil Rule frames, each captioned with what happens ("Bug appears", "Fix lands") in 14px ink, ending in an ellipsis when long, and its frame number in mono Graphite. Cells run in rows of three at one size for every item, so a pager walk compares like with like; up to four cues wrap into a second row, which still fits the first viewport; orientation-aware items show the landscape and portrait frames, with safe-area guides on every cell (their text label is left to the scene options). At 1024px and wider the landscape frames stack in a column and the portrait frames stand beside them at the full strip height (about 320×568 at 1440×900), so the whole strip still fits the first viewport; between 760px and 1024px they are two rows. On phones the landscape frames stack one per row (two per row when cues add cells) and the portrait frames share one row, under the toolbar and scene options.
 - **Behaviour:** each caption is a button stretched over its cell that opens that frame (and orientation) in Single view. The Player stays mounted while hidden, so switching views keeps its state. The URL carries `view`, `orientation`, `frame` (zero-based), `layout`, `safe`, and `guides=1`, read on first client render and written with a debounced `history.replaceState`, never during playback; defaults are omitted, invalid values fall back to defaults, and an out-of-range frame clamps to the last frame. Copy link copies that stateful URL. URLs are built from the router's pathname and query, the bench is keyed by item, and a pending write never lands on another page, so the pager always opens the next item at its own defaults; it carries only `view=strip` between Player benches. Opening a strip cell moves focus to the frame scrubber and scrolls the bench into view. Before the Player loads, a placeholder with the same toolbar, stage or strip cells, stepper, and options (controls invisible, frames drawn) reserves the requested view's exact size: an inline script reads the query and measures the header before first paint, and again when the web fonts swap in, so the bench never shifts the page.
-- **Controlled illustrations:** folder, desk, paper, score, clock, ticket, and text-fill benches show the same toolbar with only Copy link above the preview. Their control values (`?open=0.5&pose=pinch`) restore from the URL, write back with the same debounced `replaceState`, and leave defaults out; index cards keep local state.
+- **Controlled illustrations:** folder, desk, paper, score, clock, ticket, and text-fill benches show the same toolbar with only Copy link above the preview. Their control values (`?open=0.5&pose=pinch`) restore from the URL, write back with the same debounced `replaceState`, and leave defaults out; on load an unreadable value is dropped, an out-of-range number is rewritten as its bound, and a default is removed, without adding a history entry. Index cards keep local state.
 
 ### Progress control (previews)
 - **Style:** every 0–1 preview slider shares one control: the label and a mono percentage readout on one row, then the ink-accent range input beside three joined segmented presets named for the component's own states (Closed / Half / Open, Start / Midway / Arrived, Left / Center / Right). The matching preset fills Press Ink with cream text. Non-progress sliders (angles, counts, scores, times) use the sibling range control with a readout in their own unit (−7°, 3 sheets, 6 / 10, 08:30).
-- **Behaviour:** presets set `aria-pressed`; the slider's `aria-valuetext` uses the readout's wording ("60%"). The same control renders on cards and on `/c` pages.
+Small whole-number counts (Nested folders, 0–8) use the stepper sibling instead: the same label and mono readout row ("3 folders"), then a joined − / + pair in the preset style with 36×28px targets.
+- **Behaviour:** presets set `aria-pressed`; the slider's `aria-valuetext` uses the readout's wording ("60%"). The stepper's buttons are named "Fewer folders" / "More folders", its readout is a polite `<output>` that announces each change, and at a bound the button turns Graphite with `aria-disabled` but keeps focus. The same controls render on cards and on `/c` pages.
 
 ### Props table (item API)
 - **Style:** the last section of every item page, under a hairline rule, rendered from the item's agent contract. A 22px `h2` (Props for one export, API for several) sits beside the declared stage size: a mono 12px Graphite label column (Stage px, Landscape, Vertical, Basis) against tabular Press Ink sizes and Graphite prose, or the fluid / n/a mode with its reason. Each export gets an 18px mono `h3` with its kind in 12px Graphite mono, a 14px Graphite summary, then a fixed-layout table (Prop, Type, Default, Description) with 12px mono Graphite headers and Pencil Rule row dividers. Prop names are 600-weight ink mono; types and defaults are 12px mono; `required` is ink, `none` is Graphite. Passthrough props follow as one "Also accepts" line, and QA checks close the section as an indented list.

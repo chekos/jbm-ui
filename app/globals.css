@@ -554,7 +554,7 @@ footer {
     margin-left: -20px;
     padding: 4px 28px 4px 20px;
     /* Right-edge fade says "more chips this way". */
-    mask-image: linear-gradient(to right, #000 calc(100% - 32px), transparent);
+    mask-image: linear-gradient(to right, var(--jbm-ink) calc(100% - 32px), transparent);
   }
   .filters button {
     flex: none;
@@ -665,7 +665,7 @@ footer {
   padding: 32px 0;
 }
 .surface-sample {
-  border-radius: 16px;
+  border-radius: 14px; /* rounded.chip */
   padding: 26px 14px;
   min-width: 0;
 }
@@ -800,6 +800,21 @@ footer {
   position: relative;
   z-index: 1;
   outline-offset: 2px;
+}
+/* StepperControl: the preset buttons' joined style as a − / + pair with square hit areas. */
+.progress-stepper button {
+  min-width: 36px;
+  padding: 3px 0;
+  font-family: var(--font-mono);
+  font-size: 14px;
+  line-height: 1;
+}
+.progress-stepper button[aria-disabled="true"] {
+  color: var(--jbm-dim);
+  cursor: default;
+}
+.progress-stepper button[aria-disabled="true"]:hover {
+  border-color: var(--jbm-line);
 }
 
 /* Install once + per-card add command (agent-legible install path). */
@@ -968,10 +983,12 @@ details > p {
   .install-once-body {
     grid-template-columns: minmax(0, 1fr);
   }
-  /* Phones start collapsed; until hydration decides, keep the SSR-open body hidden
-     so the catalog does not jump. Without scripting the body stays readable. */
+  /* Phones start collapsed. The pre-paint script in install.tsx settles the state
+     (data-prepaint); should it not have run, keep the SSR-open body hidden until
+     hydration decides, so the catalog does not jump. Without scripting the body
+     stays readable. */
   @media (scripting: enabled) {
-    .install-once:not([data-hydrated]) > .install-once-body {
+    .install-once:not([data-hydrated]):not([data-prepaint]) > .install-once-body {
       display: none;
     }
   }
