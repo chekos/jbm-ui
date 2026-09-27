@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import {
+  capabilityLabel,
   categorySlug,
   getGalleryItem,
   getGalleryItems,
@@ -169,7 +170,9 @@ export default async function ItemPage({ params }: Props) {
           <ul className="card-tags item-tags" aria-label="Category and preview capabilities">
             <li>{item.category}</li>
             {item.capabilities.map((tag) => (
-              <li key={tag}>{tag}</li>
+              <li key={tag} data-capability={tag}>
+                {capabilityLabel[tag]}
+              </li>
             ))}
           </ul>
         </div>

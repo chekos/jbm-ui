@@ -28,19 +28,10 @@ import { categories, type Category } from "./categories"
 import {
   categorySlug,
   getGalleryItems,
-  type Capability,
+  capabilityLabel,
   type GalleryItemMeta,
 } from "./item-meta"
 import { repoSourceUrl } from "@/lib/site"
-
-/** Card tag wording for readers; the ids stay in data attributes and search. */
-const capabilityLabel: Record<Capability, string> = {
-  controls: "adjustable",
-  scroll: "scroll-driven",
-  replay: "replayable",
-  portrait: "landscape + vertical",
-  player: "video player",
-}
 
 // One source of truth for cards, /c/<name> pages, llms.txt, and catalog.json.
 const galleryItems = getGalleryItems()
