@@ -24,7 +24,9 @@ function Canvas({ children }: { children: ReactNode }) {
   )
 }
 
-const padded = { padding: 28, width: "100%", boxSizing: "border-box" } as const
+// 24px, the inset of the text-fill, paper, and desk demos' controls, so every bench's slider
+// tracks start at the same x.
+const padded = { padding: 24, width: "100%", boxSizing: "border-box" } as const
 
 /** Previews that size to their content instead of the fixed 8:5 canvas. */
 function autoHeight(name: string) {

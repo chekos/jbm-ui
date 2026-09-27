@@ -5,8 +5,14 @@ import type { SceneLayout } from "@/registry/jbm/motion/spec"
 import { sceneGeometry } from "@/registry/jbm/motion/compile"
 import { stage, type Orientation } from "@/registry/jbm/lib/tokens"
 import { fps } from "./timing"
+import { getGalleryItem } from "./item-meta"
 import { Composition } from "./motion-preview"
-import { StripLayout, stageSize, type BenchSafeArea } from "./qa-bench-chrome"
+import {
+  StripLayout,
+  padLast,
+  stageSize,
+  type BenchSafeArea,
+} from "./qa-bench-chrome"
 
 /** Safe-area guides drawn over a stage, never inside the composition, so renders stay clean. */
 export function SafeAreaGuides({
@@ -39,7 +45,7 @@ export function SafeAreaGuides({
 }
 
 /**
- * The strip with its pictures: each cell is a Remotion Thumbnail (one still frame, no timeline or
+ * The strip with its pictures: Begin, the item's contract cues, and End. Each cell is a Remotion Thumbnail (one still frame, no timeline or
  * audio), which renders exactly `frameToDisplay` and costs far less than a paused Player per cell.
  */
 export function BenchStrip({
@@ -66,6 +72,9 @@ export function BenchStrip({
       title={title}
       orientationAware={orientationAware}
       durationInFrames={durationInFrames}
+      cues={getGalleryItem(name)?.cues}
+      start={getGalleryItem(name)?.start}
+      padTo={padLast(name, durationInFrames - 1)}
       onOpen={onOpen}
       frame={(frame, orientation) => {
         const size = stageSize(orientation)

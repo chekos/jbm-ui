@@ -3,6 +3,7 @@
 // JSON that the gallery, /c/<name>, /catalog.json, and /llms.txt read. See docs/agent-contract.md.
 import { existsSync, readFileSync, readdirSync } from "node:fs"
 import { join, relative, resolve } from "node:path"
+import { pathToFileURL } from "node:url"
 import ts from "typescript"
 import { buildSceneSpecSchema, sceneSpecSchemaFile, sceneSpecSchemaPath } from "./scene-spec-schema.mjs"
 
@@ -60,6 +61,17 @@ const registryByName = new Map(registry.items.map((item) => [item.name, item]))
 export const categories = evalModule("components/gallery/categories.ts").categories.filter(
   (value) => value !== "All"
 )
+
+// The gallery preview timelines (fps and each Player demo's length), read from the same module the
+// previews use, so cues are checked against the frames the strip actually shows.
+const previewTiming = await import(pathToFileURL(join(root, "components/gallery/timing.ts")).href)
+/** Most cues a contract may list; with Begin and End that is two rows of three strip cells. */
+export const maxCues = 4
+export const maxCueLabel = 24
+/** Zero-based frame of a cue at `at` seconds on the gallery preview timeline. */
+export const cueFrame = (at) => Math.round(at * previewTiming.fps)
+/** Frames in an item's gallery preview (the default scene-spec layout for scene-spec). */
+export const previewFrames = (name) => previewTiming.durationFor(name)
 
 /** Documentation entries that appear in the gallery without a registry item of their own. */
 export const docEntries = ["surface-depth"]
@@ -265,6 +277,17 @@ function extractProps(fn) {
 
 /** Parameters of a hook or helper; a destructured options object expands to its fields. */
 function extractParams(fn) {
+  const { checker } = compiler()
+  // An unannotated parameter takes its type from its initializer (dur = 0.4 is a number); widen
+  // literals so the documented type is the parameter's, not its default's.
+  const inferred = (param) =>
+    clean(
+      checker.typeToString(
+        checker.getBaseTypeOfLiteralType(checker.getTypeAtLocation(param)),
+        param,
+        ts.TypeFormatFlags.NoTruncation
+      )
+    )
   const params = []
   for (const param of fn.parameters) {
     if (ts.isObjectBindingPattern(param.name)) {
@@ -273,7 +296,7 @@ function extractParams(fn) {
     }
     params.push({
       name: param.name.getText(),
-      type: param.type ? clean(param.type.getText()) : "unknown",
+      type: param.type ? clean(param.type.getText()) : inferred(param),
       required: !param.questionToken && !param.initializer && !param.dotDotDotToken,
       default: param.initializer ? clean(param.initializer.getText()) : null,
       doc: "",
@@ -493,6 +516,8 @@ export function validateContract(name) {
   if (!Array.isArray(contract.qa) || contract.qa.length === 0 || !contract.qa.every(nonEmpty))
     errors.push("qa lists at least one non-empty note")
   for (const field of ["docs", "schemas"]) checkLinks(contract[field], field, errors)
+  const cues = checkCues(contract, errors)
+  const start = checkStart(contract, errors)
 
   if (errors.length) return { errors, contract }
   const installName = inRegistry ? name : contract.install
@@ -521,9 +546,116 @@ export function validateContract(name) {
       stage,
       examples: contract.examples,
       qa: contract.qa,
+      ...(cues ? { cues } : {}),
+      ...(start !== undefined ? { start } : {}),
+      ...(cues ? { galleryPreview: galleryPreview(name) } : {}),
       ...(contract.docs ? { docs: contract.docs } : {}),
       ...(contract.schemas ? { schemas: contract.schemas } : {}),
     },
+  }
+}
+
+/**
+ * `cues`: optional QA strip frames for Player items, as { label, at, note? } in seconds on the
+ * gallery preview timeline. Each lands on a distinct frame strictly between Begin (0) and End (the
+ * last frame of components/gallery/timing.ts durationFor), in order. Returns the cues with their
+ * frames, or undefined when the contract lists none.
+ */
+export function checkCues(contract, errors) {
+  const cues = contract.cues
+  if (cues === undefined) return undefined
+  if (!Array.isArray(cues) || cues.length === 0) {
+    errors.push("cues must be a non-empty array of { label, at, note? } when present")
+    return undefined
+  }
+  if (!contract.capabilities?.includes("player"))
+    errors.push('cues are only for "player" items (the strip steps through a Player timeline)')
+  if (cues.length > maxCues) errors.push(`cues lists at most ${maxCues} moments`)
+  const last = previewFrames(contract.name) - 1
+  const labels = new Set()
+  let previous = 0
+  const out = []
+  for (const [index, cue] of cues.entries()) {
+    const label = `cues[${index}]`
+    if (!cue || typeof cue !== "object") {
+      errors.push(`${label} must be { label, at, note? }`)
+      continue
+    }
+    for (const key of Object.keys(cue))
+      if (!["label", "at", "note"].includes(key)) errors.push(`${label}.${key} is not a cue field`)
+    if (!nonEmpty(cue.label)) errors.push(`${label}.label is required`)
+    else if (cue.label.length > maxCueLabel)
+      errors.push(`${label}.label is longer than ${maxCueLabel} characters (it captions a strip cell)`)
+    else if (["begin", "middle", "end"].includes(cue.label.trim().toLowerCase()))
+      errors.push(`${label}.label says what happens; Begin and End are added by the strip`)
+    else if (labels.has(cue.label)) errors.push(`${label}.label repeats`)
+    labels.add(cue.label)
+    if (cue.note !== undefined && !nonEmpty(cue.note)) errors.push(`${label}.note must be non-empty when present`)
+    if (typeof cue.at !== "number" || !Number.isFinite(cue.at)) {
+      errors.push(`${label}.at must be a number of seconds`)
+      continue
+    }
+    const frame = cueFrame(cue.at)
+    if (frame <= 0 || frame >= last)
+      errors.push(`${label}.at ${cue.at} s is frame ${frame}; cues fall strictly between Begin (0) and End (${last})`)
+    else if (frame <= previous)
+      errors.push(`${label}.at ${cue.at} s is frame ${frame}; cues are in order on distinct frames`)
+    previous = Math.max(previous, frame)
+    out.push({ label: cue.label, at: cue.at, frame, ...(cue.note !== undefined ? { note: cue.note } : {}) })
+  }
+  return out
+}
+
+/** `start`: optional caption for the strip's frame-0 cell on Player items (default "Begin"). */
+export function checkStart(contract, errors) {
+  const start = contract.start
+  if (start === undefined) return undefined
+  if (!contract.capabilities?.includes("player"))
+    errors.push('start is only for "player" items (it captions the strip\'s first frame)')
+  if (!nonEmpty(start)) errors.push("start must be a non-empty caption when present")
+  else if (start.length > maxCueLabel)
+    errors.push(`start is longer than ${maxCueLabel} characters (it captions a strip cell)`)
+  return start
+}
+
+/** A JSON value as a JSX attribute value or child expression. */
+function jsxValue(value) {
+  return typeof value === "string" ? JSON.stringify(value) : `{${jsLiteral(value)}}`
+}
+function jsLiteral(value) {
+  if (Array.isArray(value)) return `[${value.map(jsLiteral).join(", ")}]`
+  if (value && typeof value === "object")
+    return `{ ${Object.entries(value)
+      .map(([key, v]) => `${/^[A-Za-z_$][\w$]*$/.test(key) ? key : JSON.stringify(key)}: ${jsLiteral(v)}`)
+      .join(", ")} }`
+  return JSON.stringify(value)
+}
+/** previewDemos elements as TSX, one element per line group. */
+export function demoCode(elements, indent = "") {
+  return elements
+    .map((element) => {
+      if ("code" in element) return element.code.split("\n").map((line) => indent + line).join("\n")
+      const props = Object.entries(element.props ?? {})
+        .map(([key, value]) => ` ${key}=${jsxValue(value)}`)
+        .join("")
+      const open = `${indent}<${element.component}${props}`
+      if (element.children === undefined) return `${open} />`
+      if (typeof element.children === "string")
+        return `${open}>${element.children}</${element.component}>`
+      return `${open}>\n${demoCode(element.children, indent + "  ")}\n${indent}</${element.component}>`
+    })
+    .join("\n")
+}
+
+/** The gallery preview an item's cue times are measured on (timing.ts previewDemos). */
+export function galleryPreview(name) {
+  const demo = previewTiming.previewDemos[name]
+  if (!demo) throw new Error(`${name} has cues but no previewDemos entry in components/gallery/timing.ts`)
+  return {
+    fps: previewTiming.fps,
+    durationInFrames: previewFrames(name),
+    demo,
+    code: demoCode(demo),
   }
 }
 
@@ -642,6 +774,11 @@ export function buildGenerated(names = contractNames().filter(hasContract)) {
       installName: entry.installName,
       sourcePath: entry.sourcePath,
       inRegistry: entry.inRegistry,
+      // The strip's cells (and the skeleton that reserves their space) need labels and frames.
+      ...(entry.cues ? { cues: entry.cues.map(({ label, frame }) => ({ label, frame })) } : {}),
+      ...(entry.start !== undefined ? { start: entry.start } : {}),
+      // Player items: the longest preview timeline, which sets the width frame numbers pad to.
+      ...(entry.capabilities.includes("player") ? { frames: previewFrames(entry.name) } : {}),
     })),
   }
   // Guides published at /docs/<slug>.md, so agents never need the source repository.

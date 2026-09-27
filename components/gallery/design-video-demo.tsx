@@ -20,7 +20,12 @@ import { Mano } from "@/registry/jbm/motion/mano"
 import { pointOn } from "@/registry/jbm/lib/geometry"
 import { Ticket } from "@/registry/jbm/ui/ticket"
 import { color } from "@/registry/jbm/lib/tokens"
-import { degrees, ProgressControl, RangeControl } from "./progress-control"
+import {
+  degrees,
+  ProgressControl,
+  RangeControl,
+  StepperControl,
+} from "./progress-control"
 
 export { designNames } from "./demo-data"
 
@@ -207,19 +212,15 @@ export function DesignVideoDemo({ name }: { name: string }) {
           presets={["Inside", "Half", "Out"]}
         />
         <Range label="Lift contents" value={third} onChange={setThird} presets={["Inside", "Half", "Lifted"]} />
-        <label style={{ fontSize: 12 }}>
-          Nested folders{" "}
-          <input
-            aria-label="Nested folders"
-            type="number"
-            min={0}
-            max={8}
-            value={count}
-            onChange={(e) =>
-              setCount(Math.max(0, Math.min(8, Number(e.target.value))))
-            }
-          />
-        </label>
+        <StepperControl
+          label="Nested folders"
+          value={count}
+          onChange={setCount}
+          min={0}
+          max={8}
+          noun="folders"
+          format={(n) => `${n} ${n === 1 ? "folder" : "folders"}`}
+        />
         <Toggle
           label="Reveal nested folders"
           value={other}

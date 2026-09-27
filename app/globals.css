@@ -554,7 +554,7 @@ footer {
     margin-left: -20px;
     padding: 4px 28px 4px 20px;
     /* Right-edge fade says "more chips this way". */
-    mask-image: linear-gradient(to right, #000 calc(100% - 32px), transparent);
+    mask-image: linear-gradient(to right, var(--jbm-ink) calc(100% - 32px), transparent);
   }
   .filters button {
     flex: none;
@@ -588,6 +588,8 @@ footer {
   }
   .toolbar-status {
     position: static;
+    /* Room for the 24px Clear target, so filtering never changes the row's height. */
+    min-height: 32px;
     padding: 8px 0 0;
     border-bottom: 0;
   }
@@ -665,7 +667,7 @@ footer {
   padding: 32px 0;
 }
 .surface-sample {
-  border-radius: 16px;
+  border-radius: 14px; /* rounded.chip */
   padding: 26px 14px;
   min-width: 0;
 }
@@ -721,7 +723,7 @@ footer {
 /* Section titles outrank the 22px/600 card titles. */
 .section-heading { display: flex; align-items: baseline; gap: 12px; margin: 0 0 24px; font-size: clamp(28px, 2.8vw, 36px); font-weight: 650; line-height: 1.1; letter-spacing: -0.035em; }
 .section-heading > span:last-child { font-family: var(--font-mono); font-size: 12px; color: var(--jbm-dim); font-weight: 400; letter-spacing: 0; }
-.section-description { color: var(--jbm-dim); margin: -8px 0 24px; }
+.section-description { max-width: 65ch; color: var(--jbm-dim); margin: -8px 0 24px; text-wrap: pretty; }
 
 .composition-options { display: flex; flex-wrap: wrap; gap: 10px; padding: 12px; font-size: 12px; }
 .composition-options label { display: flex; align-items: center; gap: 6px; }
@@ -765,9 +767,28 @@ footer {
   min-height: 24px;
   margin: 0;
 }
+/* One preset column width for every item (the widest set, "Start · Midway · Arrived", fits), so
+   slider tracks end at the same x on every bench; each button takes an equal share. On a bench,
+   a slider without presets keeps the same column empty, so its track ends there too. */
+.progress-control {
+  --preset-w: 184px;
+}
 .progress-presets {
   display: inline-flex;
   flex: none;
+  width: var(--preset-w);
+}
+.progress-presets:not(.progress-stepper) button {
+  flex: 1 1 0;
+  white-space: nowrap;
+}
+.bench-preview .progress-control-row:not(:has(.progress-presets))::after {
+  content: "";
+  flex: none;
+  width: var(--preset-w);
+}
+.progress-stepper {
+  width: auto;
 }
 .progress-presets button {
   min-height: 28px;
@@ -800,6 +821,21 @@ footer {
   position: relative;
   z-index: 1;
   outline-offset: 2px;
+}
+/* StepperControl: the preset buttons' joined style as a − / + pair with square hit areas. */
+.progress-stepper button {
+  min-width: 36px;
+  padding: 3px 0;
+  font-family: var(--font-mono);
+  font-size: 14px;
+  line-height: 1;
+}
+.progress-stepper button[aria-disabled="true"] {
+  color: var(--jbm-dim);
+  cursor: default;
+}
+.progress-stepper button[aria-disabled="true"]:hover {
+  border-color: var(--jbm-line);
 }
 
 /* Install once + per-card add command (agent-legible install path). */
@@ -968,10 +1004,12 @@ details > p {
   .install-once-body {
     grid-template-columns: minmax(0, 1fr);
   }
-  /* Phones start collapsed; until hydration decides, keep the SSR-open body hidden
-     so the catalog does not jump. Without scripting the body stays readable. */
+  /* Phones start collapsed. The pre-paint script in install.tsx settles the state
+     (data-prepaint); should it not have run, keep the SSR-open body hidden until
+     hydration decides, so the catalog does not jump. Without scripting the body
+     stays readable. */
   @media (scripting: enabled) {
-    .install-once:not([data-hydrated]) > .install-once-body {
+    .install-once:not([data-hydrated]):not([data-prepaint]) > .install-once-body {
       display: none;
     }
   }
@@ -1107,6 +1145,14 @@ details > p {
   margin: 0;
   line-height: 1.5;
 }
+/* At 761px and wider every description holds two lines (80ch fits the longest), so the bench,
+   and the strip under its toolbar, starts at the same height on every item page. */
+@media (min-width: 761px) {
+  .item-qa .item-description {
+    max-width: 80ch;
+    min-height: 3em;
+  }
+}
 .item-bench {
   margin-bottom: 48px;
 }
@@ -1145,6 +1191,33 @@ details > p {
 }
 .bench[data-layout="controls"] {
   --bench-above: calc(var(--bench-gap) + 36px);
+}
+/* Bar strip view: the strip leaves the 1000px stage column for the full content width, and every
+   item's cells share one size, so a pager walk compares like with like: a third of the column
+   (about 434 × 271 at 1440×900), or less when two rows of 8:5 frames with captions would not fit
+   the height left under the intro, never under 240px wide. The size depends only on the viewport
+   and --bench-top (the intro keeps one height at 761px and wider), never on the item's cue count.
+   --strip-w resolves against the bench (a size container), the toolbar shares its edges. */
+.bench[data-layout="bar"] {
+  container-type: inline-size;
+}
+.bench[data-layout="bar"][data-view="strip"] {
+  --bench-below: 0px;
+  --strip-cell-w: max(
+    240px,
+    min(
+      (100cqw - 2 * 12px) / 3,
+      (var(--bench-h) - 2 * 30px - 12px) / 2 * 1.6
+    )
+  );
+  --strip-w: min(100cqw, 3 * var(--strip-cell-w) + 2 * 12px);
+  max-width: none;
+}
+.bench[data-layout="bar"][data-view="strip"] > :is(.bench-toolbar, .bench-strip) {
+  width: var(--strip-w);
+}
+.bench[data-layout="bar"] .bench-strip-row {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 .bench-stage,
 .bench-preview {
@@ -1257,6 +1330,8 @@ details > p {
      the strip spans both columns under them. */
   .bench[data-layout="rail"][data-view="strip"] {
     --bench-above: 0px;
+    /* The bar benches' toolbar gap, so every strip starts at the same height. */
+    row-gap: var(--bench-gap);
     grid-template-rows: auto minmax(0, 1fr);
     grid-template-areas:
       "options tools"
@@ -1297,11 +1372,15 @@ details > p {
   }
   /* Landscape frames stack in a column and the portrait frames stand beside them, so portrait cells
      get the full strip height instead of what a landscape row leaves. The column heights add up
-     to the strip height: three 16:9 frames with captions, or one 9:16 frame with its caption. */
+     to the strip height: one 16:9 frame per cell with captions, or one 9:16 frame with its
+     caption. */
   .bench[data-layout="rail"][data-view="strip"] .bench-strip {
-    --strip-h: max(420px, calc(var(--bench-h) - 36px - 20px));
+    --strip-h: max(420px, calc(var(--bench-h) - 36px - var(--bench-gap)));
     --land-w: calc(
-      (var(--strip-h) - 3 * var(--strip-cap) - 2 * var(--strip-gap)) * 16 / 27
+      (
+          var(--strip-h) - var(--strip-n) * var(--strip-cap) -
+            (var(--strip-n) - 1) * var(--strip-gap)
+        ) * 16 / (9 * var(--strip-n))
     );
     grid-template-columns: var(--land-w) auto;
     column-gap: 24px;
@@ -1313,9 +1392,14 @@ details > p {
   .bench[data-layout="rail"][data-view="strip"]
     .bench-strip-row[data-orientation="vertical"] {
     grid-template-columns: repeat(
-      3,
+      var(--strip-n),
       min(
-        calc((100cqw - var(--land-w) - 24px - 2 * var(--strip-gap)) / 3),
+        calc(
+          (
+              100cqw - var(--land-w) - 24px - (var(--strip-n) - 1) *
+                var(--strip-gap)
+            ) / var(--strip-n)
+        ),
         calc((var(--strip-h) - var(--strip-cap)) * 9 / 16)
       )
     );
@@ -1469,19 +1553,25 @@ details > p {
   white-space: nowrap;
   text-overflow: ellipsis;
 }
-/* Strip view: Begin / Middle / End side by side; orientation-aware items add a portrait row whose
-   height is what the landscape row leaves of the bench height. */
+/* Strip view: Begin, the item's cues, and End side by side. StripLayout sets --strip-n (cells),
+   --strip-cols and --strip-rows (one row up to five cells, then balanced rows). Orientation-aware
+   items add a portrait row whose height is what the landscape rows leave of the bench height. */
 .bench-strip {
   --strip-gap: 12px;
   --strip-cap: 30px; /* caption row: 24px target plus the 6px gap above it */
+  --strip-n: 3;
+  --strip-cols: 3;
+  --strip-rows: 1;
   container-type: inline-size;
   display: grid;
   gap: 16px;
 }
 .bench-strip-row {
-  --cell-w: calc((100cqw - 2 * var(--strip-gap)) / 3);
+  --cell-w: calc(
+    (100cqw - (var(--strip-cols) - 1) * var(--strip-gap)) / var(--strip-cols)
+  );
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, var(--cell-w)));
+  grid-template-columns: repeat(var(--strip-cols), minmax(0, var(--cell-w)));
   gap: var(--strip-gap);
   margin: 0;
   padding: 0;
@@ -1491,17 +1581,23 @@ details > p {
   --portrait-h: max(
     180px,
     calc(
-      var(--bench-h) - var(--cell-w) * 0.5625 - 2 * var(--strip-cap) - 16px
+      (
+          var(--bench-h) - var(--strip-rows) *
+            (var(--cell-w) * 0.5625 + 2 * var(--strip-cap)) -
+            2 * (var(--strip-rows) - 1) * var(--strip-gap) - 16px
+        ) / var(--strip-rows)
     )
   );
   grid-template-columns: repeat(
-    3,
+    var(--strip-cols),
     minmax(0, min(var(--cell-w), calc(var(--portrait-h) * 0.5625)))
   );
 }
 .bench-strip-cell {
   position: relative;
   display: grid;
+  /* A long caption truncates instead of widening its frame past the cell. */
+  grid-template-columns: minmax(0, 1fr);
   gap: 6px;
   margin: 0;
 }
@@ -1549,7 +1645,16 @@ details > p {
 .bench-strip-cell:focus-within .bench-strip-frame {
   border-color: var(--jbm-ink);
 }
+/* Cue labels say what happens; a long one ends in an ellipsis (the button's accessible name has
+   it in full) so every caption row keeps one height. */
+.bench-strip-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 .bench-strip-frame-no {
+  flex-shrink: 0;
   color: var(--jbm-dim);
   font-family: var(--font-mono);
   font-size: 12px;
@@ -1559,8 +1664,12 @@ details > p {
   outline: 2px solid var(--jbm-accent);
   outline-offset: 4px;
 }
+/* Room for the widest readout ("000/000 00.00 s"), so the scrubber track ends at the same x on
+   every item whatever its frame count. */
 .bench-readout {
   display: inline-flex;
+  justify-content: flex-end;
+  min-width: calc(14ch + 10px);
   gap: 10px;
   color: var(--jbm-dim);
   font-family: var(--font-mono);
@@ -1912,13 +2021,16 @@ details > p {
     justify-content: space-between;
     margin-left: 0;
   }
-  /* Phones stack landscape frames one per row; the three portrait frames share a row, so the
-     strip stays about one screen of scrolling under the toolbar and scene options. */
-  .bench-strip-row {
+  /* Phones give every item the same large cells: landscape and 8:5 frames one per row, the full
+     column wide, and portrait frames two per row, wide enough for their captions. */
+  .bench[data-layout="bar"][data-view="strip"] {
+    --strip-w: 100cqw;
+  }
+  .bench[data-layout] .bench-strip-row {
     grid-template-columns: minmax(0, 1fr);
   }
-  .bench-strip-row[data-orientation="vertical"] {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+  .bench[data-layout] .bench-strip-row[data-orientation="vertical"] {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
   .bench-frames {
     gap: 10px 8px;
@@ -1928,9 +2040,11 @@ details > p {
     min-height: 40px;
     padding-inline: 10px;
   }
+  /* The readout fills what the steps and replay leave (the scrubber has its own row here). */
   .bench-readout {
     flex: 1;
     justify-content: flex-end;
+    min-width: 0;
     gap: 6px;
   }
   .bench-scrub {

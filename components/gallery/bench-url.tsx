@@ -192,9 +192,8 @@ export function useBenchParam<T extends number | boolean | string>(
 ): [T, (value: T) => void] {
   const store = useContext(BenchParamsContext)
   const [local, setLocal] = useState(initial)
-  if (!store) return [local, setLocal]
   const codec = codecFor(initial, options.allowed)
-  const text = store.get(key)
+  const text = store?.get(key) ?? null
   let value = text === null ? undefined : codec.parse(text)
   if (
     value !== undefined &&
@@ -204,6 +203,18 @@ export function useBenchParam<T extends number | boolean | string>(
     value = undefined
   if (typeof value === "number" && options.clamp)
     value = Math.min(options.clamp[1], Math.max(options.clamp[0], value)) as T
+  // The address bar should say what the bench shows: an unreadable value (?open=zz) is dropped,
+  // an out-of-range number is written as its bound, a default is left out, and 0.500 becomes 0.5.
+  // Written through the store, so useMirrorUrl replaces the entry and adds no history.
+  const canonical =
+    value === undefined || codec.equal(value, initial)
+      ? null
+      : codec.format(value)
+  const normalize = store !== null && text !== null && canonical !== text
+  useEffect(() => {
+    if (normalize) store.set(key, canonical)
+  }, [normalize, store, key, canonical])
+  if (!store) return [local, setLocal]
   return [
     value ?? initial,
     (next: T) =>

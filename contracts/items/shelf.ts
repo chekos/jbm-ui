@@ -44,8 +44,14 @@ export default {
   examples: [
     {
       title: "Library shelf, then the gag",
-      code: 'import { Shelf, Twice } from "@/jbm/motion/shelf"\n\n<Shelf w={936} items={[\n  { text: "shadcn/ui", at: 0.2 },\n  { text: "Material UI", at: 0.6 },\n  { text: "jbm-ui", at: 1.0, tone: "accent" },\n]} />\n<Twice w={936} at={2} second={2.8} strike={3} />\n// Render inside a Remotion <Composition> or <Player>.',
+      code: 'import { Shelf, Twice } from "@/jbm/motion/shelf"\n\n<Shelf w={936} items={[\n  { text: "shadcn/ui", at: 0.2 },\n  { text: "Material UI", at: 0.6 },\n  { text: "jbm-ui", at: 1.0, tone: "accent" },\n]} />\n<Twice w={936} at={2} second={2.8} strike={3.6} />\n// Render inside a Remotion <Composition> or <Player>.',
     },
+  ],
+  start: "Empty stage",
+  cues: [
+    { label: "Libraries stacked", at: 1.9, note: "All three library cards have landed with alternating tilt; the button row is still empty." },
+    { label: "One button", at: 2.7, note: "The first button has settled alone before its twin arrives." },
+    { label: "Built twice", at: 3.45, note: "Both buttons have settled side by side at full size; the vermilion cross has not started drawing." },
   ],
   qa: [
     "Step through each card cue: cards slide in from the left in order and settle at alternating tilts; the accent card's button turns paper.",

@@ -40,6 +40,11 @@ export default {
       code: 'import { Captions } from "@/jbm/motion/captions"\n\n<Captions words={alignedWords} orientation="vertical" offset={12.4} />\n// Place inside a positioned stage (e.g. Scene) in a Remotion composition.',
     },
   ],
+  start: "Empty stage",
+  cues: [
+    { label: "Emphasis word", at: 1.1, note: "“idea” is spoken in the soft colour after its pop; later words wait at low opacity." },
+    { label: "Every word spoken", at: 2.5, note: "All words are at full opacity while the pill holds before fading out." },
+  ],
   qa: [
     "Step through the first frame of a phrase (fading in), mid-phrase (spoken words bright, upcoming words dim, emphasis in the soft color), and the phrase end (fading out, then nothing between phrases).",
     "Check grouping: a comma or period ends a phrase, a pause over 0.55 s starts a new one, and long runs split at 9 (landscape) or 6 (vertical) words.",

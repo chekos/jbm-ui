@@ -2,6 +2,7 @@
 
 import {
   useEffect,
+  useLayoutEffect,
   useRef,
   useState,
   useSyncExternalStore,
@@ -24,7 +25,7 @@ import { AddCommand, InstallOnce } from "./install"
 import { CodeBlock } from "./code-block"
 import { color } from "@/registry/jbm/lib/tokens"
 import { examples } from "./examples"
-import { categories, type Category } from "./categories"
+import { categories, categoryDefinitions, type Category } from "./categories"
 import {
   categorySlug,
   getGalleryItems,
@@ -32,6 +33,7 @@ import {
   type GalleryItemMeta,
 } from "./item-meta"
 import { repoSourceUrl } from "@/lib/site"
+import { InlineScript } from "./inline-script"
 
 // One source of truth for cards, /c/<name> pages, llms.txt, and catalog.json.
 const galleryItems = getGalleryItems()
@@ -107,6 +109,44 @@ function writeUrl(filter: Category, query: string) {
   else url.searchParams.delete("q")
   window.history.replaceState(window.history.state, "", url)
   window.dispatchEvent(new Event(urlEvent))
+}
+
+// The index is prerendered without its query, so the server HTML holds every section (agents and
+// no-JS readers get the whole collection) and React applies ?cat= and ?q= after hydration. This
+// script runs while the HTML is parsed, right after the status row and before the results, and
+// hides what the filter will remove before first paint, so a filtered link (/?cat=interactive)
+// never shifts the page: it fills the <style> just before it with rules on each card's
+// data-search text and each section's id, marks the matching filter chip, opens search on phones
+// when there is a query, and writes a category's result count. Gallery clears the rules once
+// React renders the same filter (usePrefilterCleanup).
+const prefilterCategories = Object.fromEntries(
+  groups.map((group) => [
+    slug(group),
+    [group, galleryItems.filter((item) => item.category === group).length],
+  ])
+)
+const prefilterScript = `(function(s){var st=s&&s.previousElementSibling;if(!st||st.tagName!=="STYLE")return;var q=new URLSearchParams(location.search),c=${JSON.stringify(
+  prefilterCategories
+)},cat=q.get("cat"),g=c.hasOwnProperty(cat)?c[cat]:null,t=(q.get("q")||"").toLowerCase().split(/\\s+/).filter(Boolean),r=[];if(!g&&!t.length)return;if(g){r.push(".results>.gallery-section:not(#"+cat+"){display:none}.section-jump{visibility:hidden}");document.querySelectorAll(".filters button[data-cat]").forEach(function(b){b.setAttribute("aria-pressed",b.getAttribute("data-cat")===cat?"true":"false")});if(!t.length){var n=document.querySelector(".result-count");if(n)n.textContent=g[1]+" "+g[0]+" "+(g[1]===1?"item":"items")}}if(t.length){var a=t.map(function(x){return"[data-search*="+JSON.stringify(x)+"]"});r.push(a.map(function(x){return".component-card:not("+x+")"}).join(",")+"{display:none}.gallery-section:not(:has(.component-card"+a.join("")+")){display:none}");var tb=document.querySelector(".toolbar");if(tb)tb.setAttribute("data-search","open")}st.textContent=r.join("")})(document.currentScript)`
+
+// Runs right after the results are parsed when the URL has a query: sets each chip's count and the
+// result status to what React will render (the cards' data-search text decides), so the chip row
+// keeps its width when React takes over.
+const prefilterCountsScript = `(function(){var q=new URLSearchParams(location.search),raw=q.get("q")||"",t=raw.toLowerCase().split(/\\s+/).filter(Boolean);if(!t.length)return;var c=${JSON.stringify(
+  prefilterCategories
+)},cat=q.get("cat"),g=c.hasOwnProperty(cat)?c[cat]:null,all=0,n=0;function m(e){var x=e.getAttribute("data-search")||"";return t.every(function(w){return x.indexOf(w)>=0})}document.querySelectorAll(".results>.gallery-section").forEach(function(s){var k=0;s.querySelectorAll(".component-card").forEach(function(e){if(m(e))k++});all+=k;if(!g||s.id===cat)n+=k;var b=document.querySelector('.filters button[data-cat="'+s.id+'"] span');if(b)b.textContent=k});var a=document.querySelector('.filters button[data-cat=""] span');if(a)a.textContent=all;var r=document.querySelector(".result-count");if(r&&n)r.textContent=n+" "+(g?g[0]+" ":"")+(n===1?"item":"items")+" matching \u201c"+raw+"\u201d"})()`
+
+/**
+ * Clears the pre-paint filter rules once React has rendered the address bar's filter: hydration
+ * renders the server's unfiltered snapshot first, so the rules stay until `search` matches.
+ */
+function usePrefilterCleanup(search: string) {
+  const style = useRef<HTMLStyleElement>(null)
+  useLayoutEffect(() => {
+    if (search === window.location.search && style.current)
+      style.current.textContent = ""
+  }, [search])
+  return style
 }
 
 function isTyping(target: EventTarget | null) {
@@ -185,6 +225,8 @@ function ComponentCard({ item }: { item: GalleryItem }) {
       id={name}
       className="component-card"
       data-capabilities={tags.join(" ") || undefined}
+      // What search matches, for the pre-paint filter (prefilterScript).
+      data-search={searchText.get(name)}
     >
       <Preview item={item} />
       <div className="card-content">
@@ -272,6 +314,7 @@ export function Gallery() {
   // True right after Clear, until the next filter or query change.
   const [cleared, setCleared] = useState(false)
   const searchShown = searchOpen || query !== ""
+  const prefilter = usePrefilterCleanup(search)
   const searchInput = useRef<HTMLInputElement>(null)
   const searchToggle = useRef<HTMLButtonElement>(null)
   const toolbar = useRef<HTMLDivElement>(null)
@@ -422,6 +465,8 @@ export function Gallery() {
         className="toolbar"
         ref={toolbar}
         data-search={searchShown ? "open" : "closed"}
+        // The pre-paint filter opens search on phones when the URL has a query.
+        suppressHydrationWarning
       >
         <div className="toolbar-row">
           <div className="filters" role="group" aria-label="Component category">
@@ -429,10 +474,13 @@ export function Gallery() {
               <button
                 key={value}
                 aria-pressed={filter === value}
+                data-cat={value === "All" ? "" : slug(value)}
                 onClick={() => setFilter(value)}
+                // The pre-paint filter marks the chip in the URL before hydration.
+                suppressHydrationWarning
               >
                 {value}
-                <span>{count(value)}</span>
+                <span suppressHydrationWarning>{count(value)}</span>
               </button>
             ))}
           </div>
@@ -499,6 +547,7 @@ export function Gallery() {
             items.length === 0 ? "result-count sr-only" : "result-count"
           }
           role="status"
+          suppressHydrationWarning
         >
           {summary}
         </p>
@@ -518,6 +567,13 @@ export function Gallery() {
           </nav>
         )}
       </div>
+      {/* Filled before first paint by prefilterScript, emptied once React has filtered. */}
+      <style
+        ref={prefilter}
+        suppressHydrationWarning
+        dangerouslySetInnerHTML={{ __html: "" }}
+      />
+      <InlineScript html={prefilterScript} />
       <div id="components" className="results" tabIndex={-1} ref={results}>
         {groups.map((group) => {
           const members = items.filter((item) => item.category === group)
@@ -538,12 +594,9 @@ export function Gallery() {
                   <span className="sr-only"> {plural(members.length)}</span>
                 </span>
               </h2>
-              {group === "UI Bits" && (
-                <p className="section-description">
-                  Paper illustrations of interface elements. Each component has
-                  its own preview and installation.
-                </p>
-              )}
+              <p className="section-description">
+                {categoryDefinitions[group]}
+              </p>
               <div className="gallery-grid">
                 {members.map((item) => (
                   <ComponentCard key={item.name} item={item} />
@@ -573,6 +626,7 @@ export function Gallery() {
           </div>
         )}
       </div>
+      <InlineScript html={prefilterCountsScript} />
     </>
   )
 }

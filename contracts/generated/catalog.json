@@ -1174,7 +1174,7 @@
       "entry": "component",
       "title": "ReplayButton",
       "description": "Controlled replay icon whose arrow charges from tail to arrowhead as the host animation progresses, then unlocks.",
-      "category": "Motion",
+      "category": "Interactive",
       "capabilities": [
         "replay"
       ],
@@ -1330,7 +1330,7 @@
             },
             {
               "name": "dur",
-              "type": "unknown",
+              "type": "number",
               "required": false,
               "default": "0.4",
               "description": "Fade length in seconds."
@@ -1352,14 +1352,14 @@
             },
             {
               "name": "target",
-              "type": "unknown",
+              "type": "number",
               "required": false,
               "default": "1",
               "description": "Value reached at `startSec + dur` and held afterwards (e.g. 1, 100, or a probability)."
             },
             {
               "name": "dur",
-              "type": "unknown",
+              "type": "number",
               "required": false,
               "default": "0.7",
               "description": "Seconds taken to reach `target`."
@@ -1382,7 +1382,26 @@
         "Step to the first frame, the middle of the 1.5 s window, and the last frame: the percentage reads 0, an intermediate value, then exactly 100; useSec matches frame ÷ fps.",
         "Check that times are relative to the enclosing Sequence: a component inside a Sequence that starts later still enters at its own `startSec`.",
         "When changing spring defaults, re-check every consumer (Pop, ProbBar, RebuildScreens, Catalog) and the gallery preview durations measured from the same spring config."
-      ]
+      ],
+      "cues": [
+        {
+          "label": "Counting up",
+          "at": 0.5,
+          "frame": 15,
+          "note": "The percentage is mid-count while the block is still rising into place."
+        }
+      ],
+      "start": "Empty stage",
+      "galleryPreview": {
+        "fps": 30,
+        "durationInFrames": 52,
+        "demo": [
+          {
+            "code": "const entrance = useIn(0.2)\nconst opacity = useFade(0.2)\nconst progress = useProgress(0.2, 100, 1.5)\n// A Big number shows progress.toFixed(0) + \"%\", fading and rising in with opacity and entrance."
+          }
+        ],
+        "code": "const entrance = useIn(0.2)\nconst opacity = useFade(0.2)\nconst progress = useProgress(0.2, 100, 1.5)\n// A Big number shows progress.toFixed(0) + \"%\", fading and rising in with opacity and entrance."
+      }
     },
     {
       "name": "scene",
@@ -1621,7 +1640,51 @@
         "Try each `from` value: directional entrances move by `dist` and settle at 0 offset; `scale` grows without translating.",
         "Check the spring overshoot does not push content past the safe area, especially with large `dist` values in vertical.",
         "For Leave, confirm the block is fully transparent 0.4 s after `at` and its layout space remains."
-      ]
+      ],
+      "cues": [
+        {
+          "label": "First chip lands",
+          "at": 0.5,
+          "frame": 15,
+          "note": "“Idea” has scaled in; “Datos” is just starting."
+        },
+        {
+          "label": "Second chip lands",
+          "at": 0.9,
+          "frame": 27,
+          "note": "“Datos” is nearly settled and “Historia” starts to scale in."
+        }
+      ],
+      "start": "Empty stage",
+      "galleryPreview": {
+        "fps": 30,
+        "durationInFrames": 46,
+        "demo": [
+          {
+            "component": "Stagger",
+            "props": {
+              "at": 0.2,
+              "step": 0.35,
+              "from": "scale"
+            },
+            "children": [
+              {
+                "component": "Chip",
+                "children": "Idea"
+              },
+              {
+                "component": "Chip",
+                "children": "Datos"
+              },
+              {
+                "component": "Chip",
+                "children": "Historia"
+              }
+            ]
+          }
+        ],
+        "code": "<Stagger at={0.2} step={0.35} from=\"scale\">\n  <Chip>Idea</Chip>\n  <Chip>Datos</Chip>\n  <Chip>Historia</Chip>\n</Stagger>"
+      }
     },
     {
       "name": "counter",
@@ -1717,7 +1780,30 @@
         "Step to the first, middle, and last frames: 0 before `at`, an intermediate whole number mid-count, and exactly `n` at rest.",
         "In a host composition, check the widest value of `n` stays inside the safe area at the chosen size in both orientations (the gallery bench previews landscape only).",
         "Confirm only one element on the stage uses the accent color."
-      ]
+      ],
+      "cues": [
+        {
+          "label": "Counting up",
+          "at": 0.5,
+          "frame": 15,
+          "note": "The number is mid-count (about halfway), easing toward 1024."
+        }
+      ],
+      "galleryPreview": {
+        "fps": 30,
+        "durationInFrames": 52,
+        "demo": [
+          {
+            "component": "Counter",
+            "props": {
+              "n": 1024,
+              "at": 0.2,
+              "dur": 1.5
+            }
+          }
+        ],
+        "code": "<Counter n={1024} at={0.2} dur={1.5} />"
+      }
     },
     {
       "name": "prob-bar",
@@ -1814,7 +1900,32 @@
         "Step to the first frame (row hidden, value 0.00), mid-fill (partial bar, intermediate value), and the last frame (bar at p, value exactly p to two decimals).",
         "Check p = 0 and p = 1: an empty track still reads, and a full fill stays inside the rounded track.",
         "Try a long label: confirm it wraps within labelW and does not push the track; the exact row height at normal line-height is approximate (about 29px) and should be measured if layout depends on it."
-      ]
+      ],
+      "cues": [
+        {
+          "label": "Bar filling",
+          "at": 0.4,
+          "frame": 12,
+          "note": "The bar is part-way to 0.86 and the value readout matches its length."
+        }
+      ],
+      "start": "Empty stage",
+      "galleryPreview": {
+        "fps": 30,
+        "durationInFrames": 28,
+        "demo": [
+          {
+            "component": "ProbBar",
+            "props": {
+              "label": "Confianza",
+              "p": 0.86,
+              "at": 0.2,
+              "w": 620
+            }
+          }
+        ],
+        "code": "<ProbBar label=\"Confianza\" p={0.86} at={0.2} w={620} />"
+      }
     },
     {
       "name": "code-card",
@@ -1986,6 +2097,50 @@
         "Check the longest line and the line count fit inside `w` × `h` at the chosen `size`; overflow is clipped, not wrapped.",
         "Inspect the dark surface border and shadow at display scale (docs/surface-depth.md)."
       ],
+      "cues": [
+        {
+          "label": "First line typed",
+          "at": 0.9,
+          "frame": 27,
+          "note": "The first line is complete and the second has not started."
+        },
+        {
+          "label": "Second line typed",
+          "at": 1.8,
+          "frame": 54,
+          "note": "Two lines are complete; the vermilion third line is next."
+        }
+      ],
+      "galleryPreview": {
+        "fps": 30,
+        "durationInFrames": 69,
+        "demo": [
+          {
+            "component": "CodeCard",
+            "props": {
+              "w": 620,
+              "h": 280,
+              "title": "hello.ts",
+              "lines": [
+                {
+                  "t": "const idea = \"simple\";",
+                  "at": 0.2
+                },
+                {
+                  "t": "const story = explain(idea);",
+                  "at": 0.7
+                },
+                {
+                  "t": "render(story);",
+                  "at": 1.2,
+                  "color": "#FF8A6A"
+                }
+              ]
+            }
+          }
+        ],
+        "code": "<CodeCard w={620} h={280} title=\"hello.ts\" lines={[{ t: \"const idea = \\\"simple\\\";\", at: 0.2 }, { t: \"const story = explain(idea);\", at: 0.7 }, { t: \"render(story);\", at: 1.2, color: \"#FF8A6A\" }]} />"
+      },
       "docs": [
         {
           "title": "Scene spec guide",
@@ -2074,7 +2229,77 @@
         "Check grouping: a comma or period ends a phrase, a pause over 0.55 s starts a new one, and long runs split at 9 (landscape) or 6 (vertical) words.",
         "Render in vertical: the pill sits above the lower safe area and long phrases wrap inside 940px without covering the subject.",
         "The last phrase stays up to one second after its final word; confirm the composition is long enough to show its fade-out."
-      ]
+      ],
+      "cues": [
+        {
+          "label": "Emphasis word",
+          "at": 1.1,
+          "frame": 33,
+          "note": "“idea” is spoken in the soft colour after its pop; later words wait at low opacity."
+        },
+        {
+          "label": "Every word spoken",
+          "at": 2.5,
+          "frame": 75,
+          "note": "All words are at full opacity while the pill holds before fading out."
+        }
+      ],
+      "start": "Empty stage",
+      "galleryPreview": {
+        "fps": 30,
+        "durationInFrames": 136,
+        "demo": [
+          {
+            "component": "Pop",
+            "props": {
+              "at": 0
+            },
+            "children": [
+              {
+                "component": "Big",
+                "props": {
+                  "size": 52
+                },
+                "children": "Cada palabra cuenta."
+              }
+            ]
+          },
+          {
+            "component": "Captions",
+            "props": {
+              "words": [
+                {
+                  "w": "Una",
+                  "s": 0,
+                  "e": 0.7
+                },
+                {
+                  "w": "idea",
+                  "s": 0.7,
+                  "e": 1.4,
+                  "emph": true
+                },
+                {
+                  "w": "a",
+                  "s": 1.4,
+                  "e": 1.8
+                },
+                {
+                  "w": "la",
+                  "s": 1.8,
+                  "e": 2.2
+                },
+                {
+                  "w": "vez.",
+                  "s": 2.2,
+                  "e": 3.5
+                }
+              ]
+            }
+          }
+        ],
+        "code": "<Pop at={0}>\n  <Big size={52}>Cada palabra cuenta.</Big>\n</Pop>\n<Captions words={[{ w: \"Una\", s: 0, e: 0.7 }, { w: \"idea\", s: 0.7, e: 1.4, emph: true }, { w: \"a\", s: 1.4, e: 1.8 }, { w: \"la\", s: 1.8, e: 2.2 }, { w: \"vez.\", s: 2.2, e: 3.5 }]} />"
+      }
     },
     {
       "name": "rebuild-screens",
@@ -2238,6 +2463,56 @@
         "Rebuilt pieces stagger in `pieces` array order while pieces always stack card, input, button; confirm the rebuild order reads as intended. Duplicate kinds share a React key and are not supported.",
         "Confirm the input cursor blink is visible but not distracting at the final render scale."
       ],
+      "cues": [
+        {
+          "label": "First screen built",
+          "at": 2.1,
+          "frame": 63,
+          "note": "Button, input, and card have popped into the first phone; no second screen yet."
+        },
+        {
+          "label": "Built again",
+          "at": 3.1,
+          "frame": 93,
+          "note": "The second screen has sprung in with its pieces rebuilt and the sticker stamped."
+        }
+      ],
+      "galleryPreview": {
+        "fps": 30,
+        "durationInFrames": 132,
+        "demo": [
+          {
+            "component": "RebuildScreens",
+            "props": {
+              "w": 936,
+              "h": 620,
+              "pieces": [
+                {
+                  "kind": "button",
+                  "at": 0.2
+                },
+                {
+                  "kind": "input",
+                  "at": 0.7
+                },
+                {
+                  "kind": "card",
+                  "at": 1.2
+                }
+              ],
+              "again": [
+                2.2,
+                3.2
+              ],
+              "sticker": {
+                "text": "¿otra vez?",
+                "at": 2.3
+              }
+            }
+          }
+        ],
+        "code": "<RebuildScreens w={936} h={620} pieces={[{ kind: \"button\", at: 0.2 }, { kind: \"input\", at: 0.7 }, { kind: \"card\", at: 1.2 }]} again={[2.2, 3.2]} sticker={{ text: \"¿otra vez?\", at: 2.3 }} />"
+      },
       "docs": [
         {
           "title": "Scene spec guide",
@@ -2276,7 +2551,7 @@
         {
           "export": "Catalog",
           "kind": "component",
-          "summary": "Paper sheet that springs up into place at `at`, with one dashed slot per column. Each item's Piece pops into its slot on its cue and a check badge pops on `checkDelay` seconds later. At `tokensAt` the sheet grows downward over 0.55 s behind a dashed divider to reveal a row of TokenGlyphs that pop in on their own cues. An optional ink title sticker sits over the top edge and a stamp lands below the rows.",
+          "summary": "Paper sheet that springs up into place at `at`, with one dashed slot per column. Each item's Piece pops into its slot on its cue and a check badge pops on `checkDelay` seconds later. At `tokensAt` the sheet grows downward over 0.55 s behind a dashed divider to reveal a row of TokenGlyphs that pop in on their own cues. An optional ink title sticker sits over the top edge and a stamp lands across the bottom edge, below the rows; it overlaps only the sheet's bottom padding and extends about half its height below the sheet, so leave room under the component.",
           "props": [
             {
               "name": "w",
@@ -2325,7 +2600,7 @@
               "type": "{ text: string; at: number }",
               "required": false,
               "default": null,
-              "description": "Optional loud word: `text` and the `at` second it stamps onto the sheet below the rows."
+              "description": "Optional loud word: `text` and the `at` second it stamps across the sheet's bottom edge, below the rows, never over a slot or caption."
             },
             {
               "name": "checkDelay",
@@ -2361,11 +2636,86 @@
         }
       ],
       "qa": [
-        "Step to the sheet entrance, each item arrival and its check badge, the middle of the unfold (token row partially revealed and clipped), and the end (all glyphs in, stamp settled).",
+        "Step to the sheet entrance, each item arrival and its check badge, the middle of the unfold (token row partially revealed and clipped), and the end (all glyphs in, stamp settled across the bottom edge without covering any caption, including tipografía).",
         "Check the fully unfolded sheet plus the title sticker above it fits the safe area in both orientations; the height grows by the token block when it unfolds.",
-        "Without tokens, confirm no divider or empty row appears and the stamp sits just below the item row.",
+        "Without tokens, confirm no divider or empty row appears and the stamp straddles the bottom edge just below the item row.",
         "Check long captions at the scaled caption size stay inside their slots; captions are not truncated by the component."
-      ]
+      ],
+      "cues": [
+        {
+          "label": "Pieces tested",
+          "at": 2.6,
+          "frame": 78,
+          "note": "Button, card, and input sit in their slots with checks; the token row is still folded."
+        },
+        {
+          "label": "Tokens arriving",
+          "at": 3.5,
+          "frame": 105,
+          "note": "The sheet has unfolded and the colour glyph is in; type and spacing are still arriving."
+        },
+        {
+          "label": "Tokens in",
+          "at": 4.3,
+          "frame": 129,
+          "note": "All three token glyphs have landed, just before the stamp."
+        }
+      ],
+      "start": "Empty stage",
+      "galleryPreview": {
+        "fps": 30,
+        "durationInFrames": 159,
+        "demo": [
+          {
+            "component": "Catalog",
+            "props": {
+              "w": 936,
+              "at": 0.2,
+              "title": "catálogo",
+              "items": [
+                {
+                  "kind": "button",
+                  "label": "botón",
+                  "at": 0.8
+                },
+                {
+                  "kind": "card",
+                  "label": "tarjeta",
+                  "at": 1.2
+                },
+                {
+                  "kind": "input",
+                  "label": "input",
+                  "at": 1.6
+                }
+              ],
+              "tokensAt": 2.6,
+              "tokens": [
+                {
+                  "kind": "color",
+                  "label": "color",
+                  "at": 3
+                },
+                {
+                  "kind": "type",
+                  "label": "tipografía",
+                  "at": 3.4
+                },
+                {
+                  "kind": "space",
+                  "label": "espaciado",
+                  "at": 3.8
+                }
+              ],
+              "stamp": {
+                "text": "design tokens",
+                "at": 4.4
+              }
+            }
+          }
+        ],
+        "code": "<Catalog w={936} at={0.2} title=\"catálogo\" items={[{ kind: \"button\", label: \"botón\", at: 0.8 }, { kind: \"card\", label: \"tarjeta\", at: 1.2 }, { kind: \"input\", label: \"input\", at: 1.6 }]} tokensAt={2.6} tokens={[{ kind: \"color\", label: \"color\", at: 3 }, { kind: \"type\", label: \"tipografía\", at: 3.4 }, { kind: \"space\", label: \"espaciado\", at: 3.8 }]} stamp={{ text: \"design tokens\", at: 4.4 }} />"
+      }
     },
     {
       "name": "propagate",
@@ -2531,6 +2881,52 @@
         "Without a label the source sits at the top of the box and its badge pokes 22px above it; leave room in the layout.",
         "Inspect landscape and vertical widths: the last screen's badge and tilt can cross the right edge by about 14px."
       ],
+      "cues": [
+        {
+          "label": "Bug appears",
+          "at": 2.3,
+          "frame": 69,
+          "note": "Cross badges sit on the source and on every screen; no pulse has left yet."
+        },
+        {
+          "label": "Fix travels",
+          "at": 2.8,
+          "frame": 84,
+          "note": "The source shows a check and vermilion pulses are mid-line; screens still show crosses."
+        },
+        {
+          "label": "Fix lands",
+          "at": 3.7,
+          "frame": 111,
+          "note": "Every screen shows a check and nothing is in flight, before the recolour starts."
+        }
+      ],
+      "start": "Empty stage",
+      "galleryPreview": {
+        "fps": 30,
+        "durationInFrames": 155,
+        "demo": [
+          {
+            "component": "Propagate",
+            "props": {
+              "w": 936,
+              "h": 640,
+              "at": 0.2,
+              "label": {
+                "text": "una sola fuente de verdad",
+                "at": 0.9
+              },
+              "targets": 6,
+              "bug": 1.6,
+              "fix": 2.4,
+              "fixed": 3.2,
+              "recolor": 4,
+              "recolored": 4.8
+            }
+          }
+        ],
+        "code": "<Propagate w={936} h={640} at={0.2} label={{ text: \"una sola fuente de verdad\", at: 0.9 }} targets={6} bug={1.6} fix={2.4} fixed={3.2} recolor={4} recolored={4.8} />"
+      },
       "docs": [
         {
           "title": "Scene spec guide",
@@ -2659,7 +3055,7 @@
       "examples": [
         {
           "title": "Library shelf, then the gag",
-          "code": "import { Shelf, Twice } from \"@/jbm/motion/shelf\"\n\n<Shelf w={936} items={[\n  { text: \"shadcn/ui\", at: 0.2 },\n  { text: \"Material UI\", at: 0.6 },\n  { text: \"jbm-ui\", at: 1.0, tone: \"accent\" },\n]} />\n<Twice w={936} at={2} second={2.8} strike={3} />\n// Render inside a Remotion <Composition> or <Player>."
+          "code": "import { Shelf, Twice } from \"@/jbm/motion/shelf\"\n\n<Shelf w={936} items={[\n  { text: \"shadcn/ui\", at: 0.2 },\n  { text: \"Material UI\", at: 0.6 },\n  { text: \"jbm-ui\", at: 1.0, tone: \"accent\" },\n]} />\n<Twice w={936} at={2} second={2.8} strike={3.6} />\n// Render inside a Remotion <Composition> or <Player>."
         }
       ],
       "qa": [
@@ -2667,7 +3063,65 @@
         "Try a long label at narrow w: the mono label does not wrap or truncate and can collide with the three pieces.",
         "For Twice, inspect first button, second button, mid-strike, and final frame: both strokes fully drawn tail to head and the cross stays within the row's 26px padding.",
         "Check the full stack height (items plus Twice) fits the safe area in both orientations."
-      ]
+      ],
+      "cues": [
+        {
+          "label": "Libraries stacked",
+          "at": 1.9,
+          "frame": 57,
+          "note": "All three library cards have landed with alternating tilt; the button row is still empty."
+        },
+        {
+          "label": "One button",
+          "at": 2.7,
+          "frame": 81,
+          "note": "The first button has settled alone before its twin arrives."
+        },
+        {
+          "label": "Built twice",
+          "at": 3.45,
+          "frame": 104,
+          "note": "Both buttons have settled side by side at full size; the vermilion cross has not started drawing."
+        }
+      ],
+      "start": "Empty stage",
+      "galleryPreview": {
+        "fps": 30,
+        "durationInFrames": 123,
+        "demo": [
+          {
+            "component": "Shelf",
+            "props": {
+              "w": 936,
+              "items": [
+                {
+                  "text": "shadcn/ui",
+                  "at": 0.2
+                },
+                {
+                  "text": "Material UI",
+                  "at": 0.6
+                },
+                {
+                  "text": "jbm-ui",
+                  "at": 1,
+                  "tone": "accent"
+                }
+              ]
+            }
+          },
+          {
+            "component": "Twice",
+            "props": {
+              "w": 936,
+              "at": 2,
+              "second": 2.8,
+              "strike": 3.6
+            }
+          }
+        ],
+        "code": "<Shelf w={936} items={[{ text: \"shadcn/ui\", at: 0.2 }, { text: \"Material UI\", at: 0.6 }, { text: \"jbm-ui\", at: 1, tone: \"accent\" }]} />\n<Twice w={936} at={2} second={2.8} strike={3.6} />"
+      }
     },
     {
       "name": "scene-spec",
@@ -2893,6 +3347,68 @@
         "Nothing auto-fits: check tall content (code, stat rows, long headlines) for overflow or clipping at the safe-area edges, especially in portrait.",
         "Exercise error paths: unknown anchors, headline-illustration with other than two blocks or with a title, and invalid gap or insets must throw with the scene id or a clear message."
       ],
+      "cues": [
+        {
+          "label": "Subject building",
+          "at": 0.8,
+          "frame": 24,
+          "note": "The headline is in and the screen's pieces are arriving (default layout; the hero layout ends before this cue and shows a Middle frame)."
+        }
+      ],
+      "galleryPreview": {
+        "fps": 30,
+        "durationInFrames": 43,
+        "demo": [
+          {
+            "component": "SceneFromSpec",
+            "props": {
+              "spec": {
+                "id": "portrait-reference",
+                "composition": {
+                  "safeArea": "full",
+                  "layout": "headline-illustration",
+                  "subjectScale": 1.3
+                },
+                "blocks": [
+                  {
+                    "type": "big",
+                    "at": 0,
+                    "text": "Una biblioteca.\nMuchas posibilidades.",
+                    "align": "center",
+                    "size": 90
+                  },
+                  {
+                    "type": "screens",
+                    "phoneScale": 1.5,
+                    "pieces": [
+                      {
+                        "kind": "card",
+                        "at": 0.2
+                      },
+                      {
+                        "kind": "input",
+                        "at": 0.5
+                      },
+                      {
+                        "kind": "button",
+                        "at": 0.8
+                      }
+                    ]
+                  }
+                ],
+                "variants": {
+                  "vertical": {
+                    "headlineRatio": 0.23,
+                    "gap": 48
+                  }
+                }
+              },
+              "orientation": "landscape"
+            }
+          }
+        ],
+        "code": "<SceneFromSpec spec={{ id: \"portrait-reference\", composition: { safeArea: \"full\", layout: \"headline-illustration\", subjectScale: 1.3 }, blocks: [{ type: \"big\", at: 0, text: \"Una biblioteca.\\nMuchas posibilidades.\", align: \"center\", size: 90 }, { type: \"screens\", phoneScale: 1.5, pieces: [{ kind: \"card\", at: 0.2 }, { kind: \"input\", at: 0.5 }, { kind: \"button\", at: 0.8 }] }], variants: { vertical: { headlineRatio: 0.23, gap: 48 } } }} orientation=\"landscape\" />"
+      },
       "docs": [
         {
           "title": "Scene spec guide",
@@ -3518,7 +4034,7 @@
       "entry": "component",
       "title": "TextFill",
       "description": "A controlled character sweep from muted text through vermilion into ink. Drive progress with a slider, scroll, or a video timeline.",
-      "category": "Motion",
+      "category": "UI",
       "capabilities": [
         "controls"
       ],
@@ -3627,7 +4143,7 @@
       "entry": "component",
       "title": "ScrollTextFill",
       "description": "Scroll to bring text into focus, one character at a time. Keyboard scrolling, reversible progress, and reduced-motion support.",
-      "category": "Motion",
+      "category": "Interactive",
       "capabilities": [
         "scroll"
       ],
@@ -3757,7 +4273,7 @@
       "entry": "component",
       "title": "FlipText",
       "description": "Letters tumble on hover with a vermilion accent. Click, tap, or use the keyboard to flip the whole phrase. Respects reduced motion.",
-      "category": "Motion",
+      "category": "Interactive",
       "capabilities": [
         "controls"
       ],
@@ -3848,7 +4364,7 @@
       "entry": "component",
       "title": "ScrollStack",
       "description": "Stack any React content as you scroll. Successive items scale into place while earlier ones fade. Page or contained scrolling, keyboard access, and a plain-list fallback.",
-      "category": "Motion",
+      "category": "Interactive",
       "capabilities": [
         "controls",
         "scroll"
@@ -5189,7 +5705,7 @@
       "entry": "component",
       "title": "Mano",
       "description": "Position and rotate the independent Hand illustration with controlled coordinates.",
-      "category": "Motion",
+      "category": "UI Bits",
       "capabilities": [
         "controls"
       ],
@@ -6293,7 +6809,7 @@
       "entry": "component",
       "title": "PaperLine",
       "description": "Line of text with controlled grapheme reveal, ink lift, strike-through, and dotted underline.",
-      "category": "Motion",
+      "category": "UI",
       "capabilities": [
         "controls"
       ],
@@ -6900,7 +7416,7 @@
       "entry": "component",
       "title": "FolderCarry",
       "description": "Folder carried along a path by its tab, interpolating size and label between two resting places.",
-      "category": "Motion",
+      "category": "UI Bits",
       "capabilities": [
         "controls"
       ],

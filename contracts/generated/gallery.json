@@ -169,7 +169,7 @@
       "name": "replay-button",
       "title": "ReplayButton",
       "description": "Controlled replay icon whose arrow charges from tail to arrowhead as the host animation progresses, then unlocks.",
-      "category": "Motion",
+      "category": "Interactive",
       "capabilities": [
         "replay"
       ],
@@ -196,7 +196,15 @@
       "snippet": "import { useSec, useIn, useFade, useProgress } from \"@/jbm/motion/hooks\"\n\n// Render inside a Remotion <Composition> or <Player>: hooks run in the component body.\nexport function TimelineReadout() {\n  const seconds = useSec()\n  const entrance = useIn(0.2)\n  const opacity = useFade(0.2)\n  const progress = useProgress(0.2, 100, 1.5)\n  return (\n    <div style={{ opacity, transform: `translateY(${(1 - entrance) * 30}px)` }}>\n      {progress.toFixed(0)}% at {seconds.toFixed(2)}s\n    </div>\n  )\n}",
       "installName": "motion-hooks",
       "sourcePath": "registry/jbm/motion/hooks.ts",
-      "inRegistry": true
+      "inRegistry": true,
+      "cues": [
+        {
+          "label": "Counting up",
+          "frame": 15
+        }
+      ],
+      "start": "Empty stage",
+      "frames": 52
     },
     {
       "name": "scene",
@@ -213,7 +221,8 @@
       "snippet": "import { Scene } from \"@/jbm/motion/scene\"\nimport { Big } from \"@/jbm/ui/big\" // install @jbm/big separately\n\n<Scene><Big>Una idea a la vez.</Big></Scene>",
       "installName": "scene",
       "sourcePath": "registry/jbm/motion/scene.tsx",
-      "inRegistry": true
+      "inRegistry": true,
+      "frames": 1
     },
     {
       "name": "pop",
@@ -231,7 +240,19 @@
       "snippet": "import { Stagger } from \"@/jbm/motion/pop\"\nimport { Chip } from \"@/jbm/ui/chip\" // install @jbm/chip separately\n\n<Stagger at={0.2} step={0.35}>\n  {[\"Idea\", \"Datos\"].map(text => <Chip key={text}>{text}</Chip>)}\n</Stagger>",
       "installName": "pop",
       "sourcePath": "registry/jbm/motion/pop.tsx",
-      "inRegistry": true
+      "inRegistry": true,
+      "cues": [
+        {
+          "label": "First chip lands",
+          "frame": 15
+        },
+        {
+          "label": "Second chip lands",
+          "frame": 27
+        }
+      ],
+      "start": "Empty stage",
+      "frames": 46
     },
     {
       "name": "counter",
@@ -250,7 +271,14 @@
       "snippet": "import { Counter } from \"@/jbm/motion/counter\"\n\n<Counter n={1024} at={0.2} dur={1.5} />",
       "installName": "counter",
       "sourcePath": "registry/jbm/motion/counter.tsx",
-      "inRegistry": true
+      "inRegistry": true,
+      "cues": [
+        {
+          "label": "Counting up",
+          "frame": 15
+        }
+      ],
+      "frames": 52
     },
     {
       "name": "prob-bar",
@@ -270,7 +298,15 @@
       "snippet": "import { ProbBar } from \"@/jbm/motion/prob-bar\"\n\n<ProbBar label=\"Confianza\" p={0.86} at={0.2} />",
       "installName": "prob-bar",
       "sourcePath": "registry/jbm/motion/prob-bar.tsx",
-      "inRegistry": true
+      "inRegistry": true,
+      "cues": [
+        {
+          "label": "Bar filling",
+          "frame": 12
+        }
+      ],
+      "start": "Empty stage",
+      "frames": 28
     },
     {
       "name": "code-card",
@@ -289,7 +325,18 @@
       "snippet": "import { CodeCard } from \"@/jbm/motion/code-card\"\n\n<CodeCard title=\"hello.ts\" charsPerSecond={32} lines={[\n  { t: \"const idea = \\\"simple\\\"\", at: 0.2 },\n  { t: \"render(idea)\", at: 0.7, color: \"#FF8A6A\" },\n]} />",
       "installName": "code-card",
       "sourcePath": "registry/jbm/motion/code-card.tsx",
-      "inRegistry": true
+      "inRegistry": true,
+      "cues": [
+        {
+          "label": "First line typed",
+          "frame": 27
+        },
+        {
+          "label": "Second line typed",
+          "frame": 54
+        }
+      ],
+      "frames": 69
     },
     {
       "name": "captions",
@@ -308,7 +355,19 @@
       "snippet": "import { Captions } from \"@/jbm/motion/captions\"\n\n<Captions words={[\n  { w: \"Una\", s: 0, e: 0.7 },\n  { w: \"idea.\", s: 0.7, e: 1.5, emph: true },\n]} />",
       "installName": "captions",
       "sourcePath": "registry/jbm/motion/captions.tsx",
-      "inRegistry": true
+      "inRegistry": true,
+      "cues": [
+        {
+          "label": "Emphasis word",
+          "frame": 33
+        },
+        {
+          "label": "Every word spoken",
+          "frame": 75
+        }
+      ],
+      "start": "Empty stage",
+      "frames": 136
     },
     {
       "name": "rebuild-screens",
@@ -329,7 +388,18 @@
       "snippet": "import { RebuildScreens } from \"@/jbm/motion/rebuild-screens\"\n\n<RebuildScreens w={936} h={1000}\n  pieces={[{ kind: \"button\", at: 1 }, { kind: \"input\", at: 2.8 }, { kind: \"card\", at: 5.3 }]}\n  again={[12.9, 14.5]} sticker={{ text: \"¿otra vez?\", at: 13 }} />",
       "installName": "rebuild-screens",
       "sourcePath": "registry/jbm/motion/rebuild-screens.tsx",
-      "inRegistry": true
+      "inRegistry": true,
+      "cues": [
+        {
+          "label": "First screen built",
+          "frame": 63
+        },
+        {
+          "label": "Built again",
+          "frame": 93
+        }
+      ],
+      "frames": 132
     },
     {
       "name": "catalog",
@@ -352,7 +422,23 @@
       "snippet": "import { Catalog } from \"@/jbm/motion/catalog\"\n\n<Catalog w={936} at={3.2} title=\"catálogo\"\n  items={[{ kind: \"button\", label: \"botón\", at: 7.4 }]}\n  tokens={[{ kind: \"color\", label: \"color\", at: 18.2 }]} />",
       "installName": "catalog",
       "sourcePath": "registry/jbm/motion/catalog.tsx",
-      "inRegistry": true
+      "inRegistry": true,
+      "cues": [
+        {
+          "label": "Pieces tested",
+          "frame": 78
+        },
+        {
+          "label": "Tokens arriving",
+          "frame": 105
+        },
+        {
+          "label": "Tokens in",
+          "frame": 129
+        }
+      ],
+      "start": "Empty stage",
+      "frames": 159
     },
     {
       "name": "propagate",
@@ -374,7 +460,23 @@
       "snippet": "import { Propagate } from \"@/jbm/motion/propagate\"\n\n<Propagate w={936} h={1040} at={0.9} targets={6}\n  label={{ text: \"una sola fuente de verdad\", at: 4 }}\n  bug={5.8} fix={6.6} fixed={7.7} recolor={10.5} recolored={11.7} />\n// Render inside a Remotion <Composition> or <Player>.",
       "installName": "propagate",
       "sourcePath": "registry/jbm/motion/propagate.tsx",
-      "inRegistry": true
+      "inRegistry": true,
+      "cues": [
+        {
+          "label": "Bug appears",
+          "frame": 69
+        },
+        {
+          "label": "Fix travels",
+          "frame": 84
+        },
+        {
+          "label": "Fix lands",
+          "frame": 111
+        }
+      ],
+      "start": "Empty stage",
+      "frames": 155
     },
     {
       "name": "shelf",
@@ -393,10 +495,26 @@
         "@jbm/paper",
         "@jbm/ui-bits"
       ],
-      "snippet": "import { Shelf, Twice } from \"@/jbm/motion/shelf\"\n\n<Shelf w={936} items={[\n  { text: \"shadcn/ui\", at: 0.2 },\n  { text: \"Material UI\", at: 0.6 },\n  { text: \"jbm-ui\", at: 1.0, tone: \"accent\" },\n]} />\n<Twice w={936} at={2} second={2.8} strike={3} />\n// Render inside a Remotion <Composition> or <Player>.",
+      "snippet": "import { Shelf, Twice } from \"@/jbm/motion/shelf\"\n\n<Shelf w={936} items={[\n  { text: \"shadcn/ui\", at: 0.2 },\n  { text: \"Material UI\", at: 0.6 },\n  { text: \"jbm-ui\", at: 1.0, tone: \"accent\" },\n]} />\n<Twice w={936} at={2} second={2.8} strike={3.6} />\n// Render inside a Remotion <Composition> or <Player>.",
       "installName": "shelf",
       "sourcePath": "registry/jbm/motion/shelf.tsx",
-      "inRegistry": true
+      "inRegistry": true,
+      "cues": [
+        {
+          "label": "Libraries stacked",
+          "frame": 57
+        },
+        {
+          "label": "One button",
+          "frame": 81
+        },
+        {
+          "label": "Built twice",
+          "frame": 104
+        }
+      ],
+      "start": "Empty stage",
+      "frames": 123
     },
     {
       "name": "scene-spec",
@@ -430,7 +548,14 @@
       "snippet": "import { SceneFromSpec } from \"@/jbm/motion/compile\"\nimport type { ScenesFile } from \"@/jbm/motion/spec\"\n\n// Placeholders: a parsed, schema-validated scenes file, and seconds from scene start per phrase.\ndeclare const scenes: ScenesFile\ndeclare const timings: Record<string, number>\n\nexport const FirstScene = () => (\n  <SceneFromSpec spec={scenes.scenes[0]} orientation=\"landscape\"\n    host={{ resolve: (phrase) => timings[phrase] }} />\n)\n// Every block and field: https://jbm-ui.bns.studio/docs/scene-spec.md",
       "installName": "scene-spec",
       "sourcePath": "registry/jbm/motion/compile.tsx",
-      "inRegistry": true
+      "inRegistry": true,
+      "cues": [
+        {
+          "label": "Subject building",
+          "frame": 24
+        }
+      ],
+      "frames": 43
     },
     {
       "name": "ui-button",
@@ -550,7 +675,7 @@
       "name": "text-fill",
       "title": "TextFill",
       "description": "A controlled character sweep from muted text through vermilion into ink. Drive progress with a slider, scroll, or a video timeline.",
-      "category": "Motion",
+      "category": "UI",
       "capabilities": [
         "controls"
       ],
@@ -567,7 +692,7 @@
       "name": "scroll-text-fill",
       "title": "ScrollTextFill",
       "description": "Scroll to bring text into focus, one character at a time. Keyboard scrolling, reversible progress, and reduced-motion support.",
-      "category": "Motion",
+      "category": "Interactive",
       "capabilities": [
         "scroll"
       ],
@@ -585,7 +710,7 @@
       "name": "flip-text",
       "title": "FlipText",
       "description": "Letters tumble on hover with a vermilion accent. Click, tap, or use the keyboard to flip the whole phrase. Respects reduced motion.",
-      "category": "Motion",
+      "category": "Interactive",
       "capabilities": [
         "controls"
       ],
@@ -602,7 +727,7 @@
       "name": "scroll-stack",
       "title": "ScrollStack",
       "description": "Stack any React content as you scroll. Successive items scale into place while earlier ones fade. Page or contained scrolling, keyboard access, and a plain-list fallback.",
-      "category": "Motion",
+      "category": "Interactive",
       "capabilities": [
         "controls",
         "scroll"
@@ -826,7 +951,7 @@
       "name": "mano",
       "title": "Mano",
       "description": "Position and rotate the independent Hand illustration with controlled coordinates.",
-      "category": "Motion",
+      "category": "UI Bits",
       "capabilities": [
         "controls"
       ],
@@ -1004,7 +1129,7 @@
       "name": "paper-line",
       "title": "PaperLine",
       "description": "Line of text with controlled grapheme reveal, ink lift, strike-through, and dotted underline.",
-      "category": "Motion",
+      "category": "UI",
       "capabilities": [
         "controls"
       ],
@@ -1114,7 +1239,7 @@
       "name": "folder-carry",
       "title": "FolderCarry",
       "description": "Folder carried along a path by its tab, interpolating size and label between two resting places.",
-      "category": "Motion",
+      "category": "UI Bits",
       "capabilities": [
         "controls"
       ],

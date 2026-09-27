@@ -26,9 +26,11 @@ import {
   OrientSwitch,
   SceneOptions,
   benchParams,
+  padLast,
   readBenchState,
   stageSize,
   type BenchSafeArea,
+  type BenchState,
   type View,
 } from "./qa-bench-chrome"
 
@@ -80,17 +82,74 @@ export default function MotionBench({
   }, [startFrame, startLast])
 
   // Built from the router's pathname and query, so the href always names this item.
-  const href = stateHref(
-    pathname,
-    query,
-    benchParams(
-      { view, orientation, layout, safeArea, guides, frame },
-      last,
-      orientationAware
-    )
-  )
-  // Mirror the state into the address bar once it settles: not while the timeline plays.
+  const state: BenchState = { view, orientation, layout, safeArea, guides, frame }
+  const hrefFor = (next: BenchState) =>
+    stateHref(pathname, query, benchParams(next, last, orientationAware))
+  const href = hrefFor(state)
+  // Mirror the state into the address bar once it settles: not while the timeline plays. Scrubbing,
+  // stepping, orientation, and scene options replace the current entry.
   useMirrorUrl(href, pathname, charging)
+
+  /**
+   * Changing view (Single / Strip, or opening a strip cell) is a navigation: it adds a history
+   * entry, so Back returns to the previous view on this item before it leaves the item. The
+   * current entry first takes the state it shows (a debounced replace may still be pending).
+   */
+  function pushView(next: Partial<BenchState>) {
+    const target = hrefFor({ ...state, ...next })
+    if (target === href) return
+    try {
+      const { pathname: at, search, hash } = window.location
+      if (at !== pathname) return
+      if (at + search !== href) window.history.replaceState(null, "", href + hash)
+      window.history.pushState(null, "", target + hash)
+    } catch {
+      // History updates can be refused (throttled or sandboxed); the bench still works.
+    }
+  }
+  function changeView(next: View) {
+    if (next === view) return
+    pushView({ view: next })
+    setView(next)
+  }
+
+  // Back and Forward within this item restore the entry's view, orientation, options, and frame.
+  // Next.js keeps the page mounted (same item), so the bench reads the address bar itself. A
+  // timeline change (another scene-spec layout) rests on its last frame first, so the entry's
+  // frame is applied once that timeline is in place.
+  const pendingFrame = useRef<{ frame: number | null; layout: SceneLayout } | null>(
+    null
+  )
+  const layoutRef = useRef(layout)
+  useEffect(() => {
+    layoutRef.current = layout
+  })
+  useEffect(() => {
+    function onPopState() {
+      if (window.location.pathname !== pathname) return
+      const next = readBenchState(
+        new URLSearchParams(window.location.search),
+        orientationAware
+      )
+      setView(next.view)
+      setOrientation(next.orientation)
+      setLayout(next.layout)
+      setSafeArea(next.safeArea)
+      setGuides(next.guides)
+      if (next.layout === layoutRef.current) {
+        const end = previewDuration(name, next.layout) - 1
+        seekRef.current(next.frame === null ? end : Math.min(next.frame, end))
+      } else pendingFrame.current = { frame: next.frame, layout: next.layout }
+    }
+    window.addEventListener("popstate", onPopState)
+    return () => window.removeEventListener("popstate", onPopState)
+  }, [name, pathname, orientationAware])
+  useEffect(() => {
+    const pending = pendingFrame.current
+    if (!pending || pending.layout !== layout) return
+    pendingFrame.current = null
+    if (pending.frame !== null) seekRef.current(Math.min(pending.frame, last))
+  }, [layout, last])
 
   const onMountRef = useRef(onMount)
   useLayoutEffect(() => onMountRef.current?.(), [])
@@ -105,6 +164,11 @@ export default function MotionBench({
   const scrub = useRef<HTMLInputElement>(null)
   const focusScrub = useRef(false)
   function openFrame(target: number, stripOrientation?: Orientation) {
+    pushView({
+      view: "single",
+      frame: target,
+      ...(stripOrientation ? { orientation: stripOrientation } : {}),
+    })
     if (stripOrientation) setOrientation(stripOrientation)
     setView("single")
     seek(target)
@@ -144,7 +208,7 @@ export default function MotionBench({
           never moves the switch itself. */}
       <BenchToolbar
         view={view}
-        onView={setView}
+        onView={changeView}
         showViews={last > 0}
         href={href}
       />
@@ -212,6 +276,7 @@ export default function MotionBench({
           seek={seek}
           replay={replay}
           scrubRef={scrub}
+          padTo={padLast(name, last)}
         />
       )}
 

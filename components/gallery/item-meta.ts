@@ -35,7 +35,19 @@ export type GalleryItemMeta = {
   sourcePath: string
   /** False for documentation entries that have no registry JSON of their own. */
   inRegistry: boolean
+  /** Player items: the contract's cues, the strip frames between Begin and End. */
+  cues?: StripCue[]
+  /** Player items: the caption of the strip's frame-0 cell when it is not "Begin". */
+  start?: string
+  /**
+   * Player items: frames in the longest gallery preview timeline (the default layout for
+   * scene-spec). Frame numbers pad to the digits of its last frame everywhere on the bench.
+   */
+  frames?: number
 }
+
+/** A labelled frame on the gallery preview timeline (zero-based, 30 fps). */
+export type StripCue = { label: string; frame: number }
 
 // Gallery order: tokens, the surface-depth note, then the registry. Bundles (ui-bits) have no
 // card of their own; each member does.

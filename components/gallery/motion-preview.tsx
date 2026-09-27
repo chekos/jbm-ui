@@ -4,7 +4,6 @@ import { useEffect, useRef, useState, type ReactNode } from "react"
 import { Player, type PlayerRef } from "@remotion/player"
 import { SceneFromSpec } from "@/registry/jbm/motion/compile"
 import type {
-  SceneSpec,
   SceneLayout,
   SafeArea,
 } from "@/registry/jbm/motion/spec"
@@ -35,10 +34,9 @@ import {
   springFrames,
   timing,
   popItems,
-  codeLines,
-  captionWords,
-  illustrated,
   durationFor,
+  previewProps,
+  referenceSpec,
 } from "./timing"
 
 /** Fit a stage-sized illustrated block (authored at 936 px wide) into the 800×500 preview. */
@@ -79,50 +77,6 @@ function HooksDemo() {
       <p style={{ fontSize: 24 }}>useSec: {seconds.toFixed(2)}s</p>
     </div>
   )
-}
-
-/** The reference scene the gallery compiles into both stage orientations. */
-export function referenceSpec(
-  layout: SceneLayout,
-  safeArea: SafeArea
-): SceneSpec {
-  const subject = {
-    type: "screens" as const,
-    phoneScale: 1.5,
-    pieces: [
-      { kind: "card" as const, at: 0.2 },
-      { kind: "input" as const, at: 0.5 },
-      { kind: "button" as const, at: 0.8 },
-    ],
-  }
-  return {
-    id: "portrait-reference",
-    composition: { safeArea, layout, subjectScale: 1.3 },
-    blocks:
-      layout === "illustration"
-        ? [subject]
-        : layout === "hero"
-          ? [
-              {
-                type: "big",
-                at: 0,
-                text: "Hazlo una vez.\nÚsalo siempre.",
-                align: "center",
-                size: 140,
-              },
-            ]
-          : [
-              {
-                type: "big",
-                at: 0,
-                text: "Una biblioteca.\nMuchas posibilidades.",
-                align: "center",
-                size: 90,
-              },
-              subject,
-            ],
-    variants: { vertical: { headlineRatio: 0.23, gap: 48 } },
-  }
 }
 
 /** Timeline length for a preview; the scene-spec hero layout has a single entrance. */
@@ -206,136 +160,47 @@ export function Composition({
       )}
       {name === "pop" && (
         <div style={{ display: "flex", gap: 20 }}>
-          <Stagger {...timing.pop} from="scale">
+          <Stagger {...previewProps.pop}>
             {popItems.map((text) => (
               <Chip key={text}>{text}</Chip>
             ))}
           </Stagger>
         </div>
       )}
-      {name === "counter" && <Counter n={1024} {...timing.counter} />}
-      {name === "prob-bar" && (
-        <ProbBar
-          label="Confianza"
-          p={0.86}
-          at={timing.probability.at}
-          w={620}
-        />
-      )}
-      {name === "code-card" && (
-        <CodeCard w={620} h={280} title="hello.ts" lines={codeLines} />
-      )}
+      {name === "counter" && <Counter {...previewProps.counter} />}
+      {name === "prob-bar" && <ProbBar {...previewProps.probBar} />}
+      {name === "code-card" && <CodeCard {...previewProps.codeCard} />}
       {name === "captions" && (
         <>
           <Pop at={0}>
             <Big size={52}>Cada palabra cuenta.</Big>
           </Pop>
-          <Captions words={captionWords} />
+          <Captions {...previewProps.captions} />
         </>
       )}
       {name === "motion-hooks" && <HooksDemo />}
       {name === "rebuild-screens" && (
         <Fit w={936} h={620}>
-          <RebuildScreens
-            w={936}
-            h={620}
-            pieces={[
-              { kind: "button", at: illustrated.screens.pieces[0] },
-              { kind: "input", at: illustrated.screens.pieces[1] },
-              { kind: "card", at: illustrated.screens.pieces[2] },
-            ]}
-            again={illustrated.screens.again}
-            sticker={{ text: "¿otra vez?", at: illustrated.screens.sticker }}
-          />
+          <RebuildScreens {...previewProps.rebuildScreens} />
         </Fit>
       )}
       {name === "catalog" && (
         <Fit w={936} h={820}>
           <div style={{ paddingTop: 40 }}>
-            <Catalog
-              w={936}
-              at={illustrated.catalog.at}
-              title="catálogo"
-              items={[
-                {
-                  kind: "button",
-                  label: "botón",
-                  at: illustrated.catalog.items[0],
-                },
-                {
-                  kind: "card",
-                  label: "tarjeta",
-                  at: illustrated.catalog.items[1],
-                },
-                {
-                  kind: "input",
-                  label: "input",
-                  at: illustrated.catalog.items[2],
-                },
-              ]}
-              tokensAt={illustrated.catalog.tokensAt}
-              tokens={[
-                {
-                  kind: "color",
-                  label: "color",
-                  at: illustrated.catalog.tokens[0],
-                },
-                {
-                  kind: "type",
-                  label: "tipografía",
-                  at: illustrated.catalog.tokens[1],
-                },
-                {
-                  kind: "space",
-                  label: "espaciado",
-                  at: illustrated.catalog.tokens[2],
-                },
-              ]}
-              stamp={{ text: "design tokens", at: illustrated.catalog.stamp }}
-            />
+            <Catalog {...previewProps.catalog} />
           </div>
         </Fit>
       )}
       {name === "propagate" && (
         <Fit w={936} h={640}>
-          <Propagate
-            w={936}
-            h={640}
-            at={illustrated.propagate.at}
-            label={{
-              text: "una sola fuente de verdad",
-              at: illustrated.propagate.label,
-            }}
-            targets={6}
-            bug={illustrated.propagate.bug}
-            fix={illustrated.propagate.fix}
-            fixed={illustrated.propagate.fixed}
-            recolor={illustrated.propagate.recolor}
-            recolored={illustrated.propagate.recolored}
-          />
+          <Propagate {...previewProps.propagate} />
         </Fit>
       )}
       {name === "shelf" && (
         <Fit w={936} h={820}>
           <div style={{ display: "flex", flexDirection: "column", gap: 40 }}>
-            <Shelf
-              w={936}
-              items={[
-                { text: "shadcn/ui", at: illustrated.shelf.items[0] },
-                { text: "Material UI", at: illustrated.shelf.items[1] },
-                {
-                  text: "jbm-ui",
-                  at: illustrated.shelf.items[2],
-                  tone: "accent",
-                },
-              ]}
-            />
-            <Twice
-              w={936}
-              at={illustrated.shelf.twice}
-              second={illustrated.shelf.second}
-              strike={illustrated.shelf.strike}
-            />
+            <Shelf {...previewProps.shelf} />
+            <Twice {...previewProps.twice} />
           </div>
         </Fit>
       )}

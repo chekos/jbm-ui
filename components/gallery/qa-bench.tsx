@@ -68,6 +68,7 @@ export function QaBench({
           {!loaded && (
             <>
               <BenchSkeleton
+                name={name}
                 title={title}
                 orientationAware={orientationAware}
               />

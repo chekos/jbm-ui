@@ -83,6 +83,21 @@ export type Link = {
   url: string
 }
 
+/**
+ * A moment on the gallery preview timeline worth inspecting. The QA strip shows frame 0 (`start`),
+ * each cue, then End (a fixed Middle frame when there are no cues). Cue times are on the gallery
+ * preview's timeline, published with each item as `galleryPreview` (its demo's props and length);
+ * `pnpm contracts:check` rejects cues outside the timeline.
+ */
+export type Cue = {
+  /** What the frame shows, in a few words ("Bug appears", "Fix lands"). At most 24 characters. */
+  label: string
+  /** Seconds from the start of the gallery preview; the frame is round(at × 30). */
+  at: number
+  /** What to check on this frame. */
+  note?: string
+}
+
 export type ItemContract = {
   /** Registry item name, or the gallery entry name for documentation entries. */
   name: string
@@ -111,6 +126,18 @@ export type ItemContract = {
   examples: Example[]
   /** What to inspect before accepting a change: states, extremes, orientations. */
   qa: string[]
+  /**
+   * Player items only: up to four timeline moments the QA strip shows between Begin and End, in
+   * order, each strictly inside the preview timeline.
+   */
+  cues?: Cue[]
+  /**
+   * Player items only: the caption of the strip's first cell (frame 0) when "Begin" would not say
+   * what it shows. Use "Empty stage" when everything enters after frame 0, so the cell honestly
+   * shows a clean stage (which is what it checks: nothing renders before its cue). At most 24
+   * characters; defaults to "Begin".
+   */
+  start?: string
   /** `doc` entries only: the registry item that installs the documented code. */
   install?: string
   /** `bundle` entries only: why there is no page and which items to open instead. */
@@ -122,6 +149,24 @@ export type ItemContract = {
 }
 
 // --- Generated shapes (contracts/generated/*.json) -----------------------------------------
+
+/** A cue with its zero-based frame on the 30 fps gallery preview timeline. */
+export type GeneratedCue = Cue & { frame: number }
+
+/** One element of a gallery preview demo (see components/gallery/timing.ts previewDemos). */
+export type DemoElement =
+  | { component: string; props?: Record<string, unknown>; children?: string | DemoElement[] }
+  | { code: string }
+
+/** The gallery preview an item's cues are measured on: its length and what it renders. */
+export type GalleryPreview = {
+  fps: number
+  durationInFrames: number
+  /** The elements the preview renders, with their props (timing props in seconds). */
+  demo: DemoElement[]
+  /** The same demo as TSX. */
+  code: string
+}
 
 /** A prop or parameter: type, required, and default are extracted from source. */
 export type ApiField = {
@@ -178,6 +223,12 @@ export type ContractEntry = {
   stage: StageSize
   examples: Example[]
   qa: string[]
+  /** Present only when the contract lists cues. */
+  cues?: GeneratedCue[]
+  /** Present only when the contract sets it. */
+  start?: string
+  /** Items with cues: the gallery preview the cue times are measured on. */
+  galleryPreview?: GalleryPreview
   /** Present only when the contract lists docs. */
   docs?: Link[]
   /** Present only when the contract lists schemas. */

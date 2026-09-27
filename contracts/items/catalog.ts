@@ -13,7 +13,7 @@ export default {
       export: "Catalog",
       kind: "component",
       summary:
-        "Paper sheet that springs up into place at `at`, with one dashed slot per column. Each item's Piece pops into its slot on its cue and a check badge pops on `checkDelay` seconds later. At `tokensAt` the sheet grows downward over 0.55 s behind a dashed divider to reveal a row of TokenGlyphs that pop in on their own cues. An optional ink title sticker sits over the top edge and a stamp lands below the rows.",
+        "Paper sheet that springs up into place at `at`, with one dashed slot per column. Each item's Piece pops into its slot on its cue and a check badge pops on `checkDelay` seconds later. At `tokensAt` the sheet grows downward over 0.55 s behind a dashed divider to reveal a row of TokenGlyphs that pop in on their own cues. An optional ink title sticker sits over the top edge and a stamp lands across the bottom edge, below the rows; it overlaps only the sheet's bottom padding and extends about half its height below the sheet, so leave room under the component.",
       props: {
         w: "Sheet width in stage pixels; padding, gaps, slot size, pieces, captions, and badges all scale from it.",
         at: "Sheet entrance in seconds relative to the enclosing Sequence.",
@@ -21,7 +21,7 @@ export default {
         items: "Top-row slots: `kind` (button, card, or input), a caption `label`, and the `at` second its piece pops in.",
         tokens: "Optional second-row slots: `kind` (color, type, or space), a caption `label`, and the `at` second its glyph pops in. Empty means no token row.",
         tokensAt: "Second at which the token row unfolds. Defaults to 0.6 s before the first token's cue.",
-        stamp: "Optional loud word: `text` and the `at` second it stamps onto the sheet below the rows.",
+        stamp: "Optional loud word: `text` and the `at` second it stamps across the sheet's bottom edge, below the rows, never over a slot or caption.",
         checkDelay: "Seconds between an item's arrival and its check badge.",
       },
     },
@@ -43,10 +43,16 @@ export default {
       code: 'import { Catalog } from "@/jbm/motion/catalog"\n\n<Catalog w={936} at={0.2} title="catálogo"\n  items={[\n    { kind: "button", label: "botón", at: 0.8 },\n    { kind: "card", label: "tarjeta", at: 1.2 },\n    { kind: "input", label: "input", at: 1.6 },\n  ]}\n  tokensAt={2.6}\n  tokens={[\n    { kind: "color", label: "color", at: 3.0 },\n    { kind: "type", label: "tipografía", at: 3.4 },\n    { kind: "space", label: "espaciado", at: 3.8 },\n  ]}\n  stamp={{ text: "design tokens", at: 4.4 }} />',
     },
   ],
+  start: "Empty stage",
+  cues: [
+    { label: "Pieces tested", at: 2.6, note: "Button, card, and input sit in their slots with checks; the token row is still folded." },
+    { label: "Tokens arriving", at: 3.5, note: "The sheet has unfolded and the colour glyph is in; type and spacing are still arriving." },
+    { label: "Tokens in", at: 4.3, note: "All three token glyphs have landed, just before the stamp." },
+  ],
   qa: [
-    "Step to the sheet entrance, each item arrival and its check badge, the middle of the unfold (token row partially revealed and clipped), and the end (all glyphs in, stamp settled).",
+    "Step to the sheet entrance, each item arrival and its check badge, the middle of the unfold (token row partially revealed and clipped), and the end (all glyphs in, stamp settled across the bottom edge without covering any caption, including tipografía).",
     "Check the fully unfolded sheet plus the title sticker above it fits the safe area in both orientations; the height grows by the token block when it unfolds.",
-    "Without tokens, confirm no divider or empty row appears and the stamp sits just below the item row.",
+    "Without tokens, confirm no divider or empty row appears and the stamp straddles the bottom edge just below the item row.",
     "Check long captions at the scaled caption size stay inside their slots; captions are not truncated by the component.",
   ],
 } satisfies ItemContract

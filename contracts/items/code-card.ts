@@ -67,6 +67,10 @@ export default {
       code: 'import { codeTypingSchedule } from "@/jbm/motion/code-card-timing"\n\nconst fps = 30\nconst schedule = codeTypingSchedule(lines, fps, 32)\nconst durationInFrames = (schedule.at(-1)?.end ?? 0) + 1',
     },
   ],
+  cues: [
+    { label: "First line typed", at: 0.9, note: "The first line is complete and the second has not started." },
+    { label: "Second line typed", at: 1.8, note: "Two lines are complete; the vermilion third line is next." },
+  ],
   qa: [
     "Step to the first frame (empty rows at full height), mid-typing (a partially typed line, earlier lines complete), and the last frame (every line complete).",
     "Give two lines overlapping `at` cues: the second waits for the first to finish instead of typing in parallel.",

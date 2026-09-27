@@ -57,6 +57,12 @@ export default {
       code: 'import { Propagate } from "@/jbm/motion/propagate"\n\n<Propagate w={1680} h={760} at={0.2} targets={8}\n  recolor={3} recolored={4.2} />',
     },
   ],
+  start: "Empty stage",
+  cues: [
+    { label: "Bug appears", at: 2.3, note: "Cross badges sit on the source and on every screen; no pulse has left yet." },
+    { label: "Fix travels", at: 2.8, note: "The source shows a check and vermilion pulses are mid-line; screens still show crosses." },
+    { label: "Fix lands", at: 3.7, note: "Every screen shows a check and nothing is in flight, before the recolour starts." },
+  ],
   qa: [
     "Step through at, mid-line draw, and each cue: badges scale in on `bug`, pulses travel only between departure and arrival, and screens change exactly on `fixed` and `recolored`.",
     "Check the final frame: every screen shows vermilion buttons, badges have faded out after a recolour, and nothing is mid-flight.",
