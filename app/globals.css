@@ -1161,6 +1161,22 @@ details > p {
 }
 .item-docs pre {
   margin: 12px 0 0;
+  scrollbar-width: thin;
+  scrollbar-color: var(--jbm-line) transparent;
+}
+/* Match the Usage block's top edge so both columns start on one line. */
+.item-docs .add-command {
+  margin: 12px 0;
+}
+/* Links inside prose need a cue beyond colour: ink text on a pencil underline. */
+.item-docs p a {
+  color: var(--jbm-ink);
+  text-decoration: underline;
+  text-decoration-color: var(--jbm-line);
+  text-underline-offset: 3px;
+}
+.item-docs p a:hover {
+  text-decoration-color: currentColor;
 }
 .item-links {
   display: flex;
