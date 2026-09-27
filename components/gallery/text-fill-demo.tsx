@@ -1,33 +1,29 @@
 "use client"
 import { FlipText } from "@/registry/jbm/ui/flip-text"
-import { color } from "@/registry/jbm/lib/tokens"
+import { ProgressControl } from "./progress-control"
 
-import { useState } from "react"
+import { useBenchParam } from "./bench-url"
 import { TextFill } from "@/registry/jbm/ui/text-fill"
 import { ScrollTextFill } from "@/registry/jbm/ui/scroll-text-fill"
 
 const text = "Una idea toma forma. Letra por letra."
 
 export function TextFillDemo() {
-  const [progress, setProgress] = useState(0.45)
+  const [progress, setProgress] = useBenchParam("progress", 0.45, {
+    clamp: [0, 1],
+  })
   return (
     <div style={{ width: "100%", padding: 24 }}>
       <p style={{ margin: "0 0 24px", fontSize: "clamp(24px, 3vw, 40px)" }}>
         <TextFill text={text} progress={progress} />
       </p>
-      <label style={{ display: "grid", gap: 12 }}>
-        Fill progress · {Math.round(progress * 100)}%
-        <input
-          aria-label="Text fill progress"
-          type="range"
-          min={0}
-          max={1}
-          step={0.01}
-          value={progress}
-          onChange={(event) => setProgress(Number(event.target.value))}
-          style={{ width: "100%", accentColor: color.accent }}
-        />
-      </label>
+      <ProgressControl
+        label="Fill progress"
+        ariaLabel="Text fill progress"
+        value={progress}
+        onChange={setProgress}
+        presets={["Empty", "Half", "Full"]}
+      />
     </div>
   )
 }

@@ -1,5 +1,5 @@
-// Guides published at /docs/<slug>.md (app/docs/[file]/route.ts). The source repository is
-// private, so agents read the guides from the site. `pnpm contracts:build` copies every guide a
+// Guides published at /docs/<slug>.md (app/docs/[file]/route.ts). Agents read the guides from
+// the site, never the source repository (public on GitHub for humans). `pnpm contracts:build` copies every guide a
 // contract links, plus the agent contract and the scene-spec guide, into contracts/generated/docs.json.
 import generated from "@/contracts/generated/docs.json"
 import { siteOrigin } from "@/lib/site"

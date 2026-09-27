@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useBenchParam } from "./bench-url"
 import { Cajon } from "@/registry/jbm/motion/cajon"
 import { Hand, type HandPose } from "@/registry/jbm/ui/hand"
 import { Mano } from "@/registry/jbm/motion/mano"
@@ -9,6 +9,12 @@ import { Bandeja } from "@/registry/jbm/motion/bandeja"
 import { ToolCaddy } from "@/registry/jbm/motion/tool-caddy"
 import { Escritorio } from "@/registry/jbm/motion/escritorio"
 import { Burbuja } from "@/registry/jbm/motion/burbuja"
+import {
+  degrees,
+  ProgressControl,
+  RangeControl,
+  type Presets,
+} from "./progress-control"
 
 export { deskNames } from "./demo-data"
 
@@ -27,16 +33,24 @@ const names = [
   "archivo",
 ]
 export function DeskDemo({ name }: { name: string }) {
-  const [count, setCount] = useState(3)
-  const [open, setOpen] = useState(1)
-  const [pull, setPull] = useState(0)
-  const [pose, setPose] = useState<HandPose>("point")
-  const [wood, setWood] = useState(false)
-  const [right, setRight] = useState(false)
-  const [cabinet, setCabinet] = useState(false)
-  const [progress, setProgress] = useState(1)
-  const [angle, setAngle] = useState(0)
-  const [position, setPosition] = useState(0)
+  // On /c/<name> benches each value lives in the URL (?open=0.5&pose=pinch); see bench-url.tsx.
+  const unit = { clamp: [0, 1] } as const
+  const [count, setCount] = useBenchParam(
+    "count",
+    3,
+    name === "bandeja" ? { clamp: [0, 12] } : { allowed: [0, 1, 3, 6, 12] }
+  )
+  const [open, setOpen] = useBenchParam("open", 1, unit)
+  const [pull, setPull] = useBenchParam("lift", 0, unit)
+  const [pose, setPose] = useBenchParam<HandPose>("pose", "point", {
+    allowed: ["open", "point", "pinch"],
+  })
+  const [wood, setWood] = useBenchParam("wood", false)
+  const [right, setRight] = useBenchParam("right", false)
+  const [cabinet, setCabinet] = useBenchParam("cabinet", false)
+  const [progress, setProgress] = useBenchParam("highlight", 1, unit)
+  const [angle, setAngle] = useBenchParam("angle", 0, { clamp: [-30, 30] })
+  const [position, setPosition] = useBenchParam("position", 0, unit)
   const folders = names
     .slice(0, count)
     .map((name, i) => ({ name, accent: i === 0, pulled: i === 0 ? pull : 0 }))
@@ -44,26 +58,20 @@ export function DeskDemo({ name }: { name: string }) {
     name === "cajon" ||
     name === "file-cabinet" ||
     (name === "escritorio" && cabinet)
+  // Card names prefix the accessible names so several cards on the index stay distinct.
   const range = (
     label: string,
     value: number,
     set: (n: number) => void,
-    min = 0,
-    max = 1,
-    step = 0.01
+    presets: Presets
   ) => (
-    <label style={{ display: "flex", gap: 12, alignItems: "center" }}>
-      {label}
-      <input
-        aria-label={`${name} ${label}`}
-        type="range"
-        min={min}
-        max={max}
-        step={step}
-        value={value}
-        onChange={(e) => set(Number(e.target.value))}
-      />
-    </label>
+    <ProgressControl
+      label={label}
+      ariaLabel={`${name} ${label}`}
+      value={value}
+      onChange={set}
+      presets={presets}
+    />
   )
   return (
     <div style={{ width: "100%" }}>
@@ -158,10 +166,14 @@ export function DeskDemo({ name }: { name: string }) {
                 ))}
               </select>
             </label>
-            {range("Open", open, setOpen)}
+            {range("Open", open, setOpen, ["Closed", "Half", "Open"])}
             {name !== "escritorio" &&
               count > 0 &&
-              range("Lift front folder", pull, setPull)}
+              range("Lift front folder", pull, setPull, [
+                "Filed",
+                "Half",
+                "Lifted",
+              ])}
           </>
         )}
         {name === "escritorio" && (
@@ -210,12 +222,37 @@ export function DeskDemo({ name }: { name: string }) {
         )}
         {name === "mano" && (
           <>
-            {range("Position", position, setPosition)}
-            {range("Rotation", angle, setAngle, -30, 30, 1)}
+            {range("Position", position, setPosition, [
+              "Left",
+              "Center",
+              "Right",
+            ])}
+            <RangeControl
+              label="Rotation"
+              ariaLabel={`${name} Rotation`}
+              value={angle}
+              onChange={setAngle}
+              min={-30}
+              max={30}
+              step={1}
+              format={degrees}
+            />
           </>
         )}
-        {name === "bandeja" && range("Sheets", count, setCount, 0, 12, 1)}
-        {name === "burbuja" && range("Highlight", progress, setProgress)}
+        {name === "bandeja" && (
+          <RangeControl
+            label="Sheets"
+            ariaLabel={`${name} Sheets`}
+            value={count}
+            onChange={setCount}
+            min={0}
+            max={12}
+            step={1}
+            format={(n) => `${n} ${n === 1 ? "sheet" : "sheets"}`}
+          />
+        )}
+        {name === "burbuja" &&
+          range("Highlight", progress, setProgress, ["None", "Half", "All"])}
       </div>
     </div>
   )

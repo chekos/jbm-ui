@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server"
 import {
+  canonicalGuideSlug,
   canonicalItemName,
   catalogNotFoundJson,
   catalogNotFoundMarkdown,
@@ -12,9 +13,13 @@ import {
 // Agent endpoints answer unknown names in their own format before the static files are consulted
 // (the per-item and guide routes are fully prerendered with dynamicParams = false):
 //   /catalog/Folder.md → 308 /catalog/folder.md (any casing of a known item)
-//   /catalog/zzz.md    → 404 Markdown naming the nearest item
-//   /catalog/zzz.json  → 404 JSON { error, didYouMean, index: "/llms.txt" }
-//   /docs/zzz.md       → 404 Markdown listing the published guides
+//   /catalog/foldr.md  → 404 Markdown suggesting folder (/catalog/zzz.md suggests nothing)
+//   /catalog/foldr.json → 404 JSON { error, didYouMean: "folder", index: "/llms.txt" };
+//                         didYouMean is null when no name is similar
+//   /docs/Scene-Spec.md → 308 /docs/scene-spec.md
+//   /docs/scene.md     → 404 Markdown suggesting the closest guide, then listing every guide
+// Every suggestion here and on the /c 404 comes from nearestItemNames in lib/agent-routes.ts,
+// under one documented threshold (SUGGESTION_THRESHOLD).
 // Item pages get the same casing redirect, and an unknown name a 404 page that names it (a nested
 // not-found.tsx gets no params and is not server-rendered for these prerendered pages):
 //   /c/Folder → 308 /c/folder
@@ -54,9 +59,15 @@ export function proxy(request: NextRequest) {
   }
 
   if (section === "docs") {
-    const slug = /^([a-z0-9-]+)\.md$/.exec(file)?.[1]
-    if (slug && guides.has(slug)) return NextResponse.next()
-    return new NextResponse(docsNotFoundMarkdown(), { status: 404, headers: markdown })
+    const [, slug = file, extension = ""] = /^(.+)\.(md)$/i.exec(file) ?? []
+    if (extension === "md" && guides.has(slug)) return NextResponse.next()
+    const canonical = extension ? canonicalGuideSlug(slug) : undefined
+    if (canonical) {
+      const url = request.nextUrl.clone()
+      url.pathname = `/docs/${canonical}.md`
+      return NextResponse.redirect(url, 308)
+    }
+    return new NextResponse(docsNotFoundMarkdown(slug), { status: 404, headers: markdown })
   }
 
   const [, name = file, extension = ""] = /^(.+)\.(json|md)$/i.exec(file) ?? []

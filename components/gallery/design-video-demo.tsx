@@ -1,6 +1,7 @@
 "use client"
 
-import { useState, type ReactNode } from "react"
+import type { ReactNode } from "react"
+import { useBenchParam } from "./bench-url"
 import { PaperTape } from "@/registry/jbm/ui/paper-tape"
 import { TapeMarker } from "@/registry/jbm/ui/tape-marker"
 import { PaperClip } from "@/registry/jbm/ui/paper-clip"
@@ -19,33 +20,38 @@ import { Mano } from "@/registry/jbm/motion/mano"
 import { pointOn } from "@/registry/jbm/lib/geometry"
 import { Ticket } from "@/registry/jbm/ui/ticket"
 import { color } from "@/registry/jbm/lib/tokens"
+import { degrees, ProgressControl, RangeControl } from "./progress-control"
 
 export { designNames } from "./demo-data"
 
-function Range({
+const Range = ProgressControl
+
+/** A 0–1 control that maps to an angle: the readout and aria-valuetext speak degrees. */
+function Angle({
   label,
   value,
   onChange,
-  max = 1,
+  from,
+  span,
 }: {
   label: string
   value: number
   onChange: (n: number) => void
-  max?: number
+  /** Degrees at 0. */
+  from: number
+  /** Degrees covered from 0 to 1. */
+  span: number
 }) {
   return (
-    <label style={{ display: "grid", gap: 6, fontSize: 12 }}>
-      {label}{" "}
-      <input
-        aria-label={label}
-        type="range"
-        min={0}
-        max={max}
-        step={max / 100}
-        value={value}
-        onChange={(e) => onChange(Number(e.target.value))}
-      />
-    </label>
+    <RangeControl
+      label={label}
+      value={value}
+      onChange={onChange}
+      min={0}
+      max={1}
+      step={0.01}
+      format={(n) => degrees(from + n * span)}
+    />
   )
 }
 function Toggle({
@@ -70,13 +76,40 @@ function Toggle({
     </label>
   )
 }
+/** URL keys on /c/<name> benches: each piece names its shared state slots after its controls. */
+const slotKeys: Record<string, Record<string, string>> = {
+  "paper-tape": { progress: "feed", flag: "vertical", other: "marker" },
+  "paper-line": {
+    progress: "reveal",
+    secondary: "lift",
+    third: "strike",
+    flag: "dotted",
+    other: "accent",
+  },
+  stamp: { progress: "press", secondary: "angle" },
+  "folder-contents": {
+    progress: "open",
+    secondary: "extract",
+    third: "lift",
+    other: "reveal",
+    count: "folders",
+  },
+  "folder-carry": { progress: "carry", secondary: "angle", other: "hand" },
+  frontmatter: { flag: "stacked", other: "highlight", secondary: "dim" },
+  "clipped-note": { other: "clip", flag: "accent", secondary: "rotation" },
+  "punched-tag": { flag: "ink" },
+  "tape-marker": { other: "label" },
+}
+
 export function DesignVideoDemo({ name }: { name: string }) {
-  const [progress, setProgress] = useState(0.7)
-  const [secondary, setSecondary] = useState(0)
-  const [third, setThird] = useState(0)
-  const [flag, setFlag] = useState(false)
-  const [other, setOther] = useState(true)
-  const [count, setCount] = useState(3)
+  const key = (slot: string) => slotKeys[name]?.[slot] ?? slot
+  const unit = { clamp: [0, 1] } as const
+  const [progress, setProgress] = useBenchParam(key("progress"), 0.7, unit)
+  const [secondary, setSecondary] = useBenchParam(key("secondary"), 0, unit)
+  const [third, setThird] = useBenchParam(key("third"), 0, unit)
+  const [flag, setFlag] = useBenchParam(key("flag"), false)
+  const [other, setOther] = useBenchParam(key("other"), true)
+  const [count, setCount] = useBenchParam(key("count"), 3, { clamp: [0, 8] })
   let art: ReactNode, controls: ReactNode
   if (name === "paper-tape") {
     art = (
@@ -100,7 +133,7 @@ export function DesignVideoDemo({ name }: { name: string }) {
     )
     controls = (
       <>
-        <Range label="Feed" value={progress} onChange={setProgress} />
+        <Range label="Feed" value={progress} onChange={setProgress} presets={["Start", "Half", "End"]} />
         <Toggle label="Vertical tape" value={flag} onChange={setFlag} />
         <Toggle label="Checkpoint marker" value={other} onChange={setOther} />
       </>
@@ -127,9 +160,9 @@ export function DesignVideoDemo({ name }: { name: string }) {
     )
     controls = (
       <>
-        <Range label="Reveal" value={progress} onChange={setProgress} />
-        <Range label="Lift ink" value={secondary} onChange={setSecondary} />
-        <Range label="Strike" value={third} onChange={setThird} />
+        <Range label="Reveal" value={progress} onChange={setProgress} presets={["Hidden", "Half", "Written"]} />
+        <Range label="Lift ink" value={secondary} onChange={setSecondary} presets={["Flat", "Half", "Lifted"]} />
+        <Range label="Strike" value={third} onChange={setThird} presets={["None", "Half", "Struck"]} />
         <Toggle label="Dotted underline" value={flag} onChange={setFlag} />
         <Toggle label="Accent ink" value={other} onChange={setOther} />
       </>
@@ -142,8 +175,8 @@ export function DesignVideoDemo({ name }: { name: string }) {
     )
     controls = (
       <>
-        <Range label="Press" value={progress} onChange={setProgress} />
-        <Range label="Stamp angle" value={secondary} onChange={setSecondary} />
+        <Range label="Press" value={progress} onChange={setProgress} presets={["Lifted", "Half", "Pressed"]} />
+        <Angle label="Stamp angle" value={secondary} onChange={setSecondary} from={-7} span={30} />
       </>
     )
   } else if (name === "folder-contents") {
@@ -166,13 +199,14 @@ export function DesignVideoDemo({ name }: { name: string }) {
     )
     controls = (
       <>
-        <Range label="Open folder" value={progress} onChange={setProgress} />
+        <Range label="Open folder" value={progress} onChange={setProgress} presets={["Closed", "Half", "Open"]} />
         <Range
           label="Extract documents"
           value={secondary}
           onChange={setSecondary}
+          presets={["Inside", "Half", "Out"]}
         />
-        <Range label="Lift contents" value={third} onChange={setThird} />
+        <Range label="Lift contents" value={third} onChange={setThird} presets={["Inside", "Half", "Lifted"]} />
         <label style={{ fontSize: 12 }}>
           Nested folders{" "}
           <input
@@ -225,8 +259,8 @@ export function DesignVideoDemo({ name }: { name: string }) {
     )
     controls = (
       <>
-        <Range label="Carry progress" value={progress} onChange={setProgress} />
-        <Range label="Hand angle" value={secondary} onChange={setSecondary} />
+        <Range label="Carry progress" value={progress} onChange={setProgress} presets={["Start", "Midway", "Arrived"]} />
+        <Angle label="Hand angle" value={secondary} onChange={setSecondary} from={-30} span={60} />
         <Toggle label="Show hand" value={other} onChange={setOther} />
       </>
     )
@@ -253,6 +287,7 @@ export function DesignVideoDemo({ name }: { name: string }) {
           label="Dim optional field"
           value={secondary}
           onChange={setSecondary}
+          presets={["Full", "Half", "Dimmed"]}
         />
       </>
     )
@@ -270,10 +305,12 @@ export function DesignVideoDemo({ name }: { name: string }) {
       <>
         <Toggle label="Paper clip" value={other} onChange={setOther} />
         <Toggle label="Accent paper" value={flag} onChange={setFlag} />
-        <Range
+        <Angle
           label="Note rotation"
           value={secondary}
           onChange={setSecondary}
+          from={-4}
+          span={16}
         />
       </>
     )

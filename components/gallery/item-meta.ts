@@ -8,6 +8,15 @@ import type { Category } from "./categories"
 
 export type { Capability }
 
+/** Tag wording for readers on cards and /c pages; the ids stay in data attributes and search. */
+export const capabilityLabel: Record<Capability, string> = {
+  controls: "adjustable",
+  scroll: "scroll-driven",
+  replay: "replayable",
+  portrait: "landscape + vertical",
+  player: "video player",
+}
+
 export type GalleryItemMeta = {
   name: string
   title: string

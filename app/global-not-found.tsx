@@ -32,7 +32,8 @@ function displayName(raw: string) {
 }
 
 function itemMatches(name: string) {
-  // Suggest only names with a page of their own: gallery items and bundles.
+  // Suggest only names with a page of their own: gallery items and bundles. nearestItemNames is
+  // the same matcher and threshold the /catalog and /docs 404s use, so "zzz" suggests nothing.
   const titles = new Map([
     ...getGalleryItems().map(({ name, title }) => [name, title] as const),
     ...getContracts()

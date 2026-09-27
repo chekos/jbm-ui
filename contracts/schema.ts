@@ -75,8 +75,8 @@ export type Example = {
 /**
  * A public link an agent can fetch without the repository checked out. `url` must be absolute.
  * Guides in docs/ are published by the site at https://jbm-ui.bns.studio/docs/<slug>.md and other
- * site files at https://jbm-ui.bns.studio/…; both are checked to exist. The source repository is
- * private, so links into it are rejected.
+ * site files at https://jbm-ui.bns.studio/…; both are checked to exist. Agent-facing links
+ * stay on the site, so links into the source repository are rejected.
  */
 export type Link = {
   title: string

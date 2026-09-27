@@ -13,19 +13,22 @@ export const docGuides: { slug: string; title: string }[] = routes.docs
  */
 export const MISSING_ITEM_HEADER = "x-jbm-missing-item"
 
+/**
+ * Edit distance with adjacent transpositions (optimal string alignment): "clcok" is one edit from
+ * "clock", not two.
+ */
 function editDistance(a: string, b: string) {
-  let previous = Array.from({ length: b.length + 1 }, (_, index) => index)
-  for (let i = 1; i <= a.length; i++) {
-    const current = [i]
-    for (let j = 1; j <= b.length; j++)
-      current[j] = Math.min(
-        previous[j] + 1,
-        current[j - 1] + 1,
-        previous[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1)
-      )
-    previous = current
-  }
-  return previous[b.length]
+  const rows = Array.from({ length: a.length + 1 }, (_, i) =>
+    Array.from({ length: b.length + 1 }, (_, j) => (i === 0 ? j : j === 0 ? i : 0))
+  )
+  for (let i = 1; i <= a.length; i++)
+    for (let j = 1; j <= b.length; j++) {
+      const cost = a[i - 1] === b[j - 1] ? 0 : 1
+      rows[i][j] = Math.min(rows[i - 1][j] + 1, rows[i][j - 1] + 1, rows[i - 1][j - 1] + cost)
+      if (i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1])
+        rows[i][j] = Math.min(rows[i][j], rows[i - 2][j - 2] + 1)
+    }
+  return rows[a.length][b.length]
 }
 
 /** The catalog name that matches `query` ignoring case, if any. */
@@ -34,40 +37,51 @@ export function canonicalItemName(query: string, names = itemNames) {
   return names.find((name) => name.toLowerCase() === lower)
 }
 
-/** The closest catalog name to `query`: a prefix match first, else the smallest edit distance. */
-export function nearestItemName(query: string, names = itemNames) {
-  const lower = query.toLowerCase()
-  const prefixed = names.find(
-    (name) => lower.length >= 3 && (name.startsWith(lower) || lower.startsWith(name))
-  )
-  if (prefixed) return prefixed
-  let best = names[0]
-  let bestDistance = Infinity
-  for (const name of names) {
-    const distance = editDistance(lower, name)
-    if (distance < bestDistance) [best, bestDistance] = [name, distance]
-  }
-  return best
-}
+/**
+ * Similarity threshold shared by every "did you mean" on the site. A name is suggested only when,
+ * comparing lowercase letters and digits with separators dropped ("Tool Caddy" → "toolcaddy"):
+ *   0. it equals the query ("toolcaddy" → tool-caddy, "Folder" → folder);
+ *   1. a partial word: it starts with the query, at least MIN_PREFIX characters ("pap" → paper,
+ *      paper-clip…); one of its words starts with a query word of at least MIN_WORD characters
+ *      ("cabinet" → file-cabinet, "clip" → paper-clip, clipped-note); or the query starts with
+ *      it, a name of at least MIN_WORD characters ("folders" → folder);
+ *   2. it is within MAX_EDIT_RATIO edits per character of the longer string, at least one edit
+ *      ("foldr" → folder, "clcok" → clock).
+ * Anything else is noise: "zzz" suggests nothing rather than whichever name happens to be closest.
+ * Matches rank by rule, then edit distance, then catalog order.
+ */
+export const SUGGESTION_THRESHOLD = {
+  MIN_PREFIX: 2,
+  MIN_WORD: 3,
+  MAX_EDIT_RATIO: 1 / 3,
+} as const
+
+const compact = (value: string) => value.toLowerCase().replace(/[^a-z0-9]/g, "")
+const words = (value: string) =>
+  value.toLowerCase().split(/[^a-z0-9]+/).filter(Boolean)
 
 /**
- * Up to `count` plausible names for `query`, closest first: prefix matches, then names that
- * contain the query (or it them), then small edit distances. Unlike nearestItemName this can be
- * empty: a query with nothing close (`zzz`) suggests nothing rather than a random item.
+ * Up to `count` names similar to `query` under SUGGESTION_THRESHOLD, closest first. Empty when
+ * nothing is genuinely similar. The /catalog, /docs, and /c 404s all use this.
  */
 export function nearestItemNames(query: string, count = 3, names = itemNames) {
-  const lower = query.toLowerCase()
-  const long = lower.length >= 3
-  const limit = Math.max(2, Math.floor(lower.length / 2))
+  const { MIN_PREFIX, MIN_WORD, MAX_EDIT_RATIO } = SUGGESTION_THRESHOLD
+  const q = compact(query)
+  if (!q) return []
+  const queryWords = words(query).filter((word) => word.length >= MIN_WORD)
   return names
     .map((name, order) => {
-      const distance = editDistance(lower, name)
+      const n = compact(name)
+      const distance = editDistance(q, n)
       const tier =
-        long && (name.startsWith(lower) || lower.startsWith(name))
+        n === q
           ? 0
-          : long && (name.includes(lower) || (name.length >= 3 && lower.includes(name)))
+          : (q.length >= MIN_PREFIX && n.startsWith(q)) ||
+              (n.length >= MIN_WORD && q.startsWith(n)) ||
+              queryWords.some((word) => words(name).some((part) => part.startsWith(word)))
             ? 1
-            : distance <= limit
+            : distance <=
+                Math.max(1, Math.floor(Math.max(q.length, n.length) * MAX_EDIT_RATIO))
               ? 2
               : 3
       return { name, order, distance, tier }
@@ -78,13 +92,18 @@ export function nearestItemNames(query: string, count = 3, names = itemNames) {
     .map((match) => match.name)
 }
 
-/** Body of a /catalog/<name>.json 404. */
+/** The single closest name to `query` under SUGGESTION_THRESHOLD, or undefined when none is similar. */
+export function nearestItemName(query: string, names = itemNames): string | undefined {
+  return nearestItemNames(query, 1, names)[0]
+}
+
+/** Body of a /catalog/<name>.json 404. `didYouMean` and `suggestion` are null when nothing is similar. */
 export function catalogNotFoundJson(name: string, origin = siteOrigin()) {
-  const suggestion = nearestItemName(name)
+  const match = nearestItemName(name) ?? null
   return {
     error: `No catalog item is named "${name}".`,
-    didYouMean: suggestion,
-    suggestion: `${origin}/catalog/${suggestion}.json`,
+    didYouMean: match,
+    suggestion: match ? `${origin}/catalog/${match}.json` : null,
     index: "/llms.txt",
     catalog: "/catalog.json",
   }
@@ -92,24 +111,46 @@ export function catalogNotFoundJson(name: string, origin = siteOrigin()) {
 
 /** Body of a /catalog/<name>.md 404. */
 export function catalogNotFoundMarkdown(name: string, origin = siteOrigin()) {
-  const suggestion = nearestItemName(name)
+  const match = nearestItemName(name)
   return [
     "# Not found",
     "",
     `No catalog item is named \`${name}\`.`,
     "",
-    `- Did you mean [${suggestion}](${origin}/catalog/${suggestion}.md)?`,
+    match
+      ? `- Did you mean [${match}](${origin}/catalog/${match}.md)?`
+      : "- No item has a similar name.",
     `- Every item: [llms.txt](${origin}/llms.txt) or [catalog.json](${origin}/catalog.json)`,
     "",
   ].join("\n")
 }
 
-/** Body of a /docs/<slug>.md 404: the published guides. */
-export function docsNotFoundMarkdown(origin = siteOrigin()) {
+/** The published guide slug that matches `query` ignoring case, if any. */
+export function canonicalGuideSlug(query: string) {
+  return canonicalItemName(
+    query,
+    docGuides.map((doc) => doc.slug)
+  )
+}
+
+/** Body of a /docs/<slug>.md 404: the closest guide, if any, then every published guide. */
+export function docsNotFoundMarkdown(slug = "", origin = siteOrigin()) {
+  const match = slug
+    ? nearestItemName(
+        slug,
+        docGuides.map((doc) => doc.slug)
+      )
+    : undefined
+  const guide = docGuides.find((doc) => doc.slug === match)
   return [
     "# Not found",
     "",
-    "No guide is published at this address. Published guides:",
+    "No guide is published at this address.",
+    ...(guide
+      ? ["", `Did you mean [${guide.title}](${origin}/docs/${guide.slug}.md)?`]
+      : []),
+    "",
+    "Published guides:",
     "",
     ...docGuides.map((doc) => `- [${doc.title}](${origin}/docs/${doc.slug}.md)`),
     "",

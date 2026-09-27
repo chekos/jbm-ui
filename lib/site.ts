@@ -26,3 +26,17 @@ export const agentAlternates = {
     "application/json": "/catalog.json",
   },
 }
+
+const repoBlobBase = "https://github.com/chekos/jbm-ui/blob/main"
+
+/**
+ * GitHub URL for a file in the public source repository, for human-facing "Source ↗" links only.
+ * Agent outputs (catalog.json, llms*.txt, /catalog/<name>.md|json, /docs, schemas) never link the
+ * repository; scripts/agent-catalog.test.mjs enforces that.
+ *   repoSourceUrl("registry/jbm/ui/folder.tsx")
+ *   → "https://github.com/chekos/jbm-ui/blob/main/registry/jbm/ui/folder.tsx"
+ */
+export function repoSourceUrl(path: string): string {
+  const clean = path.replace(/^(\.?\/)+/, "")
+  return `${repoBlobBase}/${clean.split("/").map(encodeURIComponent).join("/")}`
+}

@@ -22,7 +22,7 @@ export const purpose =
   "jbm-ui is a personal component library for tacosdedatos, distributed as a shadcn registry, so an explainer video and a web page share one visual vocabulary. The same tokens and components render in plain React pages and in Remotion compositions: ui/ items are pure React with inline token styles and never import Remotion, motion/ items add timeline behavior, and lib/ items hold tokens and helpers. Illustrations are simple geometric line art in ink on cream, with vermilion as the single accent per composition."
 
 export const rules = [
-  "Install through the @jbm namespace; the source repository is private, and each registry item JSON (/r/<name>.json) carries its files' contents.",
+  "Install through the @jbm namespace: each registry item JSON (/r/<name>.json) carries its files' contents and each guide is served at /docs/<slug>.md, so agents never need the source repository (it is public on GitHub for people browsing the code).",
   "Files install to src/jbm/ and import as @/jbm/…, which needs the @/* → ./src/* path alias in tsconfig.json.",
   "Items marked needsRemotion require the remotion package and must render inside a Remotion composition or Player; every other item works in any React page.",
   "Use one vermilion accent per composition; accent2 is for annotations only and soft is for dark surfaces only.",
@@ -259,7 +259,7 @@ export function getCatalog() {
       qa: "What to inspect before accepting a change.",
       page: "The item's QA page in the gallery, or null for a bundle, whose pageReason names the pages to open instead.",
       registryItem:
-        "The shadcn registry item JSON; its files[].content holds the source code (the source repository is private).",
+        "The shadcn registry item JSON; its files[].content holds the source code, so no repository checkout is needed.",
       files:
         "Each installed file: source path in the jbm-ui source tree, target path shadcn writes in the consumer project, and the import specifier.",
       endpoints:

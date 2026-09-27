@@ -2,7 +2,7 @@
 
 import { WorkOrderExample } from "./design-video-demo"
 
-import { useState } from "react"
+import { useBenchParam } from "./bench-url"
 import { Ticket } from "@/registry/jbm/ui/ticket"
 import { ChatBubble } from "@/registry/jbm/ui/chat-bubble"
 import { Document } from "@/registry/jbm/ui/document"
@@ -11,9 +11,10 @@ import { ScoreScale } from "@/registry/jbm/ui/score-scale"
 import { ComparisonBars } from "@/registry/jbm/ui/comparison-bars"
 import { Clock } from "@/registry/jbm/ui/clock"
 import { color, font } from "@/registry/jbm/lib/tokens"
+import { ProgressControl, RangeControl } from "./progress-control"
 
 function TicketDemo() {
-  const [accent, setAccent] = useState(true)
+  const [accent, setAccent] = useBenchParam("accent", true)
   return (
     <div style={{ display: "grid", gap: 24 }}>
       <Ticket
@@ -54,7 +55,7 @@ function TicketDemo() {
   )
 }
 function FolderDemo() {
-  const [open, setOpen] = useState(0.6)
+  const [open, setOpen] = useBenchParam("open", 0.5, { clamp: [0, 1] })
   return (
     <div style={{ display: "grid", gap: 20 }}>
       <Folder
@@ -62,24 +63,17 @@ function FolderDemo() {
         label="Ideas"
         style={{ margin: "auto", width: 250 }}
       />
-      <label style={{ display: "grid", gap: 8, fontSize: 13 }}>
-        Folder opening · {Math.round(open * 100)}%
-        <input
-          aria-label="Folder opening"
-          type="range"
-          min={0}
-          max={1}
-          step={0.01}
-          value={open}
-          onChange={(event) => setOpen(Number(event.target.value))}
-          style={{ width: "100%", accentColor: color.accent }}
-        />
-      </label>
+      <ProgressControl
+        label="Folder opening"
+        value={open}
+        onChange={setOpen}
+        presets={["Closed", "Half", "Open"]}
+      />
     </div>
   )
 }
 function ScoreDemo() {
-  const [value, setValue] = useState(6)
+  const [value, setValue] = useBenchParam("score", 6, { clamp: [0, 10] })
   return (
     <div style={{ display: "grid", gap: 32 }}>
       <ScoreScale
@@ -88,40 +82,40 @@ function ScoreDemo() {
         labels={["Por explorar", "Lista para compartir"]}
         formatValue={(v) => `${v} / 10`}
       />
-      <label style={{ display: "grid", gap: 8, fontSize: 13 }}>
-        Adjust score
-        <input
-          aria-label="Score value"
-          type="range"
-          min={0}
-          max={10}
-          step={0.5}
-          value={value}
-          onChange={(event) => setValue(Number(event.target.value))}
-          style={{ width: "100%", accentColor: color.accent }}
-        />
-      </label>
+      <RangeControl
+        label="Adjust score"
+        ariaLabel="Score value"
+        value={value}
+        onChange={setValue}
+        min={0}
+        max={10}
+        step={0.5}
+        format={(v) => `${v} / 10`}
+      />
     </div>
   )
 }
 function ClockDemo() {
-  const [minutes, setMinutes] = useState(510)
+  const [minutes, setMinutes] = useBenchParam("minutes", 510, {
+    clamp: [0, 1439],
+  })
   return (
     <div style={{ display: "grid", justifyItems: "center", gap: 32 }}>
       <Clock hours={0} minutes={minutes} size={96} />
-      <label style={{ display: "grid", gap: 8, width: "100%", fontSize: 13 }}>
-        Time of day
-        <input
-          aria-label="Clock time"
-          type="range"
+      <div style={{ width: "100%" }}>
+        <RangeControl
+          label="Time of day"
+          ariaLabel="Clock time"
+          value={minutes}
+          onChange={setMinutes}
           min={0}
           max={1439}
           step={1}
-          value={minutes}
-          onChange={(event) => setMinutes(Number(event.target.value))}
-          style={{ width: "100%", accentColor: color.accent }}
+          format={(m) =>
+            `${String(Math.floor(m / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`
+          }
         />
-      </label>
+      </div>
     </div>
   )
 }
