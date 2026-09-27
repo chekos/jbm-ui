@@ -54,7 +54,7 @@ const groups = categories.filter(
 const slug = categorySlug
 const plural = (count: number) => (count === 1 ? "item" : "items")
 
-// Search covers names, copy, category, and capability tags ("remotion", "replay",
+// Search covers names, copy, category, and capability tags ("player", "replay",
 // "controls"); every whitespace-separated term must match.
 const searchText = new Map(
   galleryItems.map((item) => [

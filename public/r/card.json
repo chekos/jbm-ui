@@ -2,7 +2,7 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "card",
   "title": "Card",
-  "description": "Raised surface; dark variant for code.",
+  "description": "Raised surface with a fine border, layered depth, and inset edge light.",
   "registryDependencies": [
     "@jbm/tokens"
   ],

@@ -1193,6 +1193,171 @@ details > p {
   align-items: center;
   min-height: 24px;
 }
+/* Usage examples: a quiet caption over each snippet. */
+.item-example {
+  margin: 12px 0 0;
+}
+.item-example + .item-example {
+  margin-top: 24px;
+}
+.item-example figcaption {
+  color: var(--jbm-dim);
+  font-size: 14px;
+}
+.item-example figcaption + pre {
+  margin-top: 8px;
+}
+/* Contract section: declared stage size and one compact table per export. */
+.item-api {
+  padding: 32px 0 8px;
+  border-top: 1px solid var(--jbm-line);
+}
+.item-api-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr);
+  gap: 16px 48px;
+  align-items: start;
+}
+.item-api h2 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.6px;
+}
+.item-api h3 {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+.item-api code {
+  font-family: var(--font-mono);
+}
+.item-api p {
+  max-width: 62ch;
+  margin: 8px 0 0;
+  color: var(--jbm-dim);
+  font-size: 14px;
+  line-height: 1.6;
+}
+.item-api p a {
+  color: var(--jbm-ink);
+  text-decoration: underline;
+  text-decoration-color: var(--jbm-line);
+  text-underline-offset: 3px;
+}
+.item-api p a:hover {
+  text-decoration-color: currentColor;
+}
+.api-kind {
+  color: var(--jbm-dim);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 400;
+}
+.item-stage {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: 6px 20px;
+  margin: 4px 0 0;
+  font-size: 14px;
+}
+.item-stage dt {
+  color: var(--jbm-dim);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 21px;
+}
+.item-stage dd {
+  margin: 0;
+  color: var(--jbm-dim);
+}
+.item-stage code {
+  color: var(--jbm-ink);
+  font-variant-numeric: tabular-nums;
+}
+.item-stage p {
+  margin: 0;
+}
+.item-stage code + p {
+  margin-top: 4px;
+}
+.api-entry {
+  margin-top: 32px;
+}
+.api-table {
+  width: 100%;
+  table-layout: fixed;
+  margin-top: 16px;
+  border-collapse: collapse;
+  font-size: 14px;
+  line-height: 1.6;
+}
+.api-table thead th {
+  padding: 0 24px 8px 0;
+  border-bottom: 1px solid var(--jbm-line);
+  color: var(--jbm-dim);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 400;
+  text-align: left;
+}
+.api-table tbody th,
+.api-table td {
+  padding: 10px 24px 10px 0;
+  border-bottom: 1px solid var(--jbm-line);
+  font-weight: 400;
+  text-align: left;
+  vertical-align: top;
+}
+.api-table tbody th code {
+  color: var(--jbm-ink);
+  font-weight: 600;
+}
+.api-table td code {
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+.api-table th:last-child,
+.api-table td:last-child {
+  padding-right: 0;
+}
+.api-col-name {
+  width: 16%;
+}
+.api-col-type {
+  width: 22%;
+}
+.api-col-default {
+  width: 16%;
+}
+.api-description {
+  color: var(--jbm-dim);
+}
+.api-required {
+  color: var(--jbm-ink);
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+.api-none {
+  color: var(--jbm-dim);
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+.api-qa {
+  max-width: 72ch;
+  margin: 8px 0 0;
+  padding-left: 18px;
+  color: var(--jbm-dim);
+  font-size: 14px;
+  line-height: 1.6;
+}
+.api-qa li + li {
+  margin-top: 6px;
+}
 @media (max-width: 760px) {
   .item-topbar {
     padding: 20px 0 16px;
@@ -1202,6 +1367,53 @@ details > p {
   }
   .item-docs {
     grid-template-columns: minmax(0, 1fr);
+  }
+  .item-api-head {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  /* Props stack: name, then type and default with their labels, then the description. */
+  .api-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+  .api-table,
+  .api-table tbody {
+    display: block;
+  }
+  .api-table colgroup {
+    display: none;
+  }
+  .api-table tr {
+    display: block;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--jbm-line);
+  }
+  .api-table tbody th,
+  .api-table td {
+    display: flex;
+    gap: 12px;
+    align-items: baseline;
+    padding: 0;
+    border: 0;
+  }
+  .api-table td[data-label]::before {
+    content: attr(data-label);
+    flex: none;
+    width: 56px;
+    color: var(--jbm-dim);
+    font-family: var(--font-mono);
+    font-size: 12px;
+  }
+  .api-table td[data-label] > * {
+    min-width: 0;
+  }
+  .api-table .api-description {
+    display: block;
+    width: auto;
+    margin-top: 4px;
   }
   .bench-frames {
     gap: 10px 12px;

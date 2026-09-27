@@ -18,3 +18,11 @@ export function siteOrigin(): string {
 export function registryUrlTemplate(origin = siteOrigin()): string {
   return `${origin}/r/{name}.json`
 }
+
+/** Machine-readable alternates for every page: <link rel="alternate"> to llms.txt and catalog.json. */
+export const agentAlternates = {
+  types: {
+    "text/plain": "/llms.txt",
+    "application/json": "/catalog.json",
+  },
+}

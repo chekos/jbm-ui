@@ -12,6 +12,10 @@
     "typecheck": "tsc --noEmit",
     "registry:build": "shadcn build",
     "registry:check": "node scripts/check-registry.mjs",
+    "contracts:build": "node scripts/contracts.mjs build",
+    "contracts:check": "node scripts/contracts.mjs check",
+    "contracts:validate": "node scripts/contracts.mjs validate",
+    "contracts:status": "node scripts/contracts.mjs status",
     "consumer:check": "node scripts/check-consumer.mjs"
   },
   "dependencies": {

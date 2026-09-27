@@ -10,7 +10,9 @@ import {
 } from "@/components/gallery/item-meta"
 import { AddCommand } from "@/components/gallery/install"
 import { QaBench } from "@/components/gallery/qa-bench"
-import { siteOrigin } from "@/lib/site"
+import { ItemApi } from "@/components/gallery/item-api"
+import { getContract } from "@/lib/contracts"
+import { agentAlternates, siteOrigin } from "@/lib/site"
 
 type Props = { params: Promise<{ name: string }> }
 
@@ -27,7 +29,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: `${item.title} · jbm-ui`,
     description: item.description,
-    alternates: { canonical: `${siteOrigin()}/c/${item.name}` },
+    // A page's alternates replace the root's, so repeat the agent catalogs here.
+    alternates: {
+      canonical: `${siteOrigin()}/c/${item.name}`,
+      ...agentAlternates,
+    },
   }
 }
 
@@ -38,6 +44,10 @@ export default async function ItemPage({ params }: Props) {
   const item = getGalleryItem((await params).name)
   if (!item) notFound()
   const player = isPlayerPreview(item.name)
+  const contract = getContract(item.name)
+  const examples =
+    contract?.examples ??
+    (item.snippet ? [{ title: "", code: item.snippet }] : [])
   const categoryHref = `/?cat=${categorySlug(item.category)}`
 
   return (
@@ -139,15 +149,29 @@ export default async function ItemPage({ params }: Props) {
             </li>
           </ul>
         </section>
-        {item.snippet && (
+        {examples.length > 0 && (
           <section aria-labelledby="usage-heading">
             <h2 id="usage-heading">Usage</h2>
-            <pre tabIndex={0} aria-labelledby="usage-heading">
-              <code>{item.snippet}</code>
-            </pre>
+            {examples.map((example, index) => (
+              <figure className="item-example" key={index}>
+                {example.title && (
+                  <figcaption id={`example-${index}`}>{example.title}</figcaption>
+                )}
+                <pre
+                  tabIndex={0}
+                  aria-labelledby={
+                    example.title ? `example-${index}` : "usage-heading"
+                  }
+                >
+                  <code>{example.code}</code>
+                </pre>
+              </figure>
+            ))}
           </section>
         )}
       </div>
+
+      {contract && <ItemApi contract={contract} />}
 
       <footer>
         Made for tacosdedatos. Built to be used again.

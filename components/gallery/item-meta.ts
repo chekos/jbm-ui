@@ -1,6 +1,10 @@
 // Server-safe metadata for every gallery item: the index cards, the /c/<name> QA pages, and
 // machine-readable surfaces all read the same categories, capabilities, and snippets from here.
+// Agent contracts (contracts/items, generated into contracts/generated/gallery.json) are the
+// source of truth; items without a contract yet fall back to the legacy derivation below.
 import registry from "@/registry.json"
+import generated from "@/contracts/generated/gallery.json"
+import type { Capability } from "@/contracts/schema"
 import { category, type Category } from "./categories"
 import {
   deskNames,
@@ -22,7 +26,7 @@ type RegistryItem = {
   files: { path: string }[]
 }
 
-export type Capability = "controls" | "scroll" | "replay" | "portrait" | "remotion"
+export type { Capability }
 
 export type GalleryItemMeta = {
   name: string
@@ -44,6 +48,9 @@ export type GalleryItemMeta = {
 }
 
 const registryItems = registry.items as RegistryItem[]
+const contracted = new Map(
+  (generated.items as GalleryItemMeta[]).map((item) => [item.name, item])
+)
 const byName = new Map(registryItems.map((item) => [item.name, item]))
 
 const surfaceDepth: RegistryItem = {
@@ -101,7 +108,9 @@ export const supportsOrientation = (name: string) =>
 
 /** What an item's gallery preview lets you inspect. Empty means a still preview. */
 export function capabilities(name: string): Capability[] {
-  const item = byName.get(name)
+  const contract = contracted.get(name)
+  if (contract) return contract.capabilities
+  // Legacy derivation for items without a contract yet.
   const player = isPlayerPreview(name)
   const tags: Capability[] = []
   if (
@@ -117,7 +126,7 @@ export function capabilities(name: string): Capability[] {
   if ((player && name !== "scene") || name === "replay-button")
     tags.push("replay")
   if (supportsOrientation(name)) tags.push("portrait")
-  if (player || item?.dependencies?.includes("remotion")) tags.push("remotion")
+  if (player) tags.push("player")
   return tags
 }
 
@@ -131,6 +140,8 @@ let cache: GalleryItemMeta[] | undefined
 /** Every gallery item, in gallery order, with its category, capabilities, and install data. */
 export function getGalleryItems(): GalleryItemMeta[] {
   cache ??= galleryOrder.map((item) => {
+    const contract = contracted.get(item.name)
+    if (contract) return contract
     const inRegistry = byName.has(item.name)
     return {
       name: item.name,

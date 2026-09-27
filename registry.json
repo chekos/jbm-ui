@@ -61,7 +61,7 @@
       "name": "card",
       "type": "registry:ui",
       "title": "Card",
-      "description": "Raised surface; dark variant for code.",
+      "description": "Raised surface with a fine border, layered depth, and inset edge light.",
       "categories": [
         "UI"
       ],
@@ -299,7 +299,7 @@
       "name": "counter",
       "type": "registry:component",
       "title": "Counter",
-      "description": "Number counting up.",
+      "description": "Number that counts up to a target.",
       "categories": [
         "Motion"
       ],
@@ -900,7 +900,7 @@
       "name": "folder",
       "type": "registry:ui",
       "title": "Folder",
-      "description": "Labelled folder illustration with a controlled open state. No built-in autoplay.",
+      "description": "Controlled folder illustration that pulls its sheet upright from 0 to 1.",
       "categories": [
         "UI Bits"
       ],
