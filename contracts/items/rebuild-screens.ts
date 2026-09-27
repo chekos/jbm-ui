@@ -58,6 +58,10 @@ export default {
       code: 'import { Stamp } from "@/jbm/motion/rebuild-screens"\n\n<div style={{ position: "relative", width: 936, height: 600 }}>\n  <Stamp at={2} text="¡listo!" left={420} top={60} size={96} />\n</div>',
     },
   ],
+  cues: [
+    { label: "First screen built", at: 2.1, note: "Button, input, and card have popped into the first phone; no second screen yet." },
+    { label: "Built again", at: 3.1, note: "The second screen has sprung in with its pieces rebuilt and the sticker stamped." },
+  ],
   qa: [
     "Step to the start (empty first phone), mid-build (some pieces in), the moment each `again` screen arrives (spring from the upper right, pile re-centering), and the end (all screens rebuilt, sticker settled).",
     "Check the rotated phones and sticker stay inside the safe area in both orientations, especially with phoneScale above 1 or three or more screens.",

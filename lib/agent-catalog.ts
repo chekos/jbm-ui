@@ -257,6 +257,7 @@ export function getCatalog() {
       stage:
         'Size in stage pixels per orientation ("declared"), or "fluid"/"n/a" with a reason.',
       qa: "What to inspect before accepting a change.",
+      cues: "Optional, Player items only. Timeline moments worth inspecting, as {label, at, frame, note}: at in seconds and frame zero-based on the 30 fps gallery preview. The QA page's strip view shows Begin, each cue, and End (?view=strip, and ?frame=<frame> opens one).",
       page: "The item's QA page in the gallery, or null for a bundle, whose pageReason names the pages to open instead.",
       registryItem:
         "The shadcn registry item JSON; its files[].content holds the source code, so no repository checkout is needed.",

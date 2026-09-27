@@ -3,6 +3,7 @@
 // JSON that the gallery, /c/<name>, /catalog.json, and /llms.txt read. See docs/agent-contract.md.
 import { existsSync, readFileSync, readdirSync } from "node:fs"
 import { join, relative, resolve } from "node:path"
+import { pathToFileURL } from "node:url"
 import ts from "typescript"
 import { buildSceneSpecSchema, sceneSpecSchemaFile, sceneSpecSchemaPath } from "./scene-spec-schema.mjs"
 
@@ -60,6 +61,17 @@ const registryByName = new Map(registry.items.map((item) => [item.name, item]))
 export const categories = evalModule("components/gallery/categories.ts").categories.filter(
   (value) => value !== "All"
 )
+
+// The gallery preview timelines (fps and each Player demo's length), read from the same module the
+// previews use, so cues are checked against the frames the strip actually shows.
+const previewTiming = await import(pathToFileURL(join(root, "components/gallery/timing.ts")).href)
+/** Most cues a contract may list; with Begin and End that is two rows of three strip cells. */
+export const maxCues = 4
+export const maxCueLabel = 24
+/** Zero-based frame of a cue at `at` seconds on the gallery preview timeline. */
+export const cueFrame = (at) => Math.round(at * previewTiming.fps)
+/** Frames in an item's gallery preview (the default scene-spec layout for scene-spec). */
+export const previewFrames = (name) => previewTiming.durationFor(name)
 
 /** Documentation entries that appear in the gallery without a registry item of their own. */
 export const docEntries = ["surface-depth"]
@@ -493,6 +505,7 @@ export function validateContract(name) {
   if (!Array.isArray(contract.qa) || contract.qa.length === 0 || !contract.qa.every(nonEmpty))
     errors.push("qa lists at least one non-empty note")
   for (const field of ["docs", "schemas"]) checkLinks(contract[field], field, errors)
+  const cues = checkCues(contract, errors)
 
   if (errors.length) return { errors, contract }
   const installName = inRegistry ? name : contract.install
@@ -521,10 +534,62 @@ export function validateContract(name) {
       stage,
       examples: contract.examples,
       qa: contract.qa,
+      ...(cues ? { cues } : {}),
       ...(contract.docs ? { docs: contract.docs } : {}),
       ...(contract.schemas ? { schemas: contract.schemas } : {}),
     },
   }
+}
+
+/**
+ * `cues`: optional QA strip frames for Player items, as { label, at, note? } in seconds on the
+ * gallery preview timeline. Each lands on a distinct frame strictly between Begin (0) and End (the
+ * last frame of components/gallery/timing.ts durationFor), in order. Returns the cues with their
+ * frames, or undefined when the contract lists none.
+ */
+export function checkCues(contract, errors) {
+  const cues = contract.cues
+  if (cues === undefined) return undefined
+  if (!Array.isArray(cues) || cues.length === 0) {
+    errors.push("cues must be a non-empty array of { label, at, note? } when present")
+    return undefined
+  }
+  if (!contract.capabilities?.includes("player"))
+    errors.push('cues are only for "player" items (the strip steps through a Player timeline)')
+  if (cues.length > maxCues) errors.push(`cues lists at most ${maxCues} moments`)
+  const last = previewFrames(contract.name) - 1
+  const labels = new Set()
+  let previous = 0
+  const out = []
+  for (const [index, cue] of cues.entries()) {
+    const label = `cues[${index}]`
+    if (!cue || typeof cue !== "object") {
+      errors.push(`${label} must be { label, at, note? }`)
+      continue
+    }
+    for (const key of Object.keys(cue))
+      if (!["label", "at", "note"].includes(key)) errors.push(`${label}.${key} is not a cue field`)
+    if (!nonEmpty(cue.label)) errors.push(`${label}.label is required`)
+    else if (cue.label.length > maxCueLabel)
+      errors.push(`${label}.label is longer than ${maxCueLabel} characters (it captions a strip cell)`)
+    else if (["begin", "middle", "end"].includes(cue.label.trim().toLowerCase()))
+      errors.push(`${label}.label says what happens; Begin and End are added by the strip`)
+    else if (labels.has(cue.label)) errors.push(`${label}.label repeats`)
+    labels.add(cue.label)
+    if (cue.note !== undefined && !nonEmpty(cue.note)) errors.push(`${label}.note must be non-empty when present`)
+    if (typeof cue.at !== "number" || !Number.isFinite(cue.at)) {
+      errors.push(`${label}.at must be a number of seconds`)
+      continue
+    }
+    const frame = cueFrame(cue.at)
+    if (frame <= 0 || frame >= last)
+      errors.push(`${label}.at ${cue.at} s is frame ${frame}; cues fall strictly between Begin (0) and End (${last})`)
+    else if (frame <= previous)
+      errors.push(`${label}.at ${cue.at} s is frame ${frame}; cues are in order on distinct frames`)
+    previous = Math.max(previous, frame)
+    out.push({ label: cue.label, at: cue.at, frame, ...(cue.note !== undefined ? { note: cue.note } : {}) })
+  }
+  return out
 }
 
 const schemaUrls = new Set([publicOrigin + sceneSpecSchemaPath])
@@ -642,6 +707,8 @@ export function buildGenerated(names = contractNames().filter(hasContract)) {
       installName: entry.installName,
       sourcePath: entry.sourcePath,
       inRegistry: entry.inRegistry,
+      // The strip's cells (and the skeleton that reserves their space) need labels and frames.
+      ...(entry.cues ? { cues: entry.cues.map(({ label, frame }) => ({ label, frame })) } : {}),
     })),
   }
   // Guides published at /docs/<slug>.md, so agents never need the source repository.

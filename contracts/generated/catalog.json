@@ -1174,7 +1174,7 @@
       "entry": "component",
       "title": "ReplayButton",
       "description": "Controlled replay icon whose arrow charges from tail to arrowhead as the host animation progresses, then unlocks.",
-      "category": "Motion",
+      "category": "Interactive",
       "capabilities": [
         "replay"
       ],
@@ -1382,6 +1382,14 @@
         "Step to the first frame, the middle of the 1.5 s window, and the last frame: the percentage reads 0, an intermediate value, then exactly 100; useSec matches frame ÷ fps.",
         "Check that times are relative to the enclosing Sequence: a component inside a Sequence that starts later still enters at its own `startSec`.",
         "When changing spring defaults, re-check every consumer (Pop, ProbBar, RebuildScreens, Catalog) and the gallery preview durations measured from the same spring config."
+      ],
+      "cues": [
+        {
+          "label": "Counting up",
+          "at": 0.5,
+          "frame": 15,
+          "note": "The percentage is mid-count while the block is still rising into place."
+        }
       ]
     },
     {
@@ -1621,6 +1629,20 @@
         "Try each `from` value: directional entrances move by `dist` and settle at 0 offset; `scale` grows without translating.",
         "Check the spring overshoot does not push content past the safe area, especially with large `dist` values in vertical.",
         "For Leave, confirm the block is fully transparent 0.4 s after `at` and its layout space remains."
+      ],
+      "cues": [
+        {
+          "label": "First chip lands",
+          "at": 0.5,
+          "frame": 15,
+          "note": "“Idea” has scaled in; “Datos” is just starting."
+        },
+        {
+          "label": "Second chip lands",
+          "at": 0.9,
+          "frame": 27,
+          "note": "“Datos” is nearly settled and “Historia” starts to scale in."
+        }
       ]
     },
     {
@@ -1717,6 +1739,14 @@
         "Step to the first, middle, and last frames: 0 before `at`, an intermediate whole number mid-count, and exactly `n` at rest.",
         "In a host composition, check the widest value of `n` stays inside the safe area at the chosen size in both orientations (the gallery bench previews landscape only).",
         "Confirm only one element on the stage uses the accent color."
+      ],
+      "cues": [
+        {
+          "label": "Counting up",
+          "at": 0.5,
+          "frame": 15,
+          "note": "The number is mid-count (about halfway), easing toward 1024."
+        }
       ]
     },
     {
@@ -1814,6 +1844,14 @@
         "Step to the first frame (row hidden, value 0.00), mid-fill (partial bar, intermediate value), and the last frame (bar at p, value exactly p to two decimals).",
         "Check p = 0 and p = 1: an empty track still reads, and a full fill stays inside the rounded track.",
         "Try a long label: confirm it wraps within labelW and does not push the track; the exact row height at normal line-height is approximate (about 29px) and should be measured if layout depends on it."
+      ],
+      "cues": [
+        {
+          "label": "Bar filling",
+          "at": 0.4,
+          "frame": 12,
+          "note": "The bar is part-way to 0.86 and the value readout matches its length."
+        }
       ]
     },
     {
@@ -1986,6 +2024,20 @@
         "Check the longest line and the line count fit inside `w` × `h` at the chosen `size`; overflow is clipped, not wrapped.",
         "Inspect the dark surface border and shadow at display scale (docs/surface-depth.md)."
       ],
+      "cues": [
+        {
+          "label": "First line typed",
+          "at": 0.9,
+          "frame": 27,
+          "note": "The first line is complete and the second has not started."
+        },
+        {
+          "label": "Second line typed",
+          "at": 1.8,
+          "frame": 54,
+          "note": "Two lines are complete; the vermilion third line is next."
+        }
+      ],
       "docs": [
         {
           "title": "Scene spec guide",
@@ -2074,6 +2126,20 @@
         "Check grouping: a comma or period ends a phrase, a pause over 0.55 s starts a new one, and long runs split at 9 (landscape) or 6 (vertical) words.",
         "Render in vertical: the pill sits above the lower safe area and long phrases wrap inside 940px without covering the subject.",
         "The last phrase stays up to one second after its final word; confirm the composition is long enough to show its fade-out."
+      ],
+      "cues": [
+        {
+          "label": "Emphasis word",
+          "at": 1.1,
+          "frame": 33,
+          "note": "“idea” is spoken in the soft colour after its pop; later words wait at low opacity."
+        },
+        {
+          "label": "Every word spoken",
+          "at": 2.5,
+          "frame": 75,
+          "note": "All words are at full opacity while the pill holds before fading out."
+        }
       ]
     },
     {
@@ -2238,6 +2304,20 @@
         "Rebuilt pieces stagger in `pieces` array order while pieces always stack card, input, button; confirm the rebuild order reads as intended. Duplicate kinds share a React key and are not supported.",
         "Confirm the input cursor blink is visible but not distracting at the final render scale."
       ],
+      "cues": [
+        {
+          "label": "First screen built",
+          "at": 2.1,
+          "frame": 63,
+          "note": "Button, input, and card have popped into the first phone; no second screen yet."
+        },
+        {
+          "label": "Built again",
+          "at": 3.1,
+          "frame": 93,
+          "note": "The second screen has sprung in with its pieces rebuilt and the sticker stamped."
+        }
+      ],
       "docs": [
         {
           "title": "Scene spec guide",
@@ -2365,6 +2445,26 @@
         "Check the fully unfolded sheet plus the title sticker above it fits the safe area in both orientations; the height grows by the token block when it unfolds.",
         "Without tokens, confirm no divider or empty row appears and the stamp sits just below the item row.",
         "Check long captions at the scaled caption size stay inside their slots; captions are not truncated by the component."
+      ],
+      "cues": [
+        {
+          "label": "Pieces tested",
+          "at": 2.6,
+          "frame": 78,
+          "note": "Button, card, and input sit in their slots with checks; the token row is still folded."
+        },
+        {
+          "label": "Tokens arriving",
+          "at": 3.5,
+          "frame": 105,
+          "note": "The sheet has unfolded and the colour glyph is in; type and spacing are still arriving."
+        },
+        {
+          "label": "Tokens in",
+          "at": 4.3,
+          "frame": 129,
+          "note": "All three token glyphs have landed, just before the stamp."
+        }
       ]
     },
     {
@@ -2531,6 +2631,26 @@
         "Without a label the source sits at the top of the box and its badge pokes 22px above it; leave room in the layout.",
         "Inspect landscape and vertical widths: the last screen's badge and tilt can cross the right edge by about 14px."
       ],
+      "cues": [
+        {
+          "label": "Bug appears",
+          "at": 2.3,
+          "frame": 69,
+          "note": "Cross badges sit on the source and on every screen; no pulse has left yet."
+        },
+        {
+          "label": "Fix travels",
+          "at": 2.8,
+          "frame": 84,
+          "note": "The source shows a check and vermilion pulses are mid-line; screens still show crosses."
+        },
+        {
+          "label": "Fix lands",
+          "at": 3.7,
+          "frame": 111,
+          "note": "Every screen shows a check and nothing is in flight, before the recolour starts."
+        }
+      ],
       "docs": [
         {
           "title": "Scene spec guide",
@@ -2667,6 +2787,26 @@
         "Try a long label at narrow w: the mono label does not wrap or truncate and can collide with the three pieces.",
         "For Twice, inspect first button, second button, mid-strike, and final frame: both strokes fully drawn tail to head and the cross stays within the row's 26px padding.",
         "Check the full stack height (items plus Twice) fits the safe area in both orientations."
+      ],
+      "cues": [
+        {
+          "label": "Libraries stacked",
+          "at": 1.9,
+          "frame": 57,
+          "note": "All three library cards have landed with alternating tilt; the button row is still empty."
+        },
+        {
+          "label": "One button",
+          "at": 2.7,
+          "frame": 81,
+          "note": "The first button has settled alone before its twin arrives."
+        },
+        {
+          "label": "Built twice",
+          "at": 3,
+          "frame": 90,
+          "note": "The second button is scaling in; the vermilion cross has not started drawing."
+        }
       ]
     },
     {
@@ -2892,6 +3032,14 @@
         "Turn guides on to see the safe area, then confirm showSafeArea is off in final renders.",
         "Nothing auto-fits: check tall content (code, stat rows, long headlines) for overflow or clipping at the safe-area edges, especially in portrait.",
         "Exercise error paths: unknown anchors, headline-illustration with other than two blocks or with a title, and invalid gap or insets must throw with the scene id or a clear message."
+      ],
+      "cues": [
+        {
+          "label": "Subject building",
+          "at": 0.8,
+          "frame": 24,
+          "note": "The headline is in and the screen's pieces are arriving (default layout; the hero layout ends before this cue and shows a Middle frame)."
+        }
       ],
       "docs": [
         {
@@ -3518,7 +3666,7 @@
       "entry": "component",
       "title": "TextFill",
       "description": "A controlled character sweep from muted text through vermilion into ink. Drive progress with a slider, scroll, or a video timeline.",
-      "category": "Motion",
+      "category": "Interactive",
       "capabilities": [
         "controls"
       ],
@@ -3627,7 +3775,7 @@
       "entry": "component",
       "title": "ScrollTextFill",
       "description": "Scroll to bring text into focus, one character at a time. Keyboard scrolling, reversible progress, and reduced-motion support.",
-      "category": "Motion",
+      "category": "Interactive",
       "capabilities": [
         "scroll"
       ],
@@ -3757,7 +3905,7 @@
       "entry": "component",
       "title": "FlipText",
       "description": "Letters tumble on hover with a vermilion accent. Click, tap, or use the keyboard to flip the whole phrase. Respects reduced motion.",
-      "category": "Motion",
+      "category": "Interactive",
       "capabilities": [
         "controls"
       ],
@@ -3848,7 +3996,7 @@
       "entry": "component",
       "title": "ScrollStack",
       "description": "Stack any React content as you scroll. Successive items scale into place while earlier ones fade. Page or contained scrolling, keyboard access, and a plain-list fallback.",
-      "category": "Motion",
+      "category": "Interactive",
       "capabilities": [
         "controls",
         "scroll"
@@ -5189,7 +5337,7 @@
       "entry": "component",
       "title": "Mano",
       "description": "Position and rotate the independent Hand illustration with controlled coordinates.",
-      "category": "Motion",
+      "category": "Interactive",
       "capabilities": [
         "controls"
       ],
@@ -6293,7 +6441,7 @@
       "entry": "component",
       "title": "PaperLine",
       "description": "Line of text with controlled grapheme reveal, ink lift, strike-through, and dotted underline.",
-      "category": "Motion",
+      "category": "Interactive",
       "capabilities": [
         "controls"
       ],
@@ -6900,7 +7048,7 @@
       "entry": "component",
       "title": "FolderCarry",
       "description": "Folder carried along a path by its tab, interpolating size and label between two resting places.",
-      "category": "Motion",
+      "category": "Interactive",
       "capabilities": [
         "controls"
       ],

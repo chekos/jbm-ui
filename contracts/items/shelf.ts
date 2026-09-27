@@ -47,6 +47,11 @@ export default {
       code: 'import { Shelf, Twice } from "@/jbm/motion/shelf"\n\n<Shelf w={936} items={[\n  { text: "shadcn/ui", at: 0.2 },\n  { text: "Material UI", at: 0.6 },\n  { text: "jbm-ui", at: 1.0, tone: "accent" },\n]} />\n<Twice w={936} at={2} second={2.8} strike={3} />\n// Render inside a Remotion <Composition> or <Player>.',
     },
   ],
+  cues: [
+    { label: "Libraries stacked", at: 1.9, note: "All three library cards have landed with alternating tilt; the button row is still empty." },
+    { label: "One button", at: 2.7, note: "The first button has settled alone before its twin arrives." },
+    { label: "Built twice", at: 3, note: "The second button is scaling in; the vermilion cross has not started drawing." },
+  ],
   qa: [
     "Step through each card cue: cards slide in from the left in order and settle at alternating tilts; the accent card's button turns paper.",
     "Try a long label at narrow w: the mono label does not wrap or truncate and can collide with the three pieces.",

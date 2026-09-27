@@ -6,7 +6,7 @@ export default {
   title: "PaperLine",
   description:
     "Line of text with controlled grapheme reveal, ink lift, strike-through, and dotted underline.",
-  category: "Motion",
+  category: "Interactive",
   capabilities: ["controls"],
   api: [
     {

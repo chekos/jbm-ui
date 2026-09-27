@@ -6,7 +6,7 @@ export default {
   title: "ScrollTextFill",
   description:
     "Scroll to bring text into focus, one character at a time. Keyboard scrolling, reversible progress, and reduced-motion support.",
-  category: "Motion",
+  category: "Interactive",
   capabilities: ["scroll"],
   api: [
     {
