@@ -931,7 +931,7 @@
     {
       "name": "cajon",
       "title": "Cajon",
-      "description": "A fixed-size filing drawer with complete folders packed front to back.",
+      "description": "A fixed-size filing drawer whose complete folders fan front to back, darker with depth.",
       "category": "UI Bits",
       "capabilities": [
         "controls"
@@ -942,7 +942,7 @@
         "@jbm/scene-geometry",
         "@jbm/folder"
       ],
-      "snippet": "import { Cajon } from \"@/jbm/motion/cajon\"\n\n<svg viewBox=\"0 -260 500 700\">\n  <Cajon x={40} y={10} open={1} folders={[\n    { name: \"análisis\", accent: true, pulled: 0.5 },\n    { name: \"diseño\" },\n    { name: \"pruebas\" },\n  ]} />\n</svg>",
+      "snippet": "import { Cajon } from \"@/jbm/motion/cajon\"\n\n<svg viewBox=\"0 -300 500 740\">\n  <Cajon x={40} y={10} open={1} folders={[\n    { name: \"Grove 1983\", sublabel: \"High Output Management\" },\n    { name: \"Mintzberg 1979\", sublabel: \"Structuring of Organizations\" },\n    { name: \"Simon 1947\", sublabel: \"Administrative Behavior\" },\n    { name: \"Training Within Industry 1940s\", sublabel: \"Job Instruction\", reveal: 0.5 },\n    { name: \"Taylor 1911\", sublabel: \"Principles of Scientific Management\" },\n  ]} />\n</svg>",
       "installName": "cajon",
       "sourcePath": "registry/jbm/motion/cajon.tsx",
       "inRegistry": true

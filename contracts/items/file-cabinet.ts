@@ -20,7 +20,10 @@ export default {
         w: "Enclosure width; the drawer is w − 20.",
         h: "Enclosure height; the drawer is h − 44.",
         folders:
-          "Folders in the drawer, index 0 nearest the front. Each has a `name` (tab label, truncated after 16 characters), optional `accent` fill, and optional `pulled` 0–1 lift. Count never changes the drawer size; more than six pack closer.",
+          "Folders in the drawer, index 0 nearest the front. Each is a Cajon DrawerFolder: `name` (tab label, drawn whole; long names compress), optional `accent` fill, `pulled` 0–1 lift, light `k`, flap `open`, name `reveal`, and `sublabel`. Count never changes the drawer size; the folders pack within the same 48-unit rise.",
+        depthSpacing: "Rise between folders. Defaults to the packed 48 / max(5, n − 1), so the drawer stays under the enclosure top; pass a larger value to fan the tabs (they then rise above the cabinet).",
+        tabLayout: "Tab placement; defaults to \"stagger3\" (left, center, right) in a cabinet so packed tabs stay readable. \"stair\" puts every tab at the left edge.",
+        labelSize: "Tab name size in SVG units (default 13).",
         open: "Drawer opening from 0 (closed) to 1 (open). Clamped.",
       },
     },

@@ -172,3 +172,15 @@ test("hand anchoring is inside rotation and uses the artwork aspect ratio", () =
   assert.ok(markup.includes("translate(-12 -20)"))
   assert.ok(markup.includes('height="58"'))
 })
+test("carried folder takes the caller's fill and keeps its label legible on it", () => {
+  const from = tableFolderGeometry({ x: 0, y: 80 }, 100),
+    to = tableFolderGeometry({ x: 220, y: 70 }, 190)
+  const path = [folderGrip(from), folderGrip(to)]
+  const base = { from, to, path, progress: 0.5, label: "Doorways" }
+  assert.match(render(FolderCarry, base), /fill="#C63D24"/)
+  const card = render(FolderCarry, { ...base, fill: "#FFFCF5" })
+  assert.match(card, /<path d="[^"]+" fill="#FFFCF5"/)
+  assert.ok(!card.includes("#C63D24"))
+  assert.match(card, /<text[^>]*fill="#20241F"/)
+  assert.match(render(FolderCarry, { ...base, fill: "#20241F" }), /<text[^>]*fill="#FFF6E8"/)
+})

@@ -61,12 +61,18 @@ export function FolderCarry({
   path,
   progress,
   label,
+  fill = color.accent,
+  labelColor = fill === color.card || fill === color.bg ? color.ink : color.bg,
 }: {
   from: FolderGeometry
   to: FolderGeometry
   path: readonly Pt[]
   progress: number
   label?: string
+  /** Folder fill, passed to FolderOutline. A palette token: color.accent (default), color.ink, or color.card. */
+  fill?: string
+  /** Label color. Defaults to ink on card or cream fills, cream on anything else. */
+  labelColor?: string
 }) {
   const g = carriedFolderGeometry(from, to, path, progress)
   const p = unit(progress),
@@ -76,7 +82,7 @@ export function FolderCarry({
       role={label ? "img" : undefined}
       aria-label={label ? `Carrying ${label}` : undefined}
     >
-      <FolderOutline {...g} />
+      <FolderOutline {...g} fill={fill} />
       <path
         d={`M${g.x} ${g.y + 40 * k}H${g.x + g.w}`}
         stroke={color.ink}
@@ -89,7 +95,7 @@ export function FolderCarry({
             y={g.y + 15 * k}
             fontFamily={font.mono}
             fontSize={9 * k}
-            fill={color.bg}
+            fill={labelColor}
             opacity={1 - p}
           >
             {label.slice(0, 16)}
@@ -100,7 +106,7 @@ export function FolderCarry({
             fontFamily={font.mono}
             fontSize={16 * k}
             fontWeight={600}
-            fill={color.bg}
+            fill={labelColor}
             opacity={p}
           >
             {label.slice(0, 16)}

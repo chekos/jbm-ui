@@ -1,7 +1,7 @@
 "use client"
 
 import { useBenchParam } from "./bench-url"
-import { Cajon } from "@/registry/jbm/motion/cajon"
+import { Cajon, type DrawerFolder } from "@/registry/jbm/motion/cajon"
 import { Hand, handPoses, type HandPose } from "@/registry/jbm/ui/hand"
 import { Mano } from "@/registry/jbm/motion/mano"
 import { Pluma, plumaNib } from "@/registry/jbm/motion/pluma"
@@ -46,13 +46,28 @@ type Cuff = "none" | "ink" | "accent"
 // The Mano and Pluma previews draw into a 500 × 340 viewBox; the sleeve runs to its edge.
 const frame = { x: 0, y: 0, w: 500, h: 340 }
 const line = { x: 90, y: 262, w: 320 }
+/** Cajon previews sources by age, front (newest) to back (oldest), each with a title. */
+const sources: readonly (readonly [string, string])[] = [
+  ["Anthropic 2024", "Building effective agents"],
+  ["Procida 2017", "Diátaxis"],
+  ["Grove 1983", "High Output Management"],
+  ["Mintzberg 1979", "Structuring of Organizations"],
+  ["Simon 1947", "Administrative Behavior"],
+  ["Training Within Industry 1940s", "Job Instruction"],
+  ["Taylor 1911", "Principles of Scientific Management"],
+  ["Gilbreth 1909", "Bricklaying System"],
+  ["Smith 1776", "The Wealth of Nations"],
+  ["Babbage 1832", "On the Economy of Machinery"],
+  ["Fayol 1916", "Administration industrielle"],
+  ["Follett 1924", "Creative Experience"],
+]
 export function DeskDemo({ name }: { name: string }) {
   // On /c/<name> benches each value lives in the URL (?open=0.5&pose=pinch); see bench-url.tsx.
   const unit = { clamp: [0, 1] } as const
   const [count, setCount] = useBenchParam(
     "count",
     3,
-    name === "bandeja" ? { clamp: [0, 12] } : { allowed: [0, 1, 3, 6, 12] }
+    name === "bandeja" ? { clamp: [0, 12] } : { allowed: [0, 1, 3, 6, 8, 12] }
   )
   const [open, setOpen] = useBenchParam("open", 1, unit)
   const [pull, setPull] = useBenchParam("lift", 0, unit)
@@ -72,9 +87,26 @@ export function DeskDemo({ name }: { name: string }) {
   const [progress, setProgress] = useBenchParam("highlight", 1, unit)
   const [angle, setAngle] = useBenchParam("angle", 0, { clamp: [-30, 30] })
   const [position, setPosition] = useBenchParam("position", 0, unit)
-  const folders = names
-    .slice(0, count)
-    .map((name, i) => ({ name, accent: i === 0, pulled: i === 0 ? pull : 0 }))
+  const [titles, setTitles] = useBenchParam("titles", true)
+  const [stagger, setStagger] = useBenchParam("stagger", false)
+  const [reveal, setReveal] = useBenchParam("reveal", 1, unit)
+  const [ajar, setAjar] = useBenchParam("ajar", 0, unit)
+  const [accent, setAccent] = useBenchParam("accent", name !== "cajon")
+  const folders: DrawerFolder[] =
+    name === "cajon"
+      ? sources.slice(0, count).map(([source, title], i) => ({
+          name: source,
+          sublabel: titles ? title : undefined,
+          accent: accent && i === 0,
+          pulled: i === 0 ? pull : 0,
+          open: i === 0 ? ajar : 0,
+          reveal,
+        }))
+      : names.slice(0, count).map((name, i) => ({
+          name,
+          accent: accent && i === 0,
+          pulled: i === 0 ? pull : 0,
+        }))
   const sleeve = arm
     ? { arm: { frame, tone: cardSleeve ? "card" : "ink" } as const, cuff: cuff === "none" ? undefined : cuff }
     : {}
@@ -126,7 +158,9 @@ export function DeskDemo({ name }: { name: string }) {
             viewBox={
               name === "escritorio"
                 ? "0 0 820 530"
-                : name === "cajon" || name === "file-cabinet"
+                : name === "cajon"
+                  ? "0 -400 500 840"
+                  : name === "file-cabinet"
                   ? "0 -260 500 700"
                   : "0 0 500 340"
             }
@@ -137,7 +171,13 @@ export function DeskDemo({ name }: { name: string }) {
             }}
           >
             {name === "cajon" && (
-              <Cajon x={40} y={10} folders={folders} open={open} />
+              <Cajon
+                x={40}
+                y={10}
+                folders={folders}
+                open={open}
+                tabLayout={stagger ? "stagger3" : "stair"}
+              />
             )}
             {name === "file-cabinet" && (
               <FileCabinet
@@ -233,7 +273,7 @@ export function DeskDemo({ name }: { name: string }) {
                 value={count}
                 onChange={(e) => setCount(Number(e.target.value))}
               >
-                {[0, 1, 3, 6, 12].map((n) => (
+                {[0, 1, 3, 6, 8, 12].map((n) => (
                   <option key={n}>{n}</option>
                 ))}
               </select>
@@ -246,6 +286,37 @@ export function DeskDemo({ name }: { name: string }) {
                 "Half",
                 "Lifted",
               ])}
+          </>
+        )}
+        {name === "cajon" && (
+          <>
+            {range("Name reveal", reveal, setReveal, ["Blank", "Half", "Named"])}
+            {count > 0 &&
+              range("Front flap ajar", ajar, setAjar, ["Shut", "Half", "Ajar"])}
+            <label>
+              <input
+                type="checkbox"
+                checked={titles}
+                onChange={(e) => setTitles(e.target.checked)}
+              />{" "}
+              Titles
+            </label>
+            <label>
+              <input
+                type="checkbox"
+                checked={stagger}
+                onChange={(e) => setStagger(e.target.checked)}
+              />{" "}
+              Staggered tabs
+            </label>
+            <label>
+              <input
+                type="checkbox"
+                checked={accent}
+                onChange={(e) => setAccent(e.target.checked)}
+              />{" "}
+              Vermilion front folder
+            </label>
           </>
         )}
         {name === "escritorio" && (

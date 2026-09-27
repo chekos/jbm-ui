@@ -10,9 +10,20 @@ export function fileCabinetLayout({
   h = 360,
   ...props
 }: FileCabinetProps) {
+  // A cabinet drawer packs its folders under the enclosure top: tabs cycle across the width and
+  // the whole rise stays within 48 units, however many folders it holds.
+  const packed = 48 / Math.max(5, props.folders.length - 1)
   return {
     body: { x, y, w, h },
-    drawer: { ...props, x: x + 10, y: y + 32, w: w - 20, h: h - 44 },
+    drawer: {
+      tabLayout: "stagger3" as const,
+      depthSpacing: packed,
+      ...props,
+      x: x + 10,
+      y: y + 32,
+      w: w - 20,
+      h: h - 44,
+    },
   }
 }
 

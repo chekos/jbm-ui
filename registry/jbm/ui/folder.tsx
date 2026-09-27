@@ -34,10 +34,35 @@ export function FolderOutline({
   )
 }
 
+/** Folder fills: vermilion, ink, or plain cream card. */
+export const folderTones = {
+  accent: { fill: color.accent, text: color.bg },
+  ink: { fill: color.ink, text: color.bg },
+  card: { fill: color.card, text: color.ink },
+} as const
+export type FolderTone = keyof typeof folderTones
+
+/**
+ * Affine placement for text printed on the front panel at closed-folder point (u, v): the panel
+ * widens at its upper edge and leans toward the viewer as open goes 0 → 1, bottom edge anchored.
+ */
+export function frontPlane(u: number, v: number, open: number) {
+  const t = (205 - v) / 110
+  const sx = 1 + (t * 30 * open) / 205
+  const shear = ((127.5 - u) * 30 * open) / (205 * 110)
+  const sy = 1 - (35 * open) / 110
+  return `matrix(${sx} 0 ${shear} ${sy} ${127.5 + (u - 127.5) * sx} ${205 - t * (110 - 35 * open)})`
+}
+
+const TAB_LABEL = 14
 export type FolderProps = React.SVGProps<SVGSVGElement> & {
   label?: string
   open?: number
-  tone?: "accent" | "ink"
+  tone?: FolderTone
+  /** Short line printed on the front panel: under the label, or near the panel top when the label is on the tab. */
+  sublabel?: string
+  /** Where the label prints. Defaults to the tab for the card tone, the front panel otherwise. */
+  labelOn?: "front" | "tab"
   /** SVG contents in the 260×220 folder space, drawn behind its front panel. */
   children?: React.ReactNode
 }
@@ -47,12 +72,20 @@ export function Folder({
   label,
   open = 0,
   tone = "accent",
+  sublabel,
+  labelOn = tone === "card" ? "tab" : "front",
   style,
   children,
   ...props
 }: FolderProps) {
   const p = Number.isFinite(open) ? Math.max(0, Math.min(1, open)) : 0
-  const fill = tone === "accent" ? color.accent : color.ink
+  const { fill, text } = folderTones[tone] ?? folderTones.accent
+  // On the tab, the label is never truncated: the tab widens to fit it (up to the body width),
+  // then the name compresses horizontally.
+  const onTab = Boolean(label) && labelOn === "tab"
+  const tabText = onTab ? 0.6 * TAB_LABEL * Array.from(label ?? "").length : 0
+  const tabWidth = onTab ? Math.min(205, Math.max(83, tabText + 16 + 17)) : 83
+  const tabScale = tabText > 0 ? Math.min(1, (tabWidth - 16 - 17) / tabText) : 1
   // Turn the landscape sheet from 180° to 90°, keeping its size fixed.
   const paperAngle = 180 - 90 * p
   // Lift enough to clear the lower corner's sweep, then keep that clearance.
@@ -61,10 +94,8 @@ export function Folder({
   const paperLift =
     79 * Math.sin(clearanceAngle) + 44 * Math.cos(clearanceAngle) - 44
   const paperDrift = 8 * Math.sin(Math.PI * p) - 18 * p
-  // Project the printed label onto the front plane, around its baseline.
-  const labelWidth = 1 + (30 * p * 25) / (205 * 110)
-  const labelShear = (81.5 * 30 * p) / (205 * 110)
-  const labelHeight = 1 - (35 * p) / 110
+  // The front label sits on its baseline at y 180, or higher when a sublabel prints under it.
+  const frontBaseline = sublabel ? 172 : 180
   return (
     <svg
       viewBox="0 0 260 220"
@@ -78,7 +109,18 @@ export function Folder({
       {...props}
       style={{ display: "block", maxWidth: "100%", height: "auto", ...style }}
     >
-      <FolderOutline fill={fill} />
+      <FolderOutline fill={fill} tabWidth={tabWidth} />
+      {onTab && (
+        <text
+          transform={`translate(33 73) scale(${tabScale} 1)`}
+          fontFamily={font.mono}
+          fontSize={TAB_LABEL}
+          fontWeight={600}
+          fill={text}
+        >
+          {label}
+        </text>
+      )}
       {children ?? (
         <g
           transform={`translate(${256 + paperDrift} ${-paperLift}) scale(-1 1) rotate(${paperAngle - 180} 128 140)`}
@@ -106,15 +148,34 @@ export function Folder({
         strokeWidth={2}
         strokeLinejoin="round"
       />
-      {label && (
+      {label && !onTab && (
         <text
-          transform={`matrix(${labelWidth} 0 ${labelShear} ${labelHeight} ${127.5 - 81.5 * labelWidth} ${205 - 25 * labelHeight})`}
+          transform={frontPlane(46, frontBaseline, p)}
           fontFamily={font.mono}
           fontSize={16}
           fontWeight={600}
-          fill={color.bg}
+          fill={text}
         >
           {label.length > 16 ? `${label.slice(0, 15)}…` : label}
+        </text>
+      )}
+      {sublabel && (
+        <text
+          transform={frontPlane(onTab ? 37 : 46, onTab ? 114 : 192, p)}
+          fontFamily={font.mono}
+          fontSize={onTab ? 12 : 11}
+          fill={text}
+          textLength={
+            0.6 * (onTab ? 12 : 11) * Array.from(sublabel).length >
+            (onTab ? 181 : 172)
+              ? onTab
+                ? 181
+                : 172
+              : undefined
+          }
+          lengthAdjust="spacingAndGlyphs"
+        >
+          {sublabel}
         </text>
       )}
     </svg>
