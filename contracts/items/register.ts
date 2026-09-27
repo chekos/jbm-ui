@@ -2,11 +2,11 @@ import type { ItemContract } from "../schema"
 
 const spec = {
   kind: "Register: mono, plain, grid, prose, or mixed.",
-  n: "Steps (mono, 1–24, default 7), list groups (plain, 1–24, default 10), tables (grid, 1–12, default 7; one column up to 4, then two, then three), source ticks (prose, 0–16, default 8), or bands (mixed, 1–4 of mono, plain, grid, prose; default 4). Rounded and clamped. More items tighten the packing; the sheet never grows.",
+  n: "Steps (mono, 0–24, default 7), list groups (plain, 0–24, default 10), tables (grid, 0–12, default 7; one column up to 4, then two, then three), source ticks (prose, 0–16, default 8), or bands (mixed, 0–4 of mono, plain, grid, prose; default 4). 0 draws a blank sheet (prose keeps its lines). Rounded and clamped. More items tighten the packing; the sheet never grows. List numerals set at 12 × scale; source ticks sit 14 × scale apart.",
   w: "Sheet width in stage px.",
   h: "Sheet height in stage px.",
   sources: "Prose only: source ticks, overriding n. In mixed, the prose band's ticks (default 3).",
-  bands: "Mixed only: the stacked registers, top to bottom, each `{ kind, n?, weight? }` (weight sets its share of the page before row pitches are capped; each band then sits at the height its writing actually uses, bands follow each other with even separators at least 2 × (frayReach() + 2) px tall so a Tear at a seam never frays into the writing, and any leftover height collects at the foot of the page; at most 8 bands). Overrides n.",
+  bands: "Mixed only: the stacked registers, top to bottom, each `{ kind, n?, weight? }` (weight sets its share of the page before row pitches are capped; each band then sits at the height its writing actually uses, bands follow each other with even separators at least 2 × (frayReach() + 2) + 8 px tall so a Tear's fray or Paper's starting notch at a seam never reaches the writing, and any leftover height collects at the foot of the page; at most 8 bands). Overrides n. Give a mixed page about the board's proportions (460 × 1000): a squatter sheet compresses every band.",
   gapAt: "Row index where a gap opens: mono steps, plain and grid rows of cells, prose lines then the spacer then source rows; for mixed, the band index (0 = above the first band, bands.length = below the last). Rows from here down move to make room; omit for no gap.",
   gap: "Gap height in px when fully open. Defaults to a quarter of the writing height; clamped to 60% of it. Marks are sized for the open gap at every reflow value, so reflow moves writing without resizing it.",
   reflow: "How open the gap is, 0–1 (default 1): run 1 → 0 on the sheet a slip leaves (it closes) and 0 → 1 on the sheet it lands on (it makes room).",
@@ -14,6 +14,7 @@ const spec = {
   pad: "Inset from the sheet edge to the writing in px (default 20 × scale).",
   reveal: "Writing drawn so far, 0–1: cells ink in reading order, each one left to right; 0 is a blank sheet. The sheet itself is always there.",
   accent: "Cell indices (reading order, see registerLayout) whose lead mark is vermilion: the prompt bar, list heading, table header, prose line, or source tick. Everything else stays ink.",
+  tone: "The stock the writing sits on (Paper's tone, default paper): ink writing on paper; on ink or vermilion stock the writing is card-coloured and dim marks cream at 62%. Result boxes and tables are filled with the stock, so whatever lies under the writing (Paper's creases) never shows through them.",
 }
 
 export default {
@@ -90,7 +91,7 @@ export default {
     landscape: { width: 300, height: 380 },
     vertical: { width: 300, height: 380 },
     basis:
-      "Exactly w × h stage px (the gallery uses 300 × 380, and 300 × 440 for mixed); n, reveal, gap, and reflow never change the box. Rotation and the paper shadow draw outside it. On a 1920 × 1080 stage the board's quadrant sheets are about 440 × 280 and the long mixed page about 460 × 1000.",
+      "Exactly w × h stage px (the gallery uses 300 × 380, and 300 × 700 for mixed, near the board's long-page proportions); n, reveal, gap, and reflow never change the box. Rotation and the paper shadow draw outside it. On a 1920 × 1080 stage the board's quadrant sheets are about 440 × 280 and the long mixed page about 460 × 1000.",
   },
   examples: [
     {
@@ -108,10 +109,11 @@ export default {
   ],
   qa: [
     "Switch Kind through all five: each reads as one register at a glance (steps with result boxes, numbered lists, ruled tables, a justified block with source ticks, a stacked page) and no mark forms a legible word.",
-    "Step Count from 1 to its maximum for every kind: marks pack tighter inside the same sheet, nothing crosses the pad or the sheet edge, and grid switches to two columns above 4 tables.",
+    "Step Count from 0 to its maximum for every kind: 0 is a blank sheet (no steps, lists, tables, or bands; prose keeps its lines), marks pack tighter inside the same sheet, nothing crosses the pad or the sheet edge, and grid switches to two columns above 4 tables.",
+    "Mixed: every band keeps readable proportions (list numerals at 12 × scale, tables with open rows, not squeezed), and the seams sit in the even gaps between bands.",
     "Drag Reveal 0 → 1: a blank sheet, then cells ink in reading order, each left to right; no mark appears early or pops.",
     "Turn on Gap and drag Reflow 1 → 0 → 1: rows below the gap slide while every mark keeps its size; at 0 the writing is evenly spaced again.",
-    "Show seams, anchors, gap: seams sit between mixed bands, anchor circles sit on the source ticks, and the gap box is empty.",
+    "Show seams, anchors, gap: seams sit between mixed bands, anchor rings sit on the source ticks without touching each other or the sheet edge, and the gap box is empty.",
     "Accent first mark: only that lead mark turns vermilion.",
     "Check 2× zoom: chevrons, result-box corners, and table rules are crisp and consistent; outlines never exceed the prompt bar's weight.",
   ],

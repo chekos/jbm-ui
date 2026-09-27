@@ -1,6 +1,7 @@
 "use client"
 
 import { useBenchParam } from "./bench-url"
+import { useBenchCompact } from "./bench-compact"
 import { StageFit } from "./stage-fit"
 import { ProgressControl, StepperControl, type Presets } from "./progress-control"
 import {
@@ -49,6 +50,7 @@ export function RegisterDemo({ name }: { name: string }) {
 }
 
 function RegisterBench() {
+  const compact = useBenchCompact()
   const unit = { clamp: [0, 1] } as const
   const [kind, setKind] = useBenchParam<RegisterKind>("kind", "mono", { allowed: kinds })
   // -1 is "the kind's default count"; 0 is a real count (prose with no sources).
@@ -58,9 +60,11 @@ function RegisterBench() {
   const [reflow, setReflow] = useBenchParam("reflow", 1, unit)
   const [accent, setAccent] = useBenchParam("accent", false)
   const [guides, setGuides] = useBenchParam("guides", false)
-  const count = n < 0 ? countDefault[kind] : Math.max(kind === "prose" ? 0 : 1, Math.min(countMax[kind], n))
+  // 0 is a real count for every kind: a blank sheet (no steps, lists, tables, sources, or bands).
+  const count = n < 0 ? countDefault[kind] : Math.max(0, Math.min(countMax[kind], n))
+  // The long mixed page keeps about the board's proportions (460 × 1000), so no band is squeezed.
   const w = 300,
-    h = kind === "mixed" ? 440 : 380
+    h = kind === "mixed" ? 700 : 380
   const spec: RegisterSpec = {
     kind,
     n: count,
@@ -69,6 +73,9 @@ function RegisterBench() {
     ...(gapOn ? { gapAt: kind === "mixed" ? 2 : Math.max(1, Math.floor(count / 2)), gap: 70, reflow } : {}),
   }
   const layout = registerLayout(spec)
+  // Anchor rings sized to the tick pitch, so neighbouring rings never touch.
+  const pitch = layout.anchors.slice(1).reduce((m, p, i) => Math.min(m, p.y - layout.anchors[i].y), Infinity)
+  const ring = Math.max(2, Math.min(5, pitch / 2 - 1))
   const range = (label: string, value: number, set: (v: number) => void, presets: Presets) => (
     <ProgressControl label={label} ariaLabel={`register ${label}`} value={value} onChange={set} presets={presets} />
   )
@@ -84,7 +91,7 @@ function RegisterBench() {
                     <line key={y} x1={-10} x2={w + 10} y1={y} y2={y} stroke={color.dim} strokeDasharray="4 4" />
                   ))}
                   {layout.anchors.map((p, i) => (
-                    <circle key={i} cx={p.x} cy={p.y} r={5} fill="none" stroke={color.dim} />
+                    <circle key={i} cx={p.x} cy={p.y} r={ring} fill="none" stroke={color.dim} />
                   ))}
                   {layout.gap && layout.gap.h > 0 && (
                     <rect
@@ -125,16 +132,20 @@ function RegisterBench() {
           label={kind === "prose" ? "Sources" : kind === "mixed" ? "Bands" : "Count"}
           value={count}
           onChange={setN}
-          min={kind === "prose" ? 0 : 1}
+          min={0}
           max={countMax[kind]}
           noun={countNoun[kind][1]}
           format={(v) => `${v} ${countNoun[kind][v === 1 ? 0 : 1]}`}
         />
         {range("Reveal", reveal, setReveal, ["Blank", "Half", "Written"])}
-        <Toggle label="Gap" value={gapOn} onChange={setGapOn} />
-        {gapOn && range("Reflow", reflow, setReflow, ["Closed", "Half", "Open"])}
-        <Toggle label="Accent first mark" value={accent} onChange={setAccent} />
-        <Toggle label="Show seams, anchors, gap" value={guides} onChange={setGuides} />
+        {!compact && (
+          <>
+            <Toggle label="Gap" value={gapOn} onChange={setGapOn} />
+            {gapOn && range("Reflow", reflow, setReflow, ["Closed", "Half", "Open"])}
+            <Toggle label="Accent first mark" value={accent} onChange={setAccent} />
+            <Toggle label="Show seams, anchors, gap" value={guides} onChange={setGuides} />
+          </>
+        )}
       </div>
     </div>
   )
@@ -151,7 +162,17 @@ const stageW = 600,
   stageH = 380
 const smooth = (t: number) => t * t * (3 - 2 * t)
 
+/**
+ * How firmly the hand holds the slip, 0–1: it pinches while the slip is lifted or in flight and lets
+ * go once it lies flat, taped (before the lift) or landed (after it).
+ */
+const holdOf = (carry: number, lift: number) =>
+  Math.max(Math.min(1, lift / 0.15), Math.max(0, Math.min(1, carry / 0.06, (1 - carry) / 0.06)))
+/** Where a released hand rests, relative to the pinch point: down and a little right. */
+const RELEASE = { x: 18, y: 46 }
+
 function SlipDemo() {
+  const compact = useBenchCompact()
   const unit = { clamp: [0, 1] } as const
   const [carry, setCarry] = useBenchParam("carry", 0, unit)
   const [lift, setLift] = useBenchParam("lift", 0, unit)
@@ -169,6 +190,11 @@ function SlipDemo() {
   const at = pointOn(path, smooth(carry))
   const slip = { lift, offset: { x: at.x - from.x, y: at.y - from.y }, w: SLIP.w, h: SLIP.h, scale: 250 / 360, tape, dashed }
   const grip = slipGrip(slip)
+  const hold = holdOf(carry, lift)
+  const handAt = {
+    x: from.x + grip.x + (1 - hold) * RELEASE.x,
+    y: from.y + grip.y + (1 - hold) * RELEASE.y,
+  }
   const range = (label: string, value: number, set: (v: number) => void, presets: Presets) => (
     <ProgressControl label={label} ariaLabel={`slip ${label}`} value={value} onChange={set} presets={presets} />
   )
@@ -194,8 +220,8 @@ function SlipDemo() {
               style={{ position: "absolute", inset: 0, overflow: "visible", pointerEvents: "none" }}
             >
               <Mano
-                at={{ x: from.x + grip.x, y: from.y + grip.y }}
-                pose="pinch"
+                at={handAt}
+                pose={hold > 0.5 ? "pinch" : "open"}
                 size={96}
                 anchor={{ x: 6, y: 10 }}
                 angle={-20}
@@ -207,9 +233,13 @@ function SlipDemo() {
       <div className="composition-options" style={{ display: "flex", flexWrap: "wrap", gap: 16, padding: "16px 24px" }}>
         {range("Carry", carry, setCarry, ["Taped", "Half", "Landed"])}
         {range("Lift", lift, setLift, ["Flat", "Peeling", "Held"])}
-        <Toggle label="Tape" value={tape} onChange={setTape} />
-        <Toggle label="Dashed outline" value={dashed} onChange={setDashed} />
         <Toggle label="Hand" value={hand} onChange={setHand} />
+        {!compact && (
+          <>
+            <Toggle label="Tape" value={tape} onChange={setTape} />
+            <Toggle label="Dashed outline" value={dashed} onChange={setDashed} />
+          </>
+        )}
       </div>
     </div>
   )

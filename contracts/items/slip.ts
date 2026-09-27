@@ -18,7 +18,7 @@ export default {
       props: {
         lift: "0 flat on a sheet, 1 held above it. Clamped.",
         offset: "Translation in px from the resting place (default { x: 0, y: 0 }).",
-        tape: "Masking tape across the top edge with torn ends (default true). Its right third is a flap that peels up about its fold as lift goes 0 → 0.4 and sticks again on landing.",
+        tape: "Masking tape across the top edge with torn ends (default true). Its right third is a flap that peels up as lift goes 0 → 0.4 and sticks again on landing; it stays hinged along its whole fold (it foreshortens as its free end rises), so no notch opens at the hinge.",
         dashed: "Dashed ink outline instead of solid: the slip flagged as out of place (default false). Ink, not vermilion.",
         kind: "Register drawn on the slip: mono, plain, grid, or prose (default prose).",
         n: "Count for that register: prose source ticks (default 2), mono steps (1), plain groups or grid tables (2).",
@@ -65,10 +65,10 @@ export default {
     },
   ],
   qa: [
-    "Drag Lift 0 → 0.4 → 1: the tape flap peels up about its fold (a wedge opens under it, no gap along the fold's top), then the slip rises, tilts, and its shadow deepens; back to 0 it lies flat and the flap sticks down continuously.",
+    "Drag Lift 0 → 0.4 → 1: the tape flap peels up while staying hinged along its whole fold (no notch or wedge at the hinge), then the slip rises, tilts, and its shadow deepens; back to 0 it lies flat and the flap sticks down continuously.",
     "Drag Carry 0 → 1 with Lift at Held: the slip leaves the Tutorial's gap, arcs over, and settles in the Explicación's gap; the source closes to evenly spaced steps while the destination opens exactly one slip-height of room, and no writing passes under the landed slip.",
     "Toggle Tape, Dashed outline, and Hand independently: each changes only its own object; the dashed outline is ink.",
-    "With Hand on, check the pinch stays on the slip's bottom edge at every Carry and Lift value, including the extremes.",
+    "With Hand on, check the pinch stays on the slip's bottom edge while the slip is lifted or carried, and that the hand lets go (opens and draws back from the edge) once it lies flat: at Taped + Flat and at Landed + Flat.",
     "Check 2× zoom: torn tape teeth, the fold, and the outline corners join cleanly with even stroke widths.",
   ],
   docs: [{ title: "Writing registers guide", url: "https://jbm-ui.bns.studio/docs/writing-registers.md" }],

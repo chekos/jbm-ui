@@ -12,7 +12,9 @@
 | `prose` | sourced prose (an explanation) | a justified block of full-width lines with shorter paragraph ends, then source ticks with dim lines |
 | `mixed` | one long page for everyone | several registers stacked on one sheet, separated by seams |
 
-`n` counts the register's units: steps, list groups, tables, source ticks, or bands. More units pack tighter inside the same sheet; the sheet never grows. Vermilion appears only on the cells listed in `accent`.
+`n` counts the register's units: steps, list groups, tables, source ticks, or bands. More units pack tighter inside the same sheet; the sheet never grows. `n` 0 is a blank sheet for every kind. Vermilion appears only on the cells listed in `accent`. List numerals set at 12 × scale, and source ticks sit 14 × scale apart, so a ring around one anchor clears the next. Give a mixed page about the board's proportions (460 × 1000; the gallery uses 300 × 700): a squatter sheet compresses its bands.
+
+`tone` is the stock the writing sits on (`Register` passes it to its `Paper`): ink writing on paper, card-coloured writing and cream-at-62% dim marks on ink or vermilion. Result boxes and tables are filled with the stock, so what lies under the writing, such as Paper's creases, never shows through them.
 
 ## Shared geometry
 
@@ -30,7 +32,7 @@ A gap opens before row `gapAt` (a band index on a mixed page). `gap` is its full
 
 ## The slip
 
-A `Slip` is an independent paper strip with a few marks of one register, taped where it does not belong. `lift` peels the tape flap (fully by 0.4), raises and tilts the slip, and deepens its shadow; `offset` carries it. `dashed` flags it with a dashed ink outline. It owns no hand and no path: place it at the source gap, move `offset` along your path, and put `Mano` in its pinch pose at `slipGrip(props)`. Pass the source sheet's `scale` so the slip's bars match the page.
+A `Slip` is an independent paper strip with a few marks of one register, taped where it does not belong. `lift` peels the tape flap (fully by 0.4; the flap stays hinged along its whole fold, foreshortening as its free end rises, so no notch opens at the hinge), raises and tilts the slip, and deepens its shadow; `offset` carries it. `dashed` flags it with a dashed ink outline. It owns no hand and no path: place it at the source gap, move `offset` along your path, and put `Mano` in its pinch pose at `slipGrip(props)` while the slip is lifted or carried. Once it lies flat (taped, or landed) the hand lets go: the gallery bench opens it and draws it back from the edge. Pass the source sheet's `scale` so the slip's bars match the page.
 
 ## Verification
 
