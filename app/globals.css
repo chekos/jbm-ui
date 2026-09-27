@@ -588,6 +588,8 @@ footer {
   }
   .toolbar-status {
     position: static;
+    /* Room for the 24px Clear target, so filtering never changes the row's height. */
+    min-height: 32px;
     padding: 8px 0 0;
     border-bottom: 0;
   }
