@@ -32,7 +32,7 @@ Derived at build time from `registry.json`: `needsRemotion` (the item or anythin
 
 `scripts/lib/contracts.mjs` evaluates each contract (they may only use `import type`), extracts prop facts from `registry/jbm/` with the TypeScript compiler, validates, and emits:
 
-- `contracts/generated/catalog.json`: full entries for server code (`lib/contracts.ts` → `/catalog.json`, `/llms.txt`, `/c/<name>`).
+- `contracts/generated/catalog.json`: full entries for server code (`lib/contracts.ts` → `lib/agent-catalog.ts` → `/llms.txt`, `/llms-full.txt`, `/catalog.json`, `/catalog/<name>.md`, `/catalog/<name>.json`, `/c/<name>`). Contract fields beyond the core schema pass through to the catalog and per-item Markdown unchanged.
 - `contracts/generated/gallery.json`: the lean card fields that `components/gallery/item-meta.ts` ships to the browser.
 - `public/schemas/scene-spec.json`: the scene-spec JSON Schema (draft 2020-12), generated from the types and JSDoc in `registry/jbm/motion/spec.ts` by `scripts/lib/scene-spec-schema.mjs` and served statically at `/schemas/scene-spec.json`.
 

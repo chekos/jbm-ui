@@ -1,5 +1,10 @@
-// Machine-readable catalog served at /llms.txt and /catalog.json, built from the agent
-// contracts (contracts/items → contracts/generated/catalog.json). See docs/agent-contract.md.
+// Machine-readable catalog built from the agent contracts (contracts/items →
+// contracts/generated/catalog.json). See docs/agent-contract.md. It backs:
+//   /llms.txt             concise index: purpose, install once, endpoints, one line per item
+//   /llms-full.txt        every item in full as plain text
+//   /catalog.json         every item in full as JSON
+//   /catalog/<name>.json  one item's catalog entry plus the install setup
+//   /catalog/<name>.md    one item as Markdown
 import { addCommand, getGalleryItems } from "@/components/gallery/item-meta"
 import { categories } from "@/components/gallery/categories"
 import type {
@@ -10,6 +15,7 @@ import type {
 } from "@/contracts/schema"
 import { getContract, getContracts } from "@/lib/contracts"
 import { registryUrlTemplate, siteOrigin } from "@/lib/site"
+import registry from "@/registry.json"
 
 export const purpose =
   "jbm-ui is a personal component library for tacosdedatos, distributed as a shadcn registry, so an explainer video and a web page share one visual vocabulary. The same tokens and components render in plain React pages and in Remotion compositions: ui/ items are pure React with inline token styles and never import Remotion, motion/ items add timeline behavior, and lib/ items hold tokens and helpers. Illustrations are simple geometric line art in ink on cream, with vermilion as the single accent per composition."
@@ -21,6 +27,31 @@ export const rules = [
   "Use one vermilion accent per composition; accent2 is for annotations only and soft is for dark surfaces only.",
   "Stages are 1920×1080 landscape and 1080×1920 vertical with declared safe areas; each item's stage field declares its size in stage pixels, and scenes compose from YAML-shaped specs with @jbm/scene-spec.",
 ]
+
+const sourceRepo = "https://github.com/chekos/jbm-ui"
+const sourceUrl = (path: string) => `${sourceRepo}/blob/main/${path}`
+
+/** One installed file: where it lives in this repo, where shadcn writes it, and how to import it. */
+export type CatalogFile = {
+  /** Path in the jbm-ui repository. */
+  source: string
+  /** Path shadcn writes in the consumer project. */
+  target: string
+  /** Module specifier consumers import, e.g. @/jbm/ui/folder. */
+  import: string
+  /** shadcn file type, e.g. registry:ui. */
+  type: string
+}
+
+export type RelatedItem = {
+  name: string
+  relation:
+    | "installs"
+    | "installed-by"
+    | "re-exports"
+    | "bundled-in"
+    | "example-import"
+}
 
 export type CatalogItem = {
   name: string
@@ -34,19 +65,132 @@ export type CatalogItem = {
   registryDependencies: string[]
   /** Always a command; a doc entry installs the registry item that ships its code. */
   install: string
+  /** Registry item that the install command adds (differs from name for doc entries). */
+  installName: string
   /** QA page URL, or "n/a" for a bundle (see pageReason). */
   page: string
   pageReason?: string
   registryItem: string
+  /** Primary source file in this repo. */
+  sourcePath: string
+  files: CatalogFile[]
+  /** Per-item agent endpoints. */
+  endpoints: { markdown: string; json: string }
   snippet: string
   api: GeneratedApiEntry[]
   stage: StageSize
   examples: ContractEntry["examples"]
   qa: string[]
+  related: RelatedItem[]
+  /** Contract fields beyond the core schema (for example docs or schemas) pass through as-is. */
+  [extra: string]: unknown
 }
+
+// Contract fields the catalog maps explicitly; anything else passes through (extraFields).
+const knownContractFields = new Set([
+  "name",
+  "entry",
+  "title",
+  "description",
+  "category",
+  "capabilities",
+  "needsRemotion",
+  "registryDependencies",
+  "installName",
+  "inRegistry",
+  "page",
+  "pageReason",
+  "registryItem",
+  "sourcePath",
+  "files",
+  "api",
+  "omit",
+  "stage",
+  "examples",
+  "qa",
+  "install",
+])
+
+/** Names of contract fields outside the core schema, in contract order. */
+export function extraFields(contract: object): string[] {
+  return Object.keys(contract).filter((key) => !knownContractFields.has(key))
+}
+
+type RegistryFile = { path: string; type: string; target?: string }
+type RegistryItem = {
+  name: string
+  files: RegistryFile[]
+  registryDependencies?: string[]
+}
+const registryItems = (registry as { items: RegistryItem[] }).items
+const registryFiles = new Map(
+  registryItems.flatMap((item) =>
+    item.files.map((file) => [file.path, { ...file, item: item.name }] as const)
+  )
+)
+
+/** src/jbm/ui/folder.tsx → @/jbm/ui/folder */
+export const importSpecifier = (target: string) =>
+  target.replace(/^src\//, "@/").replace(/(\.d)?\.tsx?$/, "")
+
+// Import specifier → registry item, for relating the items an example imports.
+const itemByImport = new Map(
+  [...registryFiles.values()]
+    .filter((file) => file.target)
+    .map((file) => [importSpecifier(file.target!), file.item])
+)
+
+function catalogFiles(contract: ContractEntry): CatalogFile[] {
+  return contract.files.map((path) => {
+    const file = registryFiles.get(path)
+    const target = file?.target ?? path.replace(/^registry\//, "src/")
+    return {
+      source: path,
+      target,
+      import: importSpecifier(target),
+      type: file?.type ?? "registry:file",
+    }
+  })
+}
+
+const bare = (dependency: string) => dependency.replace(/^@jbm\//, "")
+
+function relatedItems(
+  contract: ContractEntry,
+  contracts: ContractEntry[]
+): RelatedItem[] {
+  const related: RelatedItem[] = []
+  const seen = new Set([contract.name])
+  const add = (name: string, relation: RelatedItem["relation"]) => {
+    if (seen.has(name)) return
+    seen.add(name)
+    related.push({ name, relation })
+  }
+  for (const entry of contract.api)
+    if (entry.kind === "re-export") add(entry.from, "re-exports")
+  for (const dependency of contract.registryDependencies)
+    add(bare(dependency), "installs")
+  for (const other of contracts) {
+    if (!other.registryDependencies.includes(`@jbm/${contract.installName}`))
+      continue
+    add(other.name, other.entry === "bundle" ? "bundled-in" : "installed-by")
+  }
+  for (const example of contract.examples)
+    for (const [, specifier] of example.code.matchAll(/from "(@\/jbm\/[^"]+)"/g)) {
+      const name = itemByImport.get(specifier)
+      if (name && name !== contract.installName) add(name, "example-import")
+    }
+  return related
+}
+
+export const itemEndpoints = (name: string, origin = siteOrigin()) => ({
+  markdown: `${origin}/catalog/${name}.md`,
+  json: `${origin}/catalog/${name}.json`,
+})
 
 export function getCatalog() {
   const origin = siteOrigin()
+  const contracts = getContracts()
   const galleryItems = getGalleryItems()
   const onGallery = new Set(galleryItems.map((item) => item.name))
   const fromContract = (contract: ContractEntry): CatalogItem => ({
@@ -59,19 +203,30 @@ export function getCatalog() {
     needsRemotion: contract.needsRemotion,
     registryDependencies: contract.registryDependencies,
     install: addCommand(contract.installName),
+    installName: contract.installName,
     page: contract.page === "n/a" ? "n/a" : `${origin}${contract.page}`,
     ...(contract.pageReason ? { pageReason: contract.pageReason } : {}),
     registryItem: `${origin}${contract.registryItem}`,
+    sourcePath: contract.sourcePath,
+    files: catalogFiles(contract),
+    endpoints: itemEndpoints(contract.name, origin),
     snippet: contract.examples[0].code,
     api: contract.api,
     stage: contract.stage,
     examples: contract.examples,
     qa: contract.qa,
+    related: relatedItems(contract, contracts),
+    ...Object.fromEntries(
+      extraFields(contract).map((key) => [
+        key,
+        (contract as unknown as Record<string, unknown>)[key],
+      ])
+    ),
   })
   // Gallery cards first, then installable composites without a card of their own (ui-bits).
   const entries: CatalogItem[] = [
     ...galleryItems.map((item) => fromContract(getContract(item.name))),
-    ...getContracts()
+    ...contracts
       .filter((contract) => !onGallery.has(contract.name))
       .map(fromContract),
   ]
@@ -79,7 +234,7 @@ export function getCatalog() {
     name: "jbm-ui",
     namespace: "@jbm",
     homepage: origin,
-    source: "https://github.com/chekos/jbm-ui",
+    source: sourceRepo,
     purpose,
     install: {
       componentsJson: { registries: { "@jbm": registryUrlTemplate(origin) } },
@@ -104,16 +259,50 @@ export function getCatalog() {
       stage:
         'Size in stage pixels per orientation ("declared"), or "fluid"/"n/a" with a reason.',
       qa: "What to inspect before accepting a change.",
+      files:
+        "Each installed file: source path in this repo, target path shadcn writes in the consumer project, and the import specifier.",
+      endpoints:
+        "Per-item Markdown and JSON with the same content as this entry plus install setup.",
+      related:
+        "Other items by relation: installs (registry dependency), installed-by, re-exports, bundled-in, example-import.",
     },
     links: {
       llms: `${origin}/llms.txt`,
+      llmsFull: `${origin}/llms-full.txt`,
       catalog: `${origin}/catalog.json`,
+      itemMarkdown: `${origin}/catalog/{name}.md`,
+      itemJson: `${origin}/catalog/{name}.json`,
       registryIndex: `${origin}/r/registry.json`,
-      contract: "https://github.com/chekos/jbm-ui/blob/main/docs/agent-contract.md",
+      contract: sourceUrl("docs/agent-contract.md"),
     },
     items: entries,
   }
 }
+
+export type Catalog = ReturnType<typeof getCatalog>
+
+/** Every name with a per-item endpoint: all contracts, including bundles and doc entries. */
+export function getCatalogItemNames() {
+  return getContracts().map((contract) => contract.name)
+}
+
+export function getCatalogItem(name: string, catalog = getCatalog()) {
+  return catalog.items.find((item) => item.name === name)
+}
+
+/** /catalog/<name>.json: the item's catalog entry plus what an agent needs to install it. */
+export function getCatalogItemJson(name: string, catalog = getCatalog()) {
+  const item = getCatalogItem(name, catalog)
+  if (!item) return undefined
+  return {
+    ...item,
+    setup: { namespace: catalog.namespace, ...catalog.install },
+    rules: catalog.rules,
+    links: { catalog: catalog.links.catalog, llms: catalog.links.llms },
+  }
+}
+
+// --- Text rendering -------------------------------------------------------------------------
 
 const yesNo = (value: boolean) => (value ? "yes" : "no")
 
@@ -154,8 +343,57 @@ function apiLines(api: GeneratedApiEntry[]) {
   return lines
 }
 
-export function getLlmsText() {
-  const catalog = getCatalog()
+const titleCase = (key: string) =>
+  key
+    .replace(/([a-z])([A-Z])/g, "$1 $2")
+    .replace(/[-_]+/g, " ")
+    .replace(/^./, (first) => first.toUpperCase())
+
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === "object" && value !== null && !Array.isArray(value)
+
+/** Markdown for a pass-through contract field of unknown shape. */
+export function extraFieldLines(value: unknown): string[] {
+  if (value === null || value === undefined) return []
+  if (typeof value !== "object") return [String(value)]
+  if (Array.isArray(value)) {
+    if (value.every((entry) => typeof entry !== "object" || entry === null))
+      return value.map((entry) => `- ${String(entry)}`)
+    return value.flatMap((entry) => {
+      if (!isRecord(entry)) return [`- ${String(entry)}`]
+      const link = entry.url ?? entry.href
+      const label = entry.title ?? entry.name ?? entry.label ?? link
+      const rest = Object.entries(entry).filter(
+        ([key]) => !["url", "href", "title", "name", "label"].includes(key)
+      )
+      const head =
+        typeof link === "string"
+          ? `- [${String(label)}](${link})`
+          : label !== undefined
+            ? `- ${String(label)}`
+            : "-"
+      const simple = rest.every(([, v]) => typeof v !== "object" || v === null)
+      if (simple)
+        return [
+          head +
+            (rest.length
+              ? `: ${rest.map(([key, v]) => `${key}: ${String(v)}`).join("; ")}`
+              : ""),
+        ]
+      return [
+        head,
+        "",
+        "```json",
+        JSON.stringify(Object.fromEntries(rest), null, 2),
+        "```",
+      ]
+    })
+  }
+  return ["```json", JSON.stringify(value, null, 2), "```"]
+}
+
+/** Plain-text reference for every item (formerly /llms.txt; now /llms-full.txt). */
+export function getLlmsFullText(catalog = getCatalog()) {
   const lines = [
     "# jbm-ui",
     "",
@@ -177,7 +415,9 @@ export function getLlmsText() {
     "",
     "## Machine-readable",
     "",
+    `- [llms.txt](${catalog.links.llms}): short index with one line per item`,
     `- [catalog.json](${catalog.links.catalog}): this list as JSON, with props, stage sizes, examples, and QA notes`,
+    `- ${catalog.links.itemMarkdown} and ${catalog.links.itemJson}: one item as Markdown or JSON`,
     `- [registry.json](${catalog.links.registryIndex}): shadcn registry index`,
     `- [Agent contract](${catalog.links.contract}): what each field means`,
     `- [Source](${catalog.source})`,
@@ -210,17 +450,285 @@ export function getLlmsText() {
           (item.entry === "doc"
             ? " (documentation entry; the code ships in that item)"
             : ""),
+        `- Files: ${item.files
+          .map((file) => `${file.target} (import ${file.import})`)
+          .join(", ")}`,
         item.page === "n/a"
           ? `- QA page: none. ${item.pageReason}`
           : `- QA page: ${item.page}`,
         `- Registry item: ${item.registryItem}`,
+        `- Markdown: ${item.endpoints.markdown}`,
+        `- JSON: ${item.endpoints.json}`,
         `- Stage: ${stageLine(item.stage)}`
       )
       if (item.api.length) lines.push("", "API:", "", ...apiLines(item.api))
       lines.push("", "```tsx", item.snippet, "```")
       if (item.qa.length)
         lines.push("", "QA:", "", ...item.qa.map((note) => `- ${note}`))
+      for (const key of extraFields(getContract(item.name)))
+        lines.push("", `${titleCase(key)}:`, "", ...extraFieldLines(item[key]))
     }
   }
   return lines.join("\n") + "\n"
+}
+
+/** /llms.txt: the llmstxt.org index. Purpose, install once, endpoints, one line per item. */
+export function getLlmsText(catalog = getCatalog()) {
+  const origin = catalog.homepage
+  const lines = [
+    "# jbm-ui",
+    "",
+    `> ${catalog.purpose}`,
+    "",
+    "## Install once",
+    "",
+    "Add the @jbm entry inside `registries` in the project's components.json, keeping any entries already there:",
+    "",
+    "```json",
+    JSON.stringify(catalog.install.componentsJson, null, 2),
+    "```",
+    "",
+    "Map `@/*` to `./src/*` in tsconfig.json paths. Then run `npx shadcn@latest add @jbm/<name>`; files land in src/jbm/ and import as `@/jbm/…`. Registry dependencies install automatically.",
+    "",
+    "## Rules",
+    "",
+    ...catalog.rules.map((rule) => `- ${rule}`),
+    "",
+    "## Endpoints",
+    "",
+    "Read one item's page before using it: it has the install command, files and import paths, props, stage size, examples, QA notes, and related items.",
+    "",
+    `- ${origin}/catalog/<name>.md: one item as Markdown`,
+    `- ${origin}/catalog/<name>.json: one item as JSON, with the install setup`,
+    `- ${origin}/c/<name>: the item's QA page in the gallery (components only)`,
+    `- ${origin}/r/<name>.json: the shadcn registry item`,
+    "",
+  ]
+  for (const group of catalog.categories) {
+    const items = catalog.items.filter((item) => item.category === group)
+    if (!items.length) continue
+    lines.push(`## ${group}`, "")
+    for (const item of items) {
+      const links = [`[JSON](${item.endpoints.json})`]
+      if (item.page !== "n/a") links.push(`[QA page](${item.page})`)
+      const kind =
+        item.entry === "bundle"
+          ? " Bundle; re-exports other items."
+          : item.entry === "doc"
+            ? ` Documentation entry; installs @jbm/${item.installName}.`
+            : ""
+      lines.push(
+        `- [${item.title} (${item.name})](${item.endpoints.markdown}): ${item.description}${kind} ${links.join(" · ")}`
+      )
+    }
+    lines.push("")
+  }
+  lines.push(
+    "## Optional",
+    "",
+    `- [llms-full.txt](${catalog.links.llmsFull}): every item in full as plain text`,
+    `- [catalog.json](${catalog.links.catalog}): every item in full as JSON`,
+    `- [registry.json](${catalog.links.registryIndex}): shadcn registry index`,
+    `- [Agent contract](${catalog.links.contract}): what each field means`,
+    `- [Source](${catalog.source})`
+  )
+  return lines.join("\n") + "\n"
+}
+
+// Markdown table cells: keep pipes and line breaks from splitting the row.
+const cell = (text: string) => text.replace(/\|/g, "\\|").replace(/\s*\n\s*/g, " ")
+const codeCell = (text: string) => `\`${cell(text)}\``
+
+function apiMarkdown(api: GeneratedApiEntry[], origin: string) {
+  const lines: string[] = []
+  const fieldTable = (fields: ApiField[], label: string) => [
+    `| ${label} | Type | Default | Description |`,
+    "| --- | --- | --- | --- |",
+    ...fields.map(
+      (field) =>
+        `| ${codeCell(field.name)} | ${codeCell(field.type)} | ${
+          field.required
+            ? "required"
+            : field.default !== null
+              ? codeCell(field.default)
+              : "none"
+        } | ${cell(field.description)} |`
+    ),
+  ]
+  const reExports = api.filter((entry) => entry.kind === "re-export")
+  for (const entry of api) {
+    if (entry.kind === "re-export") continue
+    lines.push("", `### \`${entry.export}\` (${entry.kind})`, "", entry.summary)
+    if (entry.kind === "component") {
+      if (entry.props.length) lines.push("", ...fieldTable(entry.props, "Prop"))
+      if (entry.passthrough.length)
+        lines.push("", `Also accepts ${entry.passthrough.join(", ")}.`)
+    } else if (entry.kind === "hook" || entry.kind === "function") {
+      if (entry.params.length)
+        lines.push("", ...fieldTable(entry.params, "Parameter"))
+      lines.push("", `Returns: ${entry.returns}`)
+    }
+  }
+  if (reExports.length)
+    lines.push(
+      "",
+      "| Export | Documented by |",
+      "| --- | --- |",
+      ...reExports.map(
+        (entry) =>
+          `| ${codeCell(entry.export)} | [@jbm/${entry.from}](${itemEndpoints(entry.from, origin).markdown}) |`
+      )
+    )
+  return lines
+}
+
+const relationLabel: Record<RelatedItem["relation"], string> = {
+  "re-exports": "Re-exports",
+  installs: "Installs",
+  "installed-by": "Installed by",
+  "bundled-in": "Bundled in",
+  "example-import": "Imported in examples",
+}
+
+/** /catalog/<name>.md: one item as Markdown. */
+export function getItemMarkdown(name: string, catalog = getCatalog()) {
+  const item = getCatalogItem(name, catalog)
+  if (!item) return undefined
+  const titles = new Map(catalog.items.map((entry) => [entry.name, entry.title]))
+  const lines = [
+    `# ${item.title} (${item.name})`,
+    "",
+    `> ${item.description}`,
+    "",
+    `- Entry: ${item.entry}`,
+    `- Category: ${item.category}`,
+    `- Preview capabilities: ${item.capabilities.join(", ") || "none (still preview)"}`,
+    `- Needs Remotion: ${yesNo(item.needsRemotion)}`,
+    item.page === "n/a"
+      ? `- QA page: none. ${item.pageReason ?? ""}`.trimEnd()
+      : `- QA page: ${item.page}`,
+    `- JSON: ${item.endpoints.json}`,
+    `- Registry item: ${item.registryItem}`,
+    `- Source: ${sourceUrl(item.sourcePath)}`,
+    "",
+    "## Install",
+    "",
+    "```sh",
+    item.install,
+    "```",
+  ]
+  if (item.entry === "doc")
+    lines.push(
+      "",
+      `Documentation entry, not a registry item: the code it documents ships in @jbm/${item.installName}.`
+    )
+  if (item.entry === "bundle")
+    lines.push(
+      "",
+      "Bundle: installs every item it re-exports and adds one barrel file that re-exports them."
+    )
+  if (item.registryDependencies.length)
+    lines.push(
+      "",
+      `Also installs ${item.registryDependencies.join(", ")} (registry dependencies install automatically).`
+    )
+  lines.push(
+    "",
+    "## Required setup",
+    "",
+    `1. Add the \`${catalog.namespace}\` registry to components.json (keep any entries already there):`,
+    "",
+    "   ```json",
+    ...JSON.stringify(catalog.install.componentsJson, null, 2)
+      .split("\n")
+      .map((line) => `   ${line}`),
+    "   ```",
+    "",
+    '2. Map `@/*` to `./src/*` in tsconfig.json `compilerOptions.paths`, so `@/jbm/…` imports resolve to src/jbm/.'
+  )
+  if (item.needsRemotion)
+    lines.push(
+      "3. Install `remotion` and render inside a Remotion `<Composition>` or `<Player>`, not a plain React tree. Timing values are in seconds."
+    )
+  lines.push(
+    "",
+    "## Files",
+    "",
+    "| Source (jbm-ui repo) | Installs to | Import |",
+    "| --- | --- | --- |",
+    ...item.files.map(
+      (file) =>
+        `| [${file.source}](${sourceUrl(file.source)}) | ${codeCell(file.target)} | ${codeCell(file.import)} |`
+    )
+  )
+  if (item.api.length)
+    lines.push("", item.api.length === 1 ? "## Props" : "## API", ...apiMarkdown(item.api, catalog.homepage))
+  lines.push("", "## Stage", "")
+  if (item.stage.mode === "declared")
+    lines.push(
+      "Declared in stage pixels at the documented defaults.",
+      "",
+      "| Orientation | Width | Height |",
+      "| --- | --- | --- |",
+      `| Landscape (1920×1080) | ${item.stage.landscape.width} | ${item.stage.landscape.height} |`,
+      `| Vertical (1080×1920) | ${item.stage.vertical.width} | ${item.stage.vertical.height} |`,
+      "",
+      item.stage.basis
+    )
+  else lines.push(`${item.stage.mode}: ${item.stage.reason}`)
+  lines.push("", "## Examples")
+  for (const example of item.examples)
+    lines.push("", `### ${example.title}`, "", "```tsx", example.code, "```")
+  if (item.qa.length)
+    lines.push("", "## QA", "", ...item.qa.map((note) => `- ${note}`))
+  for (const key of extraFields(getContract(item.name))) {
+    const body = extraFieldLines(item[key])
+    if (body.length) lines.push("", `## ${titleCase(key)}`, "", ...body)
+  }
+  if (item.related.length) {
+    lines.push("", "## Related")
+    for (const relation of Object.keys(relationLabel) as RelatedItem["relation"][]) {
+      const names = item.related
+        .filter((entry) => entry.relation === relation)
+        .map((entry) => entry.name)
+      if (!names.length) continue
+      // tokens is installed by nearly everything; a list that long is noise.
+      if (names.length > 12) {
+        lines.push("", `${relationLabel[relation]}: ${names.length} items (see ${catalog.links.catalog}).`)
+        continue
+      }
+      lines.push(
+        "",
+        `${relationLabel[relation]}:`,
+        "",
+        ...names.map(
+          (other) =>
+            `- [${titles.get(other) ?? other} (${other})](${itemEndpoints(other, catalog.homepage).markdown})`
+        )
+      )
+    }
+  }
+  lines.push(
+    "",
+    "## More",
+    "",
+    `- [llms.txt](${catalog.links.llms}): index of every item`,
+    `- [catalog.json](${catalog.links.catalog}): every item as JSON`,
+    `- [Agent contract](${catalog.links.contract}): what each field means`
+  )
+  return lines.join("\n") + "\n"
+}
+
+/** Alternate links for /c/<name>: the item's Markdown and JSON beside the global catalogs. */
+export function itemAlternateTypes(name: string, title: string) {
+  return {
+    "text/plain": [{ url: "/llms.txt", title: "jbm-ui index (llms.txt)" }],
+    "text/markdown": [
+      { url: `/catalog/${name}.md`, title: `${title} (Markdown)` },
+    ],
+    "application/json": [
+      { url: "/catalog.json", title: "jbm-ui catalog" },
+      { url: `/catalog/${name}.json`, title: `${title} (JSON)` },
+    ],
+  }
 }
