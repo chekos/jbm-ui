@@ -12,6 +12,7 @@ export const color = {
   accent: "#C63D24", // vermilion
   accent2: "#A04D31", // annotations
   soft: "#FF8A6A", // emphasis highlight on dark
+  dimOnDark: "rgba(255, 246, 232, 0.62)", // muted text on ink/codeBg: cream at 62%, 6.5:1 (dim on ink is 2.7:1)
   codeBg: "#20241F",
   codeGreen: "#9BE59B",
 } as const

@@ -250,7 +250,7 @@ export function SceneFromSpec({
         const cc = {
           green: color.codeGreen,
           soft: color.soft,
-          dim: color.dim,
+          dim: color.dimOnDark,
         } as const
         return (
           <Pop key={i} at={at(b.at)} from="up">
