@@ -104,7 +104,7 @@ export default async function ItemPage({ params }: Props) {
   const categoryHref = `/?cat=${categorySlug(item.category)}`
 
   return (
-    <main className="site-shell item-page" id="main" tabIndex={-1}>
+    <main className="site-shell item-page item-qa" id="main" tabIndex={-1}>
       <header className="item-topbar">
         <Link className="wordmark" href="/" aria-label="jbm-ui gallery">
           jbm<span aria-hidden="true">—</span>ui
@@ -122,15 +122,19 @@ export default async function ItemPage({ params }: Props) {
         </nav>
       </header>
 
+      {/* Compact intro: the title and its tag line share a row so the bench fits the first
+          viewport; Install, Usage, and the API follow the bench. */}
       <div className="item-head">
-        <h1>{item.title}</h1>
+        <div className="item-title-row">
+          <h1>{item.title}</h1>
+          <ul className="card-tags item-tags" aria-label="Category and preview capabilities">
+            <li>{item.category}</li>
+            {item.capabilities.map((tag) => (
+              <li key={tag}>{tag}</li>
+            ))}
+          </ul>
+        </div>
         <p className="item-description">{item.description}</p>
-        <ul className="card-tags item-tags" aria-label="Category and preview capabilities">
-          <li>{item.category}</li>
-          {item.capabilities.map((tag) => (
-            <li key={tag}>{tag}</li>
-          ))}
-        </ul>
       </div>
 
       <section

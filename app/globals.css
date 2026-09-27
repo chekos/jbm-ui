@@ -958,24 +958,70 @@ details > p {
   min-height: 24px;
   color: var(--jbm-ink);
 }
+/* The item page leads with the bench: a compact intro (title and tag line on one row, then the
+   description), then the stage and its controls inside the first viewport. */
+.item-qa .item-topbar {
+  padding: 18px 0 14px;
+}
+.item-qa .item-head {
+  padding: 22px 0 18px;
+}
+.item-title-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: 20px;
+  row-gap: 2px;
+  margin-bottom: 6px;
+}
+.item-qa .item-head h1 {
+  margin: 0;
+}
+.item-qa .item-description {
+  margin: 0;
+  line-height: 1.5;
+}
 .item-bench {
   margin-bottom: 48px;
 }
 .item-bench:focus {
   outline: none;
 }
-/* The stage fits the viewport height at its own aspect ratio (8:5 previews, 16:9 or 9:16 stages). */
+/* The stage takes the viewport height left under the intro (--bench-top, measured by QaBench;
+   the fallback covers the server render) minus the controls that share its column, then keeps
+   its own aspect ratio (8:5 previews, 16:9 or 9:16 stages). svh, not dvh: the stage must fit the
+   smallest viewport and must not resize while a phone's URL bar collapses. */
 .bench {
-  --bench-w: min(100%, calc(72svh * var(--stage-ratio, 1.6)));
+  --bench-above: 0px;
+  --bench-below: 0px;
+  --bench-foot: 16px;
+  --bench-bar-h: 44px; /* one row: 36px steps beside the 44px replay target */
+  --bench-gap: 12px;
+  --bench-h: max(
+    240px,
+    calc(
+      100svh - var(--bench-top, 210px) - var(--bench-above) -
+        var(--bench-below) - var(--bench-foot)
+    )
+  );
+  --bench-w: min(100%, calc(var(--bench-h) * var(--stage-ratio, 1.6)));
   display: grid;
-  gap: 14px;
+  gap: var(--bench-gap);
   font-size: 14px;
+}
+/* Bar layout: the frame stepper runs under the stage at the stage's width. */
+.bench[data-layout="bar"] {
+  --bench-below: calc(var(--bench-gap) + var(--bench-bar-h));
 }
 .bench-stage,
 .bench-preview,
 .bench-loading,
 .bench-frames {
   width: var(--bench-w);
+}
+.bench-preview,
+.bench-loading,
+.bench-frames {
   min-width: min(100%, 320px);
 }
 .bench-stage,
@@ -994,6 +1040,74 @@ details > p {
   place-items: center;
   aspect-ratio: 8 / 5;
   margin: 0;
+}
+/* Rail layout (orientation-aware stages). Narrow screens stack the orientation switch, the stage,
+   the stepper, then the scene options. */
+.bench[data-layout="rail"] {
+  --bench-above: calc(var(--bench-gap) + 36px);
+  --bench-below: calc(var(--bench-gap) + var(--bench-bar-h));
+}
+.bench[data-layout="rail"] .bench-stage {
+  justify-self: center;
+}
+.bench[data-layout="rail"] .bench-frames {
+  width: 100%;
+}
+/* Wide screens: the stage is centred in its own column and the switch, stepper, and options sit
+   in a right-hand rail beside it. The stage column keeps one height in both orientations, so
+   toggling moves nothing on the page. */
+@media (min-width: 1024px) {
+  .bench[data-layout="rail"] {
+    --bench-above: 0px;
+    --bench-below: 0px;
+    grid-template-columns: minmax(0, 1fr) 272px;
+    grid-template-rows: auto auto auto minmax(0, 1fr);
+    grid-template-areas:
+      "stage orient"
+      "stage frames"
+      "stage options"
+      "stage .";
+    column-gap: 32px;
+    row-gap: 20px;
+    align-items: start;
+    min-height: var(--bench-h);
+  }
+  .bench[data-layout="rail"] .bench-orient {
+    grid-area: orient;
+  }
+  .bench[data-layout="rail"] .bench-stage {
+    grid-area: stage;
+  }
+  .bench[data-layout="rail"] .bench-frames,
+  .bench[data-layout="rail"] .bench-note {
+    grid-area: frames;
+    width: 100%;
+    min-width: 0;
+  }
+  .bench[data-layout="rail"] .bench-options {
+    grid-area: options;
+    flex-direction: column;
+    align-items: stretch;
+    padding-top: 20px;
+    border-top: 1px solid var(--jbm-line);
+  }
+  .bench[data-layout="rail"] .bench-options label:not(.bench-check) {
+    justify-content: space-between;
+  }
+  /* Rail stepper: Begin / Middle / End across the rail, the scrubber, then readout and replay. */
+  .bench[data-layout="rail"] .bench-steps,
+  .bench[data-layout="rail"] .bench-scrub {
+    flex-basis: 100%;
+  }
+  .bench[data-layout="rail"] .bench-steps button {
+    flex: 1;
+  }
+  .bench[data-layout="rail"] .bench-readout {
+    flex: 1;
+  }
+}
+.bench-orient {
+  justify-self: start;
 }
 .bench-options {
   display: flex;
@@ -1450,8 +1564,35 @@ details > p {
     width: auto;
     margin-top: 4px;
   }
+  .item-qa .item-topbar {
+    padding: 14px 0 12px;
+  }
+  .item-qa .item-head {
+    padding: 16px 0 14px;
+  }
+  .item-title-row {
+    column-gap: 14px;
+  }
+  .item-qa .item-description {
+    font-size: 16px;
+  }
+  /* Phones (78px bar): steps, readout, and replay on one row, the scrubber full width under
+     them, all in thumb reach directly below the stage. */
+  .bench {
+    --bench-bar-h: 78px;
+  }
   .bench-frames {
-    gap: 10px 12px;
+    gap: 10px 8px;
+  }
+  .bench-steps button,
+  .bench-segmented button {
+    min-height: 40px;
+    padding-inline: 10px;
+  }
+  .bench-readout {
+    flex: 1;
+    justify-content: flex-end;
+    gap: 6px;
   }
   .bench-scrub {
     flex-basis: 100%;
