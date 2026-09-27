@@ -1,0 +1,1238 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://jbm-ui.bns.studio/schemas/scene-spec.json",
+  "title": "jbm-ui scene spec",
+  "description": "A parsed scenes file for @jbm/scene-spec (SceneFromSpec). Generated from registry/jbm/motion/spec.ts by `pnpm contracts:build`; do not edit. Validate one scene against #/$defs/SceneSpec. Runtime rules the schema cannot express are listed in docs/scene-spec.md (Errors).",
+  "type": "object",
+  "properties": {
+    "scenes": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/SceneSpec"
+      }
+    }
+  },
+  "required": [
+    "scenes"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "SceneSpec": {
+      "title": "SceneSpec",
+      "type": "object",
+      "properties": {
+        "id": {
+          "description": "Scene identifier; appears in error messages.",
+          "type": "string"
+        },
+        "composition": {
+          "description": "Composition options shared by both orientations.",
+          "type": "object",
+          "properties": {
+            "safeArea": {
+              "description": "Insets are canvas pixels. Social is a house preset, not a platform guarantee.",
+              "default": "legacy",
+              "$ref": "#/$defs/SafeArea"
+            },
+            "layout": {
+              "description": "How blocks are placed in the safe area.",
+              "default": "flow",
+              "$ref": "#/$defs/SceneLayout"
+            },
+            "headlineRatio": {
+              "description": "Fraction reserved for the first block in headline-illustration (default .25); strictly between 0 and 1.",
+              "default": 0.25,
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "exclusiveMaximum": 1
+            },
+            "subjectScale": {
+              "description": "Illustration subject scale; its logical box shrinks to preserve the safe area.",
+              "default": 1,
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "gap": {
+              "description": "Gap between blocks in px (per orientation allowed); overrides the scene `gap`.",
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "$ref": "#/$defs/PerOrientation"
+                }
+              ]
+            },
+            "valign": {
+              "description": "Vertical placement of the flow stack; overrides the scene `valign`.",
+              "type": "string",
+              "enum": [
+                "top",
+                "center"
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "variants": {
+          "description": "Per-orientation composition options; they override `composition` key by key.",
+          "type": "object",
+          "properties": {
+            "landscape": {
+              "$ref": "#/$defs/CompositionOptions"
+            },
+            "vertical": {
+              "$ref": "#/$defs/CompositionOptions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "title": {
+          "description": "Scene heading (Label, top-left). Omit for a headline-only scene.",
+          "type": "string"
+        },
+        "starts": {
+          "description": "First words the narrator says in this scene; pipeline/build_timing.py cuts scene boundaries here. Not needed on the first scene.",
+          "type": "string"
+        },
+        "anchors": {
+          "description": "anchor name → phrase spoken in this scene.",
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "blocks": {
+          "description": "Blocks, top to bottom.",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Block"
+          }
+        },
+        "gap": {
+          "description": "Optional per-orientation gap between blocks (default 40); must be ≥ 0 and smaller than the safe-area height.",
+          "default": 40,
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "$ref": "#/$defs/PerOrientation"
+            }
+          ]
+        },
+        "valign": {
+          "description": "Vertical placement of the block stack inside the safe area (default top).",
+          "default": "top",
+          "type": "string",
+          "enum": [
+            "top",
+            "center"
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "blocks"
+      ],
+      "additionalProperties": false
+    },
+    "CompositionOptions": {
+      "title": "CompositionOptions",
+      "type": "object",
+      "properties": {
+        "safeArea": {
+          "description": "Insets are canvas pixels. Social is a house preset, not a platform guarantee.",
+          "default": "legacy",
+          "$ref": "#/$defs/SafeArea"
+        },
+        "layout": {
+          "description": "How blocks are placed in the safe area.",
+          "default": "flow",
+          "$ref": "#/$defs/SceneLayout"
+        },
+        "headlineRatio": {
+          "description": "Fraction reserved for the first block in headline-illustration (default .25); strictly between 0 and 1.",
+          "default": 0.25,
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "exclusiveMaximum": 1
+        },
+        "subjectScale": {
+          "description": "Illustration subject scale; its logical box shrinks to preserve the safe area.",
+          "default": 1,
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "gap": {
+          "description": "Gap between blocks in px (per orientation allowed); overrides the scene `gap`.",
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "$ref": "#/$defs/PerOrientation"
+            }
+          ]
+        },
+        "valign": {
+          "description": "Vertical placement of the flow stack; overrides the scene `valign`.",
+          "type": "string",
+          "enum": [
+            "top",
+            "center"
+          ]
+        },
+        "blocks": {
+          "description": "Overrides replace the entire block list; anchors remain shared.",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Block"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "Block": {
+      "title": "Block",
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "enum": [
+            "big",
+            "stat-row",
+            "note",
+            "callout",
+            "bullets",
+            "chips",
+            "code",
+            "spacer",
+            "screens",
+            "catalog",
+            "propagate",
+            "shelf",
+            "twice",
+            "brand",
+            "overlay"
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "big"
+              }
+            }
+          },
+          "then": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "const": "big"
+              },
+              "at": {
+                "description": "Entrance time.",
+                "$ref": "#/$defs/At"
+              },
+              "text": {
+                "description": "Headline; `\\n` breaks lines. Translated.",
+                "type": "string"
+              },
+              "color": {
+                "description": "Text color; omit for ink.",
+                "type": "string",
+                "enum": [
+                  "accent",
+                  "ink"
+                ]
+              },
+              "size": {
+                "description": "Font size in px. Default 120 in landscape, 96 in vertical.",
+                "type": "number"
+              },
+              "from": {
+                "description": "Entrance motion.",
+                "default": "up",
+                "type": "string",
+                "enum": [
+                  "up",
+                  "scale",
+                  "left"
+                ]
+              },
+              "align": {
+                "description": "Text alignment.",
+                "default": "left",
+                "type": "string",
+                "enum": [
+                  "center",
+                  "left"
+                ]
+              },
+              "until": {
+                "description": "Exit time: the block fades out and drifts up over 0.4 s. Flow blocks keep their layout space.",
+                "$ref": "#/$defs/At"
+              }
+            },
+            "required": [
+              "type",
+              "at",
+              "text"
+            ],
+            "additionalProperties": false,
+            "description": "Headline text in the display face."
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "stat-row"
+              }
+            }
+          },
+          "then": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "const": "stat-row"
+              },
+              "items": {
+                "description": "One card per item, each with its own entrance cue; an empty list renders nothing.",
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/StatItem"
+                }
+              },
+              "until": {
+                "description": "Exit time: the block fades out and drifts up over 0.4 s. Flow blocks keep their layout space.",
+                "$ref": "#/$defs/At"
+              }
+            },
+            "required": [
+              "type",
+              "items"
+            ],
+            "additionalProperties": false,
+            "description": "Stat cards: side by side (300 px tall) in landscape, stacked row cards (180 px) in vertical."
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "note"
+              }
+            }
+          },
+          "then": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "const": "note"
+              },
+              "at": {
+                "description": "Entrance time.",
+                "$ref": "#/$defs/At"
+              },
+              "text": {
+                "description": "Annotation text; translated.",
+                "type": "string"
+              },
+              "until": {
+                "description": "Exit time: the block fades out and drifts up over 0.4 s. Flow blocks keep their layout space.",
+                "$ref": "#/$defs/At"
+              }
+            },
+            "required": [
+              "type",
+              "at",
+              "text"
+            ],
+            "additionalProperties": false,
+            "description": "A small annotation (Callout note variant, 24 px landscape / 22 px vertical) sliding in from the left."
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "callout"
+              }
+            }
+          },
+          "then": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "const": "callout"
+              },
+              "at": {
+                "description": "Entrance time.",
+                "$ref": "#/$defs/At"
+              },
+              "text": {
+                "description": "Statement text; translated.",
+                "type": "string"
+              },
+              "variant": {
+                "description": "Box style.",
+                "default": "accent",
+                "type": "string",
+                "enum": [
+                  "accent",
+                  "ink"
+                ]
+              },
+              "until": {
+                "description": "Exit time: the block fades out and drifts up over 0.4 s. Flow blocks keep their layout space.",
+                "$ref": "#/$defs/At"
+              }
+            },
+            "required": [
+              "type",
+              "at",
+              "text"
+            ],
+            "additionalProperties": false,
+            "description": "A boxed statement (30–34 px)."
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "bullets"
+              }
+            }
+          },
+          "then": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "const": "bullets"
+              },
+              "at": {
+                "description": "Entrance time of the first item.",
+                "$ref": "#/$defs/At"
+              },
+              "items": {
+                "description": "Item texts; translated.",
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "step": {
+                "description": "Seconds between item entrances.",
+                "default": 0.6,
+                "type": "number",
+                "minimum": 0
+              },
+              "marker": {
+                "description": "Bullet marker.",
+                "default": "arrow",
+                "type": "string",
+                "enum": [
+                  "arrow",
+                  "dot"
+                ]
+              },
+              "until": {
+                "description": "Exit time: the block fades out and drifts up over 0.4 s. Flow blocks keep their layout space.",
+                "$ref": "#/$defs/At"
+              }
+            },
+            "required": [
+              "type",
+              "at",
+              "items"
+            ],
+            "additionalProperties": false,
+            "description": "A 36 px bullet list; items enter one after another."
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "chips"
+              }
+            }
+          },
+          "then": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "const": "chips"
+              },
+              "at": {
+                "description": "Entrance time of the first chip.",
+                "$ref": "#/$defs/At"
+              },
+              "items": {
+                "description": "Chip texts; translated.",
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "step": {
+                "description": "Seconds between chip entrances.",
+                "default": 0.35,
+                "type": "number",
+                "minimum": 0
+              },
+              "accent": {
+                "description": "Vermilion chips.",
+                "default": false,
+                "type": "boolean"
+              },
+              "mono": {
+                "description": "Monospace chip text.",
+                "default": false,
+                "type": "boolean"
+              },
+              "until": {
+                "description": "Exit time: the block fades out and drifts up over 0.4 s. Flow blocks keep their layout space.",
+                "$ref": "#/$defs/At"
+              }
+            },
+            "required": [
+              "type",
+              "at",
+              "items"
+            ],
+            "additionalProperties": false,
+            "description": "A wrapping row of chips that enter one after another."
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "code"
+              }
+            }
+          },
+          "then": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "const": "code"
+              },
+              "at": {
+                "description": "Card entrance time; set line cues at or after it.",
+                "$ref": "#/$defs/At"
+              },
+              "title": {
+                "description": "File name in the card header; translated.",
+                "type": "string"
+              },
+              "charsPerSecond": {
+                "description": "Typing speed in characters per second; positive and finite.",
+                "default": 32,
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "lines": {
+                "description": "Code lines. Each starts typing at the later of its `at` and the end of the previous line.",
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "text": {
+                      "description": "Line text, typed character by character; translated.",
+                      "type": "string"
+                    },
+                    "at": {
+                      "description": "Earliest typing start for this line.",
+                      "$ref": "#/$defs/At"
+                    },
+                    "color": {
+                      "description": "Line color; omit for the default code color.",
+                      "type": "string",
+                      "enum": [
+                        "green",
+                        "soft",
+                        "dim"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "text",
+                    "at"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "until": {
+                "description": "Exit time: the block fades out and drifts up over 0.4 s. Flow blocks keep their layout space.",
+                "$ref": "#/$defs/At"
+              }
+            },
+            "required": [
+              "type",
+              "at",
+              "lines"
+            ],
+            "additionalProperties": false,
+            "description": "A dark code card whose lines type in place. 480 px tall in landscape flow (max 1200 wide), 520 px in vertical."
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "spacer"
+              }
+            }
+          },
+          "then": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "const": "spacer"
+              },
+              "h": {
+                "description": "Height in px, or per orientation.",
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "$ref": "#/$defs/PerOrientation"
+                  }
+                ]
+              },
+              "until": {
+                "description": "Exit time: the block fades out and drifts up over 0.4 s. Flow blocks keep their layout space.",
+                "$ref": "#/$defs/At"
+              }
+            },
+            "required": [
+              "type",
+              "h"
+            ],
+            "additionalProperties": false,
+            "description": "Empty vertical space."
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "screens"
+              }
+            }
+          },
+          "then": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "const": "screens"
+              },
+              "pieces": {
+                "description": "Interface pieces placed on the phone, each on its own cue.",
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "description": "Piece shape.",
+                      "type": "string",
+                      "enum": [
+                        "button",
+                        "input",
+                        "card"
+                      ]
+                    },
+                    "at": {
+                      "description": "Placement time.",
+                      "$ref": "#/$defs/At"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "at"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "again": {
+                "description": "Each cue starts a new screen that rebuilds the same pieces.",
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/At"
+                }
+              },
+              "phoneScale": {
+                "description": "Phone size multiplier; capped against the available box.",
+                "default": 1,
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "sticker": {
+                "description": "A sticker slapped on the pile.",
+                "type": "object",
+                "properties": {
+                  "text": {
+                    "description": "Sticker text; translated.",
+                    "type": "string"
+                  },
+                  "at": {
+                    "description": "Sticker time.",
+                    "$ref": "#/$defs/At"
+                  }
+                },
+                "required": [
+                  "text",
+                  "at"
+                ],
+                "additionalProperties": false
+              },
+              "h": {
+                "description": "Block height in px. Default 720 landscape / 1000 vertical in flow; the allocated height in illustration layouts.",
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "$ref": "#/$defs/PerOrientation"
+                  }
+                ]
+              },
+              "until": {
+                "description": "Exit time: the block fades out and drifts up over 0.4 s. Flow blocks keep their layout space.",
+                "$ref": "#/$defs/At"
+              }
+            },
+            "required": [
+              "type",
+              "pieces"
+            ],
+            "additionalProperties": false,
+            "description": "A phone screen built piece by piece, then rebuilt on new screens on every `again` cue."
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "catalog"
+              }
+            }
+          },
+          "then": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "const": "catalog"
+              },
+              "at": {
+                "description": "Sheet entrance time.",
+                "$ref": "#/$defs/At"
+              },
+              "title": {
+                "description": "Sheet heading; translated.",
+                "type": "string"
+              },
+              "items": {
+                "description": "Interface pieces on the top row, each on its own cue.",
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "description": "Piece shape.",
+                      "type": "string",
+                      "enum": [
+                        "button",
+                        "input",
+                        "card"
+                      ]
+                    },
+                    "label": {
+                      "description": "Caption; translated.",
+                      "type": "string"
+                    },
+                    "at": {
+                      "description": "Entrance time.",
+                      "$ref": "#/$defs/At"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "label",
+                    "at"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "tokens": {
+                "description": "Design-token glyphs on the second row.",
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "description": "Glyph kind.",
+                      "type": "string",
+                      "enum": [
+                        "color",
+                        "type",
+                        "space"
+                      ]
+                    },
+                    "label": {
+                      "description": "Caption; translated.",
+                      "type": "string"
+                    },
+                    "at": {
+                      "description": "Entrance time.",
+                      "$ref": "#/$defs/At"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "label",
+                    "at"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "tokensAt": {
+                "description": "When the sheet unfolds to show the token row (default: first token cue − 0.6 s).",
+                "$ref": "#/$defs/At"
+              },
+              "stamp": {
+                "description": "A stamp pressed onto the sheet.",
+                "type": "object",
+                "properties": {
+                  "text": {
+                    "description": "Stamp text; translated.",
+                    "type": "string"
+                  },
+                  "at": {
+                    "description": "Stamp time.",
+                    "$ref": "#/$defs/At"
+                  }
+                },
+                "required": [
+                  "text",
+                  "at"
+                ],
+                "additionalProperties": false
+              },
+              "until": {
+                "description": "Exit time: the block fades out and drifts up over 0.4 s. Flow blocks keep their layout space.",
+                "$ref": "#/$defs/At"
+              }
+            },
+            "required": [
+              "type",
+              "at",
+              "items"
+            ],
+            "additionalProperties": false,
+            "description": "A catalogue sheet of pieces (top row) and design-token glyphs (second row)."
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "propagate"
+              }
+            }
+          },
+          "then": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "const": "propagate"
+              },
+              "at": {
+                "description": "Entrance time of the source card.",
+                "$ref": "#/$defs/At"
+              },
+              "label": {
+                "description": "Caption over the source card.",
+                "type": "object",
+                "properties": {
+                  "text": {
+                    "description": "Caption text; translated.",
+                    "type": "string"
+                  },
+                  "at": {
+                    "description": "Caption time.",
+                    "$ref": "#/$defs/At"
+                  }
+                },
+                "required": [
+                  "text",
+                  "at"
+                ],
+                "additionalProperties": false
+              },
+              "targets": {
+                "description": "Number of target screens; a positive integer.",
+                "default": 6,
+                "type": "integer",
+                "minimum": 1
+              },
+              "bug": {
+                "description": "A bug appears on the source and travels to every target.",
+                "$ref": "#/$defs/At"
+              },
+              "fix": {
+                "description": "The fix leaves the source; `fixed` (later) is when it arrives.",
+                "$ref": "#/$defs/At"
+              },
+              "fixed": {
+                "description": "Arrival of the fix; must be later than `fix`.",
+                "$ref": "#/$defs/At"
+              },
+              "recolor": {
+                "description": "A recolor leaves the source; `recolored` (later) is when it arrives.",
+                "$ref": "#/$defs/At"
+              },
+              "recolored": {
+                "description": "Arrival of the recolor; must be later than `recolor`.",
+                "$ref": "#/$defs/At"
+              },
+              "h": {
+                "description": "Block height in px. Default 760 landscape / 1040 vertical in flow; the allocated height in illustration layouts.",
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "$ref": "#/$defs/PerOrientation"
+                  }
+                ]
+              },
+              "until": {
+                "description": "Exit time: the block fades out and drifts up over 0.4 s. Flow blocks keep their layout space.",
+                "$ref": "#/$defs/At"
+              }
+            },
+            "required": [
+              "type",
+              "at"
+            ],
+            "additionalProperties": false,
+            "description": "One source card fanning out to a grid of screens; bug/fix/recolor cues propagate along the lines."
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "shelf"
+              }
+            }
+          },
+          "then": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "const": "shelf"
+              },
+              "items": {
+                "description": "Cards from top to bottom.",
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "text": {
+                      "description": "Card text; translated.",
+                      "type": "string"
+                    },
+                    "at": {
+                      "description": "Entrance time.",
+                      "$ref": "#/$defs/At"
+                    },
+                    "tone": {
+                      "description": "Card paper.",
+                      "default": "paper",
+                      "type": "string",
+                      "enum": [
+                        "accent",
+                        "ink",
+                        "paper"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "text",
+                    "at"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "until": {
+                "description": "Exit time: the block fades out and drifts up over 0.4 s. Flow blocks keep their layout space.",
+                "$ref": "#/$defs/At"
+              }
+            },
+            "required": [
+              "type",
+              "items"
+            ],
+            "additionalProperties": false,
+            "description": "A pile of wide library cards, each on its own cue; `tone: accent` for the one that is yours."
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "twice"
+              }
+            }
+          },
+          "then": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "const": "twice"
+              },
+              "at": {
+                "description": "First button time.",
+                "$ref": "#/$defs/At"
+              },
+              "second": {
+                "description": "Second (duplicate) button time.",
+                "$ref": "#/$defs/At"
+              },
+              "strike": {
+                "description": "Time the cross strikes the second button.",
+                "$ref": "#/$defs/At"
+              },
+              "until": {
+                "description": "Exit time: the block fades out and drifts up over 0.4 s. Flow blocks keep their layout space.",
+                "$ref": "#/$defs/At"
+              }
+            },
+            "required": [
+              "type",
+              "at",
+              "second"
+            ],
+            "additionalProperties": false,
+            "description": "A button, the same button again, and a vermilion cross over the second."
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "brand"
+              }
+            }
+          },
+          "then": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "const": "brand"
+              },
+              "at": {
+                "description": "Entrance time.",
+                "$ref": "#/$defs/At"
+              },
+              "tagline": {
+                "description": "Line under the lockup; translated.",
+                "type": "string"
+              },
+              "size": {
+                "description": "Lockup size in px. Default 52 in landscape, 56 in vertical.",
+                "type": "number"
+              },
+              "until": {
+                "description": "Exit time: the block fades out and drifts up over 0.4 s. Flow blocks keep their layout space.",
+                "$ref": "#/$defs/At"
+              }
+            },
+            "required": [
+              "type",
+              "at"
+            ],
+            "additionalProperties": false,
+            "description": "The jbm brand lockup."
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "overlay"
+              }
+            }
+          },
+          "then": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "const": "overlay"
+              },
+              "blocks": {
+                "description": "Nested blocks, stacked with the scene gap.",
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/Block"
+                }
+              },
+              "valign": {
+                "description": "Vertical placement of the nested stack.",
+                "default": "center",
+                "type": "string",
+                "enum": [
+                  "top",
+                  "center"
+                ]
+              },
+              "until": {
+                "description": "Exit time: the block fades out and drifts up over 0.4 s. Flow blocks keep their layout space.",
+                "$ref": "#/$defs/At"
+              }
+            },
+            "required": [
+              "type",
+              "blocks"
+            ],
+            "additionalProperties": false,
+            "description": "A layer over the flow: its blocks stack in their own centred column inside the safe area, so a late beat can take the middle of the screen after earlier blocks `until`-exit."
+          }
+        }
+      ]
+    },
+    "StatItem": {
+      "title": "StatItem",
+      "type": "object",
+      "properties": {
+        "at": {
+          "description": "Entrance time of this card.",
+          "$ref": "#/$defs/At"
+        },
+        "label": {
+          "description": "Small caption above the value; translated.",
+          "type": "string"
+        },
+        "value": {
+          "description": "The figure itself, as display text (\"42 %\"); translated.",
+          "type": "string"
+        },
+        "sub": {
+          "description": "Optional line under the value; translated.",
+          "type": "string"
+        },
+        "valueColor": {
+          "description": "Value color.",
+          "default": "accent",
+          "type": "string",
+          "enum": [
+            "accent",
+            "ink"
+          ]
+        }
+      },
+      "required": [
+        "at",
+        "label",
+        "value"
+      ],
+      "additionalProperties": false
+    },
+    "SafeArea": {
+      "title": "SafeArea",
+      "description": "Canvas-pixel insets on a 1920 × 1080 (landscape) or 1080 × 1920 (vertical) composition. \"legacy\": landscape 90/120/160/120, vertical 100/72/480/72 (top/right/bottom/left). \"full\": landscape 90/120/90/120, vertical 100/72/100/72. \"social\": vertical 160/160/320/72; in landscape it falls back to \"full\". Custom insets must be nonnegative finite numbers that leave a positive content area.",
+      "anyOf": [
+        {
+          "type": "string",
+          "enum": [
+            "legacy",
+            "full",
+            "social"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "top": {
+              "type": "number",
+              "minimum": 0
+            },
+            "right": {
+              "type": "number",
+              "minimum": 0
+            },
+            "bottom": {
+              "type": "number",
+              "minimum": 0
+            },
+            "left": {
+              "type": "number",
+              "minimum": 0
+            }
+          },
+          "required": [
+            "top",
+            "right",
+            "bottom",
+            "left"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "SceneLayout": {
+      "title": "SceneLayout",
+      "description": "\"flow\" stacks blocks top to bottom. \"hero\" centers the stack. \"headline-illustration\" takes exactly two blocks and no scene title (headline, then subject). \"illustration\" takes exactly one subject block and no scene title.",
+      "type": "string",
+      "enum": [
+        "flow",
+        "hero",
+        "headline-illustration",
+        "illustration"
+      ]
+    },
+    "PerOrientation": {
+      "title": "PerOrientation",
+      "description": "A pixel value that can differ per orientation.",
+      "type": "object",
+      "properties": {
+        "landscape": {
+          "type": "number"
+        },
+        "vertical": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "landscape",
+        "vertical"
+      ],
+      "additionalProperties": false
+    },
+    "At": {
+      "title": "At",
+      "description": "A time. A number is seconds from scene start. A string is an anchor name, optionally followed by a signed offset in seconds: \"explain\", \"explain+0.2\", \"explain-0.5\". An anchor whose own name contains the offset text (e.g. \"my-cue-0.5\") matches exactly first.",
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "^\\s*[\\w-]+?\\s*([+-]\\s*(\\d+(\\.\\d+)?|\\.\\d+))?\\s*$"
+        },
+        {
+          "type": "number"
+        }
+      ]
+    }
+  }
+}

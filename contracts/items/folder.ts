@@ -62,4 +62,8 @@ export default {
     "Compare accent and ink tones; the ink folder keeps a visible 2px edge on cream.",
     "Scale with style.width at narrow widths: the silhouette keeps its 260:220 proportions.",
   ],
+  docs: [
+    { title: "Paper and filing illustrations guide", url: "https://github.com/chekos/jbm-ui/blob/main/docs/design-video-components.md" },
+    { title: "Visual primitives guide", url: "https://github.com/chekos/jbm-ui/blob/main/docs/visual-primitives.md" },
+  ],
 } satisfies ItemContract

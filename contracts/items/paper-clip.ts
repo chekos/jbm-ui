@@ -34,4 +34,7 @@ export default {
     "Place it over a paper edge and check the part above the edge reads as clipped on, not floating.",
     "Confirm it stays aria-hidden and adds no focusable element.",
   ],
+  docs: [
+    { title: "Paper and filing illustrations guide", url: "https://github.com/chekos/jbm-ui/blob/main/docs/design-video-components.md" },
+  ],
 } satisfies ItemContract

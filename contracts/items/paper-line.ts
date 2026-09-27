@@ -47,4 +47,7 @@ export default {
     "Drag Strike to 1 on a single line; on a wrapped line the stroke sits at the block's vertical middle, so keep struck lines short.",
     "Toggle Dotted underline and Accent ink independently, and check each combination with mono.",
   ],
+  docs: [
+    { title: "Paper and filing illustrations guide", url: "https://github.com/chekos/jbm-ui/blob/main/docs/design-video-components.md" },
+  ],
 } satisfies ItemContract

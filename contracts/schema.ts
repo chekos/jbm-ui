@@ -72,6 +72,16 @@ export type Example = {
   code: string
 }
 
+/**
+ * A public link an agent can fetch without the repository checked out. `url` must be absolute:
+ * repository files use GitHub blob URLs on main (https://github.com/chekos/jbm-ui/blob/main/…),
+ * and files this site serves use https://jbm-ui.bns.studio/…; both are checked to exist.
+ */
+export type Link = {
+  title: string
+  url: string
+}
+
 export type ItemContract = {
   /** Registry item name, or the gallery entry name for documentation entries. */
   name: string
@@ -101,6 +111,10 @@ export type ItemContract = {
   install?: string
   /** `bundle` entries only: why there is no page and which items to open instead. */
   pageReason?: string
+  /** Guides that genuinely cover this item (not passing mentions). Omit when there are none. */
+  docs?: Link[]
+  /** Machine-readable schemas for the item's input data, e.g. the scene-spec JSON Schema. */
+  schemas?: Link[]
 }
 
 // --- Generated shapes (contracts/generated/*.json) -----------------------------------------
@@ -160,4 +174,8 @@ export type ContractEntry = {
   stage: StageSize
   examples: Example[]
   qa: string[]
+  /** Present only when the contract lists docs. */
+  docs?: Link[]
+  /** Present only when the contract lists schemas. */
+  schemas?: Link[]
 }

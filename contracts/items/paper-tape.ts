@@ -61,4 +61,7 @@ export default {
     "Toggle Checkpoint marker: the tape and note do not move.",
     "Try a very long length: only the visible dashes render and content past the window is clipped at the edge.",
   ],
+  docs: [
+    { title: "Paper and filing illustrations guide", url: "https://github.com/chekos/jbm-ui/blob/main/docs/design-video-components.md" },
+  ],
 } satisfies ItemContract

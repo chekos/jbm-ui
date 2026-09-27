@@ -41,4 +41,7 @@ export default {
     "Check long labels and endpoint captions wrap without overlapping at narrow widths.",
     "Screen readers announce a meter with aria-valuetext from formatValue; it is not focusable or draggable itself.",
   ],
+  docs: [
+    { title: "Visual primitives guide", url: "https://github.com/chekos/jbm-ui/blob/main/docs/visual-primitives.md" },
+  ],
 } satisfies ItemContract

@@ -64,4 +64,7 @@ export default {
     "Long folder names truncate with an ellipsis and tab widths cap at 55% of the folder width.",
     "The Mano anchor in the second example is an estimate of the pinch fingertip; verify it visually for your pose.",
   ],
+  docs: [
+    { title: "Desk illustrations guide", url: "https://github.com/chekos/jbm-ui/blob/main/docs/desk-components.md" },
+  ],
 } satisfies ItemContract

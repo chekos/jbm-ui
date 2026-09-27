@@ -38,4 +38,7 @@ export default {
     "Check the handle is fully inside the viewBox (it sits above y) and its gap reads as a hole.",
     "Scale w up and down: the 2px ink stroke scales with the drawing, so thin or thick edges at extreme sizes are expected; confirm they still match nearby objects.",
   ],
+  docs: [
+    { title: "Desk illustrations guide", url: "https://github.com/chekos/jbm-ui/blob/main/docs/desk-components.md" },
+  ],
 } satisfies ItemContract

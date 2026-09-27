@@ -37,4 +37,7 @@ export default {
     "Check a long label at narrow width: it wraps inside the tag and the hole keeps its 14px circle.",
     "Compare the shadow and edge with other paper surfaces.",
   ],
+  docs: [
+    { title: "Paper and filing illustrations guide", url: "https://github.com/chekos/jbm-ui/blob/main/docs/design-video-components.md" },
+  ],
 } satisfies ItemContract

@@ -43,4 +43,7 @@ export default {
     "Check 12:00 and 00:00 both point straight up and 06:00 straight down.",
     "At a narrow width the label wraps below the face without clipping.",
   ],
+  docs: [
+    { title: "Visual primitives guide", url: "https://github.com/chekos/jbm-ui/blob/main/docs/visual-primitives.md" },
+  ],
 } satisfies ItemContract

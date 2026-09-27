@@ -48,4 +48,7 @@ export default {
     "Compare paper, ink, and accent tones and both sides; note that the accent tone hides an accent highlight.",
     "Verify at a narrow width that long words wrap inside the bubble and the tail stays attached.",
   ],
+  docs: [
+    { title: "Desk illustrations guide", url: "https://github.com/chekos/jbm-ui/blob/main/docs/desk-components.md" },
+  ],
 } satisfies ItemContract

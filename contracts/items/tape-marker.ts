@@ -39,4 +39,7 @@ export default {
     "Check the top fold reads as a darker band and the shadow matches other paper surfaces.",
     "Check long labels at narrow widths: they do not wrap, so make sure they are not clipped by a parent.",
   ],
+  docs: [
+    { title: "Paper and filing illustrations guide", url: "https://github.com/chekos/jbm-ui/blob/main/docs/design-video-components.md" },
+  ],
 } satisfies ItemContract
