@@ -298,15 +298,23 @@ h1 span {
   display: flex;
   gap: 24px;
   font-size: 12px;
-  margin: 20px 0;
+  margin: 17px 0;
+}
+/* WCAG 2.2 target size: 24px-tall hit areas; margins absorb the extra height. */
+.card-links a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
 }
 details {
   border-top: 1px solid var(--jbm-line);
-  padding-top: 16px;
+  padding-top: 14px;
   font-size: 13px;
 }
 summary {
   font-weight: 500;
+  min-height: 24px;
+  padding-block: 2px;
 }
 pre {
   background: var(--jbm-bg);
@@ -335,8 +343,9 @@ pre {
 .swatches strong,
 .swatches code {
   display: block;
-  font-size: 10px;
+  font-size: 12px;
   font-family: var(--font-mono);
+  overflow-wrap: anywhere;
 }
 .swatches code {
   color: var(--jbm-dim);
