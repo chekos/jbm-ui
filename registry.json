@@ -1295,6 +1295,48 @@
       ]
     },
     {
+      "name": "video-print",
+      "title": "VideoPrint",
+      "description": "A printed video still on a Paper sheet: a pale 16:9 line sketch, an ink scrub rule with anchor ticks, title and date, and an optional punched link tag.",
+      "categories": [
+        "UI Bits"
+      ],
+      "type": "registry:ui",
+      "registryDependencies": [
+        "@jbm/tokens",
+        "@jbm/scene-geometry",
+        "@jbm/paper",
+        "@jbm/punched-tag"
+      ],
+      "files": [
+        {
+          "path": "registry/jbm/ui/video-print.tsx",
+          "type": "registry:ui",
+          "target": "src/jbm/ui/video-print.tsx"
+        }
+      ]
+    },
+    {
+      "name": "hilo",
+      "title": "Hilo",
+      "description": "An ink thread tied between two points that lays out, sags, and snaps into frayed ends with an optional vermilion notch.",
+      "categories": [
+        "UI Bits"
+      ],
+      "type": "registry:ui",
+      "registryDependencies": [
+        "@jbm/tokens",
+        "@jbm/scene-geometry"
+      ],
+      "files": [
+        {
+          "path": "registry/jbm/ui/hilo.tsx",
+          "type": "registry:ui",
+          "target": "src/jbm/ui/hilo.tsx"
+        }
+      ]
+    },
+    {
       "name": "tear",
       "title": "Tear",
       "description": "A sheet torn into strips along seams: controlled progress moves each strip to its own destination, with frayed, seeded edges at every seam.",

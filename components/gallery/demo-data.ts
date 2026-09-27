@@ -50,6 +50,8 @@ export const urlStateNames = [
   "slip",
   "paper",
   "tear",
+  "hilo",
+  "video-print",
 ]
 
 /** Sheets under stress, previewed by PaperDemo: Paper (tension, tab) and Tear. */
@@ -71,3 +73,5 @@ export const deskNames = [
 
 /** Drawn writing registers and the slip, previewed by RegisterDemo. */
 export const registerNames = ["register", "slip"]
+/** Thread and video print pieces from the Doorways film, previewed by ThreadDemo. */
+export const threadNames = ["hilo", "video-print"]

@@ -15,7 +15,8 @@ import { DesignVideoDemo } from "./design-video-demo"
 import { DeskDemo } from "./desk-demo"
 import { RegisterDemo } from "./register-demo"
 import { PaperDemo } from "./paper-demo"
-import { designNames, deskNames, registerNames, paperNames } from "./demo-data"
+import { designNames, deskNames, registerNames, paperNames, threadNames } from "./demo-data"
+import { ThreadDemo } from "./thread-demo"
 import { examples } from "./examples"
 
 function Canvas({ children }: { children: ReactNode }) {
@@ -35,6 +36,7 @@ function autoHeight(name: string) {
   return (
     designNames.includes(name) ||
     paperNames.includes(name) ||
+    threadNames.includes(name) ||
     ["scroll-stack", "flip-text", "text-fill", "scroll-text-fill"].includes(
       name
     ) ||
@@ -48,6 +50,7 @@ function Demo({ name }: { name: string }) {
   if (deskNames.includes(name)) return <DeskDemo name={name} />
   if (registerNames.includes(name)) return <RegisterDemo name={name} />
   if (paperNames.includes(name)) return <PaperDemo name={name} />
+  if (threadNames.includes(name)) return <ThreadDemo name={name} />
   switch (name) {
     case "scroll-stack":
       return <ScrollStackDemo />
