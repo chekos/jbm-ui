@@ -2,7 +2,7 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "stamp",
   "title": "Stamp",
-  "description": "Controlled ink impression with press and angle controls.",
+  "description": "Vermilion rubber-stamp impression that drops, makes contact, and inks in as a 0–1 press progresses.",
   "registryDependencies": [
     "@jbm/tokens",
     "@jbm/scene-geometry"

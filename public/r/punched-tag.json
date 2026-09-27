@@ -2,7 +2,7 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "punched-tag",
   "title": "Punched tag",
-  "description": "Card-stock label with a punched hole and configurable content.",
+  "description": "Card-stock luggage-style label with a punched hole and bold content, in paper, accent, or ink stock.",
   "registryDependencies": [
     "@jbm/tokens",
     "@jbm/paper"

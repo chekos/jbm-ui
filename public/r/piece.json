@@ -2,7 +2,7 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "piece",
   "title": "Piece",
-  "description": "Choose a button, input, or card illustration by kind.",
+  "description": "Picks the button, input, or card illustration by kind and sizes it from one width.",
   "registryDependencies": [
     "@jbm/paper",
     "@jbm/ui-button",

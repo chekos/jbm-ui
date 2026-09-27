@@ -10,7 +10,7 @@ import { ToolCaddy } from "@/registry/jbm/motion/tool-caddy"
 import { Escritorio } from "@/registry/jbm/motion/escritorio"
 import { Burbuja } from "@/registry/jbm/motion/burbuja"
 
-export { deskNames, deskSnippets } from "./demo-data"
+export { deskNames } from "./demo-data"
 
 const names = [
   "análisis",

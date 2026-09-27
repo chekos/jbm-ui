@@ -1,28 +1,12 @@
-// Server-safe metadata for every gallery item: the index cards, the /c/<name> QA pages, and
-// machine-readable surfaces all read the same categories, capabilities, and snippets from here.
-import registry from "@/registry.json"
-import { category, type Category } from "./categories"
-import {
-  deskNames,
-  deskSnippets,
-  designNames,
-  designSnippets,
-  orientationNames,
-  playerNames,
-  snippets,
-  surfaceUsage,
-} from "./demo-data"
+// Client-safe metadata for every gallery card: the index, the /c/<name> QA pages, and the
+// machine-readable surfaces read the same categories, capabilities, and snippets from here.
+// The agent contracts (contracts/items, generated into contracts/generated/gallery.json) are
+// the only source; run `pnpm contracts:build` after editing one.
+import generated from "@/contracts/generated/gallery.json"
+import type { Capability } from "@/contracts/schema"
+import type { Category } from "./categories"
 
-type RegistryItem = {
-  name: string
-  title?: string
-  description?: string
-  dependencies?: string[]
-  registryDependencies?: string[]
-  files: { path: string }[]
-}
-
-export type Capability = "controls" | "scroll" | "replay" | "portrait" | "remotion"
+export type { Capability }
 
 export type GalleryItemMeta = {
   name: string
@@ -34,7 +18,8 @@ export type GalleryItemMeta = {
   /** True when the item, or anything it installs, depends on Remotion. */
   needsRemotion: boolean
   registryDependencies: string[]
-  snippet?: string
+  /** The contract's first example. */
+  snippet: string
   /** Registry item that `npx shadcn add` installs (surface-depth is documentation for @jbm/tokens). */
   installName: string
   /** Repository path of the item's primary source file. */
@@ -43,114 +28,31 @@ export type GalleryItemMeta = {
   inRegistry: boolean
 }
 
-const registryItems = registry.items as RegistryItem[]
-const byName = new Map(registryItems.map((item) => [item.name, item]))
-
-const surfaceDepth: RegistryItem = {
-  name: "surface-depth",
-  title: "Surface depth",
-  description:
-    "Fine borders, inset edge lighting, and layered shadows. Compare the original surface and inspect each layer.",
-  files: [{ path: "registry/jbm/lib/tokens.ts" }],
-}
-
-// Gallery order: tokens, the surface-depth note, then the registry. `ui-bits` is a bundle whose
-// pieces each have their own card.
-const galleryOrder: RegistryItem[] = [
-  registryItems[0],
-  surfaceDepth,
-  ...registryItems.slice(1).filter((item) => item.name !== "ui-bits"),
-]
-
-/** True when the item, or anything it installs, depends on Remotion. */
-export function needsRemotion(name: string, seen = new Set<string>()): boolean {
-  if (seen.has(name)) return false
-  seen.add(name)
-  const item = byName.get(name)
-  if (!item) return false
-  if (item.dependencies?.includes("remotion")) return true
-  return (item.registryDependencies ?? []).some((dependency) =>
-    needsRemotion(dependency.replace(/^@jbm\//, ""), seen)
-  )
-}
-
-export function registryDependencies(name: string): string[] {
-  return byName.get(name)?.registryDependencies ?? []
-}
+// Gallery order: tokens, the surface-depth note, then the registry. Bundles (ui-bits) have no
+// card of their own; each member does.
+const galleryItems = generated.items as GalleryItemMeta[]
+const byName = new Map(galleryItems.map((item) => [item.name, item]))
 
 export function addCommand(name: string) {
   return `npx shadcn@latest add @jbm/${name}`
 }
 
-export function isRegistryItem(name: string) {
-  return byName.has(name)
-}
+const hasCapability = (name: string, capability: Capability) =>
+  byName.get(name)?.capabilities.includes(capability) ?? false
 
-/** Video-primitive demos that render their own inputs rather than a fixed example. */
-const interactivePrimitives = ["ticket", "folder", "score-scale", "clock"]
-const controlledDemos = [
-  "scroll-stack",
-  "flip-text",
-  "text-fill",
-  "surface-depth",
-]
-
-export const isPlayerPreview = (name: string) => playerNames.includes(name)
+/** Previews in the Remotion Player (MotionPreview); every other item renders plain React. */
+export const isPlayerPreview = (name: string) => hasCapability(name, "player")
+/** Player previews that compile into both stage orientations (landscape and vertical). */
 export const supportsOrientation = (name: string) =>
-  orientationNames.includes(name)
-
-/** What an item's gallery preview lets you inspect. Empty means a still preview. */
-export function capabilities(name: string): Capability[] {
-  const item = byName.get(name)
-  const player = isPlayerPreview(name)
-  const tags: Capability[] = []
-  if (
-    designNames.includes(name) ||
-    deskNames.includes(name) ||
-    interactivePrimitives.includes(name) ||
-    controlledDemos.includes(name) ||
-    name === "scene-spec"
-  )
-    tags.push("controls")
-  if (name.startsWith("scroll-")) tags.push("scroll")
-  // Scene is a static layout (a one-frame composition); every other Player preview replays.
-  if ((player && name !== "scene") || name === "replay-button")
-    tags.push("replay")
-  if (supportsOrientation(name)) tags.push("portrait")
-  if (player || item?.dependencies?.includes("remotion")) tags.push("remotion")
-  return tags
-}
-
-function snippetFor(name: string): string | undefined {
-  if (name === "surface-depth") return surfaceUsage
-  return designSnippets[name] ?? deskSnippets[name] ?? snippets[name]
-}
-
-let cache: GalleryItemMeta[] | undefined
+  hasCapability(name, "portrait")
 
 /** Every gallery item, in gallery order, with its category, capabilities, and install data. */
 export function getGalleryItems(): GalleryItemMeta[] {
-  cache ??= galleryOrder.map((item) => {
-    const inRegistry = byName.has(item.name)
-    return {
-      name: item.name,
-      title: item.title ?? item.name,
-      description: item.description ?? "",
-      category: category(item.name),
-      capabilities: capabilities(item.name),
-      needsRemotion: needsRemotion(item.name),
-      registryDependencies: item.registryDependencies ?? [],
-      snippet: snippetFor(item.name),
-      installName: inRegistry ? item.name : "tokens",
-      sourcePath: item.files[0].path,
-      inRegistry,
-    }
-  })
-  return cache
+  return galleryItems
 }
 
 export function getGalleryItem(name: string): GalleryItemMeta | undefined {
-  return getGalleryItems().find((item) => item.name === name)
+  return byName.get(name)
 }
 
 export const categorySlug = (value: string) =>

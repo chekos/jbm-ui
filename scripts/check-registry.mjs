@@ -1,6 +1,8 @@
 import { execFileSync } from "node:child_process"
 import { readFileSync, readdirSync } from "node:fs"
 
+// Agent contracts own titles, descriptions, and categories; fail when their output is stale.
+execFileSync("node", ["scripts/contracts.mjs", "check"], { stdio: "inherit" })
 execFileSync("pnpm", ["registry:build"], { stdio: "inherit" })
 const changes = execFileSync(
   "git",

@@ -2,7 +2,7 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "ui-bits",
   "title": "UI bits",
-  "description": "Illustrated interface pieces as paper cut-outs: UiButton, UiInput, UiCard, PhoneFrame, Badge, TokenGlyph.",
+  "description": "One install for the paper cut-out interface pieces: UiButton, UiInput, UiCard, Piece, PhoneFrame, Badge, and TokenGlyph.",
   "registryDependencies": [
     "@jbm/ui-button",
     "@jbm/ui-input",

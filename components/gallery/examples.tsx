@@ -175,4 +175,3 @@ export const examples = {
   ),
 }
 
-export { snippets } from "./demo-data"

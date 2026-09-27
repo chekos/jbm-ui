@@ -2,7 +2,7 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "ui-input",
   "title": "UiInput",
-  "description": "Illustrated text field with a controllable cursor.",
+  "description": "Illustrated outlined text field with a placeholder bar and a cursor you switch on or off.",
   "registryDependencies": [
     "@jbm/tokens",
     "@jbm/paper"

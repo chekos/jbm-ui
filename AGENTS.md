@@ -13,8 +13,9 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 This is a reusable React / Remotion component library and shadcn registry with a Next.js gallery. Use pnpm.
 
 - `registry/jbm/` owns published code; `registry.json` owns the inventory and dependencies. `public/r/` is generated: run `pnpm registry:build` after registry edits and commit the output.
+- Each item's agent contract (`contracts/items/<name>.ts`) owns its title, description, category, props docs, stage size, examples, and QA notes; follow [the agent contract](docs/agent-contract.md) and run `pnpm contracts:build`.
 - Keep `ui/` pure React with inline styles from `lib/tokens.ts`; never import Remotion there. Timeline-dependent code belongs in `motion/`.
-- `components/gallery/` owns browser demos. Add a working preview, usage example, and explicit category in `components/gallery/categories.ts` for every new registry item. Categories describe behavior, not source folders or runtime dependencies. Only components that call Remotion hooks need a Player context. Controlled React illustrations use direct controls without video/player chrome; keep client boundaries in the gallery.
+- `components/gallery/` owns browser demos. Add a working preview and an agent contract (`contracts/items/<name>.ts`: category, capabilities, props, stage, examples; see `docs/agent-contract.md`) for every new registry item. Categories describe behavior, not source folders or runtime dependencies. Only components that call Remotion hooks need a Player context. Controlled React illustrations use direct controls without video/player chrome; keep client boundaries in the gallery.
 - For video composition, follow `docs/scene-spec.md`. Portrait needs deliberate subject sizing and layout, not just a taller canvas. Inspect beginning, middle, and end frames in both orientations; keep safe-area guides out of final renders.
 - Follow `docs/surface-depth.md` for raised surfaces; use the shared shadow and border tokens rather than duplicating recipes.
 - Preserve the cream, ink, and vermilion palette and Geist font stacks. Check narrow screens and keyboard interaction; motion must not autoplay.

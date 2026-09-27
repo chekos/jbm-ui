@@ -2,7 +2,7 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "counter",
   "title": "Counter",
-  "description": "Number counting up.",
+  "description": "Number that counts up to a target.",
   "dependencies": [
     "remotion"
   ],

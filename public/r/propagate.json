@@ -2,7 +2,7 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "propagate",
   "title": "Propagate",
-  "description": "One source card fanning out to a row of screens; bug, fix and recolour cues travel down the lines.",
+  "description": "One source card fans ink lines out to a row of phone screens; bug, fix, and recolour cues travel down the lines to every screen.",
   "dependencies": [
     "remotion"
   ],

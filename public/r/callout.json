@@ -2,7 +2,7 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "callout",
   "title": "Callout",
-  "description": "Sentence in an accent, ink or note pill.",
+  "description": "Short sentence in a vermilion, ink, or outlined note pill.",
   "registryDependencies": [
     "@jbm/tokens"
   ],

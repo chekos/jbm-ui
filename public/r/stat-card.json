@@ -2,7 +2,7 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "stat-card",
   "title": "StatCard",
-  "description": "Label, big value, sub; stacked or row layout.",
+  "description": "One number with its context on a raised Card: mono label, large value, and a short sub line, stacked or in a row.",
   "registryDependencies": [
     "@jbm/tokens",
     "@jbm/card"

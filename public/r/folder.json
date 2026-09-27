@@ -2,7 +2,7 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "folder",
   "title": "Folder",
-  "description": "Labelled folder illustration with a controlled open state. No built-in autoplay.",
+  "description": "Controlled folder illustration that pulls its sheet upright from 0 to 1.",
   "registryDependencies": [
     "@jbm/tokens"
   ],

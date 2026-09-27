@@ -2,9 +2,10 @@
 
 import { useState } from "react"
 import { color, shadowLayers, surfaceBorder } from "@/registry/jbm/lib/tokens"
-import { surfaceUsage } from "./demo-data"
+import { getGalleryItem } from "./item-meta"
 
-export { surfaceUsage }
+// The copy button copies the contract's usage example, the same text as the Usage section.
+const surfaceUsage = getGalleryItem("surface-depth")?.snippet ?? ""
 
 export function SurfaceDepth() {
   const [before, setBefore] = useState(false)

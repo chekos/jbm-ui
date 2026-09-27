@@ -2,7 +2,7 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "prob-bar",
   "title": "ProbBar",
-  "description": "Labelled probability bar that fills.",
+  "description": "Labelled probability bar that slides in and fills to its value while the number counts up.",
   "dependencies": [
     "remotion"
   ],

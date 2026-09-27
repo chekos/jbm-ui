@@ -2,7 +2,7 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "pop",
   "title": "Pop",
-  "description": "Spring entrance + Stagger + Leave (exit).",
+  "description": "Spring entrances for Remotion: Pop slides or scales one block in, Stagger cascades a list, and Leave fades a block out.",
   "dependencies": [
     "remotion"
   ],
