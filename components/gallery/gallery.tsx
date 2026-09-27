@@ -1,6 +1,12 @@
 "use client"
 
-import { useState, type ReactNode } from "react"
+import {
+  useEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+  type ReactNode,
+} from "react"
 import dynamic from "next/dynamic"
 import registry from "@/registry.json"
 import {
@@ -86,55 +92,232 @@ function Install({ name }: { name: string }) {
   )
 }
 
-export function Gallery() {
-  const [query, setQuery] = useState("")
-  const [filter, setFilter] = useState<Category>("All")
-  const items = galleryItems.filter(
-    (item) =>
-      (filter === "All" || category(item.name) === filter) &&
-      `${item.title} ${item.name} ${item.description}`
-        .toLowerCase()
-        .includes(query.toLowerCase())
+type GalleryItem = (typeof galleryItems)[number]
+
+const groups = categories.filter(
+  (value): value is Exclude<Category, "All"> => value !== "All"
+)
+const slug = (value: string) => value.toLowerCase().replaceAll(" ", "-")
+const plural = (count: number) => (count === 1 ? "item" : "items")
+
+function matches(item: GalleryItem, filter: Category, query: string) {
+  return (
+    (filter === "All" || category(item.name) === filter) &&
+    `${item.title} ${item.name} ${item.description}`
+      .toLowerCase()
+      .includes(query.trim().toLowerCase())
   )
+}
+
+// Previews rendered by MotionPreview (the Remotion Player fallback below).
+const inPlayer = (name: string) =>
+  !designNames.includes(name) &&
+  !deskNames.includes(name) &&
+  !(name in examples) &&
+  !(name in editorialExamples) &&
+  !(name in videoPrimitiveExamples) &&
+  ![
+    "scroll-stack",
+    "flip-text",
+    "text-fill",
+    "scroll-text-fill",
+    "surface-depth",
+    "tokens",
+  ].includes(name)
+// Video-primitive demos that render their own inputs rather than a fixed example.
+const interactivePrimitives = ["ticket", "folder", "score-scale", "clock"]
+
+/** QA-bench signals for a card, derived from how its preview is rendered. */
+function capabilities(item: GalleryItem) {
+  const { name } = item
+  const player = inPlayer(name)
+  const tags: string[] = []
+  if (
+    designNames.includes(name) ||
+    deskNames.includes(name) ||
+    interactivePrimitives.includes(name) ||
+    ["scroll-stack", "flip-text", "text-fill", "surface-depth"].includes(
+      name
+    ) ||
+    name === "scene-spec"
+  )
+    tags.push("controls")
+  if (name.startsWith("scroll-")) tags.push("scroll")
+  // Scene is a static layout (a one-frame composition); every other Player preview replays.
+  if ((player && name !== "scene") || name === "replay-button")
+    tags.push("replay")
+  // scene-spec compiles one spec into landscape and vertical stages side by side.
+  if (name === "scene-spec") tags.push("portrait")
+  if (
+    player ||
+    ("dependencies" in item && item.dependencies?.includes("remotion"))
+  )
+    tags.push("remotion")
+  return tags.length ? tags : ["static"]
+}
+
+// The URL is the source of truth for the category filter and query (?cat=motion&q=card).
+const urlEvent = "jbm:gallery-url"
+function subscribeUrl(onChange: () => void) {
+  window.addEventListener(urlEvent, onChange)
+  window.addEventListener("popstate", onChange)
+  return () => {
+    window.removeEventListener(urlEvent, onChange)
+    window.removeEventListener("popstate", onChange)
+  }
+}
+const readUrl = () => window.location.search
+const readServerUrl = () => ""
+
+function writeUrl(filter: Category, query: string) {
+  const url = new URL(window.location.href)
+  if (filter === "All") url.searchParams.delete("cat")
+  else url.searchParams.set("cat", slug(filter))
+  if (query) url.searchParams.set("q", query)
+  else url.searchParams.delete("q")
+  window.history.replaceState(window.history.state, "", url)
+  window.dispatchEvent(new Event(urlEvent))
+}
+
+function isTyping(target: EventTarget | null) {
+  return (
+    target instanceof HTMLElement &&
+    (target.isContentEditable ||
+      ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName))
+  )
+}
+
+export function Gallery() {
+  const search = useSyncExternalStore(subscribeUrl, readUrl, readServerUrl)
+  const params = new URLSearchParams(search)
+  const filter: Category =
+    groups.find((value) => slug(value) === params.get("cat")) ?? "All"
+  const query = params.get("q") ?? ""
+  const searchInput = useRef<HTMLInputElement>(null)
+  const toolbar = useRef<HTMLDivElement>(null)
+  const results = useRef<HTMLDivElement>(null)
+
+  // When the toolbar is stuck, a new result set starts at its top instead of mid-scroll.
+  function update(nextFilter: Category, nextQuery: string) {
+    writeUrl(nextFilter, nextQuery)
+    requestAnimationFrame(() => {
+      const top = results.current?.getBoundingClientRect().top ?? 0
+      if (top < (toolbar.current?.offsetHeight ?? 0))
+        results.current?.scrollIntoView({ block: "start" })
+    })
+  }
+  const setFilter = (value: Category) => update(value, query)
+  const setQuery = (value: string) => update(filter, value)
+  const clear = () => update("All", "")
+
+  // "/" focuses search from anywhere except another text field.
+  useEffect(() => {
+    function onKey(event: KeyboardEvent) {
+      if (
+        event.key !== "/" ||
+        event.metaKey ||
+        event.ctrlKey ||
+        event.altKey ||
+        isTyping(event.target)
+      )
+        return
+      event.preventDefault()
+      searchInput.current?.focus()
+      searchInput.current?.select()
+    }
+    document.addEventListener("keydown", onKey)
+    return () => document.removeEventListener("keydown", onKey)
+  }, [])
+
+  // Anchors and focus scroll clear of the sticky toolbar (WCAG 2.4.11).
+  useEffect(() => {
+    const element = toolbar.current
+    if (!element) return
+    const root = document.documentElement
+    const measure = () =>
+      root.style.setProperty("--toolbar-h", `${element.offsetHeight}px`)
+    measure()
+    const observer = new ResizeObserver(measure)
+    observer.observe(element)
+    return () => {
+      observer.disconnect()
+      root.style.removeProperty("--toolbar-h")
+    }
+  }, [])
+
+  const items = galleryItems.filter((item) => matches(item, filter, query))
+  const visibleGroups = groups.filter((group) =>
+    items.some((item) => category(item.name) === group)
+  )
+  const active = filter !== "All" || query !== ""
+  const everywhere =
+    filter !== "All"
+      ? galleryItems.filter((item) => matches(item, "All", query)).length
+      : 0
+  const summary = `${items.length} ${filter === "All" ? "" : filter + " "}${plural(items.length)}${
+    query ? ` matching “${query}”` : active ? "" : " in the collection"
+  }`
+
   return (
     <>
-      <div className="toolbar">
-        <div className="filters" role="group" aria-label="Component category">
-          {categories.map((value) => (
-            <button
-              key={value}
-              aria-pressed={filter === value}
-              onClick={() => setFilter(value)}
-            >
-              {value}
-              <span>
-                {value === "All"
-                  ? galleryItems.length
-                  : galleryItems.filter((item) => category(item.name) === value)
-                      .length}
-              </span>
-            </button>
-          ))}
+      <div className="toolbar" ref={toolbar}>
+        <div className="toolbar-row">
+          <div className="filters" role="group" aria-label="Component category">
+            {categories.map((value) => (
+              <button
+                key={value}
+                aria-pressed={filter === value}
+                onClick={() => setFilter(value)}
+              >
+                {value}
+                <span>
+                  {value === "All"
+                    ? galleryItems.length
+                    : galleryItems.filter(
+                        (item) => category(item.name) === value
+                      ).length}
+                </span>
+              </button>
+            ))}
+          </div>
+          <label className="search">
+            <span className="sr-only">Search components</span>
+            <input
+              ref={searchInput}
+              type="search"
+              placeholder="Search components…"
+              aria-keyshortcuts="/"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+            />
+            <kbd aria-hidden="true">/</kbd>
+          </label>
         </div>
-        <label className="search">
-          <span className="sr-only">Search components</span>
-          <input
-            type="search"
-            placeholder="Search components…"
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-          />
-        </label>
+        <div className="toolbar-row toolbar-status">
+          <p className="result-count" role="status">
+            {summary}
+          </p>
+          {active && (
+            <button className="toolbar-clear" onClick={clear}>
+              Clear
+            </button>
+          )}
+          {visibleGroups.length > 1 && (
+            <nav className="section-jump" aria-label="Jump to section">
+              {visibleGroups.map((group) => (
+                <a key={group} href={`#${slug(group)}`}>
+                  {group}
+                </a>
+              ))}
+            </nav>
+          )}
+        </div>
       </div>
-      <p className="result-count" role="status">
-        {items.length} {items.length === 1 ? "item" : "items"} in the collection
-      </p>
-      {categories
-        .filter((group) => group !== "All")
-        .map((group) => {
+      <div id="components" className="results" tabIndex={-1} ref={results}>
+        {groups.map((group) => {
           const members = items.filter((item) => category(item.name) === group)
           if (!members.length) return null
-          const id = group.toLowerCase().replaceAll(" ", "-")
+          const id = slug(group)
           return (
             <section
               key={group}
@@ -143,7 +326,12 @@ export function Gallery() {
               aria-labelledby={id + "-heading"}
             >
               <h2 id={id + "-heading"} className="section-heading">
-                {group} <span>{members.length}</span>
+                {group}
+                <span className="sr-only">, </span>
+                <span>
+                  {members.length}
+                  <span className="sr-only"> {plural(members.length)}</span>
+                </span>
               </h2>
               {group === "UI Bits" && (
                 <p className="section-description">
@@ -152,16 +340,17 @@ export function Gallery() {
                 </p>
               )}
               <div className="gallery-grid">
-                {members.map((item, index) => (
+                {members.map((item) => (
                   <article
                     id={item.name}
                     key={item.name}
                     className="component-card"
                   >
-                    <div className="card-heading">
-                      <span>{String(index + 1).padStart(2, "0")}</span>
-                      <span>{category(item.name)}</span>
-                    </div>
+                    <ul className="card-tags" aria-label="Preview capabilities">
+                      {capabilities(item).map((tag) => (
+                        <li key={tag}>{tag}</li>
+                      ))}
+                    </ul>
                     <div
                       style={
                         designNames.includes(item.name) ||
@@ -295,20 +484,27 @@ export function Gallery() {
             </section>
           )
         })}
-      {items.length === 0 && (
-        <div className="empty">
-          <h2>No components found.</h2>
-          <p>Try another name or browse the full collection.</p>
-          <button
-            onClick={() => {
-              setQuery("")
-              setFilter("All")
-            }}
-          >
-            Clear filters
-          </button>
-        </div>
-      )}
+        {items.length === 0 && (
+          <div className="empty">
+            <h2>
+              No “{query}” in {filter === "All" ? "the collection" : filter}.
+            </h2>
+            <p>
+              {everywhere > 0
+                ? `${everywhere} ${plural(everywhere)} match in other categories.`
+                : "Try another name, or browse the full collection."}
+            </p>
+            <div className="empty-actions">
+              {everywhere > 0 && (
+                <button onClick={() => setFilter("All")}>
+                  Search all categories
+                </button>
+              )}
+              <button onClick={clear}>Clear</button>
+            </div>
+          </div>
+        )}
+      </div>
     </>
   )
 }
