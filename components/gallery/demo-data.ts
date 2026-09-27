@@ -46,6 +46,8 @@ export const urlStateNames = [
   "ticket",
   "text-fill",
   ...deskSurfaceNames,
+  "register",
+  "slip",
 ]
 
 /** Desk illustration pieces, previewed by DeskDemo. */
@@ -61,3 +63,6 @@ export const deskNames = [
   "burbuja",
   ...deskSurfaceNames,
 ]
+
+/** Drawn writing registers and the slip, previewed by RegisterDemo. */
+export const registerNames = ["register", "slip"]

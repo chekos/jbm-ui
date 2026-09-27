@@ -21,6 +21,7 @@ import { ScrollStackDemo } from "./scroll-stack-demo"
 import { SurfaceDepth } from "./surface-depth"
 import { DesignVideoDemo, designNames } from "./design-video-demo"
 import { DeskDemo, deskNames } from "./desk-demo"
+import { RegisterDemo, registerNames } from "./register-demo"
 import { AddCommand, InstallOnce } from "./install"
 import { CodeBlock } from "./code-block"
 import { color } from "@/registry/jbm/lib/tokens"
@@ -206,6 +207,8 @@ function Preview({ item }: { item: GalleryItem }) {
         </div>
       ) : deskNames.includes(name) ? (
         <DeskDemo name={name} />
+      ) : registerNames.includes(name) ? (
+        <RegisterDemo name={name} />
       ) : name in examples ? (
         <Canvas>{examples[name as keyof typeof examples]}</Canvas>
       ) : (
