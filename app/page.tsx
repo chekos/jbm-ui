@@ -1,36 +1,27 @@
 import { Gallery } from "@/components/gallery/gallery"
-import Link from "next/link"
+import registry from "@/registry.json"
+
+const itemCount = registry.items.length
 
 export default function Page() {
   return (
     <main className="site-shell" id="main">
       <header className="site-header">
-        <Link className="wordmark" href="/">
-          jbm<span>—</span>ui
-        </Link>
-        <a href="https://github.com/chekos/jbm-ui">GitHub ↗</a>
-      </header>
-      <section className="intro">
-        <p className="eyebrow">The tacosdedatos component collection</p>
-        <h1>
-          Small pieces.
-          <br />
-          <span>Clearer stories.</span>
+        <h1 className="wordmark" aria-label="jbm-ui">
+          jbm<span aria-hidden="true">—</span>ui
         </h1>
-        <p className="intro-copy">
-          A shared visual language for the web and video. Browse the primitives,
-          play with motion, and bring the source into your next project.
+        <p className="site-purpose">
+          Cut-paper primitives and motion blocks for tacosdedatos explainers.
         </p>
-        <div className="intro-meta">
-          <span>React + Remotion</span>
-          <span>Copy into your project</span>
-          <span>Cream, ink & vermilion</span>
-        </div>
-      </section>
+        <p className="site-count">{itemCount} registry items</p>
+        <a className="site-source" href="https://github.com/chekos/jbm-ui">
+          GitHub ↗
+        </a>
+      </header>
       <Gallery />
       <footer>
         Made for tacosdedatos. Built to be used again.
-        <a href="/r/registry.json">Explore the registry ↗</a>
+        <a href="/r/registry.json">Registry index (JSON) ↗</a>
       </footer>
     </main>
   )
