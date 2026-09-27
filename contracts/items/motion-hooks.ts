@@ -60,6 +60,7 @@ export default {
       code: 'import { useSec, useIn, useFade, useProgress } from "@/jbm/motion/hooks"\n\n// Render inside a Remotion <Composition> or <Player>: hooks run in the component body.\nexport function TimelineReadout() {\n  const seconds = useSec()\n  const entrance = useIn(0.2)\n  const opacity = useFade(0.2)\n  const progress = useProgress(0.2, 100, 1.5)\n  return (\n    <div style={{ opacity, transform: `translateY(${(1 - entrance) * 30}px)` }}>\n      {progress.toFixed(0)}% at {seconds.toFixed(2)}s\n    </div>\n  )\n}',
     },
   ],
+  start: "Empty stage",
   cues: [
     { label: "Counting up", at: 0.5, note: "The percentage is mid-count while the block is still rising into place." },
   ],

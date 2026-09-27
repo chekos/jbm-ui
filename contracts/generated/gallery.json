@@ -202,7 +202,9 @@
           "label": "Counting up",
           "frame": 15
         }
-      ]
+      ],
+      "start": "Empty stage",
+      "frames": 52
     },
     {
       "name": "scene",
@@ -219,7 +221,8 @@
       "snippet": "import { Scene } from \"@/jbm/motion/scene\"\nimport { Big } from \"@/jbm/ui/big\" // install @jbm/big separately\n\n<Scene><Big>Una idea a la vez.</Big></Scene>",
       "installName": "scene",
       "sourcePath": "registry/jbm/motion/scene.tsx",
-      "inRegistry": true
+      "inRegistry": true,
+      "frames": 1
     },
     {
       "name": "pop",
@@ -247,7 +250,9 @@
           "label": "Second chip lands",
           "frame": 27
         }
-      ]
+      ],
+      "start": "Empty stage",
+      "frames": 46
     },
     {
       "name": "counter",
@@ -272,7 +277,8 @@
           "label": "Counting up",
           "frame": 15
         }
-      ]
+      ],
+      "frames": 52
     },
     {
       "name": "prob-bar",
@@ -298,7 +304,9 @@
           "label": "Bar filling",
           "frame": 12
         }
-      ]
+      ],
+      "start": "Empty stage",
+      "frames": 28
     },
     {
       "name": "code-card",
@@ -327,7 +335,8 @@
           "label": "Second line typed",
           "frame": 54
         }
-      ]
+      ],
+      "frames": 69
     },
     {
       "name": "captions",
@@ -356,7 +365,9 @@
           "label": "Every word spoken",
           "frame": 75
         }
-      ]
+      ],
+      "start": "Empty stage",
+      "frames": 136
     },
     {
       "name": "rebuild-screens",
@@ -387,7 +398,8 @@
           "label": "Built again",
           "frame": 93
         }
-      ]
+      ],
+      "frames": 132
     },
     {
       "name": "catalog",
@@ -424,7 +436,9 @@
           "label": "Tokens in",
           "frame": 129
         }
-      ]
+      ],
+      "start": "Empty stage",
+      "frames": 159
     },
     {
       "name": "propagate",
@@ -460,7 +474,9 @@
           "label": "Fix lands",
           "frame": 111
         }
-      ]
+      ],
+      "start": "Empty stage",
+      "frames": 155
     },
     {
       "name": "shelf",
@@ -479,7 +495,7 @@
         "@jbm/paper",
         "@jbm/ui-bits"
       ],
-      "snippet": "import { Shelf, Twice } from \"@/jbm/motion/shelf\"\n\n<Shelf w={936} items={[\n  { text: \"shadcn/ui\", at: 0.2 },\n  { text: \"Material UI\", at: 0.6 },\n  { text: \"jbm-ui\", at: 1.0, tone: \"accent\" },\n]} />\n<Twice w={936} at={2} second={2.8} strike={3} />\n// Render inside a Remotion <Composition> or <Player>.",
+      "snippet": "import { Shelf, Twice } from \"@/jbm/motion/shelf\"\n\n<Shelf w={936} items={[\n  { text: \"shadcn/ui\", at: 0.2 },\n  { text: \"Material UI\", at: 0.6 },\n  { text: \"jbm-ui\", at: 1.0, tone: \"accent\" },\n]} />\n<Twice w={936} at={2} second={2.8} strike={3.6} />\n// Render inside a Remotion <Composition> or <Player>.",
       "installName": "shelf",
       "sourcePath": "registry/jbm/motion/shelf.tsx",
       "inRegistry": true,
@@ -494,9 +510,11 @@
         },
         {
           "label": "Built twice",
-          "frame": 90
+          "frame": 104
         }
-      ]
+      ],
+      "start": "Empty stage",
+      "frames": 123
     },
     {
       "name": "scene-spec",
@@ -536,7 +554,8 @@
           "label": "Subject building",
           "frame": 24
         }
-      ]
+      ],
+      "frames": 43
     },
     {
       "name": "ui-button",

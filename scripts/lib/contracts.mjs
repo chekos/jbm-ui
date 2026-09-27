@@ -277,6 +277,17 @@ function extractProps(fn) {
 
 /** Parameters of a hook or helper; a destructured options object expands to its fields. */
 function extractParams(fn) {
+  const { checker } = compiler()
+  // An unannotated parameter takes its type from its initializer (dur = 0.4 is a number); widen
+  // literals so the documented type is the parameter's, not its default's.
+  const inferred = (param) =>
+    clean(
+      checker.typeToString(
+        checker.getBaseTypeOfLiteralType(checker.getTypeAtLocation(param)),
+        param,
+        ts.TypeFormatFlags.NoTruncation
+      )
+    )
   const params = []
   for (const param of fn.parameters) {
     if (ts.isObjectBindingPattern(param.name)) {
@@ -285,7 +296,7 @@ function extractParams(fn) {
     }
     params.push({
       name: param.name.getText(),
-      type: param.type ? clean(param.type.getText()) : "unknown",
+      type: param.type ? clean(param.type.getText()) : inferred(param),
       required: !param.questionToken && !param.initializer && !param.dotDotDotToken,
       default: param.initializer ? clean(param.initializer.getText()) : null,
       doc: "",
@@ -506,6 +517,7 @@ export function validateContract(name) {
     errors.push("qa lists at least one non-empty note")
   for (const field of ["docs", "schemas"]) checkLinks(contract[field], field, errors)
   const cues = checkCues(contract, errors)
+  const start = checkStart(contract, errors)
 
   if (errors.length) return { errors, contract }
   const installName = inRegistry ? name : contract.install
@@ -535,6 +547,8 @@ export function validateContract(name) {
       examples: contract.examples,
       qa: contract.qa,
       ...(cues ? { cues } : {}),
+      ...(start !== undefined ? { start } : {}),
+      ...(cues ? { galleryPreview: galleryPreview(name) } : {}),
       ...(contract.docs ? { docs: contract.docs } : {}),
       ...(contract.schemas ? { schemas: contract.schemas } : {}),
     },
@@ -590,6 +604,59 @@ export function checkCues(contract, errors) {
     out.push({ label: cue.label, at: cue.at, frame, ...(cue.note !== undefined ? { note: cue.note } : {}) })
   }
   return out
+}
+
+/** `start`: optional caption for the strip's frame-0 cell on Player items (default "Begin"). */
+export function checkStart(contract, errors) {
+  const start = contract.start
+  if (start === undefined) return undefined
+  if (!contract.capabilities?.includes("player"))
+    errors.push('start is only for "player" items (it captions the strip\'s first frame)')
+  if (!nonEmpty(start)) errors.push("start must be a non-empty caption when present")
+  else if (start.length > maxCueLabel)
+    errors.push(`start is longer than ${maxCueLabel} characters (it captions a strip cell)`)
+  return start
+}
+
+/** A JSON value as a JSX attribute value or child expression. */
+function jsxValue(value) {
+  return typeof value === "string" ? JSON.stringify(value) : `{${jsLiteral(value)}}`
+}
+function jsLiteral(value) {
+  if (Array.isArray(value)) return `[${value.map(jsLiteral).join(", ")}]`
+  if (value && typeof value === "object")
+    return `{ ${Object.entries(value)
+      .map(([key, v]) => `${/^[A-Za-z_$][\w$]*$/.test(key) ? key : JSON.stringify(key)}: ${jsLiteral(v)}`)
+      .join(", ")} }`
+  return JSON.stringify(value)
+}
+/** previewDemos elements as TSX, one element per line group. */
+export function demoCode(elements, indent = "") {
+  return elements
+    .map((element) => {
+      if ("code" in element) return element.code.split("\n").map((line) => indent + line).join("\n")
+      const props = Object.entries(element.props ?? {})
+        .map(([key, value]) => ` ${key}=${jsxValue(value)}`)
+        .join("")
+      const open = `${indent}<${element.component}${props}`
+      if (element.children === undefined) return `${open} />`
+      if (typeof element.children === "string")
+        return `${open}>${element.children}</${element.component}>`
+      return `${open}>\n${demoCode(element.children, indent + "  ")}\n${indent}</${element.component}>`
+    })
+    .join("\n")
+}
+
+/** The gallery preview an item's cue times are measured on (timing.ts previewDemos). */
+export function galleryPreview(name) {
+  const demo = previewTiming.previewDemos[name]
+  if (!demo) throw new Error(`${name} has cues but no previewDemos entry in components/gallery/timing.ts`)
+  return {
+    fps: previewTiming.fps,
+    durationInFrames: previewFrames(name),
+    demo,
+    code: demoCode(demo),
+  }
 }
 
 const schemaUrls = new Set([publicOrigin + sceneSpecSchemaPath])
@@ -709,6 +776,9 @@ export function buildGenerated(names = contractNames().filter(hasContract)) {
       inRegistry: entry.inRegistry,
       // The strip's cells (and the skeleton that reserves their space) need labels and frames.
       ...(entry.cues ? { cues: entry.cues.map(({ label, frame }) => ({ label, frame })) } : {}),
+      ...(entry.start !== undefined ? { start: entry.start } : {}),
+      // Player items: the longest preview timeline, which sets the width frame numbers pad to.
+      ...(entry.capabilities.includes("player") ? { frames: previewFrames(entry.name) } : {}),
     })),
   }
   // Guides published at /docs/<slug>.md, so agents never need the source repository.

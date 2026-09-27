@@ -39,6 +39,7 @@ export default {
       code: 'import { ProbBar } from "@/jbm/motion/prob-bar"\n\n{[["gato", 0.72], ["perro", 0.21], ["zorro", 0.07]].map(([label, p], i) => (\n  <ProbBar key={label} label={String(label)} p={Number(p)} at={0.4 + i * 0.3} w={720} />\n))}',
     },
   ],
+  start: "Empty stage",
   cues: [
     { label: "Bar filling", at: 0.4, note: "The bar is part-way to 0.86 and the value readout matches its length." },
   ],

@@ -10,7 +10,7 @@ import { Stamp } from "./rebuild-screens";
  * A catalogue sheet: a large paper card with labelled slots. The top row holds interface pieces
  * (button, card, input), each arriving on its cue and getting a "tested" check a beat later. At
  * `tokensAt` the sheet unfolds downward to reveal a second row of design-token glyphs (color, type,
- * spacing) that fill on their own cues. A `stamp` sticker lands on the sheet.
+ * spacing) that fill on their own cues. A `stamp` sticker lands across the sheet's bottom edge.
  */
 export type CatalogItem = { kind: PieceKind; label: string; at: number };
 export type CatalogToken = { kind: TokenKind; label: string; at: number };
@@ -51,6 +51,8 @@ export function Catalog({
   const unfold = useProgress(unfoldAt, 1, 0.55); // no token row: unfoldAt is never reached
   const rowGap = Math.round(gap * 1.2);
   const tokenBlockH = rowGap + 3 + rowGap + tokH;
+  const stampSize = Math.round(w * 0.062);
+  const sheetH = (title ? pad + 30 : pad) + slotH + tokenBlockH * unfold + pad;
 
   return (
     <div style={{ position: "relative", width: w, opacity: sheet, transform: `translateY(${(1 - sheet) * 40}px)` }}>
@@ -91,7 +93,9 @@ export function Catalog({
           </Sticker>
         </div>
       ) : null}
-      {stamp ? <Stamp at={stamp.at} text={stamp.text} left={w * 0.44} top={(title ? pad + 30 : pad) + slotH + tokenBlockH * unfold + pad - Math.round(w * 0.062) * 1.1} size={Math.round(w * 0.062)} rotate={4} /> : null}
+      {/* The stamp straddles the sheet's bottom edge, overlapping only the bottom padding, so it
+          never covers a slot or its caption. */}
+      {stamp ? <Stamp at={stamp.at} text={stamp.text} left={w * 0.44} top={sheetH - Math.round(stampSize * 0.35)} size={stampSize} rotate={4} /> : null}
     </div>
   );
 }

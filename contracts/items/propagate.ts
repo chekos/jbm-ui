@@ -57,6 +57,7 @@ export default {
       code: 'import { Propagate } from "@/jbm/motion/propagate"\n\n<Propagate w={1680} h={760} at={0.2} targets={8}\n  recolor={3} recolored={4.2} />',
     },
   ],
+  start: "Empty stage",
   cues: [
     { label: "Bug appears", at: 2.3, note: "Cross badges sit on the source and on every screen; no pulse has left yet." },
     { label: "Fix travels", at: 2.8, note: "The source shows a check and vermilion pulses are mid-line; screens still show crosses." },

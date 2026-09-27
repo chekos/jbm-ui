@@ -61,6 +61,7 @@ export default {
       code: 'import { Pop, Leave } from "@/jbm/motion/pop"\n\n<Leave at={3}>\n  <Pop at={0.4} from="left" dist={60}>\n    <h2>Primero esto.</h2>\n  </Pop>\n</Leave>\n// Render inside a Remotion <Composition> or <Player>.',
     },
   ],
+  start: "Empty stage",
   cues: [
     { label: "First chip lands", at: 0.5, note: "“Idea” has scaled in; “Datos” is just starting." },
     { label: "Second chip lands", at: 0.9, note: "“Datos” is nearly settled and “Historia” starts to scale in." },

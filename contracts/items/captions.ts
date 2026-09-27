@@ -40,6 +40,7 @@ export default {
       code: 'import { Captions } from "@/jbm/motion/captions"\n\n<Captions words={alignedWords} orientation="vertical" offset={12.4} />\n// Place inside a positioned stage (e.g. Scene) in a Remotion composition.',
     },
   ],
+  start: "Empty stage",
   cues: [
     { label: "Emphasis word", at: 1.1, note: "“idea” is spoken in the soft colour after its pop; later words wait at low opacity." },
     { label: "Every word spoken", at: 2.5, note: "All words are at full opacity while the pill holds before fading out." },

@@ -49,7 +49,9 @@ export default {
     },
   ],
   qa: ["What to inspect before accepting a change: states, extremes, orientations."],
-  // Player items: the moments the QA strip shows between Begin and End (seconds on the gallery
-  // preview timeline in components/gallery/timing.ts). Say what happens, in a few words.
+  // Player items: the moments the QA strip shows between frame 0 and End (seconds on the gallery
+  // preview timeline: the demo's props are previewProps and previewDemos in
+  // components/gallery/timing.ts). Say what happens, in a few words.
   // cues: [{ label: "Bug appears", at: 2.3, note: "What to check on this frame." }],
+  // start: "Empty stage", // when every element enters after frame 0
 } satisfies ItemContract

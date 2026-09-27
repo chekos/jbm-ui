@@ -81,8 +81,66 @@ export type CatalogItem = {
   examples: ContractEntry["examples"]
   qa: string[]
   related: RelatedItem[]
+  /** Player items with cues: the moments to inspect on the gallery preview, and what it renders. */
+  galleryPreview?: AgentGalleryPreview
   /** Contract fields beyond the core schema (for example docs or schemas) pass through as-is. */
   [extra: string]: unknown
+}
+
+/** One strip frame on the gallery preview: frame 0, a contract cue, or the last frame. */
+export type PreviewFrame = {
+  label: string
+  frame: number
+  /** Seconds on the gallery preview timeline. */
+  at: number
+  note?: string
+}
+
+export type AgentGalleryPreview = {
+  about: string
+  fps: number
+  durationInFrames: number
+  lastFrame: number
+  /** The QA page's strip view, which shows these frames side by side. */
+  strip: string
+  /** Frame 0, each contract cue, then the last frame. */
+  frames: PreviewFrame[]
+  /** The elements the preview renders, with their props (timing props in seconds). */
+  demo: NonNullable<ContractEntry["galleryPreview"]>["demo"]
+  /** The same demo as TSX. */
+  code: string
+}
+
+const previewAbout =
+  "Cue times are seconds on the gallery preview's timeline, which renders the demo below; the Usage examples may use other timings. Map a cue to your own props by its place in the demo."
+
+function agentGalleryPreview(
+  contract: ContractEntry,
+  origin: string
+): AgentGalleryPreview | undefined {
+  const preview = contract.galleryPreview
+  if (!preview || !contract.cues || contract.page === null) return undefined
+  const lastFrame = preview.durationInFrames - 1
+  const seconds = (frame: number) => Math.round((frame / preview.fps) * 1000) / 1000
+  return {
+    about: previewAbout,
+    fps: preview.fps,
+    durationInFrames: preview.durationInFrames,
+    lastFrame,
+    strip: `${origin}${contract.page}?view=strip`,
+    frames: [
+      { label: contract.start ?? "Begin", frame: 0, at: 0 },
+      ...contract.cues.map(({ label, frame, at, note }) => ({
+        label,
+        frame,
+        at,
+        ...(note ? { note } : {}),
+      })),
+      { label: "End", frame: lastFrame, at: seconds(lastFrame) },
+    ],
+    demo: preview.demo,
+    code: preview.code,
+  }
 }
 
 // Contract fields the catalog maps explicitly; anything else passes through (extraFields).
@@ -108,6 +166,10 @@ const knownContractFields = new Set([
   "examples",
   "qa",
   "install",
+  // Rendered together as "Gallery preview cues" (galleryPreview in the catalog).
+  "cues",
+  "start",
+  "galleryPreview",
 ])
 
 /** Names of contract fields outside the core schema, in contract order. */
@@ -215,6 +277,9 @@ export function getCatalog() {
     examples: contract.examples,
     qa: contract.qa,
     related: relatedItems(contract, contracts),
+    ...(contract.galleryPreview
+      ? { galleryPreview: agentGalleryPreview(contract, origin) }
+      : {}),
     ...Object.fromEntries(
       extraFields(contract).map((key) => [
         key,
@@ -260,7 +325,8 @@ export function getCatalog() {
       stage:
         'Size in stage pixels per orientation ("declared"), or "fluid"/"n/a" with a reason.',
       qa: "What to inspect before accepting a change.",
-      cues: "Optional, Player items only. Timeline moments worth inspecting, as {label, at, frame, note}: at in seconds and frame zero-based on the 30 fps gallery preview. The QA page's strip view shows Begin, each cue, and End (?view=strip, and ?frame=<frame> opens one).",
+      galleryPreview:
+        "Optional, Player items with cues. The frames worth inspecting on the gallery preview (frame 0, each cue, the last frame) as {label, frame, at, note}: frame zero-based and at in seconds at the preview's fps. These are the preview's timings, not the examples': demo (elements with props) and code (TSX) are what the preview renders. The QA page's strip view shows the frames side by side (strip), and ?frame=<frame> opens one.",
       page: "The item's QA page in the gallery, or null for a bundle, whose pageReason names the pages to open instead.",
       registryItem:
         "The shadcn registry item JSON; its files[].content holds the source code, so no repository checkout is needed.",
@@ -484,6 +550,16 @@ export function getLlmsFullText(catalog = getCatalog()) {
       lines.push("", "```tsx", item.snippet, "```")
       if (item.qa.length)
         lines.push("", "QA:", "", ...item.qa.map((note) => `- ${note}`))
+      if (item.galleryPreview)
+        lines.push(
+          "",
+          `Gallery preview cues (seconds on the gallery preview, ${item.galleryPreview.durationInFrames} frames at ${item.galleryPreview.fps} fps; see ${item.endpoints.markdown} for the demo props):`,
+          "",
+          ...item.galleryPreview.frames.map(
+            (entry) =>
+              `- ${entry.label}: frame ${entry.frame}, ${entry.at.toFixed(2)} s${entry.note ? `. ${entry.note}` : ""}`
+          )
+        )
       for (const key of extraFields(getContract(item.name)))
         lines.push("", `${titleCase(key)}:`, "", ...extraFieldLines(item[key]))
     }
@@ -711,6 +787,26 @@ export function getItemMarkdown(name: string, catalog = getCatalog()) {
     lines.push("", `### ${example.title}`, "", "```tsx", example.code, "```")
   if (item.qa.length)
     lines.push("", "## QA", "", ...item.qa.map((note) => `- ${note}`))
+  if (item.galleryPreview) {
+    const preview = item.galleryPreview
+    lines.push(
+      "",
+      "## Gallery preview cues",
+      "",
+      `${previewAbout} The preview runs at ${preview.fps} fps for ${preview.durationInFrames} frames (0–${preview.lastFrame}); see them side by side at ${preview.strip}, or open one frame with ?frame=<frame>.`,
+      "",
+      "```tsx",
+      preview.code,
+      "```",
+      "",
+      "| Frame | Seconds | Shows | What to check |",
+      "| --- | --- | --- | --- |",
+      ...preview.frames.map(
+        (entry) =>
+          `| ${entry.frame} | ${entry.at.toFixed(2)} | ${cell(entry.label)} | ${cell(entry.note ?? "")} |`
+      )
+    )
+  }
   for (const key of extraFields(getContract(item.name))) {
     const body = extraFieldLines(item[key])
     if (body.length) lines.push("", `## ${titleCase(key)}`, "", ...body)

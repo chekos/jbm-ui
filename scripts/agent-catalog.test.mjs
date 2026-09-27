@@ -307,3 +307,40 @@ test("every /docs/ link maps to a published guide", () => {
       assert.ok(slugs.has(url.pathname.slice(6, -3)), `${item.name}: ${link.url}`)
     }
 })
+
+test("every extracted prop and parameter has a real type", () => {
+  for (const item of generated.items)
+    for (const entry of item.api)
+      for (const field of [...(entry.props ?? []), ...(entry.params ?? [])])
+        assert.notEqual(field.type, "unknown", `${item.name} ${entry.export}(${field.name})`)
+  const hooks = generated.items.find((item) => item.name === "motion-hooks")
+  const useProgress = hooks.api.find((entry) => entry.export === "useProgress")
+  assert.deepEqual(
+    useProgress.params.map((param) => [param.name, param.type, param.default]),
+    [["startSec", "number", null], ["target", "number", "1"], ["dur", "number", "0.7"]]
+  )
+})
+
+test("items with cues publish their gallery preview, not a repository path", () => {
+  const withCues = catalog.items.filter((item) => generated.items.find((entry) => entry.name === item.name)?.cues)
+  assert.ok(withCues.length > 5)
+  for (const item of withCues) {
+    const preview = item.galleryPreview
+    assert.ok(preview, `${item.name} has galleryPreview`)
+    assert.equal(preview.frames[0].frame, 0, item.name)
+    assert.equal(preview.frames.at(-1).frame, preview.durationInFrames - 1, item.name)
+    assert.ok(preview.demo.length && preview.code.length, `${item.name} publishes its demo`)
+    assert.equal(getCatalogItemJson(item.name).cues, undefined, `${item.name}: cues live in galleryPreview`)
+    const md = getItemMarkdown(item.name, catalog)
+    assert.ok(md.includes("## Gallery preview cues"), `${item.name} Markdown section`)
+    assert.ok(!/^## Cues$/m.test(md), `${item.name} has no bare Cues section`)
+  }
+  // Propagate's cues are on the demo's timings (bug at 1.6 s), not the example's.
+  const propagate = catalog.items.find((item) => item.name === "propagate").galleryPreview
+  assert.match(propagate.code, /bug=\{1\.6\}/)
+  // Agent-facing text never sends an agent to the repository for timings.
+  for (const text of [getLlmsText(catalog), getLlmsFullText(catalog), ...generated.items.map((entry) => getItemMarkdown(entry.name, catalog))])
+    assert.ok(!text.includes("components/gallery/timing.ts"))
+  const docs = JSON.parse(readFileSync(join(root, "contracts/generated/docs.json"), "utf8"))
+  assert.ok(!JSON.stringify(docs).includes("components/gallery/timing.ts"), "published guides")
+})

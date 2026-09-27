@@ -67,7 +67,7 @@ test("shelf, catalog, and rebuild-screens cues follow their cue sheets", () => {
   const s = illustrated.shelf
   between(cue("shelf", "Libraries stacked"), Math.max(...s.items) + spring, s.twice, "shelf stack")
   between(cue("shelf", "One button"), s.twice + spring, s.second, "shelf one")
-  between(cue("shelf", "Built twice"), s.second, s.strike + 0.01, "shelf twice")
+  between(cue("shelf", "Built twice"), s.second + spring, s.strike, "shelf twice")
   const c = illustrated.catalog
   between(cue("catalog", "Pieces tested"), Math.max(...c.items), c.tokensAt + 0.01, "catalog pieces")
   between(cue("catalog", "Tokens arriving"), c.tokens[0], c.tokens[2], "catalog arriving")
