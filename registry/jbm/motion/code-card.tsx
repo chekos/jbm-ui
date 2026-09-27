@@ -14,7 +14,7 @@ export function CodeCard({ lines, w = 900, h = 520, size = 24, title, charsPerSe
     <Card dark style={{ padding: 0, overflow: "hidden", width: w, height: h }}>
       <div style={{ padding: "12px 20px", display: "flex", gap: 10, alignItems: "center" }}>
         {[color.accent, color.bg, color.dim].map((c) => <div key={c} style={{ width: 14, height: 14, borderRadius: 7, background: c }} />)}
-        {title ? <div style={{ fontFamily: font.mono, fontSize: 20, color: color.dim, marginLeft: 14 }}>{title}</div> : null}
+        {title ? <div style={{ fontFamily: font.mono, fontSize: 20, color: color.dimOnDark, marginLeft: 14 }}>{title}</div> : null}
       </div>
       <div style={{ fontFamily: font.mono, fontSize: size, color: color.bg, padding: "14px 28px", lineHeight: 1.55 }}>
         {lines.map((l, i) => (

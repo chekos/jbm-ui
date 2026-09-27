@@ -18,7 +18,7 @@ This is a reusable React / Remotion component library and shadcn registry with a
 - For video composition, follow `docs/scene-spec.md`. Portrait needs deliberate subject sizing and layout, not just a taller canvas. Inspect beginning, middle, and end frames in both orientations; keep safe-area guides out of final renders.
 - Follow `docs/surface-depth.md` for raised surfaces; use the shared shadow and border tokens rather than duplicating recipes.
 - Preserve the cream, ink, and vermilion palette and Geist font stacks. Check narrow screens and keyboard interaction; motion must not autoplay.
-- Run `pnpm lint`, `pnpm typecheck`, `pnpm registry:check`, `pnpm consumer:check`, and `pnpm build` before merging. For gallery changes, also inspect desktop/mobile previews and exercise filters and playback.
+- Run `pnpm lint`, `pnpm typecheck`, `pnpm registry:check`, `pnpm consumer:check`, `node --test scripts/*.test.mjs`, and `pnpm build` before merging (the GitHub `check` workflow runs all of them). For gallery changes, also inspect desktop/mobile previews and exercise filters and playback.
 - Track changes with GitHub issues and linked PRs on `codex/` branches. Vercel deploys from GitHub; verify deployment checks before merging and the deployed result afterward. Never commit secrets.
 
 ## Illustration acceptance

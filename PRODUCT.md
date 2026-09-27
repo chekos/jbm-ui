@@ -28,7 +28,7 @@ One set of tokens and components works in plain React pages and in Remotion comp
 - Consumers run `npx shadcn add @jbm/<item>` after adding the namespace to `components.json`.
 - Videos use 1920×1080 landscape and 1080×1920 vertical stages with declared safe areas; scene specs compile YAML-shaped blocks into both orientations (`docs/scene-spec.md`).
 - Reference-based illustration work follows `docs/illustration-workflow.md`.
-- Work is tracked in GitHub issues with PRs on `codex/` branches; Vercel deploys the gallery from GitHub. There is no GitHub Actions CI.
+- Work is tracked in GitHub issues with PRs on `codex/` branches; Vercel deploys the gallery from GitHub; a GitHub Actions `check` workflow runs lint, typecheck, registry, consumer, node tests, and build.
 
 ## Capabilities and Constraints
 

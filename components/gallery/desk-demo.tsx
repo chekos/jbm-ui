@@ -230,17 +230,17 @@ export function DeskDemo({ name }: { name: string }) {
 }
 export const deskSnippets: Record<string, string> = {
   cajon:
-    '<svg viewBox="0 -260 500 600">\n  <Cajon x={40} folders={[{name:"datos", pulled:0.5}]} open={1} />\n</svg>',
+    'import { Cajon } from "@/jbm/motion/cajon"\n\n<svg viewBox="0 -260 500 600">\n  <Cajon x={40} folders={[{name:"datos", pulled:0.5}]} open={1} />\n</svg>',
   "file-cabinet":
-    '<svg viewBox="0 -260 500 650">\n  <FileCabinet x={80} folders={[{name:"datos"}]} open={1} />\n</svg>',
-  hand: '<Hand pose="pinch" width={160} />',
-  mano: '<svg viewBox="0 0 500 340">\n  <Mano at={{x:160,y:30}} pose="point" angle={12} />\n</svg>',
+    'import { FileCabinet } from "@/jbm/ui/file-cabinet"\n\n<svg viewBox="0 -260 500 650">\n  <FileCabinet x={80} folders={[{name:"datos"}]} open={1} />\n</svg>',
+  hand: 'import { Hand } from "@/jbm/ui/hand"\n\n<Hand pose="pinch" width={160} />',
+  mano: 'import { Mano } from "@/jbm/motion/mano"\n\n<svg viewBox="0 0 500 340">\n  <Mano at={{x:160,y:30}} pose="point" angle={12} />\n</svg>',
   bandeja:
-    '<svg viewBox="0 0 400 250">\n  <Bandeja x={60} y={120} layers={3} />\n</svg>',
+    'import { Bandeja } from "@/jbm/motion/bandeja"\n\n<svg viewBox="0 0 400 250">\n  <Bandeja x={60} y={120} layers={3} />\n</svg>',
   "tool-caddy":
-    '<svg viewBox="0 0 400 250">\n  <ToolCaddy x={80} y={40} />\n</svg>',
+    'import { ToolCaddy } from "@/jbm/motion/tool-caddy"\n\n<svg viewBox="0 0 400 250">\n  <ToolCaddy x={80} y={40} />\n</svg>',
   escritorio:
-    '<svg viewBox="0 0 820 500">\n  <Escritorio box={{x:30,y:30,w:760,h:420}}\n    cabinet spec={{finish:"wood",drawerSide:"end"}}\n    folders={[{name:"datos"}]} open={1} />\n</svg>',
+    'import { Escritorio } from "@/jbm/motion/escritorio"\n\n<svg viewBox="0 0 820 500">\n  <Escritorio box={{x:30,y:30,w:760,h:420}}\n    cabinet spec={{finish:"wood",drawerSide:"end"}}\n    folders={[{name:"datos"}]} open={1} />\n</svg>',
   burbuja:
-    '<Burbuja words={["Podemos", "reutilizar", "componentes."]}\n  highlight={[1]} progress={1} speaker="Tú" />',
+    'import { Burbuja } from "@/jbm/motion/burbuja"\n\n<Burbuja words={["Podemos", "reutilizar", "componentes."]}\n  highlight={[1]} progress={1} speaker="Tú" />',
 }

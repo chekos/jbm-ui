@@ -33,21 +33,22 @@ export function ComparisonBars({
     >
       <dl style={{ margin: 0, display: "grid", gap: 20 }}>
         {items.map((item, i) => (
-          <div key={i}>
-            <div
-              style={{
-                display: "flex",
-                flexWrap: "wrap",
-                justifyContent: "space-between",
-                gap: "4px 16px",
-                marginBottom: 8,
-                overflowWrap: "anywhere",
-              }}
-            >
-              <dt style={{ fontSize: 15, fontWeight: 600 }}>{item.label}</dt>
-              <dd
+          // A dl group div may hold only dt/dd, so the decorative bar lives in the dd.
+          // `display: contents` lets the value and bar join the row's flex-wrap layout.
+          <div
+            key={i}
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              justifyContent: "space-between",
+              gap: "4px 16px",
+              overflowWrap: "anywhere",
+            }}
+          >
+            <dt style={{ fontSize: 15, fontWeight: 600 }}>{item.label}</dt>
+            <dd style={{ margin: 0, display: "contents" }}>
+              <span
                 style={{
-                  margin: 0,
                   fontFamily: font.mono,
                   fontSize: 14,
                   fontWeight: 600,
@@ -55,26 +56,31 @@ export function ComparisonBars({
                 }}
               >
                 {formatValue(item.value)}
-              </dd>
-            </div>
-            <div
-              aria-hidden="true"
-              style={{
-                height: 14,
-                borderRadius: 7,
-                background: color.line,
-                overflow: "hidden",
-              }}
-            >
-              <div
+              </span>
+              <span
+                aria-hidden="true"
                 style={{
-                  width: `${(item.value / ceiling) * 100}%`,
-                  height: "100%",
+                  display: "block",
+                  flexBasis: "100%",
+                  minWidth: 0,
+                  height: 14,
+                  marginTop: 4,
                   borderRadius: 7,
-                  background: item.highlight ? color.accent : color.ink,
+                  background: color.line,
+                  overflow: "hidden",
                 }}
-              />
-            </div>
+              >
+                <span
+                  style={{
+                    display: "block",
+                    width: `${(item.value / ceiling) * 100}%`,
+                    height: "100%",
+                    borderRadius: 7,
+                    background: item.highlight ? color.accent : color.ink,
+                  }}
+                />
+              </span>
+            </dd>
           </div>
         ))}
       </dl>

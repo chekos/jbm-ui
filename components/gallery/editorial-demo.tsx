@@ -61,6 +61,7 @@ export const editorialExamples = {
             height: 90,
             marginTop: 20,
           }}
+          role="img"
           aria-label="Three illustrative bars of increasing height"
         >
           {[35, 60, 90].map((height, i) => (
