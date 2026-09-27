@@ -9,7 +9,11 @@ import {
   type PaperCorner,
 } from "@/registry/jbm/ui/paper"
 import { Tear } from "@/registry/jbm/ui/tear"
-import { color } from "@/registry/jbm/lib/tokens"
+import {
+  RegisterInk,
+  registerSeams,
+  type RegisterSpec,
+} from "@/registry/jbm/ui/register"
 import {
   ProgressControl,
   RangeControl,
@@ -94,70 +98,25 @@ function StageFit({
   )
 }
 
-/** Register bands of the long mixed page, top to bottom, in stage px on a 520 × 760 sheet. */
-export const pageBands = [0, 190, 380, 570, 760]
+/** The long mixed page: a Register with four bands (steps, lists, tables, prose) on a 520 × 760 sheet. */
+const pageSpec: RegisterSpec = { kind: "mixed", n: 4, w: 520, h: 760 }
+/** Top edge, the page's three register seams, bottom edge: where Paper's tear starts and Tear cuts. */
+export const pageBands = [0, ...registerSeams(pageSpec), pageSpec.h]
 
 /**
- * A long page drawn as four writing registers (steps with result boxes, numbered lists, tables,
- * prose) with plain bars: the demo stand-in for Register content.
+ * The page's writing in sheet px. Tear lays children on the whole sheet (inset 0); Paper lays them
+ * inside its 2px edge, so `inset` shifts the ink back onto the sheet's outer coordinates.
  */
-function MixedPage() {
-  const ink = color.ink
-  const bar = (x: number, y: number, w: number, h = 6, fill: string = ink) => (
-    <rect key={`${x}-${y}-${w}`} x={x} y={y} width={w} height={h} rx={h / 2} fill={fill} />
-  )
-  const steps = [0, 1, 2].map((i) => {
-    const y = 34 + i * 52
-    return (
-      <g key={`s${i}`}>
-        <path d={`M40 ${y - 5}l7 5-7 5`} fill="none" stroke={ink} strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
-        {bar(58, y - 3, 230)}
-        <rect x={58} y={y + 12} width={290} height={18} rx={5} fill="none" stroke={ink} strokeWidth={2} />
-      </g>
-    )
-  })
-  const lists = [0, 1, 2, 3].map((i) => {
-    const x = 40 + (i % 2) * 230,
-      y = 214 + Math.floor(i / 2) * 84
-    return (
-      <g key={`l${i}`}>
-        {bar(x, y, 170)}
-        {[0, 1, 2].map((k) => (
-          <g key={k}>
-            <circle cx={x + 4} cy={y + 22 + k * 14} r={2.5} fill={ink} />
-            {bar(x + 14, y + 20 + k * 14, 110 - k * 12, 4, color.dim)}
-          </g>
-        ))}
-      </g>
-    )
-  })
-  const tables = [0, 1].map((t) => {
-    const y = 402 + t * 82
-    return (
-      <g key={`t${t}`}>
-        <rect x={40} y={y} width={440} height={16} fill={ink} />
-        <rect x={40} y={y + 16} width={440} height={52} fill="none" stroke={ink} strokeWidth={2} />
-        <path d={`M190 ${y + 16}V${y + 68}`} stroke={ink} strokeWidth={2} />
-        {[1, 2, 3].map((r) => (
-          <path key={r} d={`M40 ${y + 16 + r * 13}H480`} stroke={color.dim} strokeWidth={1.5} />
-        ))}
-      </g>
-    )
-  })
-  const prose = [0, 1, 2, 3, 4, 5, 6].map((i) => bar(40, 596 + i * 16, i === 3 ? 200 : 440, 7))
-  const sources = [0, 1].map((i) => (
-    <g key={`f${i}`}>
-      <circle cx={43} cy={722 + i * 12} r={2.5} fill={ink} />
-      {bar(52, 720 + i * 12, 200, 4, color.dim)}
-    </g>
-  ))
+function MixedPage({ inset = 0 }: { inset?: number }) {
   return (
-    <svg width={520} height={760} viewBox="0 0 520 760" aria-hidden style={{ position: "absolute", inset: 0 }}>
-      {steps}
-      {lists}
-      {tables}
-      {prose}
-      {sources}
+    <svg
+      width={pageSpec.w}
+      height={pageSpec.h}
+      viewBox={`0 0 ${pageSpec.w} ${pageSpec.h}`}
+      aria-hidden
+      style={{ position: "absolute", left: -inset, top: -inset, overflow: "visible" }}
+    >
+      <RegisterInk {...pageSpec} />
     </svg>
   )
 }
@@ -193,7 +152,7 @@ function PaperBench() {
             seamSide={right ? "right" : "left"}
             tab={showTab ? { label: "Tutorial", reveal } : undefined}
           >
-            {!ink && <MixedPage />}
+            {!ink && <MixedPage inset={2} />}
           </Paper>
         </div>
       </StageFit>
@@ -337,7 +296,9 @@ function TearBench() {
           min={1}
           max={6}
           noun="seams"
-          format={(n) => `${n} ${n === 1 ? "seam" : "seams"} · ${n + 1} strips`}
+          format={(n) =>
+            `${n} ${n === 1 ? "seam" : "seams"} · ${n + 1} strips${n === 3 ? " · the register's seams" : ""}`
+          }
         />
         <StepperControl
           label="Fray seed"

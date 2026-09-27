@@ -10,6 +10,7 @@ import { Bandeja } from "@/registry/jbm/motion/bandeja"
 import { ToolCaddy } from "@/registry/jbm/motion/tool-caddy"
 import { Escritorio } from "@/registry/jbm/motion/escritorio"
 import { Burbuja } from "@/registry/jbm/motion/burbuja"
+import { PaperLine } from "@/registry/jbm/ui/paper-line"
 import { color } from "@/registry/jbm/lib/tokens"
 import {
   degrees,
@@ -49,6 +50,16 @@ type Cuff = "none" | "ink" | "accent"
 // The Mano and Pluma previews draw into a 500 × 340 viewBox; the sleeve runs to its edge.
 const frame = { x: 0, y: 0, w: 500, h: 340 }
 const line = { x: 90, y: 262, w: 320 }
+/**
+ * Pluma writes a PaperLine: mono glyphs advance exactly 0.6 em, so the nib's x follows `write`
+ * along the text and the line's `reveal` shows every grapheme the nib has reached.
+ */
+const written = "trabajo bien hecho"
+const writtenSize = 28
+const writtenGlyphs = Array.from(
+  new Intl.Segmenter(undefined, { granularity: "grapheme" }).segment(written)
+).length
+const writtenAdvance = writtenSize * 0.6
 /** Cajon previews sources by age, front (newest) to back (oldest), each with a title. */
 const sources: readonly (readonly [string, string])[] = [
   ["Anthropic 2024", "Building effective agents"],
@@ -123,7 +134,10 @@ function DeskObjectDemo({ name }: { name: string }) {
     ? { arm: { frame, tone: cardSleeve ? "card" : "ink" } as const, cuff: cuff === "none" ? undefined : cuff }
     : {}
   // Pluma: solve the grip point from where the nib should be, so the ink ends under the nib.
-  const nib = { x: line.x + line.w * write, y: line.y }
+  const nib = {
+    x: line.x + writtenAdvance * writtenGlyphs * write,
+    y: line.y - 6,
+  }
   const offset = plumaNib({ x: 0, y: 0 }, angle, undefined, 150)
   const grip = { x: nib.x - offset.x, y: nib.y - offset.y }
   const drawerControls =
@@ -244,17 +258,24 @@ function DeskObjectDemo({ name }: { name: string }) {
                   stroke={color.line}
                   strokeWidth={2}
                 />
-                {write > 0 && (
-                  <line
-                    x1={line.x}
-                    y1={line.y}
-                    x2={nib.x}
-                    y2={nib.y}
-                    stroke={color.ink}
-                    strokeWidth={4}
-                    strokeLinecap="round"
+                <foreignObject
+                  x={line.x}
+                  y={line.y - writtenSize * 1.4}
+                  width={line.w}
+                  height={writtenSize * 1.4 + 4}
+                >
+                  <PaperLine
+                    text={written}
+                    reveal={write}
+                    mono
+                    style={{
+                      display: "block",
+                      fontSize: writtenSize,
+                      fontWeight: 600,
+                      whiteSpace: "nowrap",
+                    }}
                   />
-                )}
+                </foreignObject>
                 <Pluma
                   at={grip}
                   angle={angle}
