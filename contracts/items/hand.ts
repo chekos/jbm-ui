@@ -49,7 +49,7 @@ export default {
   ],
   qa: [
     "Switch Pose through all six: each silhouette sits in the same box with the wrist at the bottom and keeps simple geometric line art and the same outline weight.",
-    "Enlarge the open palm, grip, type, and hold poses and inspect the finger joins: outer contour and interior dividers meet on the same centerline with the same stroke width, and grip, type, and hold keep the open palm's wrist cut and palm base exactly.",
+    "Enlarge every pose (point and pinch included) and inspect the finger joins: each interior divider starts on the outline's valley point, continues the finger's side, and has the outline's stroke width, with no notch or step, and grip, type, and hold keep the open palm's wrist cut and palm base exactly.",
     "Name each pose at gallery size: grip reads as a grabbing hand (curled fingers, thumb across the palm), hold as a fist holding something from the side (thumb over the top). type alone reads as a relaxed flat hand; it reads as typing only when turned 180° over a DeskProp keyboard.",
     "Check the card fill and ink stroke read on cream, and the aria-label follows the pose.",
     "Scale with width at narrow screens: the 30:29 aspect ratio holds.",

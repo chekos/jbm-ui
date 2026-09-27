@@ -19,8 +19,8 @@ export type HandProps = SVGProps<SVGSVGElement> & {
 // fingers curled to knuckle-height bumps and the thumb folded across the palm (the grabbing hand);
 // type is the open palm with the fingers foreshortened and the thumb tucked beside the index
 // (turn it 180° over a keyboard); hold is a side-on fist: the four fingers stacked and pointing
-// left, the thumb resting across the top of the index. Dividers start on the outline's valley points and use the
-// outline's stroke width.
+// left, the thumb resting across the top of the index. In every pose, including point and pinch,
+// dividers start on the outline's valley points and use the outline's stroke width.
 const poses = {
   open: [
     {
@@ -66,26 +66,26 @@ const poses = {
       strokeLinejoin: "round",
     },
     {
-      d: "m39.38 39.61-0.11-2.37",
+      d: "M39.02 37.29 L39.3 39.64",
       fill: "none",
       stroke: "#141515",
-      strokeWidth: "0.8229",
+      strokeWidth: "1.234",
       strokeLinecap: "round",
       strokeLinejoin: "round",
     },
     {
-      d: "m43.08 40.06-0.1-2.33",
+      d: "M42.97 37.84 L43.01 40.17",
       fill: "none",
       stroke: "#141515",
-      strokeWidth: "0.8229",
+      strokeWidth: "1.234",
       strokeLinecap: "round",
       strokeLinejoin: "round",
     },
     {
-      d: "m46.49 41.19-0.05-2.16",
+      d: "M46.63 39.1 L46.66 41.26",
       fill: "none",
       stroke: "#141515",
-      strokeWidth: "0.7116",
+      strokeWidth: "1.234",
       strokeLinecap: "round",
       strokeLinejoin: "round",
     },
@@ -100,26 +100,26 @@ const poses = {
       strokeLinejoin: "round",
     },
     {
-      d: "m66.93 39.67-0.71-3",
+      d: "M66.15 36.94 L67.11 39.57",
       fill: "none",
       stroke: "#141515",
-      strokeWidth: "0.8229",
+      strokeWidth: "1.234",
       strokeLinecap: "round",
       strokeLinejoin: "round",
     },
     {
-      d: "m70.67 40.25-0.29-2.34",
+      d: "M70.42 38.01 L70.82 40.32",
       fill: "none",
       stroke: "#141515",
-      strokeWidth: "0.8229",
+      strokeWidth: "1.234",
       strokeLinecap: "round",
       strokeLinejoin: "round",
     },
     {
-      d: "m73.87 41.43 0.2-1.41",
+      d: "M74.1 40.06 L74.15 41.47",
       fill: "none",
       stroke: "#141515",
-      strokeWidth: "0.7116",
+      strokeWidth: "1.234",
       strokeLinecap: "round",
       strokeLinejoin: "round",
     },

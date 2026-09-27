@@ -13,16 +13,17 @@ export default {
       export: "FolderCarry",
       kind: "component",
       summary:
-        "SVG group (render inside an <svg>) drawing the shared folder silhouette at `carriedFolderGeometry(from, to, path, progress)`, with a fold line and the label fading from the tab to the front panel. Pure React with no timer: drive `progress` from a slider or video timeline, and place a hand at `pointOn(path, progress)`.",
+        "SVG group (render inside an <svg>) drawing the shared folder silhouette at `carriedFolderGeometry(from, to, path, progress)`, with a fold line and its name printed in one place for the whole carry: the tab on light fills, the front panel on vermilion and ink. Pure React with no timer: drive `progress` from a slider or video timeline, and place a hand at `pointOn(path, progress)`.",
       props: {
         from: "Resting geometry at progress 0, in the parent SVG's units (see tableFolderGeometry).",
         to: "Resting geometry at progress 1; may be a different scale or a drawer's own geometry.",
         path: "Grip points in the parent SVG's units; start at folderGrip(from) and end at folderGrip(to) so the endpoints do not jump.",
         progress: "Carry progress from 0 (at `from`) to 1 (at `to`), by arc length along `path`. Clamped.",
         label:
-          "Folder name; also labels the group as \"Carrying …\" for assistive technology. On the tab (shown at 0) it follows Cajon's rule: drawn whole in Geist 800, compressed when the tab is short, never cut. On the front panel (shown at 1) it follows Folder's fitLine rule. The two crossfade.",
+          "Folder name; also labels the group as \"Carrying …\" for assistive technology. Printed once, fully opaque, where `labelOn` says. On the tab it follows Cajon's rule: drawn whole in Geist 800, compressed when the tab is short, never cut. On the front panel it follows Folder's fitLine rule.",
         fill: "Folder fill passed to FolderOutline: a palette token such as color.accent (default, vermilion), color.ink, or color.card, or a drawer shade from drawerLight(k) for a folder lifted out of a Cajon.",
-        labelColor: "Label color. Defaults to labelInkOn(fill): color.ink on light fills (OKLab lightness above 0.6, including every drawerLight shade from k 0.72 up) and color.bg (cream) on vermilion and ink.",
+        labelOn: '"tab" or "front": where the name prints for the whole carry, never both. Defaults to Folder\'s rule: "tab" on light fills (OKLab lightness above 0.6: the card and every drawerLight shade, as in a Cajon), "front" on vermilion and ink, where the name stays clear of the hand holding the tab. On the tab a pinch at folderGrip covers part of the name while carrying; pass "front" when the name must read in transit, and render the resting Folder with the same placement.',
+        labelColor: "Label color. Defaults to Cajon's rule for any fill: color.ink or color.card, whichever has the higher WCAG contrast with it; every palette fill and drawer shade clears 4.5:1 (card on vermilion 5.0:1).",
         labelSize: "Tab name size in the parent SVG's units. Defaults to 13/27 of the tab height, Cajon's ratio, so a folder carried out of a drawer keeps the drawer's tab type at the handoff.",
       },
     },
@@ -84,8 +85,8 @@ export default {
     },
   ],
   qa: [
-    "Set Folder fill to card and ink: the carried folder keeps that fill at every progress, with an ink label on cream and a cream label on ink; vermilion appears only with the accent fill.",
-    "Drag Carry progress to 0, 0.5, and 1: the folder matches its resting geometry exactly at both ends, and the label moves from tab to front panel without both copies fully visible mid-way.",
+    "Set Folder fill to card and ink: the carried folder keeps that fill at every progress, with an ink label on card and a card label on ink and vermilion; vermilion appears only with the accent fill.",
+    "Drag Carry progress to 0, 0.5, and 1 for each fill: the folder matches its resting geometry exactly at both ends, and the name prints once, fully opaque (never faded or pale), on the front for vermilion and ink and on the tab for card.",
     "Toggle Show hand and sweep progress: the pinch stays on the tab's grip throughout; adjust Hand angle and confirm the contact point does not drift.",
     "Check the scale change reads as smooth growth with no jump in tab shape at the endpoints.",
     "Carry a folder out of a Cajon with fill drawerLight(0.8) and the drawer's folder as `from`: at progress 0 the tab name is ink, whole, the same size as the drawer's names, and the fold line sits on the drawer's flap line.",

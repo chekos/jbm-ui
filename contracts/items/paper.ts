@@ -13,7 +13,7 @@ export default {
       export: "Paper",
       kind: "component",
       summary:
-        "Flat piece of card stock (border-box, position relative) in cream, vermilion, or ink with an optional 2px edge, the paper drop shadow, and an optional rotation. Under `tension` it creases from the pulled corners toward the centre and, above 0.6, starts to tear at a seam; `tab` fixes a pestaña behind the top edge that slides out with its reveal. With neither set it renders exactly the original single div. Pure React and controlled; wrap in a motion Pop for entrances.",
+        "Flat piece of card stock (border-box, position relative) in cream, vermilion, or ink with an optional 2px edge, the paper drop shadow, and an optional rotation. Under `tension` each pulled corner fans a few short, soft creases into the sheet (under its writing, never meeting in the middle) and, from 0.6, a frayed notch tears open at a seam; `tab` fixes a pestaña behind the top edge that slides out with its reveal. With neither set it renders exactly the original single div. Pure React and controlled; wrap in a motion Pop for entrances.",
       props: {
         tone: '"paper" (card fill, ink edge), "accent" (vermilion), or "ink". Accent and ink edges match their fill.',
         w: "Width in stage pixels, including the edge; unset fills the container as a block.",
@@ -24,13 +24,13 @@ export default {
         shadow: "Applies paperShadow; false renders flat.",
         style: "Inline styles merged last, for example padding or layout for children.",
         children:
-          "Content placed on the paper. Creases and the tear's lips draw above it, like marks in the sheet itself; the tear's mouth cuts through it, so writing across the seam never covers the hole.",
+          "Content placed on the paper. Creases are folds in the stock and lie under it, so the writing is never crossed out; the tear's lips draw above it, and the tear's mouth cuts through it, so writing across the seam never covers the hole.",
         tension:
-          "0–1 stress on the sheet. Creases grow from each pulled corner toward the centre and reach it at 0.8 (four corners make an X); from 0.6 a frayed tear opens at `seam` and runs in to 18% of the width (at most 140px; 72px without `w`) at 1. 0 draws neither and keeps the plain rendering.",
-        pull: 'Corners being pulled, from "tl", "tr", "br", "bl"; each grows one crease. Default all four; ["tl", "br"] makes a single diagonal crease.',
+          "0–1 stress on the sheet. Each pulled corner fans two or three short creases inward (deterministic in `seed`: one near the diagonal, one or two turned 10–20° and shorter); they fade from the corner, grow to full length at 0.8, and the longest stops two thirds of the way to the centre (a third of the diagonal), so creases from different corners never meet. From 0.6 a frayed notch opens at `seam`: square-root eased, it is already half its depth with a 10px mouth at 0.7, and at 1 runs in 24% of the width (at most 160px; 96px without `w`) with a 20px mouth. 0 draws neither and keeps the plain rendering.",
+        pull: 'Corners being pulled, from "tl", "tr", "br", "bl", in any combination; each fans its own short creases. Default all four; [] creases nothing.',
         seam: "Y of the starting tear in stage px from the top edge; default half of `h` (50% without `h`). Use a Tear seam to continue the same edge. null draws creases only.",
         seamSide: '"left" or "right": the edge the tear starts from.',
-        seed: "Fray pattern of the starting tear. With the same seed, seam, and w as a Tear, the lips follow that Tear's seam.",
+        seed: "Fray pattern of the starting tear, and the crease fans' lengths and angles. With the same seed, seam, and w as a Tear, the midline between the lips follows that Tear's seam; each lip adds small fibres so the notch reads frayed even where the seam runs smooth.",
         tab: "A pestaña fixed behind the top edge: `{ label, reveal = 1, offset = max(radius, 24), size = 32 }`. The label is Geist 800 at `size` stage px in the tone's text colour (ink on paper). `reveal` 0 hides the whole tab behind the sheet; 1 shows it with its base still tucked 14px behind the edge. It shares the sheet's stock, edge, and shadow. The tab stays on the sheet: it sits in a row from the left edge to the top-right radius, so a tab too long for its offset slides left; on a sized sheet a label too long for that row sets smaller (sansWidth) so the whole name fits, and without a width it ends in an ellipsis.",
       },
     },
@@ -87,7 +87,7 @@ export default {
       summary: "Maps a tension value to the two quantities Paper draws.",
       params: { tension: "0–1; non-finite values count as 0." },
       returns:
-        "`{ crease, tear }`: crease length as a share of the way to the centre (tension / 0.8, capped at 1) and tear progress ((tension − 0.6) / 0.4, from 0 to 1).",
+        "`{ crease, tear }`: crease growth as a share of each crease's full length (tension / 0.8, capped at 1) and tear progress (√((tension − 0.6) / 0.4), from 0 to 1).",
     },
     {
       export: "FRAY",
@@ -154,7 +154,7 @@ export default {
     "Check rotated pieces and stickers near the safe-area edge: rotation does not reserve layout space, so tilted corners and the longer drop shadow must not clip.",
     "Stickers never wrap; check the longest word at the chosen size fits the frame in portrait.",
     "Toggle edge and shadow off and confirm the piece still separates from the cream canvas where it is used.",
-    "Drag Tension through 0, 0.3, 0.6, 0.8, and 1: creases grow from the pulled corners and meet at the centre at 0.8; the tear opens only past 0.6, its lips are a 2px edge on the sheet's side of the cut, and its mouth shows what lies under the sheet rather than a painted fill. The mouth cuts the sheet's writing too: with a ruled line or an ink band across the seam (bench: Tear through the writing), the tear stays open through it.",
+    "Drag Tension through 0, 0.4, 0.7, and 1: short creases fan in from each pulled corner, fade toward their tips, and lie under the writing; at no tension do they meet or read as an X or a crossed-out page. The tear opens only past 0.6 and at 0.7 is already a clearly visible frayed notch at the seam, its lips are a 2px edge on the sheet's side of the cut, and its mouth shows what lies under the sheet rather than a painted fill. The mouth cuts the sheet's writing too: with a ruled line or an ink band across the seam (bench: Tear through the writing), the tear stays open through it.",
     "Try each Pulled corners preset and Tear from the right edge, and the tear on the ink stock.",
     "Drag Tab reveal from 0 to 1: at 0 the whole tab is hidden behind the sheet; in between the top edge cuts the label rather than drawing over it; at 1 the label is Geist 800 at 32 stage px and the tab base stays tucked behind the edge.",
     "With tension 0 and no tab the markup equals the original single div; existing scenes depend on it.",

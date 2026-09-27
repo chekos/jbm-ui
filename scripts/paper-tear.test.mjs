@@ -119,24 +119,45 @@ test("Paper without tension or tab keeps its original single-div markup", () => 
   assert.equal(render(Paper, { tension: NaN }), render(Paper, {}))
 })
 
-test("tension grows one crease per pulled corner and tears only past 0.6", () => {
+test("tension fans short creases from each pulled corner and tears only past 0.6", () => {
   assert.deepEqual(paperTension(0.4), { crease: 0.5, tear: 0 })
   const mid = paperTension(0.8)
   assert.equal(mid.crease, 1)
-  assert.ok(Math.abs(mid.tear - 0.5) < 1e-9)
+  assert.ok(Math.abs(mid.tear - Math.SQRT1_2) < 1e-9)
   assert.deepEqual(paperTension(2), { crease: 1, tear: 1 })
-  const lines = (html) => (html.match(/<line /g) ?? []).length
+  const lines = (html) => [...html.matchAll(/<line x1="([\d.]+)%" y1="([\d.]+)%" x2="([\d.]+)%" y2="([\d.]+)%"/g)].map((m) => m.slice(1).map(Number))
   const lips = (html) => (html.match(/<polyline /g) ?? []).length
-  const at = (props) => render(Paper, { w: 400, h: 600, ...props })
-  assert.equal(lines(at({ tension: 0.5 })), 4)
-  assert.equal(lines(at({ tension: 0.5, pull: ["tl", "br"] })), 2)
+  const at = (props) => render(Paper, { w: 400, h: 600, ...props }, "WRITING")
+  // Two or three creases per pulled corner, all corner combinations included.
+  for (const pull of [["tl", "tr", "br", "bl"], ["tl", "br"], ["tl", "tr"], ["bl"]]) {
+    const n = lines(at({ tension: 1, pull })).length
+    assert.ok(n >= 2 * pull.length && n <= 3 * pull.length, `${pull}: ${n} creases`)
+  }
+  assert.equal(lines(at({ tension: 0.9, pull: [] })).length, 0)
+  // Short folds: at full tension no crease reaches the middle of the sheet, so none meet or cross it.
+  for (const seed of [1, 2, 3, 7]) {
+    const full = lines(at({ tension: 1, seed }))
+    for (const [x1, y1, x2, y2] of full) {
+      const corner = [x1 < 50 ? 0 : 100, y1 < 50 ? 0 : 100]
+      const toCentre = Math.hypot((50 - corner[0]) * 4, (50 - corner[1]) * 6)
+      assert.ok(Math.hypot((x2 - corner[0]) * 4, (y2 - corner[1]) * 6) <= 0.7 * toCentre, `seed ${seed}: crease too long`)
+      assert.ok(Math.abs(x2 - 50) > 12 || Math.abs(y2 - 50) > 12, `seed ${seed}: crease reaches the middle`)
+    }
+  }
+  // Creases lie under the writing: drawn behind the children, on the sheet's layer.
+  const creased = at({ tension: 0.7 })
+  assert.ok(creased.indexOf("<line") < creased.indexOf("WRITING"))
+  assert.match(creased, /z-index:-1;overflow:visible;pointer-events:none"><defs><linearGradient/)
   assert.equal(lips(at({ tension: 0.6 })), 0)
   assert.equal(lips(at({ tension: 0.9 })), 2)
   assert.equal(lips(at({ tension: 1, seam: null })), 0)
   assert.match(at({ tension: 1, seam: 150 }), /top:150px/)
-  // Creases reach the centre from every corner at 0.8.
-  const full = at({ tension: 0.8 })
-  assert.equal((full.match(/x2="50%" y2="50%"/g) ?? []).length, 4)
+  // At 0.7 the starting tear is a real notch: half its full depth and a 10px mouth at the edge.
+  const notch = [...at({ tension: 0.7, seam: 300 }).matchAll(/points="([^"]+)"/g)].map((m) =>
+    m[1].split(" ").map((p) => p.split(",").map(Number))
+  )
+  assert.ok(notch[0].at(-1)[0] >= 45, `notch depth ${notch[0].at(-1)[0]}`)
+  assert.ok(notch[1][0][1] - notch[0][0][1] >= 9.5, "notch mouth")
   // The tear cuts a real hole: the sheet layer is clipped, the root paints no fill.
   const torn = at({ tension: 1 })
   assert.match(torn, /clip-path:polygon\(/)

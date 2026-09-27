@@ -182,7 +182,38 @@ test("carried folder takes the caller's fill and keeps its label legible on it",
   assert.match(card, /<path d="[^"]+" fill="#FFFCF5"/)
   assert.ok(!card.includes("#C63D24"))
   assert.match(card, /<text[^>]*fill="#20241F"/)
-  assert.match(render(FolderCarry, { ...base, fill: "#20241F" }), /<text[^>]*fill="#FFF6E8"/)
+  assert.match(render(FolderCarry, { ...base, fill: "#20241F" }), /<text[^>]*fill="#FFFCF5"/)
+})
+test("carried name prints in one place, fully opaque, at >= 4.5:1 on its fill", async () => {
+  const { drawerLight } = await import("../registry/jbm/motion/cajon.tsx")
+  const from = tableFolderGeometry({ x: 0, y: 80 }, 100),
+    to = tableFolderGeometry({ x: 220, y: 70 }, 190)
+  const path = [folderGrip(from), folderGrip(to)]
+  const lum = (hex) =>
+    [1, 3, 5]
+      .map((i) => parseInt(hex.slice(i, i + 2), 16) / 255)
+      .map((c) => (c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4))
+      .reduce((s, c, i) => s + c * [0.2126, 0.7152, 0.0722][i], 0)
+  const ratio = (a, b) => (Math.max(lum(a), lum(b)) + 0.05) / (Math.min(lum(a), lum(b)) + 0.05)
+  const cases = [
+    ["#C63D24", "front"],
+    ["#20241F", "front"],
+    ["#FFFCF5", "tab"],
+    ...[1, 0.9, 0.8, 0.72].map((k) => [drawerLight(k), "tab"]),
+  ]
+  for (const [fill, place] of cases)
+    for (const progress of [0, 0.3, 0.5, 0.7, 1]) {
+      const m = render(FolderCarry, { from, to, path, progress, label: "proyecto", fill })
+      const texts = [...m.matchAll(/<text([^>]*)>proyecto<\/text>/g)]
+      assert.equal(texts.length, 1, `${fill} @${progress}: one copy of the name`)
+      assert.ok(!/opacity/.test(texts[0][1]), "no crossfade")
+      assert.equal(/font-family="[^"]*Mono/.test(texts[0][1]), place === "front", `${fill}: on the ${place}`)
+      const ink = texts[0][1].match(/fill="(#[0-9A-Fa-f]{6})"/)[1]
+      assert.ok(ratio(ink, fill) >= 4.5, `${ink} on ${fill}: ${ratio(ink, fill).toFixed(2)}`)
+    }
+  // A caller can put the name on the tab of a vermilion folder (Cajon's accent folder): card on it.
+  const tab = render(FolderCarry, { from, to, path, progress: 0.5, label: "proyecto", labelOn: "tab" })
+  assert.match(tab, /<text[^>]*font-weight="800"[^>]*fill="#FFFCF5"[^>]*>proyecto/)
 })
 test("carry label: ink on light drawer shades, whole names, Cajon's type at the handoff", async () => {
   const { cajonLayout, drawerLight } = await import("../registry/jbm/motion/cajon.tsx")

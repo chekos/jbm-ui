@@ -48,7 +48,7 @@ const React = await import("react")
 const h = React.createElement
 const close = (a, b, eps = 1e-6) => Math.abs(a - b) <= eps
 
-/** Vertices (segment endpoints) of an absolute-command path: M, L, H, V, C, A, Z. */
+/** Vertices (segment endpoints) of a path: absolute M, L, H, V, C, A, Z and relative m, l, c, z. */
 function vertices(d) {
   const toks = d.match(/[a-zA-Z]|-?(?:\d+\.?\d*|\.\d+)/g)
   const pts = []
@@ -56,8 +56,10 @@ function vertices(d) {
   const n = () => parseFloat(toks[i++])
   while (i < toks.length) {
     if (/[a-zA-Z]/.test(toks[i])) cmd = toks[i++]
-    if (cmd === "Z") continue
+    if (cmd === "Z" || cmd === "z") continue
     if (cmd === "M" || cmd === "L") { x = n(); y = n() }
+    else if (cmd === "m" || cmd === "l") { x += n(); y += n(); if (cmd === "m") cmd = "l" }
+    else if (cmd === "c") { i += 4; x += n(); y += n() }
     else if (cmd === "H") x = n()
     else if (cmd === "V") y = n()
     else if (cmd === "C") { i += 4; x = n(); y = n() }
@@ -81,8 +83,8 @@ test("hand pose list: six poses, each with artwork and a label", () => {
   }
 })
 
-test("new poses: dividers start on outline vertices with the outline's stroke width", () => {
-  for (const pose of ["open", "grip", "type", "hold"]) {
+test("every pose: dividers start on outline vertices with the outline's stroke width", () => {
+  for (const pose of handPoses) {
     const [outline, ...dividers] = pathsOf(renderToStaticMarkup(h(Hand, { pose })))
     assert.notEqual(outline.fill, "none")
     const vs = vertices(outline.d)
