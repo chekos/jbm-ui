@@ -1038,7 +1038,8 @@
       "name": "escritorio",
       "title": "Escritorio",
       "description": "An empty desk with separate finish and optional file cabinet.",
-      "category": "Layout",
+      "category": "UI Bits",
+      "family": "Desk objects",
       "capabilities": [
         "controls"
       ],
@@ -1451,7 +1452,7 @@
         "@jbm/scene-geometry",
         "@jbm/folder"
       ],
-      "snippet": "import { FolderCarry, folderGrip, tableFolderGeometry } from \"@/jbm/ui/folder-carry\"\n\nconst from = tableFolderGeometry({ x: 5, y: 65 }, 100)\nconst to = tableFolderGeometry({ x: 225, y: 60 }, 190)\nconst path = [folderGrip(from), { x: 200, y: 45 }, folderGrip(to)]\n\n<svg viewBox=\"0 0 450 270\" width=\"100%\">\n  <FolderCarry from={from} to={to} path={path} progress={0.5} label=\"proyecto\" />\n</svg>",
+      "snippet": "import { FolderCarry, folderGrip, tableFolderGeometry } from \"@/jbm/ui/folder-carry\"\n\n// Both resting places stand on the floor at y 248: a folder frame is 205/260 of its width tall.\nconst onFloor = (x: number, width: number) => tableFolderGeometry({ x, y: 248 - (205 * width) / 260 }, width)\nconst from = onFloor(50, 100)\nconst to = onFloor(230, 190)\nconst path = [folderGrip(from), { x: 175, y: 80 }, folderGrip(to)]\n\n<svg viewBox=\"0 0 450 270\" width=\"100%\">\n  <FolderCarry from={from} to={to} path={path} progress={0.5} label=\"proyecto\" />\n</svg>",
       "installName": "folder-carry",
       "sourcePath": "registry/jbm/ui/folder-carry.tsx",
       "inRegistry": true

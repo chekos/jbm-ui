@@ -99,6 +99,34 @@ test("every pose: dividers start on outline vertices with the outline's stroke w
   }
 })
 
+test("grip, type, hold: one outline plus open dividers; scallops never meet tangentially", () => {
+  for (const pose of ["grip", "type", "hold"]) {
+    const [outline, ...dividers] = pathsOf(renderToStaticMarkup(h(Hand, { pose })))
+    assert.match(outline.d, /Z$/, `${pose}: the outline is closed`)
+    for (const div of dividers) assert.ok(!/[Zz]/.test(div.d), `${pose}: dividers are open lines, not capsules`)
+    // A fingertip row (a divider of four cubics) leaves and reaches each junction at 35° or more
+    // from the neighbouring scallop, so no notch fills with ink.
+    for (const div of dividers) {
+      const cubics = [...div.d.matchAll(/C([-\d.]+) ([-\d.]+) ([-\d.]+) ([-\d.]+) ([-\d.]+) ([-\d.]+)/g)].map((m) =>
+        m.slice(1).map(Number)
+      )
+      if (cubics.length < 4) continue
+      let prev = vertices(div.d)[0]
+      const dirs = cubics.map(([x1, y1, x2, y2, x, y]) => {
+        const d = { start: [x1 - prev.x, y1 - prev.y], end: [x - x2, y - y2] }
+        prev = { x, y }
+        return d
+      })
+      for (let i = 1; i < dirs.length; i++) {
+        const back = [-dirs[i - 1].end[0], -dirs[i - 1].end[1]],
+          next = dirs[i].start
+        const cos = (back[0] * next[0] + back[1] * next[1]) / Math.hypot(...back) / Math.hypot(...next)
+        assert.ok((Math.acos(cos) * 180) / Math.PI >= 35, `${pose}: scallop join ${i} opens at least 35°`)
+      }
+    }
+  }
+})
+
 test("existing poses keep their artwork", () => {
   const point = renderToStaticMarkup(h(Hand, { pose: "point" }))
   assert.ok(point.includes('transform="translate(-26 -27)"'))
@@ -131,6 +159,11 @@ test("pluma: plumaNib is the drawn nib tip at every angle, size, and offset", ()
         assert.ok(close(drawn.x, nib.x, 0.05) && close(drawn.y, nib.y, 0.05), `${size} ${angle}`)
         assert.ok(markup.includes("Hand: pinch"))
       }
+  // The pen is one silhouette masked by the hand's outline; nothing card-coloured is painted on the page.
+  const held = renderToStaticMarkup(h("svg", null, h(Pluma, { at: { x: 100, y: 100 } })))
+  assert.match(held, /<mask id="pluma-[\w-]+"/)
+  assert.ok(!held.includes(`stroke="${color.card}"`), "no card halo")
+  assert.equal((held.match(/<path d="M[^"]*" fill="#20241F"/g) ?? []).length, 1, "one pen silhouette")
   const alone = renderToStaticMarkup(h("svg", null, h(Pluma, { at: { x: 0, y: 0 }, hand: false })))
   assert.ok(!alone.includes("Hand:"))
   assert.ok(!alone.includes(color.accent))

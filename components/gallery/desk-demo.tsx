@@ -1,6 +1,7 @@
 "use client"
 
 import { useBenchParam } from "./bench-url"
+import { useBenchCompact } from "./bench-compact"
 import { Cajon, cajonLayout, type DrawerFolder } from "@/registry/jbm/motion/cajon"
 import { Hand, handPoses, type HandPose } from "@/registry/jbm/ui/hand"
 import { Mano } from "@/registry/jbm/motion/mano"
@@ -86,11 +87,19 @@ export function DeskDemo({ name }: { name: string }) {
 
 const riseOptions = [0, 24, 36, 46, 60] as const
 /**
+ * Mano's Position slider: 0 and 1 put the hand's box as far left and right as the 500-unit stage
+ * allows with ±30° of rotation about its top-left corner, so Left, Center, and Right span the
+ * stage instead of a fifth of it.
+ */
+const manoTravel = { from: 84, span: 212, y: 70 }
+/**
  * The drawer bench: every DrawerFolder value can be aimed at one folder (or all), and the
  * viewBox fits the drawer's own bounds, so few folders fill the preview instead of floating.
  */
 function CajonDemo() {
   const name = "cajon"
+  // Index cards keep Folders, Open, and Lift; /c/cajon shows every control.
+  const compact = useBenchCompact()
   const unit = { clamp: [0, 1] } as const
   const [count, setCount] = useBenchParam("count", 3, { clamp: [0, 12] })
   const [open, setOpen] = useBenchParam("open", 1, unit)
@@ -194,7 +203,9 @@ function CajonDemo() {
           format={(n) => `${n} ${n === 1 ? "folder" : "folders"}`}
         />
         {range("Open", open, setOpen, ["Closed", "Half", "Open"])}
-        {count > 0 && (
+        {count > 0 && compact &&
+          range(`Lift (${targetName})`, pull, setPull, ["Filed", "Half", "Lifted"])}
+        {count > 0 && !compact && (
           <>
             <label>
               Target{" "}
@@ -217,8 +228,8 @@ function CajonDemo() {
             {check("Set light", setLight, setSetLight)}
             {setLight && (
               <RangeControl
-                label={`Light k (${targetName})`}
-                ariaLabel={`${name} Light k`}
+                label={`Light (${targetName})`}
+                ariaLabel={`${name} Light`}
                 value={k}
                 onChange={setK}
                 min={0.72}
@@ -230,32 +241,36 @@ function CajonDemo() {
             {check("Vermilion target", accent, setAccent)}
           </>
         )}
-        <RangeControl
-          label="Name size"
-          ariaLabel={`${name} Name size`}
-          value={labelSize}
-          onChange={setLabelSize}
-          min={10}
-          max={36}
-          step={1}
-          format={(n) => `${n} units`}
-        />
-        <label>
-          Rise per folder{" "}
-          <select
-            aria-label={`${name} rise per folder`}
-            value={rise}
-            onChange={(e) => setRise(Number(e.target.value) as (typeof riseOptions)[number])}
-          >
-            {riseOptions.map((r) => (
-              <option key={r} value={r}>
-                {r === 0 ? "Auto (tab + band)" : `${r} units`}
-              </option>
-            ))}
-          </select>
-        </label>
-        {check("Titles", titles, setTitles)}
-        {check("Staggered tabs", stagger, setStagger)}
+        {!compact && (
+          <>
+            <RangeControl
+              label="Name size"
+              ariaLabel={`${name} Name size`}
+              value={labelSize}
+              onChange={setLabelSize}
+              min={10}
+              max={36}
+              step={1}
+              format={(n) => `${n} units`}
+            />
+            <label>
+              Folder spacing{" "}
+              <select
+                aria-label={`${name} folder spacing`}
+                value={rise}
+                onChange={(e) => setRise(Number(e.target.value) as (typeof riseOptions)[number])}
+              >
+                {riseOptions.map((r) => (
+                  <option key={r} value={r}>
+                    {r === 0 ? "Auto" : `${r} units apart`}
+                  </option>
+                ))}
+              </select>
+            </label>
+            {check("Titles", titles, setTitles)}
+            {check("Staggered tabs", stagger, setStagger)}
+          </>
+        )}
       </div>
     </div>
   )
@@ -263,6 +278,8 @@ function CajonDemo() {
 
 
 function DeskObjectDemo({ name }: { name: string }) {
+  // Index cards show at most three controls; /c pages keep them all.
+  const compact = useBenchCompact()
   // On /c/<name> benches each value lives in the URL (?open=0.5&pose=pinch); see bench-url.tsx.
   const unit = { clamp: [0, 1] } as const
   const [count, setCount] = useBenchParam(
@@ -282,7 +299,7 @@ function DeskObjectDemo({ name }: { name: string }) {
   const [cabinet, setCabinet] = useBenchParam("cabinet", false)
   const [progress, setProgress] = useBenchParam("highlight", 1, unit)
   const [angle, setAngle] = useBenchParam("angle", 0, { clamp: [-30, 30] })
-  const [position, setPosition] = useBenchParam("position", 0, unit)
+  const [position, setPosition] = useBenchParam("position", 0.5, unit)
   const folders: DrawerFolder[] = names.slice(0, count).map((name, i) => ({
     name,
     accent: i === 0,
@@ -371,7 +388,7 @@ function DeskObjectDemo({ name }: { name: string }) {
             )}
             {name === "mano" && (
               <Mano
-                at={{ x: 145 + position * 100, y: 35 }}
+                at={{ x: manoTravel.from + position * manoTravel.span, y: manoTravel.y }}
                 pose={pose}
                 size={155}
                 angle={angle}
@@ -427,18 +444,21 @@ function DeskObjectDemo({ name }: { name: string }) {
       >
         {drawerControls && (
           <>
-            <label>
-              Folders{" "}
-              <select
-                aria-label={`${name} folder count`}
-                value={count}
-                onChange={(e) => setCount(Number(e.target.value))}
-              >
-                {[0, 1, 3, 6, 8, 12].map((n) => (
-                  <option key={n}>{n}</option>
-                ))}
-              </select>
-            </label>
+            {/* The desk's index card keeps Wood finish, File cabinet, and Open. */}
+            {!(compact && name === "escritorio") && (
+              <label>
+                Folders{" "}
+                <select
+                  aria-label={`${name} folder count`}
+                  value={count}
+                  onChange={(e) => setCount(Number(e.target.value))}
+                >
+                  {[0, 1, 3, 6, 8, 12].map((n) => (
+                    <option key={n}>{n}</option>
+                  ))}
+                </select>
+              </label>
+            )}
             {range("Open", open, setOpen, ["Closed", "Half", "Open"])}
             {name !== "escritorio" &&
               count > 0 &&
@@ -467,7 +487,7 @@ function DeskObjectDemo({ name }: { name: string }) {
               />{" "}
               File cabinet
             </label>
-            {cabinet && (
+            {cabinet && !compact && (
               <label>
                 <input
                   type="checkbox"

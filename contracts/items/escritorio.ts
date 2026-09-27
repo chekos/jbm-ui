@@ -13,7 +13,8 @@ export default {
   entry: "component",
   title: "Escritorio",
   description: "An empty desk with separate finish and optional file cabinet.",
-  category: "Layout",
+  category: "UI Bits",
+  family: "Desk objects",
   capabilities: ["controls"],
   api: [
     {

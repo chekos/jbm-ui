@@ -5875,7 +5875,7 @@
         {
           "export": "Cajon",
           "kind": "component",
-          "summary": "SVG <g> of a filing drawer: dark interior, complete FolderOutline folders stepping up and narrowing toward the back, side walls, and a card front with a handle. Each folder's light (k) darkens with depth, its name inks in with reveal, and its front flap can stand ajar. Folders are occluded by the front and by each other, never shortened. Controlled by open and per-folder values; no internal timer. Render inside an <svg>.",
+          "summary": "SVG <g> of a filing drawer: an interior of flat drawer shades (back wall, floor, and lighter side walls, so an empty drawer reads as an empty box), complete FolderOutline folders stepping up and narrowing toward the back, side walls, and a card front with a handle. Each folder's light (k) darkens with depth, its name inks in with reveal, and its front flap can stand ajar. Folders are occluded by the front and by each other, never shortened. Controlled by open and per-folder values; no internal timer. Render inside an <svg>.",
           "props": [
             {
               "name": "x",
@@ -5924,7 +5924,7 @@
               "type": "number",
               "required": false,
               "default": null,
-              "description": "Rise from one folder to the next one back, in parent SVG units. Default: tab height + band + a lip of flap, so every tab and a band of back panel stay visible for up to eight folders; more folders share the rise of eight. At labelSize 13 that is 46 (55 with sublabels). A smaller value packs folders and may hide names."
+              "description": "Rise from one folder to the next one back, in parent SVG units. Default: tab height + band + a lip of flap, so every tab and a band of back panel stay visible for up to six folders; more folders share the rise of six (five steps), so a crowded drawer packs tighter instead of growing: at 12 folders the stack is as tall as at six, names stay whole, and a sublabel whose band the folder in front covers is not printed. At labelSize 13 that is 46 (55 with sublabels). A smaller value packs folders and may hide names."
             },
             {
               "name": "tabLayout",
@@ -5997,7 +5997,7 @@
               "type": "number",
               "required": false,
               "default": null,
-              "description": "Rise from one folder to the next one back, in parent SVG units. Default: tab height + band + a lip of flap, so every tab and a band of back panel stay visible for up to eight folders; more folders share the rise of eight. At labelSize 13 that is 46 (55 with sublabels). A smaller value packs folders and may hide names."
+              "description": "Rise from one folder to the next one back, in parent SVG units. Default: tab height + band + a lip of flap, so every tab and a band of back panel stay visible for up to six folders; more folders share the rise of six (five steps), so a crowded drawer packs tighter instead of growing: at 12 folders the stack is as tall as at six, names stay whole, and a sublabel whose band the folder in front covers is not printed. At labelSize 13 that is 46 (55 with sublabels). A smaller value packs folders and may hide names."
             },
             {
               "name": "tabLayout",
@@ -6014,7 +6014,7 @@
               "description": "Name size in parent SVG units (default 13). Tab height is 27/13 of it, the sublabel 0.8 of it. Tab widths come from sansWidth (Geist 800). Perspective does not depend on it: a folder's inset follows its depth in the drawer (its rise over the rise of eight folders), up to a fifth of the width at the back. For video at 1080 use about 24–36."
             }
           ],
-          "returns": "{ x, y, w, h, front, frontTop, frontHeight, scale, depthSpacing, labelSize, band, folders, anchors }. frontTop is the drawer front's top edge; scale is max(1, w / 420). Each folder has x, y (top of tab), w, h, tabX, tabWidth, tabHeight, tabSlope, anchor (tab grip point), label { x, y baseline, mid, end, scale }, sublabel { x, y, scale }, flap (front flap's top edge), opening { drop, lean } (the ajar flap), visible (0–1, how much of the tab shows above the drawer front; 0 inside a closed drawer), and light (effective k). anchors(i, n) returns n points on folder i's tab midline, from just before the name (clear of its first letter, where a knot sits) to the tab's straight edge; once a tab is below the drawer front's top edge the points stop at that rim, so threads never reach through the front. [] for an unknown folder or n < 1."
+          "returns": "{ x, y, w, h, front, frontTop, frontHeight, scale, depthSpacing, labelSize, band, folders, anchors }. frontTop is the drawer front's top edge; scale is max(1, w / 420). Each folder has x, y (top of tab), w, h, tabX, tabWidth, tabHeight, tabSlope, anchor (tab grip point), label { x, y baseline, mid, end, scale }, sublabel { x, y, scale, visible } (visible is false when a crowded drawer packs the folder in front over the band), flap (front flap's top edge), opening { drop, lean } (the ajar flap; lean is 0: the flap's top edge drops straight and is never wider than its folder), visible (0–1, how much of the tab shows above the drawer front; 0 inside a closed drawer), and light (effective k). anchors(i, n) returns n points on folder i's tab midline, from just before the name (clear of its first letter, where a knot sits) to the tab's straight edge; once a tab is below the drawer front's top edge the points stop at that rim, so threads never reach through the front. [] for an unknown folder or n < 1."
         },
         {
           "export": "drawerLight",
@@ -6039,7 +6039,7 @@
         {
           "export": "DrawerFolder",
           "kind": "type",
-          "summary": "{ name, accent?, pulled?, k?, open?, reveal?, sublabel?, sublabelReveal? }: one folder. pulled 0–1 lifts it out and brings k to 1; k defaults to a ramp from 1 (front) to 0.72 (back); open 0–1 stands the front flap ajar: its top edge drops a fifth of the folder height and leans out, and the folder rises (by that drop plus a lip, at most as far as keeps the tab of the folder behind it in view) so at least half the shaded opening shows above whatever is in front of it (vermilion folders shade toward ink, never a new colour); reveal 0–1 inks the name in grapheme by grapheme (sublabelReveal defaults to it)."
+          "summary": "{ name, accent?, pulled?, k?, open?, reveal?, sublabel?, sublabelReveal? }: one folder. pulled 0–1 lifts it out and brings k to 1; k defaults to a ramp from 1 (front) to 0.72 (back); open 0–1 stands the front flap ajar: its top edge drops a fifth of the folder height, straight down and never wider than the folder, and the folder rises (by that drop plus a lip, at most as far as keeps the tab of the folder behind it in view) so at least half the shaded opening shows above whatever is in front of it (vermilion folders shade toward ink, never a new colour); reveal 0–1 inks the name in grapheme by grapheme (sublabelReveal defaults to it)."
         },
         {
           "export": "CajonProps",
@@ -6057,7 +6057,7 @@
           "width": 420,
           "height": 382
         },
-        "basis": "Parent SVG user units at the defaults w 420, open 1, and one folder: from the back edge at y + 10 to the front's bottom at y + 391 (front at y + 82, plus 32, plus a 277 front height from w). Each further folder rises depthSpacing (46 at labelSize 13, 55 with sublabels) above the one in front, from the front folder's top at y + 52: eight folders reach y − 270 (y − 333 with sublabels). open 0 ends at y + 287. A lifted folder rises its height + 24 (up to ≈ 293) above its resting place, so leave headroom (the gallery uses viewBox 0 −400 500 840)."
+        "basis": "Parent SVG user units at the defaults w 420, open 1, and one folder: from the back edge at y + 10 to the front's bottom at y + 391 (front at y + 82, plus 32, plus a 277 front height from w). Each further folder rises depthSpacing (46 at labelSize 13, 55 with sublabels) above the one in front, from the front folder's top at y + 52: six or more folders reach y − 178 (y − 222 with sublabels). open 0 ends at y + 287. A lifted folder rises its height + 24 (up to ≈ 293) above its resting place, so leave headroom (the gallery uses viewBox 0 −400 500 840)."
       },
       "examples": [
         {
@@ -6075,10 +6075,10 @@
       ],
       "qa": [
         "Drag Open through 0, 0.5, and 1: the front slides forward, folders rise and fan, and no folder shows below the front edge.",
-        "Try 1, 3, 6, and 8 folders with and without sublabels: every tab and the band under it stay visible, back folders are narrower and darker, never larger. At 12 folders the stair keeps the height of eight and labels may overlap.",
+        "Try 0, 1, 3, and 6 folders with and without sublabels: every tab and the band under it stay visible, back folders are narrower and darker, never larger; with none, the inside reads as an empty box (back wall, floor, lighter side walls), not a dark block. At 8 and 12 folders the stair keeps the height of six: folders pack tighter, names stay whole, and sublabels the next folder would strike are not printed.",
         "Sweep Name reveal 0 → 1: tabs start blank and names ink in from the left, one grapheme at a time; the tab never changes width.",
         "Lift a back folder: it rises behind the folders in front and brightens to k 1; its complete outline appears as it clears them.",
-        "Pick any folder in Target and set Flap ajar: the folder rises until its shaded opening shows above the folder (or drawer front) in front of it while the tab of the folder behind stays in view, the flap's top edge drops and its corners lean just past the body, and the bottom corners stay fixed. On a vermilion folder the opening is a darker vermilion.",
+        "Pick any folder in Target and set Flap ajar: the folder rises until its shaded opening shows above the folder (or drawer front) in front of it while the tab of the folder behind stays in view, the flap's top edge drops straight down, never wider than the folder (lifted or not), and the bottom corners stay fixed. On a vermilion folder the opening is a darker vermilion.",
         "Tab names are bold sans (Geist 800), sublabels italic sans. Long names (\"Training Within Industry 1940s\") draw whole: the tab widens to the folder, then the name compresses; there is no ellipsis.",
         "Set Name size to 24 with six folders: back folders narrow exactly as at 13; at w 900 the handle, walls, and travel grow with the drawer.",
         "Switch Tab layout to stagger3: tabs cycle left, center, right and sublabels stay inside the folder.",
@@ -6196,7 +6196,7 @@
       "qa": [
         "Switch pose through all six at the same at: the hand stays in its box and does not jump unexpectedly.",
         "Drag Rotation from −30 to 30: the hand pivots about at (or the anchor point), not its centre.",
-        "Drag Position: the hand translates without resizing or clipping at the viewBox edges.",
+        "Drag Position through Left, Center, and Right: the hand crosses the stage from its left margin to its right margin without resizing, and stays inside the viewBox at every rotation from −30° to 30°.",
         "Anchor coordinates are in the 30×29 viewBox but each pose applies its own internal transform, so the fingertip lands at a different local point per pose; check the anchor visually for each pose you use."
       ],
       "docs": [
@@ -6238,7 +6238,7 @@
         {
           "export": "Pluma",
           "kind": "component",
-          "summary": "SVG group: an ink pen (round-ended barrel, card ring, pointed cone) held in the Hand's pinch pose through Mano. The pen is drawn behind the hand: the nib leaves past the thumb tip and the barrel shows above the knuckles. The pen has a thin card halo and the hand a card knock-out ring (Hand's halo), so the barrel's edge and the hand's contours stay separate where they cross. Rotation, grip point, and nib are props; no internal timer. Render inside an <svg>.",
+          "summary": "SVG group: an ink pen (one silhouette: round-ended barrel tapering straight on to a pointed nib) held in the Hand's pinch pose through Mano. The pen is drawn behind the hand: the nib leaves past the thumb tip and the barrel shows above the knuckles. A mask cuts the pen along the hand's outline (handOutline) plus a gap half the outline wide, so the barrel's edge and the hand's contours stay separate where they cross; nothing is painted over the page, so writing under or beside the nib stays whole. Rotation, grip point, and nib are props; no internal timer. Render inside an <svg>.",
           "props": [
             {
               "name": "at",
@@ -6339,9 +6339,10 @@
       ],
       "qa": [
         "Rotate from −40° to 40° with the nib marker on: plumaNib lands on the drawn nib tip at every angle and size.",
-        "Enlarge the pinch: the pen passes between the index pad and the thumb, behind the hand; the nib and ring show past the thumb tip and the barrel above the knuckles.",
-        "Turn Hand off: the pen alone keeps its length, ring, and nib; a stranger names it \"pen\".",
-        "At 2× and angles −40°, 0°, 40°: wherever the barrel meets the thumb or index contour a thin card gap separates them; no outline disappears into the barrel.",
+        "Enlarge the pinch: the pen passes between the index pad and the thumb, behind the hand; the nib shows past the thumb tip and the barrel above the knuckles, one continuous pen with no gap between barrel and nib.",
+        "Turn Hand off: the pen alone keeps its length and nib; a stranger names it \"pen\".",
+        "At 8× and angles −30°, 0°, 30°: wherever the barrel meets the thumb or index contour a gap separates them; no outline disappears into the barrel, no cream ring shows around the hand on the page, and the last written glyph under the nib stays whole.",
+        "The underside of the bent index (the pad over the pen) is one smooth curve, with no corner where it turns down toward the thumb.",
         "Set nibOffset to (0, 90) and (−80, 20): the hand turns with the pen and the barrel still passes through the pinch, never behind the palm.",
         "On the bench, drag Write to End at Rotation −30° and 30°: the whole hand, barrel tail included, stays inside the stage."
       ],
@@ -6583,7 +6584,8 @@
       "entry": "component",
       "title": "Escritorio",
       "description": "An empty desk with separate finish and optional file cabinet.",
-      "category": "Layout",
+      "category": "UI Bits",
+      "family": "Desk objects",
       "capabilities": [
         "controls"
       ],
@@ -7483,19 +7485,34 @@
               "type": "HandPose",
               "required": false,
               "default": "\"point\"",
-              "description": "Silhouette: `open` (open palm, fingers together), `point` (index finger extended), `pinch` (index bent over the thumb; also the pen grip Pluma uses, so there is no pen pose), `grip` (front-view fist: four finger capsules with knuckle bumps on top and the curled fingertips in a row beneath, the thumb lying across under them; lay the knuckles over a sheet or tab edge), `type` (the hand from above on a keyboard: all four fingers curved together in smooth arcs up and to the left, tips down on the keys, the index curling furthest and the middle tallest, the thumb low and pointing left toward the space bar; use it upright, fingertips on the keys), or `hold` (the side-view mug grip turned so the wrist is at the bottom: four stacked fingers with their curled tips on the palm, the thumb's back continuing the back of the hand and opening from the index in a V; rotate it about -75° to put the fingers through a handle on the left). Also sets the accessible label, e.g. \"Hand: point\"."
+              "description": "Silhouette: `open` (open palm, fingers together), `point` (index finger extended), `pinch` (index bent over the thumb; also the pen grip Pluma uses, so there is no pen pose), `grip` (front-view fist: four fingers with knuckle bumps on top and the curled fingertips in a scalloped row beneath, the thumb lying across under them; lay the knuckles over a sheet or tab edge), `type` (the hand from above on a keyboard: all four fingers arch over together in concentric curves up and to the left, the index and middle tips pointing left and down onto the keys, the middle tallest, the thumb low and pointing left toward the space bar; use it upright, fingertips on the keys), or `hold` (the side-view mug grip turned so the wrist is at the bottom: four stacked fingers with the same scalloped fingertip row, the thumb opening from the index in a V with a round web; rotate it about -75° to put the fingers through a handle on the left). Every pose is one closed outline plus open dividers that start on it, in one stroke width; no finger is a closed shape laid over another. Also sets the accessible label, e.g. \"Hand: point\"."
             },
             {
               "name": "halo",
               "type": "boolean",
               "required": false,
               "default": "false",
-              "description": "Knock the hand out of what it overlaps: a card ring half the outline wide just outside the contour, so ink art passing behind the hand (a pen barrel, a thread) never fuses with its outline. Default false."
+              "description": "Knock the hand out of what it overlaps: a card ring half the outline wide just outside the contour, so ink art passing behind the hand (a pen barrel, a thread) never fuses with its outline. The ring paints over everything under the hand, writing included; to cut only the art behind the hand, mask that art with handOutline instead (Pluma does). Default false."
             }
           ],
           "passthrough": [
             "SVGProps<SVGSVGElement>"
           ]
+        },
+        {
+          "export": "handOutline",
+          "kind": "function",
+          "summary": "A pose's closed outline in the Hand's 30×29 viewBox, for composites that cut art drawn behind the hand (a mask or clip path) instead of painting a halo over whatever else is under it. Place it with the same transforms as the Hand (Mano's translate, rotate, and anchor, then a scale of size / 30).",
+          "params": [
+            {
+              "name": "pose",
+              "type": "HandPose",
+              "required": false,
+              "default": "\"point\"",
+              "description": "Hand pose; defaults to point, like Hand."
+            }
+          ],
+          "returns": "{ d, transform, strokeWidth }: the outline path, the transform that places it in the viewBox, and the outline's stroke width in path units. Stroke the path at twice that width to cover the outline plus a gap half the outline wide."
         },
         {
           "export": "handPoses",
@@ -7730,7 +7747,7 @@
               "type": "number",
               "required": false,
               "default": null,
-              "description": "Rise, in parent SVG units, from one folder to the next one back. Defaults to tab height plus a band of back panel (the tab and band stay visible up to eight folders; more folders pack into the same rise)."
+              "description": "Rise, in parent SVG units, from one folder to the next one back. Defaults to tab height plus a band of back panel (the tab and band stay visible up to six folders; more folders pack into the same rise, so the stack never grows past six folders' height)."
             },
             {
               "name": "tabLayout",
@@ -10106,7 +10123,7 @@
               "type": "\"tab\" | \"front\"",
               "required": false,
               "default": "lightFill(fill) ? \"tab\" : \"front\"",
-              "description": "\"tab\" or \"front\": where the name prints for the whole carry, never both. Defaults to Folder's rule: \"tab\" on light fills (OKLab lightness above 0.6: the card and every drawerLight shade, as in a Cajon), \"front\" on vermilion and ink, where the name stays clear of the hand holding the tab. On the tab a pinch at folderGrip covers part of the name while carrying; pass \"front\" when the name must read in transit, and render the resting Folder with the same placement."
+              "description": "\"tab\" or \"front\": where the name prints for the whole carry, never both. Defaults to Folder's rule: \"tab\" on light fills (OKLab lightness above 0.6: the card and every drawerLight shade, as in a Cajon), \"front\" on vermilion and ink, where the name stays clear of the hand holding the tab. On the tab a pinch at folderGrip (folderCarryHand) covers part of the name while carrying; pass \"front\" when a hand holds the tab or the name must read in transit, and render the resting Folder with the same placement."
             },
             {
               "name": "labelColor",
@@ -10177,6 +10194,11 @@
           "returns": "The grip point in the same units as `g`."
         },
         {
+          "export": "folderCarryHand",
+          "kind": "constant",
+          "summary": "Mano props that hold the folder by its tab from above: `{ pose: \"pinch\", angle: 155, anchor: { x: 6.4, y: 12.1 } }`. The pinch turns so the wrist is up and left and the pocket between index and thumb sits on the grip point: the tab's top edge runs through the pinch and its stepped silhouette stays in view. Spread it into a Mano at pointOn(path, progress); add up to ±15° to angle for a tilt that still reads as a pinch (further round, the hand reads as pointing)."
+        },
+        {
           "export": "tableFolderGeometry",
           "kind": "function",
           "summary": "Geometry of a Folder-sized silhouette resting at `at`, scaled from Folder's 260-unit frame (body 205×150 at offset 25,55; tab 83 wide, 27 tall, 17 slope).",
@@ -10206,26 +10228,26 @@
       ],
       "stage": {
         "mode": "fluid",
-        "reason": "Draws in the parent SVG's coordinate space with no box of its own; its extent is set by `from`, `to`, and `path`. The gallery demo uses a 450×270 viewBox at 100% width with folders 100 and 190 units wide."
+        "reason": "Draws in the parent SVG's coordinate space with no box of its own; its extent is set by `from`, `to`, and `path`. The gallery demo uses a 450×270 viewBox at 100% width with folders 100 and 190 units wide standing on a floor line at y 248."
       },
       "examples": [
         {
           "title": "Carry a folder from a small to a large resting place",
-          "code": "import { FolderCarry, folderGrip, tableFolderGeometry } from \"@/jbm/ui/folder-carry\"\n\nconst from = tableFolderGeometry({ x: 5, y: 65 }, 100)\nconst to = tableFolderGeometry({ x: 225, y: 60 }, 190)\nconst path = [folderGrip(from), { x: 200, y: 45 }, folderGrip(to)]\n\n<svg viewBox=\"0 0 450 270\" width=\"100%\">\n  <FolderCarry from={from} to={to} path={path} progress={0.5} label=\"proyecto\" />\n</svg>"
+          "code": "import { FolderCarry, folderGrip, tableFolderGeometry } from \"@/jbm/ui/folder-carry\"\n\n// Both resting places stand on the floor at y 248: a folder frame is 205/260 of its width tall.\nconst onFloor = (x: number, width: number) => tableFolderGeometry({ x, y: 248 - (205 * width) / 260 }, width)\nconst from = onFloor(50, 100)\nconst to = onFloor(230, 190)\nconst path = [folderGrip(from), { x: 175, y: 80 }, folderGrip(to)]\n\n<svg viewBox=\"0 0 450 270\" width=\"100%\">\n  <FolderCarry from={from} to={to} path={path} progress={0.5} label=\"proyecto\" />\n</svg>"
         },
         {
           "title": "Carry a plain cream folder",
-          "code": "import { FolderCarry, folderGrip, tableFolderGeometry } from \"@/jbm/ui/folder-carry\"\nimport { color } from \"@/jbm/lib/tokens\"\n\nconst from = tableFolderGeometry({ x: 5, y: 65 }, 100)\nconst to = tableFolderGeometry({ x: 225, y: 60 }, 190)\nconst path = [folderGrip(from), { x: 200, y: 45 }, folderGrip(to)]\n\n<svg viewBox=\"0 0 450 270\" width=\"100%\">\n  <FolderCarry from={from} to={to} path={path} progress={0.5} label=\"Doorways\" fill={color.card} />\n</svg>"
+          "code": "import { FolderCarry, folderGrip, tableFolderGeometry } from \"@/jbm/ui/folder-carry\"\nimport { color } from \"@/jbm/lib/tokens\"\n\nconst onFloor = (x: number, width: number) => tableFolderGeometry({ x, y: 248 - (205 * width) / 260 }, width)\nconst from = onFloor(50, 100)\nconst to = onFloor(230, 190)\nconst path = [folderGrip(from), { x: 175, y: 80 }, folderGrip(to)]\n\n<svg viewBox=\"0 0 450 270\" width=\"100%\">\n  <FolderCarry from={from} to={to} path={path} progress={0.5} label=\"Doorways\" fill={color.card} />\n</svg>"
         },
         {
-          "title": "Put a hand on the grip",
-          "code": "import { FolderCarry, folderGrip, tableFolderGeometry } from \"@/jbm/ui/folder-carry\"\nimport { pointOn } from \"@/jbm/lib/geometry\"\nimport { Mano } from \"@/jbm/motion/mano\" // install @jbm/mano separately\n\nconst from = tableFolderGeometry({ x: 5, y: 65 }, 100)\nconst to = tableFolderGeometry({ x: 225, y: 60 }, 190)\nconst path = [folderGrip(from), { x: 200, y: 45 }, folderGrip(to)]\nconst progress = 0.4\n\n<svg viewBox=\"0 0 450 270\" width=\"100%\">\n  <FolderCarry from={from} to={to} path={path} progress={progress} label=\"proyecto\" />\n  <Mano at={pointOn(path, progress)} pose=\"pinch\" size={70} anchor={{ x: 6, y: 10 }} />\n</svg>"
+          "title": "Hold the tab with a hand",
+          "code": "import { FolderCarry, folderCarryHand, folderGrip, tableFolderGeometry } from \"@/jbm/ui/folder-carry\"\nimport { pointOn } from \"@/jbm/lib/geometry\"\nimport { Mano } from \"@/jbm/motion/mano\" // install @jbm/mano separately\n\nconst onFloor = (x: number, width: number) => tableFolderGeometry({ x, y: 248 - (205 * width) / 260 }, width)\nconst from = onFloor(50, 100)\nconst to = onFloor(230, 190)\nconst path = [folderGrip(from), { x: 175, y: 80 }, folderGrip(to)]\nconst progress = 0.4\n\n<svg viewBox=\"0 0 450 270\" width=\"100%\">\n  <FolderCarry from={from} to={to} path={path} progress={progress} label=\"proyecto\" labelOn=\"front\" />\n  <Mano at={pointOn(path, progress)} size={70} {...folderCarryHand} />\n</svg>"
         }
       ],
       "qa": [
         "Set Folder fill to card and ink: the carried folder keeps that fill at every progress, with an ink label on card and a card label on ink and vermilion; vermilion appears only with the accent fill.",
-        "Drag Carry progress to 0, 0.5, and 1 for each fill: the folder matches its resting geometry exactly at both ends, and the name prints once, fully opaque (never faded or pale), on the front for vermilion and ink and on the tab for card.",
-        "Toggle Show hand and sweep progress: the pinch stays on the tab's grip throughout; adjust Hand angle and confirm the contact point does not drift.",
+        "Drag Carry progress to 0, 0.5, and 1 for each fill: the folder matches its resting geometry exactly at both ends (standing on the floor line, inside the stage), and the name prints once, fully opaque (never faded or pale). The bench holds the tab with a hand, so it prints the name on the front for every fill (labelOn front); without a hand, card and drawer fills default to the tab.",
+        "Toggle Show hand and sweep progress: the pinch holds the tab from above, the tab's top edge runs through it, and the tab's stepped silhouette stays visible (the folder never reads as a plain box); sweep Hand tilt from −15° to 15°: the contact point does not drift and the hand never reads as pointing.",
         "Check the scale change reads as smooth growth with no jump in tab shape at the endpoints.",
         "Carry a folder out of a Cajon with fill drawerLight(0.8) and the drawer's folder as `from`: at progress 0 the tab name is ink, whole, the same size as the drawer's names, and the fold line sits on the drawer's flap line.",
         "Check narrow screens: the demo SVG scales to 100% width without clipping either resting place."
