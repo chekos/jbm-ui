@@ -61,6 +61,6 @@ export default {
     "Check the front notch stays centred when w changes.",
   ],
   docs: [
-    { title: "Desk illustrations guide", url: "https://github.com/chekos/jbm-ui/blob/main/docs/desk-components.md" },
+    { title: "Desk illustrations guide", url: "https://jbm-ui.bns.studio/docs/desk-components.md" },
   ],
 } satisfies ItemContract

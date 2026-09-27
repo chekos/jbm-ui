@@ -43,6 +43,6 @@ export default {
     "Scale with width at narrow screens: the 30:29 aspect ratio holds.",
   ],
   docs: [
-    { title: "Desk illustrations guide", url: "https://github.com/chekos/jbm-ui/blob/main/docs/desk-components.md" },
+    { title: "Desk illustrations guide", url: "https://jbm-ui.bns.studio/docs/desk-components.md" },
   ],
 } satisfies ItemContract

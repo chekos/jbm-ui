@@ -3,7 +3,7 @@ import type { ItemContract } from "../schema"
 export default {
   name: "paper-line",
   entry: "component",
-  title: "Paper line",
+  title: "PaperLine",
   description:
     "Line of text with controlled grapheme reveal, ink lift, strike-through, and dotted underline.",
   category: "Motion",
@@ -48,6 +48,6 @@ export default {
     "Toggle Dotted underline and Accent ink independently, and check each combination with mono.",
   ],
   docs: [
-    { title: "Paper and filing illustrations guide", url: "https://github.com/chekos/jbm-ui/blob/main/docs/design-video-components.md" },
+    { title: "Paper and filing illustrations guide", url: "https://jbm-ui.bns.studio/docs/design-video-components.md" },
   ],
 } satisfies ItemContract

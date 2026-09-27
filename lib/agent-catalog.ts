@@ -14,6 +14,7 @@ import type {
   StageSize,
 } from "@/contracts/schema"
 import { getContract, getContracts } from "@/lib/contracts"
+import { docUrl, getPublishedDocs } from "@/lib/docs"
 import { registryUrlTemplate, siteOrigin } from "@/lib/site"
 import registry from "@/registry.json"
 
@@ -21,19 +22,17 @@ export const purpose =
   "jbm-ui is a personal component library for tacosdedatos, distributed as a shadcn registry, so an explainer video and a web page share one visual vocabulary. The same tokens and components render in plain React pages and in Remotion compositions: ui/ items are pure React with inline token styles and never import Remotion, motion/ items add timeline behavior, and lib/ items hold tokens and helpers. Illustrations are simple geometric line art in ink on cream, with vermilion as the single accent per composition."
 
 export const rules = [
-  "Install through the @jbm namespace; never copy files from GitHub by hand.",
+  "Install through the @jbm namespace; the source repository is private, and each registry item JSON (/r/<name>.json) carries its files' contents.",
   "Files install to src/jbm/ and import as @/jbm/…, which needs the @/* → ./src/* path alias in tsconfig.json.",
   "Items marked needsRemotion require the remotion package and must render inside a Remotion composition or Player; every other item works in any React page.",
   "Use one vermilion accent per composition; accent2 is for annotations only and soft is for dark surfaces only.",
   "Stages are 1920×1080 landscape and 1080×1920 vertical with declared safe areas; each item's stage field declares its size in stage pixels, and scenes compose from YAML-shaped specs with @jbm/scene-spec.",
 ]
 
-const sourceRepo = "https://github.com/chekos/jbm-ui"
-const sourceUrl = (path: string) => `${sourceRepo}/blob/main/${path}`
 
 /** One installed file: where it lives in this repo, where shadcn writes it, and how to import it. */
 export type CatalogFile = {
-  /** Path in the jbm-ui repository. */
+  /** Path in the jbm-ui source tree; the content ships in the registry item JSON (files[].content). */
   source: string
   /** Path shadcn writes in the consumer project. */
   target: string
@@ -67,11 +66,11 @@ export type CatalogItem = {
   install: string
   /** Registry item that the install command adds (differs from name for doc entries). */
   installName: string
-  /** QA page URL, or "n/a" for a bundle (see pageReason). */
-  page: string
+  /** QA page URL, or null for a bundle (see pageReason). */
+  page: string | null
   pageReason?: string
   registryItem: string
-  /** Primary source file in this repo. */
+  /** Primary source file (path in the source tree; read its content from registryItem). */
   sourcePath: string
   files: CatalogFile[]
   /** Per-item agent endpoints. */
@@ -204,7 +203,7 @@ export function getCatalog() {
     registryDependencies: contract.registryDependencies,
     install: addCommand(contract.installName),
     installName: contract.installName,
-    page: contract.page === "n/a" ? "n/a" : `${origin}${contract.page}`,
+    page: contract.page === null ? null : `${origin}${contract.page}`,
     ...(contract.pageReason ? { pageReason: contract.pageReason } : {}),
     registryItem: `${origin}${contract.registryItem}`,
     sourcePath: contract.sourcePath,
@@ -234,7 +233,6 @@ export function getCatalog() {
     name: "jbm-ui",
     namespace: "@jbm",
     homepage: origin,
-    source: sourceRepo,
     purpose,
     install: {
       componentsJson: { registries: { "@jbm": registryUrlTemplate(origin) } },
@@ -259,11 +257,14 @@ export function getCatalog() {
       stage:
         'Size in stage pixels per orientation ("declared"), or "fluid"/"n/a" with a reason.',
       qa: "What to inspect before accepting a change.",
+      page: "The item's QA page in the gallery, or null for a bundle, whose pageReason names the pages to open instead.",
+      registryItem:
+        "The shadcn registry item JSON; its files[].content holds the source code (the source repository is private).",
       files:
-        "Each installed file: source path in this repo, target path shadcn writes in the consumer project, and the import specifier.",
+        "Each installed file: source path in the jbm-ui source tree, target path shadcn writes in the consumer project, and the import specifier.",
       endpoints:
         "Per-item Markdown and JSON with the same content as this entry plus install setup.",
-      docs: "Optional. Guides that cover the item, as {title, url}.",
+      docs: "Optional. Guides that cover the item, as {title, url}; each is Markdown served by this site at /docs/<slug>.md.",
       schemas:
         "Optional. JSON Schemas for the item's input data (for scene-spec, the scenes file), as {title, url}.",
       related:
@@ -276,8 +277,14 @@ export function getCatalog() {
       itemMarkdown: `${origin}/catalog/{name}.md`,
       itemJson: `${origin}/catalog/{name}.json`,
       registryIndex: `${origin}/r/registry.json`,
-      contract: sourceUrl("docs/agent-contract.md"),
+      contract: docUrl("agent-contract", origin),
+      doc: `${origin}/docs/{slug}.md`,
     },
+    /** Guides served as Markdown by this site. */
+    docs: getPublishedDocs().map((doc) => ({
+      title: doc.title,
+      url: docUrl(doc.slug, origin),
+    })),
     items: entries,
   }
 }
@@ -308,6 +315,10 @@ export function getCatalogItemJson(name: string, catalog = getCatalog()) {
 // --- Text rendering -------------------------------------------------------------------------
 
 const yesNo = (value: boolean) => (value ? "yes" : "no")
+
+/** Where an item runs: Remotion (needs a Composition or Player) or any React tree. */
+export const runtime = (item: { needsRemotion: boolean }) =>
+  item.needsRemotion ? "Remotion" : "React"
 
 /** One line per prop: `name` (type, required | default x): description. */
 export function fieldLine(field: ApiField) {
@@ -423,7 +434,7 @@ export function getLlmsFullText(catalog = getCatalog()) {
     `- ${catalog.links.itemMarkdown} and ${catalog.links.itemJson}: one item as Markdown or JSON`,
     `- [registry.json](${catalog.links.registryIndex}): shadcn registry index`,
     `- [Agent contract](${catalog.links.contract}): what each field means`,
-    `- [Source](${catalog.source})`,
+    ...catalog.docs.map((doc) => `- [${doc.title}](${doc.url})`),
     "",
     "Capabilities describe the gallery preview: " +
       Object.entries(catalog.capabilities)
@@ -447,6 +458,7 @@ export function getLlmsFullText(catalog = getCatalog()) {
         "",
         `- Category: ${item.category}`,
         `- Capabilities: ${item.capabilities.join(", ") || "none"}`,
+        `- Runtime: ${runtime(item)}`,
         `- Needs Remotion: ${yesNo(item.needsRemotion)}`,
         `- Registry dependencies: ${item.registryDependencies.join(", ") || "none"}`,
         `- Add: \`${item.install}\`` +
@@ -456,10 +468,10 @@ export function getLlmsFullText(catalog = getCatalog()) {
         `- Files: ${item.files
           .map((file) => `${file.target} (import ${file.import})`)
           .join(", ")}`,
-        item.page === "n/a"
+        item.page === null
           ? `- QA page: none. ${item.pageReason}`
           : `- QA page: ${item.page}`,
-        `- Registry item: ${item.registryItem}`,
+        `- Registry item (includes source): ${item.registryItem}`,
         `- Markdown: ${item.endpoints.markdown}`,
         `- JSON: ${item.endpoints.json}`,
         `- Stage: ${stageLine(item.stage)}`
@@ -504,7 +516,8 @@ export function getLlmsText(catalog = getCatalog()) {
     `- ${origin}/catalog/<name>.md: one item as Markdown`,
     `- ${origin}/catalog/<name>.json: one item as JSON, with the install setup`,
     `- ${origin}/c/<name>: the item's QA page in the gallery (components only)`,
-    `- ${origin}/r/<name>.json: the shadcn registry item`,
+    `- ${origin}/r/<name>.json: the shadcn registry item, with each file's source in files[].content`,
+    `- ${origin}/docs/<slug>.md: guides as Markdown (listed under Guides)`,
     ...catalog.items.flatMap((item) =>
       ((item.schemas as { title: string; url: string }[] | undefined) ?? []).map(
         (schema) => `- ${schema.url}: ${schema.title} for @jbm/${item.name}; validate input against it before use`
@@ -518,7 +531,7 @@ export function getLlmsText(catalog = getCatalog()) {
     lines.push(`## ${group}`, "")
     for (const item of items) {
       const links = [`[JSON](${item.endpoints.json})`]
-      if (item.page !== "n/a") links.push(`[QA page](${item.page})`)
+      if (item.page !== null) links.push(`[QA page](${item.page})`)
       const kind =
         item.entry === "bundle"
           ? " Bundle; re-exports other items."
@@ -526,19 +539,22 @@ export function getLlmsText(catalog = getCatalog()) {
             ? ` Documentation entry; installs @jbm/${item.installName}.`
             : ""
       lines.push(
-        `- [${item.title} (${item.name})](${item.endpoints.markdown}): ${item.description}${kind} ${links.join(" · ")}`
+        `- [${item.title} (${item.name})](${item.endpoints.markdown}) · ${runtime(item)}: ${item.description}${kind} ${links.join(" · ")}`
       )
     }
     lines.push("")
   }
   lines.push(
+    "## Guides",
+    "",
+    ...catalog.docs.map((doc) => `- [${doc.title}](${doc.url})`),
+    "",
     "## Optional",
     "",
     `- [llms-full.txt](${catalog.links.llmsFull}): every item in full as plain text`,
     `- [catalog.json](${catalog.links.catalog}): every item in full as JSON`,
     `- [registry.json](${catalog.links.registryIndex}): shadcn registry index`,
-    `- [Agent contract](${catalog.links.contract}): what each field means`,
-    `- [Source](${catalog.source})`
+    `- [Agent contract](${catalog.links.contract}): what each field means`
   )
   return lines.join("\n") + "\n"
 }
@@ -611,13 +627,13 @@ export function getItemMarkdown(name: string, catalog = getCatalog()) {
     `- Entry: ${item.entry}`,
     `- Category: ${item.category}`,
     `- Preview capabilities: ${item.capabilities.join(", ") || "none (still preview)"}`,
+    `- Runtime: ${runtime(item)}`,
     `- Needs Remotion: ${yesNo(item.needsRemotion)}`,
-    item.page === "n/a"
+    item.page === null
       ? `- QA page: none. ${item.pageReason ?? ""}`.trimEnd()
       : `- QA page: ${item.page}`,
     `- JSON: ${item.endpoints.json}`,
-    `- Registry item: ${item.registryItem}`,
-    `- Source: ${sourceUrl(item.sourcePath)}`,
+    `- Registry item: ${item.registryItem} (source code in files[].content)`,
     "",
     "## Install",
     "",
@@ -662,15 +678,17 @@ export function getItemMarkdown(name: string, catalog = getCatalog()) {
     "",
     "## Files",
     "",
-    "| Source (jbm-ui repo) | Installs to | Import |",
+    `Each file's source code is in the registry item JSON (${item.registryItem}, files[].content).`,
+    "",
+    "| Source path | Installs to | Import |",
     "| --- | --- | --- |",
     ...item.files.map(
       (file) =>
-        `| [${file.source}](${sourceUrl(file.source)}) | ${codeCell(file.target)} | ${codeCell(file.import)} |`
+        `| ${codeCell(file.source)} | ${codeCell(file.target)} | ${codeCell(file.import)} |`
     )
   )
   if (item.api.length)
-    lines.push("", item.api.length === 1 ? "## Props" : "## API", ...apiMarkdown(item.api, catalog.homepage))
+    lines.push("", "## API", ...apiMarkdown(item.api, catalog.homepage))
   lines.push("", "## Stage", "")
   if (item.stage.mode === "declared")
     lines.push(
@@ -740,3 +758,11 @@ export function itemAlternateTypes(name: string, title: string) {
     ],
   }
 }
+
+// Unknown-name helpers live in lib/agent-routes.ts so proxy.ts can use them without the catalog.
+export {
+  canonicalItemName,
+  catalogNotFoundJson,
+  catalogNotFoundMarkdown,
+  nearestItemName,
+} from "@/lib/agent-routes"

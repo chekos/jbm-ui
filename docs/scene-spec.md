@@ -38,6 +38,82 @@ const scenes = data as ScenesFile
 
 YAML notes: quote strings that contain `: `, ` #`, or start with `@`, `*`, `&`, `!`, `{`, `[`, `'`, `"`, or `-`. Numbers stay numbers (`at: 0.5` is seconds); `at: explain+0.2` is a string. Write line breaks as `"\n"` inside double quotes. Any YAML parser that yields the same plain objects works; the examples in this file are parsed with `js-yaml` 4 in CI.
 
+## Multi-scene composition
+
+A complete Remotion entry: one 1080×1920 `<Composition>`, one `<Series.Sequence>` per scene with its own `durationInFrames`, YAML parsed with `js-yaml` and validated with `ajv` against the schema, Geist loaded with `@remotion/google-fonts`, and a literal phrase → seconds table standing in for narration timing. Times inside each scene start at 0 because every scene has its own sequence. It is the last example of `@jbm/scene-spec`, and CI typechecks it in a fresh consumer.
+
+```tsx
+import { Composition, Series } from "remotion"
+import { loadFont as loadGeist } from "@remotion/google-fonts/Geist"
+import { loadFont as loadGeistMono } from "@remotion/google-fonts/GeistMono"
+import { load } from "js-yaml"
+import Ajv2020 from "ajv/dist/2020"
+import { SceneFromSpec } from "@/jbm/motion/compile"
+import type { ScenesFile } from "@/jbm/motion/spec"
+import schema from "./scene-spec.schema.json" // curl -o scene-spec.schema.json https://jbm-ui.bns.studio/schemas/scene-spec.json
+
+// npm install remotion @remotion/google-fonts js-yaml ajv (and @types/js-yaml).
+// Token font stacks fall back to the family names "Geist" and "Geist Mono" these load.
+loadGeist("normal", { weights: ["400", "500", "600", "700"], subsets: ["latin"] })
+loadGeistMono("normal", { weights: ["400", "500"], subsets: ["latin"] })
+
+const FPS = 30
+const yamlText = `
+scenes:
+  - id: hook
+    anchors: { reveal: "hecha de piezas" }
+    blocks:
+      - { type: big, at: 0, text: "Una biblioteca." }
+      - { type: note, at: reveal, text: "Hecha de piezas." }
+  - id: pieces
+    composition: { safeArea: full, layout: illustration }
+    anchors: { build: "una pieza" }
+    blocks:
+      - type: screens
+        pieces:
+          - { kind: card, at: build }
+          - { kind: button, at: build+0.6 }
+`
+
+// No narration yet: a literal phrase → seconds (from its scene's start) table, and scene lengths.
+const timings: Record<string, number> = { "hecha de piezas": 1.2, "una pieza": 0.8 }
+const seconds: Record<string, number> = { hook: 4, pieces: 5 }
+const resolve = (phrase: string) => {
+  const at = timings[phrase]
+  if (at === undefined) throw new Error(`No timing for "${phrase}"`)
+  return at
+}
+
+const validate = new Ajv2020({ allErrors: true }).compile(schema)
+const data: unknown = load(yamlText)
+if (!validate(data)) throw new Error(JSON.stringify(validate.errors, null, 2))
+const { scenes } = data as ScenesFile
+const frames = (id: string) => Math.round(seconds[id] * FPS)
+
+// One Series.Sequence per scene: each scene's times start at 0 inside its own sequence.
+export const Explainer = () => (
+  <Series>
+    {scenes.map((spec) => (
+      <Series.Sequence key={spec.id} durationInFrames={frames(spec.id)}>
+        <SceneFromSpec spec={spec} orientation="vertical" host={{ resolve }} />
+      </Series.Sequence>
+    ))}
+  </Series>
+)
+
+// Register in your Remotion root (registerRoot). Use 1920×1080 with orientation="landscape".
+export const RemotionRoot = () => (
+  <Composition
+    id="explainer-vertical"
+    component={Explainer}
+    width={1080}
+    height={1920}
+    fps={FPS}
+    durationInFrames={scenes.reduce((total, spec) => total + frames(spec.id), 0)}
+  />
+)
+```
+
 ## Minimal example
 
 ```yaml
@@ -131,9 +207,9 @@ scenes:
 | --- | --- | --- | --- | --- |
 | `id` | string | yes | | Appears in error messages. |
 | `blocks` | Block[] | yes | | Top to bottom. See [Blocks](#blocks). |
-| `anchors` | Record<string, string> | | `{}` | Anchor name → narration phrase spoken in this scene. |
+| `anchors` | Record<string, string> | | `{}` | Anchor name → narration phrase spoken in this scene. Optional: needed only when a block time names an anchor. |
 | `title` | string | | | Label at the top left, entering at 0.1 s. Not allowed with the `headline-illustration` or `illustration` layouts. |
-| `starts` | string | | | First words of the scene; the host's timing pipeline cuts scene boundaries here. Not needed on the first scene; the compiler ignores it. |
+| `starts` | string | | | First words of the scene, for a host that cuts scene boundaries from a narration transcript. Not needed on the first scene; the compiler ignores it. |
 | `gap` | number \| `{ landscape, vertical }` | | `40` | px between blocks. `0 ≤ gap <` safe-area height. |
 | `valign` | `"top"` \| `"center"` | | `"top"` | Vertical placement of the flow stack. |
 | `composition` | CompositionOptions without `blocks` | | | Shared by both orientations. See [Composition](#composition-layouts-variants-and-safe-areas). |

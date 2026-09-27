@@ -3,7 +3,7 @@ import type { ItemContract } from "../schema"
 export default {
   name: "text-fill",
   entry: "component",
-  title: "Text fill",
+  title: "TextFill",
   description:
     "A controlled character sweep from muted text through vermilion into ink. Drive progress with a slider, scroll, or a video timeline.",
   category: "Motion",
@@ -40,7 +40,7 @@ export default {
     },
     {
       title: "Drive it from a Remotion timeline",
-      code: 'import { TextFill } from "@/jbm/ui/text-fill"\nimport { useProgress } from "@/jbm/motion/hooks" // install @jbm/motion-hooks separately\n\nconst progress = useProgress(0.2, 1, 2)\n<TextFill text="Letra por letra." progress={progress} style={{ fontSize: 72 }} />',
+      code: 'import { TextFill } from "@/jbm/ui/text-fill"\nimport { useProgress } from "@/jbm/motion/hooks" // install @jbm/motion-hooks separately\n\n// Render inside a Remotion <Composition> or <Player>: hooks run in the component body.\nexport function FillingText() {\n  const progress = useProgress(0.2, 1, 2)\n  return <TextFill text="Letra por letra." progress={progress} style={{ fontSize: 72 }} />\n}',
     },
   ],
   qa: [

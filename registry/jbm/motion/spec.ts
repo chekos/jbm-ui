@@ -6,10 +6,10 @@
  * (see `compile.tsx`, `resolve`). Numbers are also accepted as literal seconds from scene start.
  *
  * Text: every string that is shown on screen passes through the host's `t()` so one spec serves
- * every language; keys are the Spanish source strings, as in the Jev project.
+ * every language; keys are the source-language strings (Spanish in tacosdedatos videos).
  *
- * The JSDoc below is the field reference: `pnpm contracts:build` turns these types into the JSON
- * Schema served at /schemas/scene-spec.json. Sizes are canvas pixels; times are seconds.
+ * The JSDoc below is the field reference: these types generate the JSON Schema served at
+ * https://jbm-ui.bns.studio/schemas/scene-spec.json. Sizes are canvas pixels; times are seconds.
  */
 
 /**
@@ -21,7 +21,18 @@
 export type At = string | number
 
 /** A pixel value that can differ per orientation. */
-export type PerOrientation = { landscape: number; vertical: number }
+export type PerOrientation = {
+  /**
+   * Pixels on the 1920 × 1080 stage.
+   * @minimum 0
+   */
+  landscape: number
+  /**
+   * Pixels on the 1080 × 1920 stage.
+   * @minimum 0
+   */
+  vertical: number
+}
 
 export type StatItem = {
   /** Entrance time of this card. */
@@ -57,7 +68,10 @@ export type BlockBody =
       text: string
       /** Text color; omit for ink. */
       color?: "accent" | "ink"
-      /** Font size in px. Default 120 in landscape, 96 in vertical. */
+      /**
+       * Font size in px; positive. Default 120 in landscape, 96 in vertical.
+       * @exclusiveMinimum 0
+       */
       size?: number
       /**
        * Entrance motion.
@@ -166,10 +180,13 @@ export type BlockBody =
   | {
       /** Empty vertical space. */
       type: "spacer"
-      /** Height in px, or per orientation. */
+      /**
+       * Height in px, or per orientation; nonnegative.
+       * @minimum 0
+       */
       h: number | PerOrientation
     }
-  /** Illustrated blocks (paper cut-out pieces of interface). See ../ui/ui-bits.tsx. */
+  /** Illustrated blocks (paper cut-out pieces of interface drawn with the UI Bits items). */
   | {
       /** A phone screen built piece by piece, then rebuilt on new screens on every `again` cue. */
       type: "screens"
@@ -195,7 +212,10 @@ export type BlockBody =
         /** Sticker time. */
         at: At
       }
-      /** Block height in px. Default 720 landscape / 1000 vertical in flow; the allocated height in illustration layouts. */
+      /**
+       * Block height in px; positive. Default 720 landscape / 1000 vertical in flow; the allocated height in illustration layouts.
+       * @exclusiveMinimum 0
+       */
       h?: number | PerOrientation
     }
   | {
@@ -262,7 +282,10 @@ export type BlockBody =
       recolor?: At
       /** Arrival of the recolor; must be later than `recolor`. */
       recolored?: At
-      /** Block height in px. Default 760 landscape / 1040 vertical in flow; the allocated height in illustration layouts. */
+      /**
+       * Block height in px; positive. Default 760 landscape / 1040 vertical in flow; the allocated height in illustration layouts.
+       * @exclusiveMinimum 0
+       */
       h?: number | PerOrientation
     }
   | {
@@ -298,7 +321,10 @@ export type BlockBody =
       at: At
       /** Line under the lockup; translated. */
       tagline?: string
-      /** Lockup size in px. Default 52 in landscape, 56 in vertical. */
+      /**
+       * Lockup size in px; positive. Default 52 in landscape, 56 in vertical.
+       * @exclusiveMinimum 0
+       */
       size?: number
     }
   | {
@@ -366,7 +392,10 @@ export type CompositionOptions = {
    * @exclusiveMinimum 0
    */
   subjectScale?: number
-  /** Gap between blocks in px (per orientation allowed); overrides the scene `gap`. */
+  /**
+   * Gap between blocks in px (per orientation allowed); overrides the scene `gap`. Nonnegative.
+   * @minimum 0
+   */
   gap?: number | PerOrientation
   /** Vertical placement of the flow stack; overrides the scene `valign`. */
   valign?: "top" | "center"
@@ -383,15 +412,23 @@ export type SceneSpec = {
   variants?: Partial<Record<"landscape" | "vertical", CompositionOptions>>
   /** Scene heading (Label, top-left). Omit for a headline-only scene. */
   title?: string
-  /** First words the narrator says in this scene; pipeline/build_timing.py cuts scene boundaries here. Not needed on the first scene. */
+  /**
+   * First words the narrator says in this scene, for a host that cuts scene boundaries from a
+   * narration transcript. The compiler ignores it; not needed on the first scene.
+   */
   starts?: string
-  /** anchor name → phrase spoken in this scene. */
+  /**
+   * Optional. Anchor name → phrase spoken in this scene; `host.resolve(phrase)` turns the phrase into
+   * seconds. Required only when a block uses an anchor name as its time; omit it when every time
+   * is a number.
+   */
   anchors?: Record<string, string>
   /** Blocks, top to bottom. */
   blocks: Block[]
   /**
    * Optional per-orientation gap between blocks (default 40); must be ≥ 0 and smaller than the safe-area height.
    * @default 40
+   * @minimum 0
    */
   gap?: number | PerOrientation
   /**

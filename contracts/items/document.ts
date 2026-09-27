@@ -44,6 +44,6 @@ export default {
     "Without a label the SVG is aria-hidden; with one it exposes role img and the label as its name.",
   ],
   docs: [
-    { title: "Visual primitives guide", url: "https://github.com/chekos/jbm-ui/blob/main/docs/visual-primitives.md" },
+    { title: "Visual primitives guide", url: "https://jbm-ui.bns.studio/docs/visual-primitives.md" },
   ],
 } satisfies ItemContract

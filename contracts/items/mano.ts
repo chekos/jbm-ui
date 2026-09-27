@@ -50,7 +50,7 @@ export default {
     "Anchor coordinates are in the 30×29 viewBox but each pose applies its own internal transform, so the fingertip lands at a different local point per pose; check the anchor visually for each pose you use.",
   ],
   docs: [
-    { title: "Paper and filing illustrations guide", url: "https://github.com/chekos/jbm-ui/blob/main/docs/design-video-components.md" },
-    { title: "Desk illustrations guide", url: "https://github.com/chekos/jbm-ui/blob/main/docs/desk-components.md" },
+    { title: "Paper and filing illustrations guide", url: "https://jbm-ui.bns.studio/docs/design-video-components.md" },
+    { title: "Desk illustrations guide", url: "https://jbm-ui.bns.studio/docs/desk-components.md" },
   ],
 } satisfies ItemContract

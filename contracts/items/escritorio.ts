@@ -72,6 +72,6 @@ export default {
     "The Mano anchor in the second example is an estimate of the pinch fingertip; verify it visually.",
   ],
   docs: [
-    { title: "Desk illustrations guide", url: "https://github.com/chekos/jbm-ui/blob/main/docs/desk-components.md" },
+    { title: "Desk illustrations guide", url: "https://jbm-ui.bns.studio/docs/desk-components.md" },
   ],
 } satisfies ItemContract

@@ -3,7 +3,7 @@ import type { ItemContract } from "../schema"
 export default {
   name: "clipped-note",
   entry: "component",
-  title: "Clipped note",
+  title: "ClippedNote",
   description:
     "Paper note with an optional paper clip, rotation, and paper, accent, or ink stock.",
   category: "UI Bits",
@@ -45,6 +45,6 @@ export default {
     "Check a long unbroken word wraps inside the 220px width on narrow screens.",
   ],
   docs: [
-    { title: "Paper and filing illustrations guide", url: "https://github.com/chekos/jbm-ui/blob/main/docs/design-video-components.md" },
+    { title: "Paper and filing illustrations guide", url: "https://jbm-ui.bns.studio/docs/design-video-components.md" },
   ],
 } satisfies ItemContract

@@ -1,7 +1,7 @@
 {
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "tool-caddy",
-  "title": "Tool caddy",
+  "title": "ToolCaddy",
   "description": "An empty divided desktop organizer.",
   "registryDependencies": [
     "@jbm/tokens"

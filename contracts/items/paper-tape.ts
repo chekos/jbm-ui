@@ -3,7 +3,7 @@ import type { ItemContract } from "../schema"
 export default {
   name: "paper-tape",
   entry: "component",
-  title: "Paper tape",
+  title: "PaperTape",
   description:
     "Strip of paper fed out by length, with printed marks, checkpoint markers, and attachments on one coordinate system.",
   category: "UI Bits",
@@ -52,7 +52,7 @@ export default {
     },
     {
       title: "Feed from a Remotion timeline",
-      code: 'import { PaperTape } from "@/jbm/ui/paper-tape"\nimport { useProgress } from "@/jbm/motion/hooks" // install @jbm/motion-hooks separately\n\nconst feed = useProgress(0.2, 1000, 4)\n<PaperTape length={feed} window={280} direction="vertical" markers={[{ id: "stop", at: 520 }]} />',
+      code: 'import { PaperTape } from "@/jbm/ui/paper-tape"\nimport { useProgress } from "@/jbm/motion/hooks" // install @jbm/motion-hooks separately\n\n// Render inside a Remotion <Composition> or <Player>: hooks run in the component body.\nexport function FeedingTape() {\n  const feed = useProgress(0.2, 1000, 4)\n  return <PaperTape length={feed} window={280} direction="vertical" markers={[{ id: "stop", at: 520 }]} />\n}',
     },
   ],
   qa: [
@@ -62,6 +62,6 @@ export default {
     "Try a very long length: only the visible dashes render and content past the window is clipped at the edge.",
   ],
   docs: [
-    { title: "Paper and filing illustrations guide", url: "https://github.com/chekos/jbm-ui/blob/main/docs/design-video-components.md" },
+    { title: "Paper and filing illustrations guide", url: "https://jbm-ui.bns.studio/docs/design-video-components.md" },
   ],
 } satisfies ItemContract

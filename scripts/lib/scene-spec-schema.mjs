@@ -74,8 +74,8 @@ export function buildSceneSpecSchema(root, { id } = {}) {
       }
       if (node.type === "string" && pattern) node.pattern = pattern
       for (const branch of node.anyOf ?? []) if (!branch.enum) apply(branch)
-      if (node.$ref === "#/$defs/PerOrientation" && Object.keys(numeric).length)
-        throw new Error("numeric tags on a PerOrientation union are not supported")
+      // A PerOrientation branch keeps its own bounds (both fields @minimum 0); the tags on the
+      // union constrain its number branch only.
     }
     apply(schema)
     const meta = {}
@@ -167,7 +167,7 @@ export function buildSceneSpecSchema(root, { id } = {}) {
     ...(id ? { $id: id } : {}),
     title: "jbm-ui scene spec",
     description:
-      "A parsed scenes file for @jbm/scene-spec (SceneFromSpec). Generated from registry/jbm/motion/spec.ts by `pnpm contracts:build`; do not edit. Validate one scene against #/$defs/SceneSpec. Runtime rules the schema cannot express are listed in docs/scene-spec.md (Errors).",
+      "A parsed scenes file for @jbm/scene-spec (SceneFromSpec). Generated from the types in motion/spec.ts, which the item installs; do not edit. Validate one scene against #/$defs/SceneSpec. Runtime rules the schema cannot express are listed under Errors in https://jbm-ui.bns.studio/docs/scene-spec.md.",
     ...root_,
     $defs: ordered,
   }

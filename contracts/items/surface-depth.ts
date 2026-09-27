@@ -4,7 +4,7 @@ export default {
   name: "surface-depth",
   entry: "doc",
   install: "tokens",
-  title: "Surface depth",
+  title: "SurfaceDepth",
   description:
     "Fine borders, inset edge lighting, and layered shadows. Compare the original surface and inspect each layer.",
   category: "Foundations",
@@ -52,6 +52,6 @@ export default {
     "Exercise the buttons and checkboxes by keyboard and confirm visible focus.",
   ],
   docs: [
-    { title: "Surface depth guide", url: "https://github.com/chekos/jbm-ui/blob/main/docs/surface-depth.md" },
+    { title: "Surface depth guide", url: "https://jbm-ui.bns.studio/docs/surface-depth.md" },
   ],
 } satisfies ItemContract

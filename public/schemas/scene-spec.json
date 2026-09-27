@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://jbm-ui.bns.studio/schemas/scene-spec.json",
   "title": "jbm-ui scene spec",
-  "description": "A parsed scenes file for @jbm/scene-spec (SceneFromSpec). Generated from registry/jbm/motion/spec.ts by `pnpm contracts:build`; do not edit. Validate one scene against #/$defs/SceneSpec. Runtime rules the schema cannot express are listed in docs/scene-spec.md (Errors).",
+  "description": "A parsed scenes file for @jbm/scene-spec (SceneFromSpec). Generated from the types in motion/spec.ts, which the item installs; do not edit. Validate one scene against #/$defs/SceneSpec. Runtime rules the schema cannot express are listed under Errors in https://jbm-ui.bns.studio/docs/scene-spec.md.",
   "type": "object",
   "properties": {
     "scenes": {
@@ -53,10 +53,11 @@
               "exclusiveMinimum": 0
             },
             "gap": {
-              "description": "Gap between blocks in px (per orientation allowed); overrides the scene `gap`.",
+              "description": "Gap between blocks in px (per orientation allowed); overrides the scene `gap`. Nonnegative.",
               "anyOf": [
                 {
-                  "type": "number"
+                  "type": "number",
+                  "minimum": 0
                 },
                 {
                   "$ref": "#/$defs/PerOrientation"
@@ -92,11 +93,11 @@
           "type": "string"
         },
         "starts": {
-          "description": "First words the narrator says in this scene; pipeline/build_timing.py cuts scene boundaries here. Not needed on the first scene.",
+          "description": "First words the narrator says in this scene, for a host that cuts scene boundaries from a narration transcript. The compiler ignores it; not needed on the first scene.",
           "type": "string"
         },
         "anchors": {
-          "description": "anchor name → phrase spoken in this scene.",
+          "description": "Optional. Anchor name → phrase spoken in this scene; `host.resolve(phrase)` turns the phrase into seconds. Required only when a block uses an anchor name as its time; omit it when every time is a number.",
           "type": "object",
           "additionalProperties": {
             "type": "string"
@@ -114,7 +115,8 @@
           "default": 40,
           "anyOf": [
             {
-              "type": "number"
+              "type": "number",
+              "minimum": 0
             },
             {
               "$ref": "#/$defs/PerOrientation"
@@ -165,10 +167,11 @@
           "exclusiveMinimum": 0
         },
         "gap": {
-          "description": "Gap between blocks in px (per orientation allowed); overrides the scene `gap`.",
+          "description": "Gap between blocks in px (per orientation allowed); overrides the scene `gap`. Nonnegative.",
           "anyOf": [
             {
-              "type": "number"
+              "type": "number",
+              "minimum": 0
             },
             {
               "$ref": "#/$defs/PerOrientation"
@@ -252,8 +255,9 @@
                 ]
               },
               "size": {
-                "description": "Font size in px. Default 120 in landscape, 96 in vertical.",
-                "type": "number"
+                "description": "Font size in px; positive. Default 120 in landscape, 96 in vertical.",
+                "type": "number",
+                "exclusiveMinimum": 0
               },
               "from": {
                 "description": "Entrance motion.",
@@ -600,10 +604,11 @@
                 "const": "spacer"
               },
               "h": {
-                "description": "Height in px, or per orientation.",
+                "description": "Height in px, or per orientation; nonnegative.",
                 "anyOf": [
                   {
-                    "type": "number"
+                    "type": "number",
+                    "minimum": 0
                   },
                   {
                     "$ref": "#/$defs/PerOrientation"
@@ -697,10 +702,11 @@
                 "additionalProperties": false
               },
               "h": {
-                "description": "Block height in px. Default 720 landscape / 1000 vertical in flow; the allocated height in illustration layouts.",
+                "description": "Block height in px; positive. Default 720 landscape / 1000 vertical in flow; the allocated height in illustration layouts.",
                 "anyOf": [
                   {
-                    "type": "number"
+                    "type": "number",
+                    "exclusiveMinimum": 0
                   },
                   {
                     "$ref": "#/$defs/PerOrientation"
@@ -907,10 +913,11 @@
                 "$ref": "#/$defs/At"
               },
               "h": {
-                "description": "Block height in px. Default 760 landscape / 1040 vertical in flow; the allocated height in illustration layouts.",
+                "description": "Block height in px; positive. Default 760 landscape / 1040 vertical in flow; the allocated height in illustration layouts.",
                 "anyOf": [
                   {
-                    "type": "number"
+                    "type": "number",
+                    "exclusiveMinimum": 0
                   },
                   {
                     "$ref": "#/$defs/PerOrientation"
@@ -1052,8 +1059,9 @@
                 "type": "string"
               },
               "size": {
-                "description": "Lockup size in px. Default 52 in landscape, 56 in vertical.",
-                "type": "number"
+                "description": "Lockup size in px; positive. Default 52 in landscape, 56 in vertical.",
+                "type": "number",
+                "exclusiveMinimum": 0
               },
               "until": {
                 "description": "Exit time: the block fades out and drifts up over 0.4 s. Flow blocks keep their layout space.",
@@ -1209,10 +1217,14 @@
       "type": "object",
       "properties": {
         "landscape": {
-          "type": "number"
+          "description": "Pixels on the 1920 × 1080 stage.",
+          "type": "number",
+          "minimum": 0
         },
         "vertical": {
-          "type": "number"
+          "description": "Pixels on the 1080 × 1920 stage.",
+          "type": "number",
+          "minimum": 0
         }
       },
       "required": [

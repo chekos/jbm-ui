@@ -1,7 +1,7 @@
 {
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "folder-contents",
-  "title": "Folder contents",
+  "title": "FolderContents",
   "description": "Folder that opens to reveal a sheet and a fan of nested folders whose documents extract independently.",
   "registryDependencies": [
     "@jbm/tokens",

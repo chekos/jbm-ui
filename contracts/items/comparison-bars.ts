@@ -3,7 +3,7 @@ import type { ItemContract } from "../schema"
 export default {
   name: "comparison-bars",
   entry: "component",
-  title: "Comparison Bars",
+  title: "ComparisonBars",
   description: "Readable comparison rows on a shared zero-based scale, with optional emphasis.",
   category: "UI",
   capabilities: [],
@@ -39,6 +39,6 @@ export default {
     "Read without the bars (they are aria-hidden): each dt/dd pair still states the label and value.",
   ],
   docs: [
-    { title: "Visual primitives guide", url: "https://github.com/chekos/jbm-ui/blob/main/docs/visual-primitives.md" },
+    { title: "Visual primitives guide", url: "https://jbm-ui.bns.studio/docs/visual-primitives.md" },
   ],
 } satisfies ItemContract

@@ -11,20 +11,43 @@ import {
 import { AddCommand } from "@/components/gallery/install"
 import { QaBench } from "@/components/gallery/qa-bench"
 import { ItemApi } from "@/components/gallery/item-api"
+import { BundlePage, type BundleNotice } from "@/components/gallery/not-found"
 import { itemAlternateTypes } from "@/lib/agent-catalog"
 import { getContract, getContracts } from "@/lib/contracts"
 import { siteOrigin } from "@/lib/site"
 
 type Props = { params: Promise<{ name: string }> }
 
-// One static QA page per gallery item. Bundles (ui-bits) prerender a 404 that explains
-// them (./not-found.tsx); any other name is the site 404.
+// One static QA page per gallery item. Bundles (ui-bits) have no QA page: /c/<bundle> renders a
+// noindex page that explains them and links to their members. Any other name is the 404
+// (./not-found.tsx).
 export const dynamicParams = false
 
 const bundleNames = () =>
   getContracts()
     .filter((contract) => contract.entry === "bundle")
     .map((contract) => contract.name)
+
+function bundleNotice(name: string): BundleNotice {
+  const contract = getContract(name)
+  return {
+    name: contract.name,
+    title: contract.title,
+    description: contract.description,
+    pageReason: contract.pageReason ?? "",
+    // Several exports can come from one item; list each item once.
+    members: [
+      ...new Set(
+        contract.api.flatMap((entry) =>
+          entry.kind === "re-export" ? [entry.from] : []
+        )
+      ),
+    ].map((member) => {
+      const { title, description } = getContract(member)
+      return { name: member, title, description }
+    }),
+  }
+}
 
 export function generateStaticParams() {
   return [
@@ -42,6 +65,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     return {
       title: `${bundle.title} (bundle) · jbm-ui`,
       description: bundle.description,
+      // Not an item page: keep it out of search results, but let crawlers follow member links.
+      robots: { index: false, follow: true },
       alternates: { types: itemAlternateTypes(name, bundle.title) },
     }
   }
@@ -63,11 +88,11 @@ const localHref = (url: string) =>
     ? url.slice("https://jbm-ui.bns.studio".length)
     : url
 
-const source = (path: string) =>
-  `https://github.com/chekos/jbm-ui/blob/main/${path}`
-
 export default async function ItemPage({ params }: Props) {
-  const item = getGalleryItem((await params).name)
+  const { name } = await params
+  if (bundleNames().includes(name))
+    return <BundlePage bundle={bundleNotice(name)} />
+  const item = getGalleryItem(name)
   if (!item) notFound()
   const player = isPlayerPreview(item.name)
   const contract = getContract(item.name)
@@ -79,7 +104,7 @@ export default async function ItemPage({ params }: Props) {
   const categoryHref = `/?cat=${categorySlug(item.category)}`
 
   return (
-    <main className="site-shell item-page" id="main">
+    <main className="site-shell item-page" id="main" tabIndex={-1}>
       <header className="item-topbar">
         <Link className="wordmark" href="/" aria-label="jbm-ui gallery">
           jbm<span aria-hidden="true">—</span>ui
@@ -101,9 +126,7 @@ export default async function ItemPage({ params }: Props) {
         <h1>{item.title}</h1>
         <p className="item-description">{item.description}</p>
         <ul className="card-tags item-tags" aria-label="Category and preview capabilities">
-          <li>
-            <Link href={categoryHref}>{item.category}</Link>
-          </li>
+          <li>{item.category}</li>
           {item.capabilities.map((tag) => (
             <li key={tag}>{tag}</li>
           ))}
@@ -111,7 +134,6 @@ export default async function ItemPage({ params }: Props) {
       </div>
 
       <section
-        id="components"
         className="item-bench"
         tabIndex={-1}
         aria-label={`${item.title} preview`}
@@ -158,18 +180,13 @@ export default async function ItemPage({ params }: Props) {
             </p>
           )}
           <ul className="item-links">
-            <li>
-              <a href={source(item.sourcePath)}>Source ↗</a>
-            </li>
             {item.inRegistry ? (
               <li>
-                <a href={`/r/${item.name}.json`}>Registry JSON ↗</a>
+                <a href={`/r/${item.name}.json`}>Registry JSON (source) ↗</a>
               </li>
             ) : (
               <li>
-                <a href={source("docs/surface-depth.md")}>
-                  Surface depth design note ↗
-                </a>
+                <a href="/docs/surface-depth.md">Surface depth design note</a>
               </li>
             )}
             <li>

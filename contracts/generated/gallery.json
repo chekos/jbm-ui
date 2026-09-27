@@ -16,7 +16,7 @@
     },
     {
       "name": "surface-depth",
-      "title": "Surface depth",
+      "title": "SurfaceDepth",
       "description": "Fine borders, inset edge lighting, and layered shadows. Compare the original surface and inspect each layer.",
       "category": "Foundations",
       "capabilities": [
@@ -184,7 +184,7 @@
     },
     {
       "name": "motion-hooks",
-      "title": "Motion hooks",
+      "title": "MotionHooks",
       "description": "Remotion timing hooks in seconds: elapsed time, a spring entrance, a cubic-out fade, and an eased progress value.",
       "category": "Foundations",
       "capabilities": [
@@ -193,7 +193,7 @@
       ],
       "needsRemotion": true,
       "registryDependencies": [],
-      "snippet": "import { useSec, useIn, useFade, useProgress } from \"@/jbm/motion/hooks\"\n\nconst seconds = useSec()\nconst entrance = useIn(0.2)\nconst opacity = useFade(0.2)\nconst progress = useProgress(0.2, 100, 1.5)\n\n<div style={{ opacity, transform: `translateY(${(1 - entrance) * 30}px)` }}>\n  {progress.toFixed(0)}% at {seconds.toFixed(2)}s\n</div>\n// Call inside a Remotion <Composition> or <Player>.",
+      "snippet": "import { useSec, useIn, useFade, useProgress } from \"@/jbm/motion/hooks\"\n\n// Render inside a Remotion <Composition> or <Player>: hooks run in the component body.\nexport function TimelineReadout() {\n  const seconds = useSec()\n  const entrance = useIn(0.2)\n  const opacity = useFade(0.2)\n  const progress = useProgress(0.2, 100, 1.5)\n  return (\n    <div style={{ opacity, transform: `translateY(${(1 - entrance) * 30}px)` }}>\n      {progress.toFixed(0)}% at {seconds.toFixed(2)}s\n    </div>\n  )\n}",
       "installName": "motion-hooks",
       "sourcePath": "registry/jbm/motion/hooks.ts",
       "inRegistry": true
@@ -400,7 +400,7 @@
     },
     {
       "name": "scene-spec",
-      "title": "Scene spec",
+      "title": "SceneFromSpec",
       "description": "Compiles a YAML-shaped scene spec into a Remotion scene for either orientation, with timed blocks, explicit layouts, orientation overrides, and configurable safe areas.",
       "category": "Layout",
       "capabilities": [
@@ -427,7 +427,7 @@
         "@jbm/propagate",
         "@jbm/shelf"
       ],
-      "snippet": "import { SceneFromSpec } from \"@/jbm/motion/compile\"\nimport type { ScenesFile } from \"@/jbm/motion/spec\"\n\nconst scenes: ScenesFile = parsedYaml\n<SceneFromSpec spec={scenes.scenes[0]} orientation=\"landscape\"\n  host={{ resolve: (phrase) => timings[phrase] }} />\n// Every block and field: https://github.com/chekos/jbm-ui/blob/main/docs/scene-spec.md",
+      "snippet": "import { SceneFromSpec } from \"@/jbm/motion/compile\"\nimport type { ScenesFile } from \"@/jbm/motion/spec\"\n\n// Placeholders: a parsed, schema-validated scenes file, and seconds from scene start per phrase.\ndeclare const scenes: ScenesFile\ndeclare const timings: Record<string, number>\n\nexport const FirstScene = () => (\n  <SceneFromSpec spec={scenes.scenes[0]} orientation=\"landscape\"\n    host={{ resolve: (phrase) => timings[phrase] }} />\n)\n// Every block and field: https://jbm-ui.bns.studio/docs/scene-spec.md",
       "installName": "scene-spec",
       "sourcePath": "registry/jbm/motion/compile.tsx",
       "inRegistry": true
@@ -548,7 +548,7 @@
     },
     {
       "name": "text-fill",
-      "title": "Text fill",
+      "title": "TextFill",
       "description": "A controlled character sweep from muted text through vermilion into ink. Drive progress with a slider, scroll, or a video timeline.",
       "category": "Motion",
       "capabilities": [
@@ -565,7 +565,7 @@
     },
     {
       "name": "scroll-text-fill",
-      "title": "Scroll text fill",
+      "title": "ScrollTextFill",
       "description": "Scroll to bring text into focus, one character at a time. Keyboard scrolling, reversible progress, and reduced-motion support.",
       "category": "Motion",
       "capabilities": [
@@ -583,7 +583,7 @@
     },
     {
       "name": "flip-text",
-      "title": "Flip text",
+      "title": "FlipText",
       "description": "Letters tumble on hover with a vermilion accent. Click, tap, or use the keyboard to flip the whole phrase. Respects reduced motion.",
       "category": "Motion",
       "capabilities": [
@@ -600,7 +600,7 @@
     },
     {
       "name": "scroll-stack",
-      "title": "Scroll stack",
+      "title": "ScrollStack",
       "description": "Stack any React content as you scroll. Successive items scale into place while earlier ones fade. Page or contained scrolling, keyboard access, and a plain-list fallback.",
       "category": "Motion",
       "capabilities": [
@@ -633,7 +633,7 @@
     },
     {
       "name": "action-link",
-      "title": "Action Link",
+      "title": "ActionLink",
       "description": "A text anchor with an optional arrow and visible hover and keyboard focus.",
       "category": "UI",
       "capabilities": [],
@@ -648,7 +648,7 @@
     },
     {
       "name": "index-row",
-      "title": "Index Row",
+      "title": "IndexRow",
       "description": "A numbered record with optional evidence, linked title, and active state.",
       "category": "UI",
       "capabilities": [],
@@ -664,7 +664,7 @@
     },
     {
       "name": "figure-caption",
-      "title": "Figure Caption",
+      "title": "FigureCaption",
       "description": "An editorial figure label, caption, and provenance that wraps on narrow screens.",
       "category": "UI",
       "capabilities": [],
@@ -696,7 +696,7 @@
     },
     {
       "name": "chat-bubble",
-      "title": "Chat Bubble",
+      "title": "ChatBubble",
       "description": "Messages with optional speakers and tails, incoming/outgoing alignment, and three palette tones.",
       "category": "UI",
       "capabilities": [],
@@ -743,7 +743,7 @@
     },
     {
       "name": "score-scale",
-      "title": "Score Scale",
+      "title": "ScoreScale",
       "description": "A read-only score meter with endpoint labels and a controlled marker.",
       "category": "UI",
       "capabilities": [
@@ -760,7 +760,7 @@
     },
     {
       "name": "comparison-bars",
-      "title": "Comparison Bars",
+      "title": "ComparisonBars",
       "description": "Readable comparison rows on a shared zero-based scale, with optional emphasis.",
       "category": "UI",
       "capabilities": [],
@@ -792,7 +792,7 @@
     },
     {
       "name": "scene-geometry",
-      "title": "Scene geometry",
+      "title": "SceneGeometry",
       "description": "Shared points, bounds, arc-length path interpolation and travel tilt.",
       "category": "Foundations",
       "capabilities": [],
@@ -805,7 +805,7 @@
     },
     {
       "name": "cajon",
-      "title": "Cajón",
+      "title": "Cajon",
       "description": "A fixed-size filing drawer with complete folders packed front to back.",
       "category": "UI Bits",
       "capabilities": [
@@ -860,7 +860,7 @@
     },
     {
       "name": "tool-caddy",
-      "title": "Tool caddy",
+      "title": "ToolCaddy",
       "description": "An empty divided desktop organizer.",
       "category": "UI Bits",
       "capabilities": [],
@@ -931,7 +931,7 @@
     },
     {
       "name": "file-cabinet",
-      "title": "File cabinet",
+      "title": "FileCabinet",
       "description": "SVG cabinet enclosure around a controlled filing drawer whose folders slide out and lift.",
       "category": "UI Bits",
       "capabilities": [
@@ -950,7 +950,7 @@
     },
     {
       "name": "paper-clip",
-      "title": "Paper clip",
+      "title": "PaperClip",
       "description": "Independent ink wire clip to lay across a paper edge.",
       "category": "UI Bits",
       "capabilities": [],
@@ -965,7 +965,7 @@
     },
     {
       "name": "clipped-note",
-      "title": "Clipped note",
+      "title": "ClippedNote",
       "description": "Paper note with an optional paper clip, rotation, and paper, accent, or ink stock.",
       "category": "UI Bits",
       "capabilities": [
@@ -984,7 +984,7 @@
     },
     {
       "name": "punched-tag",
-      "title": "Punched tag",
+      "title": "PunchedTag",
       "description": "Card-stock luggage-style label with a punched hole and bold content, in paper, accent, or ink stock.",
       "category": "UI Bits",
       "capabilities": [
@@ -1002,7 +1002,7 @@
     },
     {
       "name": "paper-line",
-      "title": "Paper line",
+      "title": "PaperLine",
       "description": "Line of text with controlled grapheme reveal, ink lift, strike-through, and dotted underline.",
       "category": "Motion",
       "capabilities": [
@@ -1038,7 +1038,7 @@
     },
     {
       "name": "tape-marker",
-      "title": "Tape marker",
+      "title": "TapeMarker",
       "description": "Folded vermilion paper checkpoint marker with an optional label above it.",
       "category": "UI Bits",
       "capabilities": [
@@ -1056,7 +1056,7 @@
     },
     {
       "name": "paper-tape",
-      "title": "Paper tape",
+      "title": "PaperTape",
       "description": "Strip of paper fed out by length, with printed marks, checkpoint markers, and attachments on one coordinate system.",
       "category": "UI Bits",
       "capabilities": [
@@ -1093,7 +1093,7 @@
     },
     {
       "name": "folder-contents",
-      "title": "Folder contents",
+      "title": "FolderContents",
       "description": "Folder that opens to reveal a sheet and a fan of nested folders whose documents extract independently.",
       "category": "UI Bits",
       "capabilities": [
@@ -1112,7 +1112,7 @@
     },
     {
       "name": "folder-carry",
-      "title": "Folder carry",
+      "title": "FolderCarry",
       "description": "Folder carried along a path by its tab, interpolating size and label between two resting places.",
       "category": "Motion",
       "capabilities": [

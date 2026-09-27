@@ -14,8 +14,18 @@ export const galleryPath = join(generatedDir, "gallery.json")
 
 /** Production origin for absolute URLs in generated files (lib/site.ts falls back to the same). */
 export const publicOrigin = "https://jbm-ui.bns.studio"
-/** Contract `docs` links to repository files use GitHub blob URLs on main. */
-export const repoBlob = "https://github.com/chekos/jbm-ui/blob/main/"
+/**
+ * The source repository is private, so agent-facing output never links to it. Guides are served by
+ * the site instead: docs/<slug>.md is published at /docs/<slug>.md (app/docs/[file]/route.ts).
+ */
+export const privateRepo = "github.com/chekos/jbm-ui"
+/** Site path prefix for published guides. */
+export const docsRoute = "/docs/"
+/** Guides published even when no contract links them. */
+export const alwaysPublishedDocs = ["agent-contract", "scene-spec"]
+export const contractDocsPath = join(generatedDir, "docs.json")
+/** Names and guide slugs only, small enough for proxy.ts (unknown /catalog and /docs files). */
+export const routesPath = join(generatedDir, "routes.json")
 
 /** JSON Schemas generated from registry types, served statically from public/. */
 export function generatedSchemas() {
@@ -346,6 +356,8 @@ export function validateContract(name) {
   if (!inRegistry && contract.entry !== "doc") errors.push("documentation entries use entry: \"doc\"")
   for (const field of ["title", "description"])
     if (!nonEmpty(contract[field])) errors.push(`${field} is required`)
+  if (nonEmpty(contract.title) && Array.isArray(contract.api) && contract.title !== expectedTitle(contract))
+    errors.push(`title must be "${expectedTitle(contract)}" (the primary component export, else the name in PascalCase)`)
   if (!categories.includes(contract.category))
     errors.push(`category must be one of ${categories.join(", ")}`)
 
@@ -499,7 +511,7 @@ export function validateContract(name) {
       registryDependencies: inRegistry ? install.registryDependencies ?? [] : [],
       installName,
       inRegistry,
-      page: contract.entry === "bundle" ? "n/a" : `/c/${name}`,
+      page: contract.entry === "bundle" ? null : `/c/${name}`,
       ...(contract.pageReason ? { pageReason: contract.pageReason } : {}),
       registryItem: `/r/${installName}.json`,
       sourcePath: install.files[0].path,
@@ -518,8 +530,9 @@ export function validateContract(name) {
 const schemaUrls = new Set([publicOrigin + sceneSpecSchemaPath])
 
 /**
- * `docs` and `schemas`: optional lists of { title, url } with absolute http(s) URLs. Links into
- * this repository (GitHub blob URLs on main) and onto this site must point at files that exist.
+ * `docs` and `schemas`: optional lists of { title, url } with absolute http(s) URLs. Links onto this
+ * site must point at files it serves: /docs/<slug>.md needs docs/<slug>.md, anything else a file in
+ * public/ or a generated schema. Links into the private source repository are rejected.
  */
 function checkLinks(links, field, errors) {
   if (links === undefined) return
@@ -549,14 +562,58 @@ function checkLinks(links, field, errors) {
     if (seen.has(url.href)) errors.push(`${label}.url repeats`)
     seen.add(url.href)
     const bare = url.href.replace(/[#?].*$/, "")
-    if (bare.startsWith(repoBlob)) {
-      if (!existsSync(join(root, decodeURIComponent(bare.slice(repoBlob.length)))))
-        errors.push(`${label}.url: ${bare.slice(repoBlob.length)} does not exist in the repository`)
+    if (url.href.includes(privateRepo))
+      errors.push(`${label}.url: the source repository is private; link the guide at ${publicOrigin}${docsRoute}<slug>.md`)
+    else if (url.origin === publicOrigin && url.pathname.startsWith(docsRoute)) {
+      const slug = docSlug(url.pathname)
+      if (!slug || !existsSync(join(root, "docs", `${slug}.md`)))
+        errors.push(`${label}.url: ${url.pathname} is not a guide in docs/ (expected /docs/<slug>.md)`)
     } else if (url.origin === publicOrigin) {
       if (!schemaUrls.has(bare) && !existsSync(join(root, "public", decodeURIComponent(url.pathname))))
         errors.push(`${label}.url: ${url.pathname} is not a static file this site serves`)
     }
   }
+}
+
+/** "/docs/scene-spec.md" → "scene-spec"; undefined for anything that is not a published guide path. */
+export function docSlug(pathname) {
+  return /^\/docs\/([a-z0-9-]+)\.md$/.exec(pathname)?.[1]
+}
+
+/**
+ * Guides the site publishes at /docs/<slug>.md: every guide a contract links in `docs`, plus
+ * alwaysPublishedDocs. Each is { slug, title, url, markdown } with the file content as written.
+ */
+export function publishedDocs(entries) {
+  const slugs = new Set(alwaysPublishedDocs)
+  for (const entry of entries)
+    for (const link of entry.docs ?? []) {
+      const url = new URL(link.url)
+      const slug = url.origin === publicOrigin && docSlug(url.pathname)
+      if (slug) slugs.add(slug)
+    }
+  return [...slugs].sort().map((slug) => {
+    const markdown = read(`docs/${slug}.md`)
+    return {
+      slug,
+      title: /^# (.+)$/m.exec(markdown)?.[1].trim() ?? slug,
+      url: `${publicOrigin}${docsRoute}${slug}.md`,
+      markdown,
+    }
+  })
+}
+
+/**
+ * Display titles follow one convention: the primary export (the first `api` entry) when it is a
+ * component, otherwise the item name in PascalCase (Tokens, MotionHooks, UiBits).
+ */
+export function expectedTitle(contract) {
+  const first = contract.api?.[0]
+  if (first?.kind === "component") return first.export
+  return String(contract.name)
+    .split("-")
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join("")
 }
 
 /** Generated catalog and lean gallery JSON for every item that has a contract. */
@@ -587,7 +644,14 @@ export function buildGenerated(names = contractNames().filter(hasContract)) {
       inRegistry: entry.inRegistry,
     })),
   }
-  return { catalog, gallery, failures }
+  // Guides published at /docs/<slug>.md, so agents never need the private repository.
+  const docs = { $comment: header, docs: publishedDocs(entries) }
+  const routes = {
+    $comment: header,
+    items: entries.map((entry) => entry.name),
+    docs: docs.docs.map(({ slug, title }) => ({ slug, title })),
+  }
+  return { catalog, gallery, docs, routes, failures }
 }
 
 /** registry.json with titles, descriptions, and categories synced from contracts. */

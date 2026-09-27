@@ -5,7 +5,7 @@ const itemCount = registry.items.length
 
 export default function Page() {
   return (
-    <main className="site-shell" id="main">
+    <main className="site-shell" id="main" tabIndex={-1}>
       <header className="site-header">
         <h1 className="wordmark" aria-label="jbm-ui">
           jbm<span aria-hidden="true">—</span>ui
@@ -14,9 +14,6 @@ export default function Page() {
           Cut-paper primitives and motion blocks for tacosdedatos explainers.
         </p>
         <p className="site-count">{itemCount} registry items</p>
-        <a className="site-source" href="https://github.com/chekos/jbm-ui">
-          GitHub ↗
-        </a>
       </header>
       <Gallery />
       <footer>

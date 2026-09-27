@@ -1,7 +1,7 @@
 {
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "comparison-bars",
-  "title": "Comparison Bars",
+  "title": "ComparisonBars",
   "description": "Readable comparison rows on a shared zero-based scale, with optional emphasis.",
   "registryDependencies": [
     "@jbm/tokens"

@@ -4,9 +4,10 @@ import Link from "next/link"
 import { createContext, useContext } from "react"
 import { AddCommand } from "./install"
 
-// Branded 404s. The site-wide page (app/not-found.tsx) and /c/<name> (app/c/[name]/not-found.tsx)
-// share the item-page chrome. A bundle such as ui-bits has no QA page of its own, so its
-// /c/<name> explains what it is and links to the items it re-exports.
+// Branded 404s and the bundle notice. The site-wide page (app/not-found.tsx) and /c/<name>
+// (app/c/[name]/not-found.tsx) share the item-page chrome. A bundle such as ui-bits has no QA page
+// of its own, so app/c/[name]/page.tsx renders BundlePage (noindex) to explain what it is and link
+// to the items it re-exports.
 
 export type BundleNotice = {
   name: string
@@ -24,7 +25,7 @@ function Shell({
   children: React.ReactNode
 }) {
   return (
-    <main className="site-shell item-page not-found" id="main">
+    <main className="site-shell item-page not-found" id="main" tabIndex={-1}>
       <header className="item-topbar">
         <Link className="wordmark" href="/" aria-label="jbm-ui gallery">
           jbm<span aria-hidden="true">—</span>ui
@@ -96,11 +97,12 @@ export function SiteNotFound({ name }: { name?: string }) {
   )
 }
 
-function BundlePage({ bundle }: { bundle: BundleNotice }) {
+/** /c/<bundle>: what the bundle is, how to install it, and the item pages to open instead. */
+export function BundlePage({ bundle }: { bundle: BundleNotice }) {
   return (
     <Shell crumb={bundle.title}>
       <div className="item-head">
-        <h1>{bundle.title} has no page of its own</h1>
+        <h1>{bundle.title} has no QA page of its own</h1>
         <p className="item-description">
           <code>@jbm/{bundle.name}</code> is a bundle that re-exports{" "}
           {bundle.members.length} items from a single file. {bundle.description}
@@ -157,9 +159,7 @@ export function ItemNameProvider({
   return <ItemNameContext value={name}>{children}</ItemNameContext>
 }
 
-/** /c/<name> 404: explains bundles, and names the missing item otherwise. */
-export function ItemNotFound({ bundles }: { bundles: BundleNotice[] }) {
-  const name = useContext(ItemNameContext)
-  const bundle = bundles.find((entry) => entry.name === name)
-  return bundle ? <BundlePage bundle={bundle} /> : <SiteNotFound name={name} />
+/** /c/<name> 404: names the missing item. */
+export function ItemNotFound() {
+  return <SiteNotFound name={useContext(ItemNameContext)} />
 }

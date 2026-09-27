@@ -3,7 +3,7 @@ import type { ItemContract } from "../schema"
 export default {
   name: "scroll-text-fill",
   entry: "component",
-  title: "Scroll text fill",
+  title: "ScrollTextFill",
   description:
     "Scroll to bring text into focus, one character at a time. Keyboard scrolling, reversible progress, and reduced-motion support.",
   category: "Motion",

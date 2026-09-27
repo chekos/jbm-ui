@@ -3,7 +3,7 @@ import type { ItemContract } from "../schema"
 export default {
   name: "tool-caddy",
   entry: "component",
-  title: "Tool caddy",
+  title: "ToolCaddy",
   description: "An empty divided desktop organizer.",
   category: "UI Bits",
   capabilities: [],
@@ -39,6 +39,6 @@ export default {
     "Scale w up and down: the 2px ink stroke scales with the drawing, so thin or thick edges at extreme sizes are expected; confirm they still match nearby objects.",
   ],
   docs: [
-    { title: "Desk illustrations guide", url: "https://github.com/chekos/jbm-ui/blob/main/docs/desk-components.md" },
+    { title: "Desk illustrations guide", url: "https://jbm-ui.bns.studio/docs/desk-components.md" },
   ],
 } satisfies ItemContract

@@ -4,8 +4,9 @@ import {
   getItemMarkdown,
 } from "@/lib/agent-catalog"
 
-// Per-item agent endpoints: /catalog/<name>.json and /catalog/<name>.md, one pair per
-// contract (components, bundles, and doc entries). Any other file name is a 404.
+// Per-item agent endpoints: /catalog/<name>.json and /catalog/<name>.md, one pair per contract
+// (components, bundles, and doc entries), all prerendered. proxy.ts answers other names first:
+// another casing redirects to the item, and unknown names get a 404 in the requested format.
 export const dynamic = "force-static"
 export const dynamicParams = false
 

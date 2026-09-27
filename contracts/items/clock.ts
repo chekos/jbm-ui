@@ -44,6 +44,6 @@ export default {
     "At a narrow width the label wraps below the face without clipping.",
   ],
   docs: [
-    { title: "Visual primitives guide", url: "https://github.com/chekos/jbm-ui/blob/main/docs/visual-primitives.md" },
+    { title: "Visual primitives guide", url: "https://jbm-ui.bns.studio/docs/visual-primitives.md" },
   ],
 } satisfies ItemContract

@@ -65,6 +65,6 @@ export default {
     "Inspect landscape and vertical widths: the last screen's badge and tilt can cross the right edge by about 14px.",
   ],
   docs: [
-    { title: "Scene spec guide", url: "https://github.com/chekos/jbm-ui/blob/main/docs/scene-spec.md" },
+    { title: "Scene spec guide", url: "https://jbm-ui.bns.studio/docs/scene-spec.md" },
   ],
 } satisfies ItemContract

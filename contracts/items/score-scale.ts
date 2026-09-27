@@ -3,7 +3,7 @@ import type { ItemContract } from "../schema"
 export default {
   name: "score-scale",
   entry: "component",
-  title: "Score Scale",
+  title: "ScoreScale",
   description: "A read-only score meter with endpoint labels and a controlled marker.",
   category: "UI",
   capabilities: ["controls"],
@@ -42,6 +42,6 @@ export default {
     "Screen readers announce a meter with aria-valuetext from formatValue; it is not focusable or draggable itself.",
   ],
   docs: [
-    { title: "Visual primitives guide", url: "https://github.com/chekos/jbm-ui/blob/main/docs/visual-primitives.md" },
+    { title: "Visual primitives guide", url: "https://jbm-ui.bns.studio/docs/visual-primitives.md" },
   ],
 } satisfies ItemContract

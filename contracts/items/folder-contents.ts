@@ -3,7 +3,7 @@ import type { ItemContract } from "../schema"
 export default {
   name: "folder-contents",
   entry: "component",
-  title: "Folder contents",
+  title: "FolderContents",
   description:
     "Folder that opens to reveal a sheet and a fan of nested folders whose documents extract independently.",
   category: "UI Bits",
@@ -56,6 +56,6 @@ export default {
     "Uncertain: at open 1 the sheet and front folders extend above the 220-unit viewBox, so they rely on overflow visible; check clipping when overflow is left hidden.",
   ],
   docs: [
-    { title: "Paper and filing illustrations guide", url: "https://github.com/chekos/jbm-ui/blob/main/docs/design-video-components.md" },
+    { title: "Paper and filing illustrations guide", url: "https://jbm-ui.bns.studio/docs/design-video-components.md" },
   ],
 } satisfies ItemContract

@@ -3,7 +3,7 @@ import type { ItemContract } from "../schema"
 export default {
   name: "figure-caption",
   entry: "component",
-  title: "Figure Caption",
+  title: "FigureCaption",
   description: "An editorial figure label, caption, and provenance that wraps on narrow screens.",
   category: "UI",
   capabilities: [],

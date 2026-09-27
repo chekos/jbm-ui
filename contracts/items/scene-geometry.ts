@@ -3,7 +3,7 @@ import type { ItemContract } from "../schema"
 export default {
   name: "scene-geometry",
   entry: "component",
-  title: "Scene geometry",
+  title: "SceneGeometry",
   description: "Shared points, bounds, arc-length path interpolation and travel tilt.",
   category: "Foundations",
   capabilities: [],

@@ -47,6 +47,6 @@ export default {
     "Check a long unbroken value on a narrow screen: it wraps inside the block instead of overflowing.",
   ],
   docs: [
-    { title: "Paper and filing illustrations guide", url: "https://github.com/chekos/jbm-ui/blob/main/docs/design-video-components.md" },
+    { title: "Paper and filing illustrations guide", url: "https://jbm-ui.bns.studio/docs/design-video-components.md" },
   ],
 } satisfies ItemContract

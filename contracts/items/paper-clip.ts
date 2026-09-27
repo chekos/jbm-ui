@@ -3,7 +3,7 @@ import type { ItemContract } from "../schema"
 export default {
   name: "paper-clip",
   entry: "component",
-  title: "Paper clip",
+  title: "PaperClip",
   description: "Independent ink wire clip to lay across a paper edge.",
   category: "UI Bits",
   capabilities: [],
@@ -35,6 +35,6 @@ export default {
     "Confirm it stays aria-hidden and adds no focusable element.",
   ],
   docs: [
-    { title: "Paper and filing illustrations guide", url: "https://github.com/chekos/jbm-ui/blob/main/docs/design-video-components.md" },
+    { title: "Paper and filing illustrations guide", url: "https://jbm-ui.bns.studio/docs/design-video-components.md" },
   ],
 } satisfies ItemContract

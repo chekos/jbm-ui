@@ -87,6 +87,6 @@ export default {
     "Verify text using dim or dimOnDark keeps readable contrast on its background.",
   ],
   docs: [
-    { title: "Surface depth guide", url: "https://github.com/chekos/jbm-ui/blob/main/docs/surface-depth.md" },
+    { title: "Surface depth guide", url: "https://jbm-ui.bns.studio/docs/surface-depth.md" },
   ],
 } satisfies ItemContract

@@ -1,7 +1,7 @@
 {
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "scene-geometry",
-  "title": "Scene geometry",
+  "title": "SceneGeometry",
   "description": "Shared points, bounds, arc-length path interpolation and travel tilt.",
   "registryDependencies": [],
   "files": [

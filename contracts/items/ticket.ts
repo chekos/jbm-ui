@@ -42,6 +42,6 @@ export default {
     "Check long content on a narrow screen wraps inside the ticket (overflowWrap anywhere) and the surface border and shadow match Card.",
   ],
   docs: [
-    { title: "Visual primitives guide", url: "https://github.com/chekos/jbm-ui/blob/main/docs/visual-primitives.md" },
+    { title: "Visual primitives guide", url: "https://jbm-ui.bns.studio/docs/visual-primitives.md" },
   ],
 } satisfies ItemContract

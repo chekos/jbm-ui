@@ -1,7 +1,7 @@
 {
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "paper-tape",
-  "title": "Paper tape",
+  "title": "PaperTape",
   "description": "Strip of paper fed out by length, with printed marks, checkpoint markers, and attachments on one coordinate system.",
   "registryDependencies": [
     "@jbm/tokens",

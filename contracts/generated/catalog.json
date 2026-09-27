@@ -92,14 +92,14 @@
       "docs": [
         {
           "title": "Surface depth guide",
-          "url": "https://github.com/chekos/jbm-ui/blob/main/docs/surface-depth.md"
+          "url": "https://jbm-ui.bns.studio/docs/surface-depth.md"
         }
       ]
     },
     {
       "name": "surface-depth",
       "entry": "doc",
-      "title": "Surface depth",
+      "title": "SurfaceDepth",
       "description": "Fine borders, inset edge lighting, and layered shadows. Compare the original surface and inspect each layer.",
       "category": "Foundations",
       "capabilities": [
@@ -156,7 +156,7 @@
       "docs": [
         {
           "title": "Surface depth guide",
-          "url": "https://github.com/chekos/jbm-ui/blob/main/docs/surface-depth.md"
+          "url": "https://jbm-ui.bns.studio/docs/surface-depth.md"
         }
       ]
     },
@@ -373,7 +373,7 @@
       "docs": [
         {
           "title": "Surface depth guide",
-          "url": "https://github.com/chekos/jbm-ui/blob/main/docs/surface-depth.md"
+          "url": "https://jbm-ui.bns.studio/docs/surface-depth.md"
         }
       ]
     },
@@ -1073,14 +1073,14 @@
       "docs": [
         {
           "title": "Surface depth guide",
-          "url": "https://github.com/chekos/jbm-ui/blob/main/docs/surface-depth.md"
+          "url": "https://jbm-ui.bns.studio/docs/surface-depth.md"
         }
       ]
     },
     {
       "name": "ui-bits",
       "entry": "bundle",
-      "title": "UI bits",
+      "title": "UiBits",
       "description": "One install for the paper cut-out interface pieces: UiButton, UiInput, UiCard, Piece, PhoneFrame, Badge, and TokenGlyph.",
       "category": "UI Bits",
       "capabilities": [],
@@ -1096,7 +1096,7 @@
       ],
       "installName": "ui-bits",
       "inRegistry": true,
-      "page": "n/a",
+      "page": null,
       "pageReason": "A backward-compatible barrel that only re-exports other items. Open /c/ui-button, /c/ui-input, /c/ui-card, /c/piece, /c/phone-frame, /c/badge, and /c/token-glyph for props, stage sizes, and previews.",
       "registryItem": "/r/ui-bits.json",
       "sourcePath": "registry/jbm/ui/ui-bits.tsx",
@@ -1269,7 +1269,7 @@
     {
       "name": "motion-hooks",
       "entry": "component",
-      "title": "Motion hooks",
+      "title": "MotionHooks",
       "description": "Remotion timing hooks in seconds: elapsed time, a spring entrance, a cubic-out fade, and an eased progress value.",
       "category": "Foundations",
       "capabilities": [
@@ -1375,7 +1375,7 @@
       "examples": [
         {
           "title": "Entrance, fade, and a counting value",
-          "code": "import { useSec, useIn, useFade, useProgress } from \"@/jbm/motion/hooks\"\n\nconst seconds = useSec()\nconst entrance = useIn(0.2)\nconst opacity = useFade(0.2)\nconst progress = useProgress(0.2, 100, 1.5)\n\n<div style={{ opacity, transform: `translateY(${(1 - entrance) * 30}px)` }}>\n  {progress.toFixed(0)}% at {seconds.toFixed(2)}s\n</div>\n// Call inside a Remotion <Composition> or <Player>."
+          "code": "import { useSec, useIn, useFade, useProgress } from \"@/jbm/motion/hooks\"\n\n// Render inside a Remotion <Composition> or <Player>: hooks run in the component body.\nexport function TimelineReadout() {\n  const seconds = useSec()\n  const entrance = useIn(0.2)\n  const opacity = useFade(0.2)\n  const progress = useProgress(0.2, 100, 1.5)\n  return (\n    <div style={{ opacity, transform: `translateY(${(1 - entrance) * 30}px)` }}>\n      {progress.toFixed(0)}% at {seconds.toFixed(2)}s\n    </div>\n  )\n}"
         }
       ],
       "qa": [
@@ -1989,7 +1989,7 @@
       "docs": [
         {
           "title": "Scene spec guide",
-          "url": "https://github.com/chekos/jbm-ui/blob/main/docs/scene-spec.md"
+          "url": "https://jbm-ui.bns.studio/docs/scene-spec.md"
         }
       ]
     },
@@ -2241,7 +2241,7 @@
       "docs": [
         {
           "title": "Scene spec guide",
-          "url": "https://github.com/chekos/jbm-ui/blob/main/docs/scene-spec.md"
+          "url": "https://jbm-ui.bns.studio/docs/scene-spec.md"
         }
       ]
     },
@@ -2534,7 +2534,7 @@
       "docs": [
         {
           "title": "Scene spec guide",
-          "url": "https://github.com/chekos/jbm-ui/blob/main/docs/scene-spec.md"
+          "url": "https://jbm-ui.bns.studio/docs/scene-spec.md"
         }
       ]
     },
@@ -2672,7 +2672,7 @@
     {
       "name": "scene-spec",
       "entry": "component",
-      "title": "Scene spec",
+      "title": "SceneFromSpec",
       "description": "Compiles a YAML-shaped scene spec into a Remotion scene for either orientation, with timed blocks, explicit layouts, orientation overrides, and configurable safe areas.",
       "category": "Layout",
       "capabilities": [
@@ -2719,7 +2719,7 @@
               "type": "SceneSpec",
               "required": true,
               "default": null,
-              "description": "One parsed scene (SceneSpec): id, anchors, blocks, and optional title, starts, composition, variants, gap, and valign. The compiler takes plain objects; parse YAML in the host (the guide uses js-yaml 4 `load`) and validate against #/$defs/SceneSpec of the JSON Schema."
+              "description": "One parsed scene (SceneSpec): required id and blocks; optional anchors (needed only when a block time names an anchor), title, starts, composition, variants, gap, and valign. The compiler takes plain objects; parse YAML in the host (the guide uses js-yaml 4 `load`) and validate against #/$defs/SceneSpec of the JSON Schema."
             },
             {
               "name": "showSafeArea",
@@ -2804,7 +2804,7 @@
         {
           "export": "SceneSpec",
           "kind": "type",
-          "summary": "One scene: id, anchors, blocks, title, starts, composition, variants, gap, valign."
+          "summary": "One scene: required id and blocks; optional anchors, title, starts, composition, variants, gap, valign."
         },
         {
           "export": "ScenesFile",
@@ -2872,7 +2872,7 @@
       "examples": [
         {
           "title": "Compile a parsed scene",
-          "code": "import { SceneFromSpec } from \"@/jbm/motion/compile\"\nimport type { ScenesFile } from \"@/jbm/motion/spec\"\n\nconst scenes: ScenesFile = parsedYaml\n<SceneFromSpec spec={scenes.scenes[0]} orientation=\"landscape\"\n  host={{ resolve: (phrase) => timings[phrase] }} />\n// Every block and field: https://github.com/chekos/jbm-ui/blob/main/docs/scene-spec.md"
+          "code": "import { SceneFromSpec } from \"@/jbm/motion/compile\"\nimport type { ScenesFile } from \"@/jbm/motion/spec\"\n\n// Placeholders: a parsed, schema-validated scenes file, and seconds from scene start per phrase.\ndeclare const scenes: ScenesFile\ndeclare const timings: Record<string, number>\n\nexport const FirstScene = () => (\n  <SceneFromSpec spec={scenes.scenes[0]} orientation=\"landscape\"\n    host={{ resolve: (phrase) => timings[phrase] }} />\n)\n// Every block and field: https://jbm-ui.bns.studio/docs/scene-spec.md"
         },
         {
           "title": "Headline and illustration, tuned for portrait",
@@ -2880,7 +2880,11 @@
         },
         {
           "title": "Parse, validate, and compile a YAML scenes file",
-          "code": "import { load } from \"js-yaml\"\nimport Ajv2020 from \"ajv/dist/2020\"\nimport { SceneFromSpec } from \"@/jbm/motion/compile\"\nimport type { ScenesFile } from \"@/jbm/motion/spec\"\nimport schema from \"./scene-spec.schema.json\" // https://jbm-ui.bns.studio/schemas/scene-spec.json\n\nconst validate = new Ajv2020({ allErrors: true }).compile(schema)\nconst data = load(yamlText)\nif (!validate(data)) throw new Error(JSON.stringify(validate.errors))\nconst { scenes } = data as ScenesFile\n\n<SceneFromSpec spec={scenes[0]} orientation=\"vertical\"\n  host={{ resolve: (phrase) => timings[phrase], t: translate }} />"
+          "code": "import { load } from \"js-yaml\"\nimport Ajv2020 from \"ajv/dist/2020\"\nimport { SceneFromSpec } from \"@/jbm/motion/compile\"\nimport type { ScenesFile } from \"@/jbm/motion/spec\"\nimport schema from \"./scene-spec.schema.json\" // curl -o scene-spec.schema.json https://jbm-ui.bns.studio/schemas/scene-spec.json\n\n// Placeholders: the YAML source, seconds from scene start per phrase, and a translator.\ndeclare const yamlText: string\ndeclare const timings: Record<string, number>\ndeclare const translate: (text: string) => string\n\nconst validate = new Ajv2020({ allErrors: true }).compile(schema)\nconst data: unknown = load(yamlText)\nif (!validate(data)) throw new Error(JSON.stringify(validate.errors, null, 2))\nconst { scenes } = data as ScenesFile\n\nexport const FirstScene = () => (\n  <SceneFromSpec spec={scenes[0]} orientation=\"vertical\"\n    host={{ resolve: (phrase) => timings[phrase], t: translate }} />\n)"
+        },
+        {
+          "title": "Multi-scene vertical composition",
+          "code": "import { Composition, Series } from \"remotion\"\nimport { loadFont as loadGeist } from \"@remotion/google-fonts/Geist\"\nimport { loadFont as loadGeistMono } from \"@remotion/google-fonts/GeistMono\"\nimport { load } from \"js-yaml\"\nimport Ajv2020 from \"ajv/dist/2020\"\nimport { SceneFromSpec } from \"@/jbm/motion/compile\"\nimport type { ScenesFile } from \"@/jbm/motion/spec\"\nimport schema from \"./scene-spec.schema.json\" // curl -o scene-spec.schema.json https://jbm-ui.bns.studio/schemas/scene-spec.json\n\n// npm install remotion @remotion/google-fonts js-yaml ajv (and @types/js-yaml).\n// Token font stacks fall back to the family names \"Geist\" and \"Geist Mono\" these load.\nloadGeist(\"normal\", { weights: [\"400\", \"500\", \"600\", \"700\"], subsets: [\"latin\"] })\nloadGeistMono(\"normal\", { weights: [\"400\", \"500\"], subsets: [\"latin\"] })\n\nconst FPS = 30\nconst yamlText = `\nscenes:\n  - id: hook\n    anchors: { reveal: \"hecha de piezas\" }\n    blocks:\n      - { type: big, at: 0, text: \"Una biblioteca.\" }\n      - { type: note, at: reveal, text: \"Hecha de piezas.\" }\n  - id: pieces\n    composition: { safeArea: full, layout: illustration }\n    anchors: { build: \"una pieza\" }\n    blocks:\n      - type: screens\n        pieces:\n          - { kind: card, at: build }\n          - { kind: button, at: build+0.6 }\n`\n\n// No narration yet: a literal phrase → seconds (from its scene's start) table, and scene lengths.\nconst timings: Record<string, number> = { \"hecha de piezas\": 1.2, \"una pieza\": 0.8 }\nconst seconds: Record<string, number> = { hook: 4, pieces: 5 }\nconst resolve = (phrase: string) => {\n  const at = timings[phrase]\n  if (at === undefined) throw new Error(`No timing for \"${phrase}\"`)\n  return at\n}\n\nconst validate = new Ajv2020({ allErrors: true }).compile(schema)\nconst data: unknown = load(yamlText)\nif (!validate(data)) throw new Error(JSON.stringify(validate.errors, null, 2))\nconst { scenes } = data as ScenesFile\nconst frames = (id: string) => Math.round(seconds[id] * FPS)\n\n// One Series.Sequence per scene: each scene's times start at 0 inside its own sequence.\nexport const Explainer = () => (\n  <Series>\n    {scenes.map((spec) => (\n      <Series.Sequence key={spec.id} durationInFrames={frames(spec.id)}>\n        <SceneFromSpec spec={spec} orientation=\"vertical\" host={{ resolve }} />\n      </Series.Sequence>\n    ))}\n  </Series>\n)\n\n// Register in your Remotion root (registerRoot). Use 1920×1080 with orientation=\"landscape\".\nexport const RemotionRoot = () => (\n  <Composition\n    id=\"explainer-vertical\"\n    component={Explainer}\n    width={1080}\n    height={1920}\n    fps={FPS}\n    durationInFrames={scenes.reduce((total, spec) => total + frames(spec.id), 0)}\n  />\n)"
         }
       ],
       "qa": [
@@ -2892,7 +2896,7 @@
       "docs": [
         {
           "title": "Scene spec guide",
-          "url": "https://github.com/chekos/jbm-ui/blob/main/docs/scene-spec.md"
+          "url": "https://jbm-ui.bns.studio/docs/scene-spec.md"
         }
       ],
       "schemas": [
@@ -3065,7 +3069,7 @@
         },
         {
           "title": "Blink the cursor on a Remotion timeline",
-          "code": "import { UiInput } from \"@/jbm/ui/ui-input\"\nimport { useSec } from \"@/jbm/motion/hooks\" // install @jbm/motion-hooks separately\n\nconst sec = useSec()\n<UiInput w={420} h={120} cursorOn={Math.floor(sec * 2) % 2 === 0} />"
+          "code": "import { UiInput } from \"@/jbm/ui/ui-input\"\nimport { useSec } from \"@/jbm/motion/hooks\" // install @jbm/motion-hooks separately\n\n// Render inside a Remotion <Composition> or <Player>: hooks run in the component body.\nexport function BlinkingInput() {\n  const sec = useSec()\n  return <UiInput w={420} h={120} cursorOn={Math.floor(sec * 2) % 2 === 0} />\n}"
         }
       ],
       "qa": [
@@ -3512,7 +3516,7 @@
     {
       "name": "text-fill",
       "entry": "component",
-      "title": "Text fill",
+      "title": "TextFill",
       "description": "A controlled character sweep from muted text through vermilion into ink. Drive progress with a slider, scroll, or a video timeline.",
       "category": "Motion",
       "capabilities": [
@@ -3607,7 +3611,7 @@
         },
         {
           "title": "Drive it from a Remotion timeline",
-          "code": "import { TextFill } from \"@/jbm/ui/text-fill\"\nimport { useProgress } from \"@/jbm/motion/hooks\" // install @jbm/motion-hooks separately\n\nconst progress = useProgress(0.2, 1, 2)\n<TextFill text=\"Letra por letra.\" progress={progress} style={{ fontSize: 72 }} />"
+          "code": "import { TextFill } from \"@/jbm/ui/text-fill\"\nimport { useProgress } from \"@/jbm/motion/hooks\" // install @jbm/motion-hooks separately\n\n// Render inside a Remotion <Composition> or <Player>: hooks run in the component body.\nexport function FillingText() {\n  const progress = useProgress(0.2, 1, 2)\n  return <TextFill text=\"Letra por letra.\" progress={progress} style={{ fontSize: 72 }} />\n}"
         }
       ],
       "qa": [
@@ -3621,7 +3625,7 @@
     {
       "name": "scroll-text-fill",
       "entry": "component",
-      "title": "Scroll text fill",
+      "title": "ScrollTextFill",
       "description": "Scroll to bring text into focus, one character at a time. Keyboard scrolling, reversible progress, and reduced-motion support.",
       "category": "Motion",
       "capabilities": [
@@ -3751,7 +3755,7 @@
     {
       "name": "flip-text",
       "entry": "component",
-      "title": "Flip text",
+      "title": "FlipText",
       "description": "Letters tumble on hover with a vermilion accent. Click, tap, or use the keyboard to flip the whole phrase. Respects reduced motion.",
       "category": "Motion",
       "capabilities": [
@@ -3842,7 +3846,7 @@
     {
       "name": "scroll-stack",
       "entry": "component",
-      "title": "Scroll stack",
+      "title": "ScrollStack",
       "description": "Stack any React content as you scroll. Successive items scale into place while earlier ones fade. Page or contained scrolling, keyboard access, and a plain-list fallback.",
       "category": "Motion",
       "capabilities": [
@@ -4024,7 +4028,7 @@
     {
       "name": "action-link",
       "entry": "component",
-      "title": "Action Link",
+      "title": "ActionLink",
       "description": "A text anchor with an optional arrow and visible hover and keyboard focus.",
       "category": "UI",
       "capabilities": [],
@@ -4078,7 +4082,7 @@
     {
       "name": "index-row",
       "entry": "component",
-      "title": "Index Row",
+      "title": "IndexRow",
       "description": "A numbered record with optional evidence, linked title, and active state.",
       "category": "UI",
       "capabilities": [],
@@ -4161,7 +4165,7 @@
     {
       "name": "figure-caption",
       "entry": "component",
-      "title": "Figure Caption",
+      "title": "FigureCaption",
       "description": "An editorial figure label, caption, and provenance that wraps on narrow screens.",
       "category": "UI",
       "capabilities": [],
@@ -4303,14 +4307,14 @@
       "docs": [
         {
           "title": "Visual primitives guide",
-          "url": "https://github.com/chekos/jbm-ui/blob/main/docs/visual-primitives.md"
+          "url": "https://jbm-ui.bns.studio/docs/visual-primitives.md"
         }
       ]
     },
     {
       "name": "chat-bubble",
       "entry": "component",
-      "title": "Chat Bubble",
+      "title": "ChatBubble",
       "description": "Messages with optional speakers and tails, incoming/outgoing alignment, and three palette tones.",
       "category": "UI",
       "capabilities": [],
@@ -4385,7 +4389,7 @@
       "docs": [
         {
           "title": "Visual primitives guide",
-          "url": "https://github.com/chekos/jbm-ui/blob/main/docs/visual-primitives.md"
+          "url": "https://jbm-ui.bns.studio/docs/visual-primitives.md"
         }
       ]
     },
@@ -4465,7 +4469,7 @@
       "docs": [
         {
           "title": "Visual primitives guide",
-          "url": "https://github.com/chekos/jbm-ui/blob/main/docs/visual-primitives.md"
+          "url": "https://jbm-ui.bns.studio/docs/visual-primitives.md"
         }
       ]
     },
@@ -4620,7 +4624,7 @@
         },
         {
           "title": "Drive it from a Remotion timeline",
-          "code": "import { Folder } from \"@/jbm/ui/folder\"\nimport { useProgress } from \"@/jbm/motion/hooks\" // install @jbm/motion-hooks separately\n\nconst open = useProgress(0.5, 1, 0.8)\n<Folder label=\"proyecto\" tone=\"ink\" open={open} style={{ width: 390 }} />"
+          "code": "import { Folder } from \"@/jbm/ui/folder\"\nimport { useProgress } from \"@/jbm/motion/hooks\" // install @jbm/motion-hooks separately\n\n// Render inside a Remotion <Composition> or <Player>: hooks run in the component body.\nexport function OpeningFolder() {\n  const open = useProgress(0.5, 1, 0.8)\n  return <Folder label=\"proyecto\" tone=\"ink\" open={open} style={{ width: 390 }} />\n}"
         }
       ],
       "qa": [
@@ -4632,18 +4636,18 @@
       "docs": [
         {
           "title": "Paper and filing illustrations guide",
-          "url": "https://github.com/chekos/jbm-ui/blob/main/docs/design-video-components.md"
+          "url": "https://jbm-ui.bns.studio/docs/design-video-components.md"
         },
         {
           "title": "Visual primitives guide",
-          "url": "https://github.com/chekos/jbm-ui/blob/main/docs/visual-primitives.md"
+          "url": "https://jbm-ui.bns.studio/docs/visual-primitives.md"
         }
       ]
     },
     {
       "name": "score-scale",
       "entry": "component",
-      "title": "Score Scale",
+      "title": "ScoreScale",
       "description": "A read-only score meter with endpoint labels and a controlled marker.",
       "category": "UI",
       "capabilities": [
@@ -4734,14 +4738,14 @@
       "docs": [
         {
           "title": "Visual primitives guide",
-          "url": "https://github.com/chekos/jbm-ui/blob/main/docs/visual-primitives.md"
+          "url": "https://jbm-ui.bns.studio/docs/visual-primitives.md"
         }
       ]
     },
     {
       "name": "comparison-bars",
       "entry": "component",
-      "title": "Comparison Bars",
+      "title": "ComparisonBars",
       "description": "Readable comparison rows on a shared zero-based scale, with optional emphasis.",
       "category": "UI",
       "capabilities": [],
@@ -4809,7 +4813,7 @@
       "docs": [
         {
           "title": "Visual primitives guide",
-          "url": "https://github.com/chekos/jbm-ui/blob/main/docs/visual-primitives.md"
+          "url": "https://jbm-ui.bns.studio/docs/visual-primitives.md"
         }
       ]
     },
@@ -4904,14 +4908,14 @@
       "docs": [
         {
           "title": "Visual primitives guide",
-          "url": "https://github.com/chekos/jbm-ui/blob/main/docs/visual-primitives.md"
+          "url": "https://jbm-ui.bns.studio/docs/visual-primitives.md"
         }
       ]
     },
     {
       "name": "scene-geometry",
       "entry": "component",
-      "title": "Scene geometry",
+      "title": "SceneGeometry",
       "description": "Shared points, bounds, arc-length path interpolation and travel tilt.",
       "category": "Foundations",
       "capabilities": [],
@@ -5015,7 +5019,7 @@
     {
       "name": "cajon",
       "entry": "component",
-      "title": "Cajón",
+      "title": "Cajon",
       "description": "A fixed-size filing drawer with complete folders packed front to back.",
       "category": "UI Bits",
       "capabilities": [
@@ -5176,7 +5180,7 @@
       "docs": [
         {
           "title": "Desk illustrations guide",
-          "url": "https://github.com/chekos/jbm-ui/blob/main/docs/desk-components.md"
+          "url": "https://jbm-ui.bns.studio/docs/desk-components.md"
         }
       ]
     },
@@ -5282,11 +5286,11 @@
       "docs": [
         {
           "title": "Paper and filing illustrations guide",
-          "url": "https://github.com/chekos/jbm-ui/blob/main/docs/design-video-components.md"
+          "url": "https://jbm-ui.bns.studio/docs/design-video-components.md"
         },
         {
           "title": "Desk illustrations guide",
-          "url": "https://github.com/chekos/jbm-ui/blob/main/docs/desk-components.md"
+          "url": "https://jbm-ui.bns.studio/docs/desk-components.md"
         }
       ]
     },
@@ -5430,14 +5434,14 @@
       "docs": [
         {
           "title": "Desk illustrations guide",
-          "url": "https://github.com/chekos/jbm-ui/blob/main/docs/desk-components.md"
+          "url": "https://jbm-ui.bns.studio/docs/desk-components.md"
         }
       ]
     },
     {
       "name": "tool-caddy",
       "entry": "component",
-      "title": "Tool caddy",
+      "title": "ToolCaddy",
       "description": "An empty divided desktop organizer.",
       "category": "UI Bits",
       "capabilities": [],
@@ -5510,7 +5514,7 @@
       "docs": [
         {
           "title": "Desk illustrations guide",
-          "url": "https://github.com/chekos/jbm-ui/blob/main/docs/desk-components.md"
+          "url": "https://jbm-ui.bns.studio/docs/desk-components.md"
         }
       ]
     },
@@ -5666,7 +5670,7 @@
       "docs": [
         {
           "title": "Desk illustrations guide",
-          "url": "https://github.com/chekos/jbm-ui/blob/main/docs/desk-components.md"
+          "url": "https://jbm-ui.bns.studio/docs/desk-components.md"
         }
       ]
     },
@@ -5765,7 +5769,7 @@
         },
         {
           "title": "Drive the highlight from a Remotion timeline",
-          "code": "import { Burbuja } from \"@/jbm/motion/burbuja\"\nimport { useProgress } from \"@/jbm/motion/hooks\" // install @jbm/motion-hooks separately\n\nconst progress = useProgress(0.5, 1, 0.8)\n<Burbuja side=\"end\" words={[\"Una\", \"pieza\", \"a\", \"la\", \"vez.\"]} highlight={[1, 4]} progress={progress} />"
+          "code": "import { Burbuja } from \"@/jbm/motion/burbuja\"\nimport { useProgress } from \"@/jbm/motion/hooks\" // install @jbm/motion-hooks separately\n\n// Render inside a Remotion <Composition> or <Player>: hooks run in the component body.\nexport function SpeakingBubble() {\n  const progress = useProgress(0.5, 1, 0.8)\n  return <Burbuja side=\"end\" words={[\"Una\", \"pieza\", \"a\", \"la\", \"vez.\"]} highlight={[1, 4]} progress={progress} />\n}"
         }
       ],
       "qa": [
@@ -5777,7 +5781,7 @@
       "docs": [
         {
           "title": "Desk illustrations guide",
-          "url": "https://github.com/chekos/jbm-ui/blob/main/docs/desk-components.md"
+          "url": "https://jbm-ui.bns.studio/docs/desk-components.md"
         }
       ]
     },
@@ -5852,14 +5856,14 @@
       "docs": [
         {
           "title": "Desk illustrations guide",
-          "url": "https://github.com/chekos/jbm-ui/blob/main/docs/desk-components.md"
+          "url": "https://jbm-ui.bns.studio/docs/desk-components.md"
         }
       ]
     },
     {
       "name": "file-cabinet",
       "entry": "component",
-      "title": "File cabinet",
+      "title": "FileCabinet",
       "description": "SVG cabinet enclosure around a controlled filing drawer whose folders slide out and lift.",
       "category": "UI Bits",
       "capabilities": [
@@ -6050,14 +6054,14 @@
       "docs": [
         {
           "title": "Desk illustrations guide",
-          "url": "https://github.com/chekos/jbm-ui/blob/main/docs/desk-components.md"
+          "url": "https://jbm-ui.bns.studio/docs/desk-components.md"
         }
       ]
     },
     {
       "name": "paper-clip",
       "entry": "component",
-      "title": "Paper clip",
+      "title": "PaperClip",
       "description": "Independent ink wire clip to lay across a paper edge.",
       "category": "UI Bits",
       "capabilities": [],
@@ -6110,14 +6114,14 @@
       "docs": [
         {
           "title": "Paper and filing illustrations guide",
-          "url": "https://github.com/chekos/jbm-ui/blob/main/docs/design-video-components.md"
+          "url": "https://jbm-ui.bns.studio/docs/design-video-components.md"
         }
       ]
     },
     {
       "name": "clipped-note",
       "entry": "component",
-      "title": "Clipped note",
+      "title": "ClippedNote",
       "description": "Paper note with an optional paper clip, rotation, and paper, accent, or ink stock.",
       "category": "UI Bits",
       "capabilities": [
@@ -6205,14 +6209,14 @@
       "docs": [
         {
           "title": "Paper and filing illustrations guide",
-          "url": "https://github.com/chekos/jbm-ui/blob/main/docs/design-video-components.md"
+          "url": "https://jbm-ui.bns.studio/docs/design-video-components.md"
         }
       ]
     },
     {
       "name": "punched-tag",
       "entry": "component",
-      "title": "Punched tag",
+      "title": "PunchedTag",
       "description": "Card-stock luggage-style label with a punched hole and bold content, in paper, accent, or ink stock.",
       "category": "UI Bits",
       "capabilities": [
@@ -6280,14 +6284,14 @@
       "docs": [
         {
           "title": "Paper and filing illustrations guide",
-          "url": "https://github.com/chekos/jbm-ui/blob/main/docs/design-video-components.md"
+          "url": "https://jbm-ui.bns.studio/docs/design-video-components.md"
         }
       ]
     },
     {
       "name": "paper-line",
       "entry": "component",
-      "title": "Paper line",
+      "title": "PaperLine",
       "description": "Line of text with controlled grapheme reveal, ink lift, strike-through, and dotted underline.",
       "category": "Motion",
       "capabilities": [
@@ -6395,7 +6399,7 @@
       "docs": [
         {
           "title": "Paper and filing illustrations guide",
-          "url": "https://github.com/chekos/jbm-ui/blob/main/docs/design-video-components.md"
+          "url": "https://jbm-ui.bns.studio/docs/design-video-components.md"
         }
       ]
     },
@@ -6477,14 +6481,14 @@
       "docs": [
         {
           "title": "Paper and filing illustrations guide",
-          "url": "https://github.com/chekos/jbm-ui/blob/main/docs/design-video-components.md"
+          "url": "https://jbm-ui.bns.studio/docs/design-video-components.md"
         }
       ]
     },
     {
       "name": "tape-marker",
       "entry": "component",
-      "title": "Tape marker",
+      "title": "TapeMarker",
       "description": "Folded vermilion paper checkpoint marker with an optional label above it.",
       "category": "UI Bits",
       "capabilities": [
@@ -6553,14 +6557,14 @@
       "docs": [
         {
           "title": "Paper and filing illustrations guide",
-          "url": "https://github.com/chekos/jbm-ui/blob/main/docs/design-video-components.md"
+          "url": "https://jbm-ui.bns.studio/docs/design-video-components.md"
         }
       ]
     },
     {
       "name": "paper-tape",
       "entry": "component",
-      "title": "Paper tape",
+      "title": "PaperTape",
       "description": "Strip of paper fed out by length, with printed marks, checkpoint markers, and attachments on one coordinate system.",
       "category": "UI Bits",
       "capabilities": [
@@ -6680,7 +6684,7 @@
         },
         {
           "title": "Feed from a Remotion timeline",
-          "code": "import { PaperTape } from \"@/jbm/ui/paper-tape\"\nimport { useProgress } from \"@/jbm/motion/hooks\" // install @jbm/motion-hooks separately\n\nconst feed = useProgress(0.2, 1000, 4)\n<PaperTape length={feed} window={280} direction=\"vertical\" markers={[{ id: \"stop\", at: 520 }]} />"
+          "code": "import { PaperTape } from \"@/jbm/ui/paper-tape\"\nimport { useProgress } from \"@/jbm/motion/hooks\" // install @jbm/motion-hooks separately\n\n// Render inside a Remotion <Composition> or <Player>: hooks run in the component body.\nexport function FeedingTape() {\n  const feed = useProgress(0.2, 1000, 4)\n  return <PaperTape length={feed} window={280} direction=\"vertical\" markers={[{ id: \"stop\", at: 520 }]} />\n}"
         }
       ],
       "qa": [
@@ -6692,7 +6696,7 @@
       "docs": [
         {
           "title": "Paper and filing illustrations guide",
-          "url": "https://github.com/chekos/jbm-ui/blob/main/docs/design-video-components.md"
+          "url": "https://jbm-ui.bns.studio/docs/design-video-components.md"
         }
       ]
     },
@@ -6773,14 +6777,14 @@
       "docs": [
         {
           "title": "Paper and filing illustrations guide",
-          "url": "https://github.com/chekos/jbm-ui/blob/main/docs/design-video-components.md"
+          "url": "https://jbm-ui.bns.studio/docs/design-video-components.md"
         }
       ]
     },
     {
       "name": "folder-contents",
       "entry": "component",
-      "title": "Folder contents",
+      "title": "FolderContents",
       "description": "Folder that opens to reveal a sheet and a fan of nested folders whose documents extract independently.",
       "category": "UI Bits",
       "capabilities": [
@@ -6887,14 +6891,14 @@
       "docs": [
         {
           "title": "Paper and filing illustrations guide",
-          "url": "https://github.com/chekos/jbm-ui/blob/main/docs/design-video-components.md"
+          "url": "https://jbm-ui.bns.studio/docs/design-video-components.md"
         }
       ]
     },
     {
       "name": "folder-carry",
       "entry": "component",
-      "title": "Folder carry",
+      "title": "FolderCarry",
       "description": "Folder carried along a path by its tab, interpolating size and label between two resting places.",
       "category": "Motion",
       "capabilities": [
@@ -7060,7 +7064,7 @@
       "docs": [
         {
           "title": "Paper and filing illustrations guide",
-          "url": "https://github.com/chekos/jbm-ui/blob/main/docs/design-video-components.md"
+          "url": "https://jbm-ui.bns.studio/docs/design-video-components.md"
         }
       ]
     }

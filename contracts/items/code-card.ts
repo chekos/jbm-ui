@@ -74,6 +74,6 @@ export default {
     "Inspect the dark surface border and shadow at display scale (docs/surface-depth.md).",
   ],
   docs: [
-    { title: "Scene spec guide", url: "https://github.com/chekos/jbm-ui/blob/main/docs/scene-spec.md" },
+    { title: "Scene spec guide", url: "https://jbm-ui.bns.studio/docs/scene-spec.md" },
   ],
 } satisfies ItemContract

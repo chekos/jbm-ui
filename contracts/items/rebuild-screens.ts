@@ -65,6 +65,6 @@ export default {
     "Confirm the input cursor blink is visible but not distracting at the final render scale.",
   ],
   docs: [
-    { title: "Scene spec guide", url: "https://github.com/chekos/jbm-ui/blob/main/docs/scene-spec.md" },
+    { title: "Scene spec guide", url: "https://jbm-ui.bns.studio/docs/scene-spec.md" },
   ],
 } satisfies ItemContract

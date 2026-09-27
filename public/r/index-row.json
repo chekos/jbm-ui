@@ -1,7 +1,7 @@
 {
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "index-row",
-  "title": "Index Row",
+  "title": "IndexRow",
   "description": "A numbered record with optional evidence, linked title, and active state.",
   "registryDependencies": [
     "@jbm/tokens",

@@ -433,7 +433,6 @@ pre:focus-visible {
 }
 /* WCAG 2.2 target size: 24px-tall hit areas; margins absorb the extra height. */
 .card-links a,
-.site-source,
 .card-content > p > a,
 footer a {
   display: inline-flex;

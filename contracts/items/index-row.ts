@@ -3,7 +3,7 @@ import type { ItemContract } from "../schema"
 export default {
   name: "index-row",
   entry: "component",
-  title: "Index Row",
+  title: "IndexRow",
   description: "A numbered record with optional evidence, linked title, and active state.",
   category: "UI",
   capabilities: [],

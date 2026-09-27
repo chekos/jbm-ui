@@ -3,7 +3,7 @@ import type { ItemContract } from "../schema"
 export default {
   name: "punched-tag",
   entry: "component",
-  title: "Punched tag",
+  title: "PunchedTag",
   description:
     "Card-stock luggage-style label with a punched hole and bold content, in paper, accent, or ink stock.",
   category: "UI Bits",
@@ -38,6 +38,6 @@ export default {
     "Compare the shadow and edge with other paper surfaces.",
   ],
   docs: [
-    { title: "Paper and filing illustrations guide", url: "https://github.com/chekos/jbm-ui/blob/main/docs/design-video-components.md" },
+    { title: "Paper and filing illustrations guide", url: "https://jbm-ui.bns.studio/docs/design-video-components.md" },
   ],
 } satisfies ItemContract

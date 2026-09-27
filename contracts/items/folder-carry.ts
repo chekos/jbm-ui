@@ -3,7 +3,7 @@ import type { ItemContract } from "../schema"
 export default {
   name: "folder-carry",
   entry: "component",
-  title: "Folder carry",
+  title: "FolderCarry",
   description:
     "Folder carried along a path by its tab, interpolating size and label between two resting places.",
   category: "Motion",
@@ -83,6 +83,6 @@ export default {
     "Check narrow screens: the demo SVG scales to 100% width without clipping either resting place.",
   ],
   docs: [
-    { title: "Paper and filing illustrations guide", url: "https://github.com/chekos/jbm-ui/blob/main/docs/design-video-components.md" },
+    { title: "Paper and filing illustrations guide", url: "https://jbm-ui.bns.studio/docs/design-video-components.md" },
   ],
 } satisfies ItemContract

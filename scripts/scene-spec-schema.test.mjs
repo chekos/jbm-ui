@@ -62,7 +62,7 @@ test("the scene-spec contract links the guide and the schema by absolute URL", (
   const { errors, entry } = validateContract("scene-spec")
   assert.deepEqual(errors, [])
   assert.deepEqual(entry.schemas.map((link) => link.url), [schemaUrl])
-  assert.ok(entry.docs.some((link) => link.url.endsWith("/blob/main/docs/scene-spec.md")))
+  assert.ok(entry.docs.some((link) => link.url === `${publicOrigin}/docs/scene-spec.md`))
 })
 
 // The compiler fixtures from scene-spec.test.mjs.
@@ -148,6 +148,12 @@ test("malformed specs fail validation with a pointer to the field", () => {
     [scene([], { composition: { safeArea: "edge" } }), "/composition/safeArea"],
     [scene([], { composition: { blocks: [] } }), "/composition"],
     [scene([], { variants: { square: {} } }), "/variants"],
+    [scene([{ type: "big", at: 0, text: "x", size: 0 }]), "/blocks/0/size"],
+    [scene([{ type: "brand", at: 0, size: -52 }]), "/blocks/0/size"],
+    [scene([{ type: "spacer", h: -1 }]), "/blocks/0/h"],
+    [scene([{ type: "spacer", h: { landscape: 10, vertical: -1 } }]), "/blocks/0/h/vertical"],
+    [scene([{ type: "screens", pieces: [], h: 0 }]), "/blocks/0/h"],
+    [scene([], { gap: -4 }), "/gap"],
     [{ blocks: [] }, ""],
   ]
   for (const [spec, path] of cases) {
@@ -185,4 +191,30 @@ test("docs/scene-spec.md documents every block and field in the schema", () => {
   for (const field of fieldsOf(schema.$defs.CompositionOptions))
     assert.ok(docs.includes(`| \`${field}\` |`), `composition ${field}`)
   for (const preset of schema.$defs.SafeArea.anyOf[0].enum) assert.ok(docs.includes(`| \`${preset}\``), `safe area ${preset}`)
+})
+
+test("the multi-scene contract example: YAML validates, every scene compiles, timings resolve", () => {
+  const { entry } = validateContract("scene-spec")
+  const example = entry.examples.find((item) => item.code.includes("<Series.Sequence"))
+  assert.ok(example, "multi-scene example")
+  assert.ok(docs.includes(example.code), "docs/scene-spec.md shows the same code")
+  for (const needle of ["<Composition", "width={1080}", "height={1920}", "durationInFrames", "@remotion/google-fonts/Geist", "ajv/dist/2020", "js-yaml"])
+    assert.ok(example.code.includes(needle), needle)
+  const yamlText = /const yamlText = \`([\s\S]*?)\`/.exec(example.code)[1]
+  const timings = Function(`return ${/const timings: Record<string, number> = (\{[^}]*\})/.exec(example.code)[1]}`)()
+  const data = load(yamlText)
+  assert.deepEqual(errorsOf(validateFile, data), [])
+  assert.ok(data.scenes.length >= 2)
+  const literal = { resolve: (phrase) => {
+    assert.ok(phrase in timings, `timing for "${phrase}"`)
+    return timings[phrase]
+  } }
+  for (const spec of data.scenes)
+    for (const orientation of ["vertical", "landscape"])
+      assert.doesNotThrow(() => SceneFromSpec({ spec, orientation, host: literal }), `${spec.id} ${orientation}`)
+})
+
+test("schema descriptions name no files outside the published item", () => {
+  const text = JSON.stringify(schema)
+  assert.ok(!/pipeline\/|\.py\b|github\.com/.test(text), "no external file references")
 })
