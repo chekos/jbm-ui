@@ -8109,7 +8109,7 @@
         {
           "export": "VideoPrint",
           "kind": "component",
-          "summary": "A Paper sheet (radius 10, ink edge, paper shadow) carrying a 16:9 frame in pale ink (8% fill, 2px ink outline) with a head-and-shoulders line sketch, a pale scrub track whose ink bar advances with `scrub`, ink ticks at the marks the bar has passed, the title (Geist 700) and date (Geist, Graphite), and, when `link` is set, a PunchedTag with the URL in Geist Mono hanging over the bottom edge. Composes Paper and PunchedTag unchanged. Controlled; no timers.",
+          "summary": "A Paper sheet (radius 10, ink edge, paper shadow) carrying a 16:9 frame in pale ink (an opaque 8% ink-on-card tint, identical with or without the sheet, and a 2px ink outline) with a head-and-shoulders line sketch, a pale scrub track whose ink bar advances with `scrub`, ink ticks at the marks the bar has passed, the title (Geist 700) and date (Geist, Graphite), and, when `link` is set, a PunchedTag with the URL in Geist Mono hanging over the bottom edge. Composes Paper and PunchedTag unchanged. Controlled; no timers.",
           "props": [
             {
               "name": "scrub",
@@ -8137,14 +8137,14 @@
               "type": "string",
               "required": true,
               "default": null,
-              "description": "The line under the title, usually source and date (\"YouTube · 4 nov 2025\")."
+              "description": "The line under the title, usually source and date (\"Video · 4 nov 2025\")."
             },
             {
               "name": "link",
               "type": "string",
               "required": false,
               "default": null,
-              "description": "A URL set in mono on a punched tag straddling the bottom edge: the sign that this page was opened. Omit for a print nobody opened."
+              "description": "A URL set in mono on a punched tag straddling the bottom edge: the sign that this page was opened. One line; a URL longer than the print ends in an ellipsis, so the tag never passes the sheet's right edge. Omit for a print nobody opened."
             },
             {
               "name": "opened",
@@ -8165,7 +8165,7 @@
               "type": "boolean",
               "required": false,
               "default": "true",
-              "description": "Draw the Paper sheet (default). false keeps the same layout and anchors without the sheet, for nesting on a Paper you already have."
+              "description": "Draw the Paper sheet (default). false keeps the same layout, anchors, and still tint without the sheet, for nesting on a Paper you already have."
             },
             {
               "name": "style",
@@ -8211,7 +8211,7 @@
               "description": "The print's top-left corner on your stage (default { x: 0, y: 0 }); every returned point is offset by it."
             }
           ],
-          "returns": "{ scale, w, h, pad, frame: { x, y, w, h }, rule: { x, y, w }, titleY, dateY, marks: Pt[], tag: Pt | null, tagX }. marks[i] is mark i's point on the rule's centreline; tag is the punched hole's centre (on the sheet's bottom edge), or null without a link."
+          "returns": "{ scale, w, h, pad, frame: { x, y, w, h }, rule: { x, y, w }, titleY, dateY, marks: Pt[], tag: Pt | null, tagX, tagMaxW, bounds: { w, h } }. marks[i] is mark i's point on the rule's centreline; tag is the punched hole's centre (on the sheet's bottom edge), or null without a link; tagMaxW is the tag's widest extent from tagX (it stops a padding short of the sheet's right edge); bounds is the box everything draws in, the sheet plus, with a link, the half of the tag that hangs below it."
         },
         {
           "export": "VideoPrintProps",
@@ -8223,29 +8223,29 @@
         "mode": "declared",
         "landscape": {
           "width": 480,
-          "height": 367
+          "height": 385
         },
         "vertical": {
           "width": 480,
-          "height": 367
+          "height": 385
         },
-        "basis": "At the default w 480: 22px padding, a 436 × 245.25 frame, the rule 12px under it, the title 18px under the rule, the date 30px under the title, then 18 + 22px: 367.25px tall. Every measurement scales with w (height = 0.765 × w). With link, the tag hangs about 17px below the bottom edge and may extend past the right edge for long URLs."
+        "basis": "At the default w 480: 22px padding, a 436 × 245.25 frame, the rule 12px under it, the title 18px under the rule, the date 30px under the title, then 18 + 22px: a 367.25px sheet. With link, the tag straddles the bottom edge and half of it (15.1 × w/480 + 2px) hangs below: 384.35px in all, declared as 385. Every measurement scales with w (sheet height = 0.765 × w); videoPrintLayout().bounds gives the exact box. The tag never extends past the right edge: long URLs end in an ellipsis."
       },
       "examples": [
         {
           "title": "Video print with an opened link",
-          "code": "import { VideoPrint } from \"@/jbm/ui/video-print\"\n\n<VideoPrint\n  scrub={1}\n  title=\"Alex Hormozi\"\n  date=\"YouTube · 4 nov 2025\"\n  link=\"youtube.com/watch?v=mr4Pw66_498\"\n/>"
+          "code": "import { VideoPrint } from \"@/jbm/ui/video-print\"\n\n<VideoPrint\n  scrub={1}\n  title=\"Sample talk\"\n  date=\"Video · 4 nov 2025\"\n  link=\"example.com/watch?v=sample-talk\"\n/>"
         },
         {
           "title": "Tie a thread to a scrub tick",
-          "code": "import { VideoPrint, videoPrintLayout } from \"@/jbm/ui/video-print\"\nimport { Hilo } from \"@/jbm/ui/hilo\" // install @jbm/hilo separately\n\ndeclare const scrub: number\nconst at = { x: 1200, y: 300 }\nconst marks = [0.2, 0.45, 0.7]\nconst tick = videoPrintLayout({ marks }, at).marks[1]\n<div style={{ position: \"relative\", width: 1920, height: 1080 }}>\n  <VideoPrint scrub={scrub} marks={marks} title=\"Alex Hormozi\" date=\"YouTube · 4 nov 2025\" style={{ position: \"absolute\", left: at.x, top: at.y }} />\n  <svg viewBox=\"0 0 1920 1080\" style={{ position: \"absolute\", inset: 0 }}>\n    <Hilo from={tick} to={{ x: 520, y: 400 }} curve=\"s\" bend={0.5} draw={scrub >= 0.45 ? 1 : 0} />\n  </svg>\n</div>"
+          "code": "import { VideoPrint, videoPrintLayout } from \"@/jbm/ui/video-print\"\nimport { Hilo } from \"@/jbm/ui/hilo\" // install @jbm/hilo separately\n\ndeclare const scrub: number\nconst at = { x: 1200, y: 300 }\nconst marks = [0.2, 0.45, 0.7]\nconst tick = videoPrintLayout({ marks }, at).marks[1]\n<div style={{ position: \"relative\", width: 1920, height: 1080 }}>\n  <VideoPrint scrub={scrub} marks={marks} title=\"Sample talk\" date=\"Video · 4 nov 2025\" style={{ position: \"absolute\", left: at.x, top: at.y }} />\n  <svg viewBox=\"0 0 1920 1080\" style={{ position: \"absolute\", inset: 0 }}>\n    <Hilo from={tick} to={{ x: 520, y: 400 }} curve=\"s\" bend={0.5} draw={scrub >= 0.45 ? 1 : 0} />\n  </svg>\n</div>"
         }
       ],
       "qa": [
         "Drag Scrub from 0 to 1: the ink bar grows from the left edge of the frame, each tick appears exactly when the bar reaches it, and nothing inks ahead of the bar.",
         "The frame reads as a pale sketch (tinted fill, ink outline, head circle and shoulder arc), never a solid ink block; compare with the video and puertas board panels.",
-        "Toggle the link and drag Tag drops in: the mono URL tag straddles the bottom edge, its hole ringed in ink and scaled with the print (PunchedTag scale = w/480); a long URL extends past the sheet instead of wrapping. At Half the tag is already opaque.",
-        "Turn the sheet off: the frame, rule, and type keep their positions (anchors unchanged).",
+        "Toggle the link and drag Tag drops in: the mono URL tag straddles the bottom edge, its hole ringed in ink and scaled with the print (PunchedTag scale = w/480), and stays inside the declared bounds; a long URL ends in an ellipsis instead of wrapping or passing the sheet's right edge. At Half the tag is already opaque.",
+        "Turn the sheet off: the frame, rule, and type keep their positions (anchors unchanged), and the still keeps exactly the same tint.",
         "Check a thread tied to videoPrintLayout().marks lands on the tick centreline, at w 300 and 480.",
         "The print uses no vermilion of its own."
       ],
@@ -8283,7 +8283,7 @@
         {
           "export": "Hilo",
           "kind": "component",
-          "summary": "SVG <g> of an ink thread: one exact cubic Bézier while laying or tied, two pinned pieces after a snap, splayed fibers at each broken end, an optional vermilion notch in the gap, and ink knots at the tied points. No arrows. Controlled and deterministic: every quantity comes from props, with no timer or randomness. Render inside an <svg> whose units match your anchors.",
+          "summary": "SVG <g> of an ink thread: one exact cubic Bézier while laying or tied, two pinned pieces after a snap (cut square, with a tuft of fine fibers at each broken end), an optional vermilion notch marking the gap without closing it, and ink knots at the tied points. No arrows. Controlled and deterministic: every quantity comes from props, with no timer or randomness. Render inside an <svg> whose units match your anchors.",
           "props": [
             {
               "name": "from",
@@ -8304,7 +8304,7 @@
               "type": "number",
               "required": false,
               "default": null,
-              "description": "Curvature; 0 is straight. With curve `arc`, a sideways bow as a fraction of the from→to distance (positive bows left of travel: upward for a left-to-right thread). With curve `s`, the length of the level handles as a fraction of the horizontal distance (0.5 is a soft S)."
+              "description": "Curvature; 0 is straight. With curve `arc`, a sideways bow as a fraction of the from→to distance (positive bows left of travel: upward for a left-to-right thread). With curve `s`, the length of the level handles as a fraction of the horizontal distance (0.5 is a soft S), clamped to 0–1: shorter handles would point back past the anchors and hook the thread around its own knots."
             },
             {
               "name": "curve",
@@ -8325,7 +8325,7 @@
               "type": "number",
               "required": false,
               "default": null,
-              "description": "Thread stroke width in user units (minimum 0.5). Knots are 1.4× it in radius, fibers 0.6×, the notch 4×."
+              "description": "Thread stroke width in user units (minimum 0.5). Knots are 1.4× it in radius; fibers are fine strands (0.4× it, 0.75–1.6 units); the notch is 2 × width + 2 thick. A snapped end is cut square."
             },
             {
               "name": "snapAt",
@@ -8339,14 +8339,14 @@
               "type": "number",
               "required": false,
               "default": null,
-              "description": "Where the thread parts, as a fraction of its length from `from`; clamped to 0.05–0.95. The gap opens symmetrically around it: about a fifth of the length, at most 90 units."
+              "description": "Where the thread parts, as a fraction of its length from `from`; clamped to 0.05–0.95. The gap opens symmetrically around it: about a fifth of the length, at most 90 units (20 widths for a thick thread), moved inward just enough to leave each end a stub longer than its knot and fibers."
             },
             {
               "name": "fray",
               "type": "number",
               "required": false,
               "default": null,
-              "description": "0–1: curled fibers peeling off each broken end (0 none, then 3–5 of them, uneven lengths up to about 8× width, one trailing past the tip). They all fall to the gravity side of the thread, 12–74° from it, so an end reads as unravelled thread, never a symmetric fan or arrowhead. 0 is a clean cut."
+              "description": "0–1: fine fibers coming out of each broken end (0 none, then 3–5 of them, uneven lengths up to 8× width, capped by the gap). They leave the cut side by side across the thread's width and droop 3–22° toward gravity, so an end reads as a small tuft of unravelled thread, never legs along the thread, a symmetric fan, or an arrowhead. They shorten when the gap is tight, to leave room for the notch. 0 is a clean, square cut."
             },
             {
               "name": "slack",
@@ -8360,7 +8360,7 @@
               "type": "boolean",
               "required": false,
               "default": null,
-              "description": "Fills the span between the frayed ends with a rounded vermilion bar, tip to tip (it follows hanging ends): the only accent the thread draws. Drawn over the fiber roots, so the fibers show as whiskers at its ends."
+              "description": "Marks the gap with a straight, rounded vermilion bar where the missing span of thread was (lowered with the ends' mean droop when they hang), held clear of both tips, their fibers, and both pieces by open paper, so the snapped thread still reads as broken, never as an intact line with a bead: the only accent the thread draws. It appears once the recoiling ends leave room for it."
             },
             {
               "name": "knots",
@@ -8396,7 +8396,7 @@
               "type": "number",
               "required": false,
               "default": "0",
-              "description": "Curvature; 0 is straight. With curve `arc`, a sideways bow as a fraction of the from→to distance (positive bows left of travel: upward for a left-to-right thread). With curve `s`, the length of the level handles as a fraction of the horizontal distance (0.5 is a soft S)."
+              "description": "Curvature; 0 is straight. With curve `arc`, a sideways bow as a fraction of the from→to distance (positive bows left of travel: upward for a left-to-right thread). With curve `s`, the length of the level handles as a fraction of the horizontal distance (0.5 is a soft S), clamped to 0–1: shorter handles would point back past the anchors and hook the thread around its own knots."
             },
             {
               "name": "curve",
@@ -8417,7 +8417,7 @@
               "type": "number",
               "required": false,
               "default": "2",
-              "description": "Thread stroke width in user units (minimum 0.5). Knots are 1.4× it in radius, fibers 0.6×, the notch 4×."
+              "description": "Thread stroke width in user units (minimum 0.5). Knots are 1.4× it in radius; fibers are fine strands (0.4× it, 0.75–1.6 units); the notch is 2 × width + 2 thick. A snapped end is cut square."
             },
             {
               "name": "snapAt",
@@ -8431,14 +8431,14 @@
               "type": "number",
               "required": false,
               "default": "0.5",
-              "description": "Where the thread parts, as a fraction of its length from `from`; clamped to 0.05–0.95. The gap opens symmetrically around it: about a fifth of the length, at most 90 units."
+              "description": "Where the thread parts, as a fraction of its length from `from`; clamped to 0.05–0.95. The gap opens symmetrically around it: about a fifth of the length, at most 90 units (20 widths for a thick thread), moved inward just enough to leave each end a stub longer than its knot and fibers."
             },
             {
               "name": "fray",
               "type": "number",
               "required": false,
               "default": "0.6",
-              "description": "0–1: curled fibers peeling off each broken end (0 none, then 3–5 of them, uneven lengths up to about 8× width, one trailing past the tip). They all fall to the gravity side of the thread, 12–74° from it, so an end reads as unravelled thread, never a symmetric fan or arrowhead. 0 is a clean cut."
+              "description": "0–1: fine fibers coming out of each broken end (0 none, then 3–5 of them, uneven lengths up to 8× width, capped by the gap). They leave the cut side by side across the thread's width and droop 3–22° toward gravity, so an end reads as a small tuft of unravelled thread, never legs along the thread, a symmetric fan, or an arrowhead. They shorten when the gap is tight, to leave room for the notch. 0 is a clean, square cut."
             },
             {
               "name": "slack",
@@ -8452,7 +8452,7 @@
               "type": "boolean",
               "required": false,
               "default": "false",
-              "description": "Fills the span between the frayed ends with a rounded vermilion bar, tip to tip (it follows hanging ends): the only accent the thread draws. Drawn over the fiber roots, so the fibers show as whiskers at its ends."
+              "description": "Marks the gap with a straight, rounded vermilion bar where the missing span of thread was (lowered with the ends' mean droop when they hang), held clear of both tips, their fibers, and both pieces by open paper, so the snapped thread still reads as broken, never as an intact line with a bead: the only accent the thread draws. It appears once the recoiling ends leave room for it."
             },
             {
               "name": "knots",
@@ -8462,7 +8462,7 @@
               "description": "Small ink dots at the tied points: `from` as soon as any thread is laid, `to` once it is fully laid."
             }
           ],
-          "returns": "{ base, length, lay, recoil, snapped, width, pieces, strands, strandWidth, notch, notchWidth, knots, knotRadius }: base is the resting cubic [start, handle, handle, end]; lay and recoil are the two phases (0–1); pieces are the cubics drawn in ink (pieces[0][0] is always `from`, and when laid the last piece ends at `to`); strands are fiber [start, end] pairs; notch is the vermilion cubic or null; knots are the tied points."
+          "returns": "{ base, length, lay, recoil, snapped, width, pieces, strands, strandWidth, notch, notchWidth, knots, knotRadius }: base is the resting cubic [start, handle, handle, end]; lay and recoil are the two phases (0–1); pieces are the cubics drawn in ink (pieces[0][0] is always `from`, and when laid the last piece ends at `to`); strands are fiber [start, control, end] quadratics; notch is the vermilion bar as a straight cubic, or null; knots are the tied points."
         },
         {
           "export": "cubicPoint",
@@ -8523,10 +8523,10 @@
       "qa": [
         "Drag Draw from 0 to 1 without a snap: the thread grows from `from` along one smooth curve, the `from` knot appears first, and the `to` knot only when it arrives.",
         "Turn on the snap and drag past 50%: at the snap the two pieces coincide with the tied thread (no jump), then recoil apart; `from` and `to` never move.",
-        "Fray 0 is a clean cut with no fibers; 1 gives five curled fibers per end, all falling to one side with uneven lengths. With the notch they show as whiskers at its ends; without it they read as frayed tufts, never arrowheads or fletching.",
-        "Slack 0 keeps the snapped ends on the original line (the rompe look); 1 lets them hang limply as two ends, each from its own anchor, never one deep V. The notch runs tip to tip at every slack and is the only vermilion.",
-        "Try Break point 5% and 95%, Bend at both ends of its range (−0.3 to 0.3 for arc, −0.5 to 1 for S), both curve families, Slack 1, and Width 1 and 6: nothing leaves the viewBox and stroke joins stay round.",
-        "Place the anchors on real objects (a Cajon tab from cajonLayout, a VideoPrint mark from videoPrintLayout) and check the knots land on them."
+        "Snapped at the bench defaults reads as broken at a glance: two slack ends apart, each a square cut with a small tuft of fibers, and a vermilion bar in the gap with open paper between it and both ends (never touching them into one line). Fray 0 is a clean square cut; 1 gives five fibers per end, fine, side by side, drooping to one side, never legs, arrowheads, or fletching.",
+        "Slack 0 keeps the snapped ends on the original line (the rompe look); 1 lets them hang limply as two ends, each from its own anchor, never one deep V. The notch stays a straight bar between the ends, clear of both, at every slack, and is the only vermilion.",
+        "Try Break point 5% and 95%, Bend at both ends of its range (−0.3 to 0.3 for arc, 0 to 1 for S), both curve families, Slack 1, and Width 1 and 6 at 8× zoom: nothing leaves the viewBox, no S hooks around its knots at any width, and the notch is drawn and clear of the ends at every combination.",
+        "Place the anchors on real objects (a Cajon tab from cajonLayout, a VideoPrint mark from videoPrintLayout) and check the knots land on them. In the bench's Thread to drawer scene, knots sit on each tab's left edge clear of its name, threads to tabs below the rim cross the side wall's top edge (never the drawer front), no two threads cross, and closing the drawer hides each thread behind the front at its own spot."
       ],
       "docs": [
         {
