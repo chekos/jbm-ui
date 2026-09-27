@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-09-27T05:43:21.000Z",
+  "generatedAt": "2026-09-27T13:55:21.000Z",
   "title": "Design System: jbm-ui",
   "extensions": {
     "colorMeta": {
@@ -275,6 +275,14 @@
       "css": ".ds-paper-row { display: flex; gap: 32px; padding: 24px; background: #FFF6E8; } .ds-paper { width: 120px; height: 150px; background: #FFFCF5; border: 2px solid #20241F; border-radius: 22px; box-shadow: 0 1px 1px -0.5px rgba(32,36,31,0.08), 0 3px 3px -1.5px rgba(32,36,31,0.06), 0 6px 6px -3px rgba(32,36,31,0.05), 0 12px 12px -6px rgba(32,36,31,0.04), 0 24px 24px -12px rgba(32,36,31,0.04), 0 18px 28px -14px rgba(32,36,31,0.22); } .ds-paper-accent { background: #C63D24; border-color: #C63D24; transform: rotate(-4deg); }"
     },
     {
+      "name": "Code Block",
+      "kind": "custom",
+      "refersTo": "code-block",
+      "description": "Copyable usage snippet: soft-wrapping 12px mono code on Cream Canvas in a Pencil Rule frame, with a floated top-right Copy button and a transient polite Copied status. Wrapped lines hang 2ch past their own indentation.",
+      "html": "<div class=\"ds-code\"><div class=\"ds-code-actions\"><button type=\"button\" aria-label=\"Copy Folder example\">Copy</button></div><pre><code><span class=\"ds-line\" style=\"--indent:0ch\">import { Folder } from \"@/jbm/ui/folder\"</span><span class=\"ds-line\" style=\"--indent:0ch\"></span><span class=\"ds-line\" style=\"--indent:0ch\">&lt;Folder label=\"Ideas\" open={0.6} /&gt;</span></code></pre></div>",
+      "css": ".ds-code { max-width: 520px; padding: 8px 8px 14px 14px; background: #FFF6E8; border: 1px solid #D5D1C6; border-radius: 6px; } .ds-code-actions { float: right; margin: 0 0 4px 12px; } .ds-code-actions button { border: 1px solid #D5D1C6; border-radius: 6px; padding: 9px 13px; background: #FFF6E8; color: #20241F; font: 14px Geist, system-ui, sans-serif; cursor: pointer; } .ds-code-actions button:hover { border-color: #20241F; } .ds-code-actions button:focus-visible { outline: 2px solid #C63D24; outline-offset: 2px; } .ds-code pre { margin: 0; padding: 6px 0 0; white-space: pre-wrap; overflow-wrap: anywhere; } .ds-code code { font-family: \"Geist Mono\", ui-monospace, monospace; font-size: 12px; line-height: 1.7; color: #20241F; } .ds-line { --hang: calc(var(--indent, 0ch) + 2ch); display: block; min-height: 1lh; padding-left: var(--hang); text-indent: calc(-1 * var(--hang)); }"
+    },
+    {
       "name": "Add Command Row",
       "kind": "custom",
       "refersTo": "add-command",
@@ -286,7 +294,7 @@
       "name": "QA Frame Stepper",
       "kind": "custom",
       "refersTo": "qa-stepper",
-      "description": "Item-page bench controls for Player items: Begin/Middle/End, frame scrubber, mono readout.",
+      "description": "Item-page bench controls for Player items: Begin/Middle/End, frame scrubber, mono readout, replay. Runs under the stage at its width; orientation-aware stages move it into a 272px right rail at 1024px and wider. Buttons are 40px on phones, with the scrubber on its own full-width line.",
       "html": "<div class=\"ds-frames\"><div class=\"ds-steps\" role=\"group\" aria-label=\"Frame stepper\"><button type=\"button\">Begin</button><button type=\"button\">Middle</button><button type=\"button\" aria-current=\"step\">End</button></div><input class=\"ds-scrub\" type=\"range\" min=\"0\" max=\"51\" value=\"51\" aria-label=\"Frame\"><output class=\"ds-readout\"><span>51/51</span><span>1.70 s</span></output></div>",
       "css": ".ds-frames { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; max-width: 640px; font-family: Geist, system-ui, sans-serif; } .ds-steps { display: inline-flex; } .ds-steps button { min-height: 36px; border: 1px solid #D5D1C6; padding: 6px 12px; background: transparent; color: #20241F; font: inherit; font-size: 14px; cursor: pointer; } .ds-steps button:first-child { border-radius: 6px 0 0 6px; } .ds-steps button:last-child { border-radius: 0 6px 6px 0; } .ds-steps button + button { margin-left: -1px; } .ds-steps button:hover { position: relative; border-color: #20241F; } .ds-steps button[aria-current=\"step\"] { position: relative; background: #20241F; border-color: #20241F; color: #FFF6E8; } .ds-steps button:focus-visible { position: relative; z-index: 1; outline: 2px solid #C63D24; outline-offset: 2px; } .ds-scrub { flex: 1 1 200px; min-width: 160px; height: 24px; margin: 0; accent-color: #20241F; } .ds-scrub:focus-visible { outline: 2px solid #C63D24; outline-offset: 4px; } .ds-readout { display: inline-flex; gap: 10px; color: #65675F; font-family: 'Geist Mono', ui-monospace, monospace; font-size: 12px; font-variant-numeric: tabular-nums; white-space: nowrap; } .ds-readout span:first-child { color: #20241F; }"
     },
@@ -315,7 +323,7 @@
     {
       "name": "Not Found",
       "kind": "custom",
-      "description": "Branded 404: headline, Graphite explanation, one solid ink gallery button, and a For agents block with machine-readable links.",
+      "description": "Branded 404: headline, Graphite explanation, one solid ink gallery button, and a For agents block with machine-readable links. An unknown /c/<name> gets a server-rendered 404 that names the missing item, suggests up to three nearest item pages, and offers a solid Search the gallery button plus a Browse every item link.",
       "html": "<section class=\"ds-404\"><h1>Nothing is filed here</h1><p>This address does not match a page in the gallery.</p><a class=\"ds-404-btn\" href=\"#\">Open the gallery</a><h2>For agents</h2><ul><li><a href=\"#\">llms.txt index</a></li><li><a href=\"#\">catalog.json</a></li><li><a href=\"#\">Registry index</a></li></ul></section>",
       "css": ".ds-404 { background: #FFF6E8; color: #20241F; font-family: Geist, system-ui, sans-serif; padding: 32px 0; } .ds-404 h1 { font-size: 36px; font-weight: 650; letter-spacing: -0.035em; margin: 0 0 8px; } .ds-404 p { color: #65675F; font-size: 18px; line-height: 1.6; margin: 0 0 20px; } .ds-404-btn { display: inline-block; padding: 9px 13px; border-radius: 6px; background: #20241F; color: #FFF6E8; font-size: 14px; text-decoration: none; } .ds-404 h2 { font-size: 22px; font-weight: 600; letter-spacing: -0.6px; margin: 32px 0 8px; padding-top: 32px; border-top: 1px solid #D5D1C6; } .ds-404 ul { display: flex; gap: 24px; padding: 0; list-style: none; font-size: 12px; } .ds-404 a:focus-visible { outline: 2px solid #C63D24; outline-offset: 5px; }"
     }
