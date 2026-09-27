@@ -21,6 +21,7 @@ import { SurfaceDepth } from "./surface-depth"
 import { DesignVideoDemo, designNames } from "./design-video-demo"
 import { DeskDemo, deskNames } from "./desk-demo"
 import { AddCommand, InstallOnce } from "./install"
+import { CodeBlock } from "./code-block"
 import { color } from "@/registry/jbm/lib/tokens"
 import { examples } from "./examples"
 import { categories, type Category } from "./categories"
@@ -229,9 +230,7 @@ function ComponentCard({ item }: { item: GalleryItem }) {
               plain React tree. Timing values are in seconds.
             </p>
           )}
-          <pre tabIndex={0}>
-            <code>{item.snippet}</code>
-          </pre>
+          <CodeBlock code={item.snippet} title={item.title} />
           <div className="card-links">
             {documentation ? (
               <a href="/docs/surface-depth.md">Design note</a>

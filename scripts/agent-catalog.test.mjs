@@ -46,6 +46,7 @@ const {
   extraFieldLines,
   canonicalItemName,
   nearestItemName,
+  nearestItemNames,
   catalogNotFoundJson,
   catalogNotFoundMarkdown,
 } = catalogModule
@@ -208,6 +209,15 @@ test("unknown catalog names suggest the nearest item; other casings resolve", ()
   const md = catalogNotFoundMarkdown("foldr")
   assert.match(md, /^# Not found\n/)
   assert.ok(md.includes("/catalog/folder.md"))
+})
+
+test("the /c 404 suggests a few close names, or none for noise", () => {
+  assert.equal(nearestItemNames("foldr")[0], "folder")
+  assert.equal(nearestItemNames("toolcaddy")[0], "tool-caddy")
+  assert.ok(nearestItemNames("cabinet").includes("file-cabinet"))
+  assert.ok(nearestItemNames("foldr").length <= 3)
+  assert.deepEqual(nearestItemNames("zzz"), [])
+  assert.deepEqual(nearestItemNames("zz", 3, ["folder", "zzap"]), ["zzap"])
 })
 
 // The source repository is private: nothing an agent reads may link into it, and every guide link

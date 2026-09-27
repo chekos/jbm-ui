@@ -14,6 +14,10 @@ import {
 //   /catalog/zzz.md    → 404 Markdown naming the nearest item
 //   /catalog/zzz.json  → 404 JSON { error, didYouMean, index: "/llms.txt" }
 //   /docs/zzz.md       → 404 Markdown listing the published guides
+// Item pages get the same casing redirect, and an unknown name a 404 page that names it (a nested
+// not-found.tsx gets no params and is not server-rendered for these prerendered pages):
+//   /c/Folder → 308 /c/folder
+//   /c/foldr  → 404, rewritten to app/c-missing/[name]: names “foldr” and the closest item pages
 // Handling them here keeps them out of the static cache, where case-insensitive disks would let
 // Folder.md shadow folder.md.
 const items = new Set(itemNames)
@@ -22,12 +26,25 @@ const markdown = { "Content-Type": "text/markdown; charset=utf-8" }
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
-  const [, section, rawFile] = /^\/(catalog|docs)\/([^/]+)$/.exec(pathname) ?? []
+  const [, section, rawFile] = /^\/(catalog|docs|c)\/([^/]+)$/.exec(pathname) ?? []
   if (!section) return NextResponse.next()
   let file = rawFile
   try {
     file = decodeURIComponent(rawFile)
   } catch {}
+
+  if (section === "c") {
+    if (items.has(file)) return NextResponse.next()
+    const canonical = canonicalItemName(file)
+    if (canonical) {
+      const url = request.nextUrl.clone()
+      url.pathname = `/c/${canonical}`
+      return NextResponse.redirect(url, 308)
+    }
+    const url = request.nextUrl.clone()
+    url.pathname = `/c-missing/${encodeURIComponent(file.slice(0, 128))}`
+    return NextResponse.rewrite(url, { status: 404 })
+  }
 
   if (section === "docs") {
     const slug = /^([a-z0-9-]+)\.md$/.exec(file)?.[1]
@@ -50,5 +67,5 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/catalog/:file", "/docs/:file"],
+  matcher: ["/catalog/:file", "/docs/:file", "/c/:name"],
 }
