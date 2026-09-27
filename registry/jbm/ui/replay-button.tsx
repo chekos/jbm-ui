@@ -7,7 +7,7 @@ export type ReplayButtonProps = Omit<
 > & {
   /** Normalized progress from the real animation timeline, clamped to 0–1. */
   progress: number
-  /** Locks replay until the host animation has finished. */
+  /** Locks replay until the host animation has finished. The button stays focusable (aria-disabled). */
   charging: boolean
   onReplay: () => void
   label?: string
@@ -38,7 +38,10 @@ export function ReplayButton({
       type="button"
       aria-label={label}
       title={title ?? (charging ? "Replay recharging" : "Replay")}
-      disabled={locked}
+      // Charging keeps the button focusable: `disabled` would drop keyboard focus to <body>
+      // mid-playback (WCAG 2.4.3). aria-disabled announces the lock; activation is ignored.
+      aria-disabled={locked || undefined}
+      disabled={disabled || undefined}
       onClick={() => {
         if (!locked) onReplay()
       }}

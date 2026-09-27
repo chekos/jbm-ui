@@ -41,7 +41,9 @@ The gallery includes all registry items, category filters, search, source links,
 
 Run `pnpm lint`, `pnpm typecheck`, `pnpm registry:check`, `pnpm consumer:check`, `node --test scripts/*.test.mjs`, and `pnpm build` locally before opening a PR; the GitHub Actions `check` workflow runs the same steps. `registry:check` rebuilds the registry and fails if generated files differ from committed output. Vercel builds and deploys through the GitHub integration. Track changes in issues and link them from PRs.
 
-Preview timing lives in `components/gallery/timing.ts`: demo anchors and content also determine Player duration and replay progress. Include the final interpolation frame, measure spring settling, and include caption fade-out; do not add an arbitrary hold after motion finishes. Static Scene previews have no replay control. Run `node --experimental-strip-types --test scripts/preview-timing.test.mjs` for timing regressions (Node 22.6+).
+Preview timing lives in `components/gallery/timing.ts`: demo anchors and content also determine Player duration and replay progress. Include the final interpolation frame, measure spring settling, and include caption fade-out; do not add an arbitrary hold after motion finishes. Static Scene previews have no replay control. Previews rest on their final frame (the finished state, e.g. Counter at 1024 and CodeCard fully typed), never on an arbitrary mid-animation frame.
+
+Every gallery item also has a QA page at `/c/<name>`, statically generated from `components/gallery/item-meta.ts` (`getGalleryItems()`: category, capabilities, install data, and snippet). It shows a large preview, the add command, usage, and links. Motion items add a Begin / Middle / End stepper and a keyboard-operable frame scrubber with a frame and seconds readout; orientation-aware items (scene-spec) add a landscape/portrait stage toggle and a Safe-area guides overlay, off by default and drawn outside the composition. Run `node --experimental-strip-types --test scripts/preview-timing.test.mjs` for timing regressions (Node 22.6+).
 
 ## ReplayButton
 
@@ -56,7 +58,7 @@ Install with `pnpm dlx shadcn@latest add @jbm/replay-button` after configuring t
 />
 ```
 
-Set `charging` to true when playback starts and false when it completes. While charging, replay is disabled and the icon traces from tail to arrowhead. Idle renders a fully charged icon. Optional `iconSize`, `disabled`, `style`, and standard button attributes support other hosts. The component owns no animation duration; a standalone browser demo and the Remotion previews both consume the same component.
+Set `charging` to true when playback starts and false when it completes. While charging, the icon traces from tail to arrowhead and activation is ignored, but the button stays focusable: it sets `aria-disabled` rather than `disabled`, so keyboard focus is never dropped mid-playback. Pass `disabled` only to remove replay entirely. The host owns announcements: pair the button with a polite live region (`role="status"`) that says “Playing” when playback starts and “Done” when it ends, as the gallery previews do. Idle renders a fully charged icon. Optional `iconSize`, `disabled`, `style`, and standard button attributes support other hosts. The component owns no animation duration; a standalone browser demo and the Remotion previews both consume the same component.
 
 Surface styling is codified in the shared `shadow` and `surfaceBorder` tokens. See [Surface depth](docs/surface-depth.md) for the lighting model, usage rules, and visual references.
 

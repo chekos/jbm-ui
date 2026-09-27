@@ -10,16 +10,8 @@ import { ToolCaddy } from "@/registry/jbm/motion/tool-caddy"
 import { Escritorio } from "@/registry/jbm/motion/escritorio"
 import { Burbuja } from "@/registry/jbm/motion/burbuja"
 
-export const deskNames = [
-  "cajon",
-  "file-cabinet",
-  "hand",
-  "mano",
-  "bandeja",
-  "tool-caddy",
-  "escritorio",
-  "burbuja",
-]
+export { deskNames, deskSnippets } from "./demo-data"
+
 const names = [
   "análisis",
   "diseño",
@@ -227,20 +219,4 @@ export function DeskDemo({ name }: { name: string }) {
       </div>
     </div>
   )
-}
-export const deskSnippets: Record<string, string> = {
-  cajon:
-    'import { Cajon } from "@/jbm/motion/cajon"\n\n<svg viewBox="0 -260 500 600">\n  <Cajon x={40} folders={[{name:"datos", pulled:0.5}]} open={1} />\n</svg>',
-  "file-cabinet":
-    'import { FileCabinet } from "@/jbm/ui/file-cabinet"\n\n<svg viewBox="0 -260 500 650">\n  <FileCabinet x={80} folders={[{name:"datos"}]} open={1} />\n</svg>',
-  hand: 'import { Hand } from "@/jbm/ui/hand"\n\n<Hand pose="pinch" width={160} />',
-  mano: 'import { Mano } from "@/jbm/motion/mano"\n\n<svg viewBox="0 0 500 340">\n  <Mano at={{x:160,y:30}} pose="point" angle={12} />\n</svg>',
-  bandeja:
-    'import { Bandeja } from "@/jbm/motion/bandeja"\n\n<svg viewBox="0 0 400 250">\n  <Bandeja x={60} y={120} layers={3} />\n</svg>',
-  "tool-caddy":
-    'import { ToolCaddy } from "@/jbm/motion/tool-caddy"\n\n<svg viewBox="0 0 400 250">\n  <ToolCaddy x={80} y={40} />\n</svg>',
-  escritorio:
-    'import { Escritorio } from "@/jbm/motion/escritorio"\n\n<svg viewBox="0 0 820 500">\n  <Escritorio box={{x:30,y:30,w:760,h:420}}\n    cabinet spec={{finish:"wood",drawerSide:"end"}}\n    folders={[{name:"datos"}]} open={1} />\n</svg>',
-  burbuja:
-    'import { Burbuja } from "@/jbm/motion/burbuja"\n\n<Burbuja words={["Podemos", "reutilizar", "componentes."]}\n  highlight={[1]} progress={1} speaker="Tú" />',
 }

@@ -741,3 +741,311 @@ details > p {
     padding: 20px 0;
   }
 }
+
+/* item pages */
+/* /c/<name>: the QA bench for one item. Same backroom chrome as the index; the preview leads. */
+.item-topbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: 24px;
+  row-gap: 6px;
+  padding: 28px 0 20px;
+  border-bottom: 1px solid var(--jbm-line);
+  font-size: 14px;
+}
+.item-topbar .wordmark {
+  color: var(--jbm-ink);
+  text-decoration: none;
+}
+.breadcrumb {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: var(--jbm-dim);
+}
+.breadcrumb li + li::before {
+  content: "/" / "";
+  padding: 0 10px;
+  color: var(--jbm-dim);
+}
+.breadcrumb a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  color: var(--jbm-dim);
+}
+.breadcrumb a:hover {
+  color: var(--jbm-ink);
+}
+.breadcrumb [aria-current="page"] {
+  color: var(--jbm-ink);
+}
+.item-head {
+  padding: 40px 0 24px;
+}
+.item-head h1 {
+  margin: 0 0 10px;
+  font-size: clamp(28px, 2.8vw, 36px);
+  font-weight: 650;
+  line-height: 1.1;
+  letter-spacing: -0.035em;
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+}
+.item-description {
+  max-width: 65ch;
+  margin: 0 0 14px;
+  color: var(--jbm-dim);
+  font-size: 16px;
+  line-height: 1.6;
+  text-wrap: pretty;
+}
+.item-tags {
+  padding: 0;
+}
+.item-tags a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  color: var(--jbm-ink);
+}
+.item-bench {
+  margin-bottom: 48px;
+}
+.item-bench:focus {
+  outline: none;
+}
+/* The stage fits the viewport height at its own aspect ratio (8:5 previews, 16:9 or 9:16 stages). */
+.bench {
+  --bench-w: min(100%, calc(72svh * var(--stage-ratio, 1.6)));
+  display: grid;
+  gap: 14px;
+  font-size: 14px;
+}
+.bench-stage,
+.bench-preview,
+.bench-loading,
+.bench-frames {
+  width: var(--bench-w);
+  min-width: min(100%, 320px);
+}
+.bench-stage,
+.bench-preview,
+.bench-loading {
+  overflow: hidden;
+  border: 1px solid var(--jbm-line);
+  border-radius: 10px;
+  background: var(--jbm-bg);
+}
+.bench-stage {
+  position: relative;
+}
+.bench-loading {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 8 / 5;
+  margin: 0;
+}
+.bench-options {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 20px;
+}
+.bench-options label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 24px;
+}
+.bench-options select {
+  min-height: 32px;
+  border: 1px solid var(--jbm-line);
+  border-radius: 6px;
+  padding: 4px 8px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+}
+.bench-options select:focus-visible,
+.bench-check input:focus-visible {
+  outline: 2px solid var(--jbm-accent);
+  outline-offset: 3px;
+}
+.bench-check input,
+.bench-scrub input {
+  accent-color: var(--jbm-ink);
+}
+.bench-check input {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+}
+.bench-segmented,
+.bench-steps {
+  display: inline-flex;
+}
+.bench-segmented button,
+.bench-steps button {
+  min-height: 36px;
+  border: 1px solid var(--jbm-line);
+  padding: 6px 12px;
+  background: transparent;
+  color: var(--jbm-ink);
+  font-size: 13px;
+}
+.bench-segmented button:first-child,
+.bench-steps button:first-child {
+  border-radius: 6px 0 0 6px;
+}
+.bench-segmented button:last-child,
+.bench-steps button:last-child {
+  border-radius: 0 6px 6px 0;
+}
+.bench-segmented button + button,
+.bench-steps button + button {
+  margin-left: -1px;
+}
+.bench-segmented button:hover,
+.bench-steps button:hover {
+  position: relative;
+  border-color: var(--jbm-ink);
+}
+.bench-segmented button[aria-pressed="true"],
+.bench-steps button[aria-current="step"] {
+  position: relative;
+  background: var(--jbm-ink);
+  border-color: var(--jbm-ink);
+  color: var(--jbm-bg);
+}
+.bench-segmented button:focus-visible,
+.bench-steps button:focus-visible {
+  position: relative;
+  z-index: 1;
+  outline-offset: 2px;
+}
+/* QA overlay only: drawn over the Player, never inside a composition or a render. */
+.bench-guides {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.bench-guides-area {
+  position: absolute;
+  outline: 2px dashed var(--jbm-accent2);
+  outline-offset: -1px;
+}
+.bench-guides-area span {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: var(--jbm-bg);
+  color: var(--jbm-accent2);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+.bench-frames {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 16px;
+}
+.bench-scrub {
+  display: flex;
+  flex: 1 1 200px;
+  align-items: center;
+  min-width: 160px;
+}
+.bench-scrub input {
+  width: 100%;
+  height: 24px;
+  margin: 0;
+}
+.bench-scrub input:focus-visible {
+  outline: 2px solid var(--jbm-accent);
+  outline-offset: 4px;
+}
+.bench-readout {
+  display: inline-flex;
+  gap: 10px;
+  color: var(--jbm-dim);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.bench-readout span:first-child {
+  color: var(--jbm-ink);
+}
+.bench-note {
+  margin: 0;
+  color: var(--jbm-dim);
+  font-size: 14px;
+}
+.item-docs {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr);
+  gap: 24px 48px;
+  align-items: start;
+  padding: 32px 0 8px;
+  border-top: 1px solid var(--jbm-line);
+}
+.item-docs h2 {
+  margin: 0 0 8px;
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.6px;
+}
+.item-docs p {
+  max-width: 62ch;
+  margin: 12px 0;
+  color: var(--jbm-dim);
+  font-size: 14px;
+  line-height: 1.6;
+}
+.item-docs code {
+  font-family: var(--font-mono);
+}
+.item-docs pre {
+  margin: 12px 0 0;
+}
+.item-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 24px;
+  margin: 16px 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 12px;
+}
+.item-links a,
+.item-docs p a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+}
+@media (max-width: 760px) {
+  .item-topbar {
+    padding: 20px 0 16px;
+  }
+  .item-head {
+    padding: 28px 0 20px;
+  }
+  .item-docs {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .bench-frames {
+    gap: 10px 12px;
+  }
+  .bench-scrub {
+    flex-basis: 100%;
+    order: 3;
+  }
+}

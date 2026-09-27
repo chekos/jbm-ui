@@ -20,18 +20,7 @@ import { pointOn } from "@/registry/jbm/lib/geometry"
 import { Ticket } from "@/registry/jbm/ui/ticket"
 import { color } from "@/registry/jbm/lib/tokens"
 
-export const designNames = [
-  "paper-tape",
-  "tape-marker",
-  "paper-clip",
-  "clipped-note",
-  "punched-tag",
-  "paper-line",
-  "stamp",
-  "frontmatter",
-  "folder-contents",
-  "folder-carry",
-]
+export { designNames, designSnippets } from "./demo-data"
 
 function Range({
   label,
@@ -343,15 +332,3 @@ export function WorkOrderExample() {
   )
 }
 
-export const designSnippets: Record<string, string> = {
-  "paper-tape": `import { PaperTape, paperAt } from "@/jbm/ui/paper-tape"\n\n<PaperTape length={700} window={320} markers={[{ id: "review", at: 520, label: "revisar" }]} />\n// paperAt(700, 520) === 180: marks and attachments share this origin.`,
-  "tape-marker": `import { TapeMarker } from "@/jbm/ui/tape-marker"\n\n<TapeMarker label="parar aquí" />`,
-  "paper-clip": `import { PaperClip } from "@/jbm/ui/paper-clip"\n\n<PaperClip width={26} height={48} />`,
-  "clipped-note": `import { ClippedNote } from "@/jbm/ui/clipped-note"\n\n<ClippedNote clip rotate={-3}>Revisar el resultado.</ClippedNote>`,
-  "punched-tag": `import { PunchedTag } from "@/jbm/ui/punched-tag"\n\n<PunchedTag tone="ink">Modelo</PunchedTag>`,
-  "paper-line": `import { PaperLine } from "@/jbm/ui/paper-line"\n\n<PaperLine text="Una idea clara." reveal={0.7} lift={0} strike={0} />`,
-  stamp: `import { Stamp } from "@/jbm/ui/stamp"\n\n<Stamp text="REVISADO" press={0.9} angle={-7} />`,
-  frontmatter: `import { Frontmatter } from "@/jbm/ui/frontmatter"\n\n<Frontmatter stacked rows={[{ key: "name", value: "pdf-processing", highlight: true }]} />`,
-  "folder-contents": `import { FolderContents } from "@/jbm/ui/folder-contents"\n\n<FolderContents open={1} sheet="README.md" label="proyecto" entries={[{ id: "assets", label: "assets/", document: "notas.md", documentReveal: 1 }]} />`,
-  "folder-carry": `import { FolderCarry, folderGrip, tableFolderGeometry } from "@/jbm/ui/folder-carry"\n\nconst from = tableFolderGeometry({ x: 0, y: 80 }, 100)\nconst to = tableFolderGeometry({ x: 200, y: 80 }, 180)\nconst path = [folderGrip(from), { x: 180, y: 40 }, folderGrip(to)]\n<svg viewBox="0 0 440 300"><FolderCarry from={from} to={to} path={path} progress={0.5} label="proyecto" /></svg>`,
-}

@@ -121,8 +121,14 @@ test('completed replay uses a solid path; charging dash offsets never become neg
     assert.ok(paths[0].props.d.includes('H21 V3'));
     assert.equal(paths[0].props.strokeDashoffset,undefined);
     assert.equal(paths[0].props.strokeDasharray,undefined);
-    assert.equal(tree.props.disabled,charging);
+    // Charging stays focusable: aria-disabled, never the native disabled attribute.
+    assert.equal(tree.props['aria-disabled'],charging||undefined);
+    assert.equal(tree.props.disabled,undefined);
+    let replays=0;
+    ReplayButton({progress:0.5,charging,onReplay:()=>replays++}).props.onClick();
+    assert.equal(replays,charging?0:1);
   }
+  assert.equal(ReplayButton({progress:1,charging:false,disabled:true,onReplay:()=>{}}).props.disabled,true);
   for(const progress of [0,0.85,0.9,0.999999999,NaN]) {
     const tree=ReplayButton({progress,charging:true,onReplay:()=>{}});
     for(const path of find(tree,'path')) if(path.props.strokeDashoffset!==undefined) assert.ok(path.props.strokeDashoffset>=0 && path.props.strokeDashoffset<=1);
