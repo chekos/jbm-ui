@@ -14,5 +14,8 @@
       "target": "src/jbm/ui/flip-text.tsx"
     }
   ],
+  "categories": [
+    "Motion"
+  ],
   "type": "registry:ui"
 }

@@ -14,5 +14,8 @@
       "target": "src/jbm/ui/ticket.tsx"
     }
   ],
+  "categories": [
+    "UI"
+  ],
   "type": "registry:ui"
 }

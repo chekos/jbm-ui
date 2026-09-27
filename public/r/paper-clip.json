@@ -14,5 +14,8 @@
       "target": "src/jbm/ui/paper-clip.tsx"
     }
   ],
+  "categories": [
+    "UI Bits"
+  ],
   "type": "registry:ui"
 }

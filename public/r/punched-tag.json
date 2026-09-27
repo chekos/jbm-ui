@@ -15,5 +15,8 @@
       "target": "src/jbm/ui/punched-tag.tsx"
     }
   ],
+  "categories": [
+    "UI Bits"
+  ],
   "type": "registry:ui"
 }

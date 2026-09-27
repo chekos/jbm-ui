@@ -15,5 +15,8 @@
       "target": "src/jbm/ui/phone-frame.tsx"
     }
   ],
+  "categories": [
+    "UI Bits"
+  ],
   "type": "registry:ui"
 }

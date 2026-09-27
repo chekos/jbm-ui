@@ -8,6 +8,9 @@
       "type": "registry:lib",
       "title": "Tokens",
       "description": "Cream/vermilion palette, Geist stacks, radii, shadow, stage safe areas; CSS vars string for Tailwind consumers.",
+      "categories": [
+        "Foundations"
+      ],
       "files": [
         {
           "path": "registry/jbm/lib/tokens.ts",
@@ -21,6 +24,9 @@
       "type": "registry:ui",
       "title": "Label",
       "description": "Uppercase tracked kicker.",
+      "categories": [
+        "UI"
+      ],
       "registryDependencies": [
         "@jbm/tokens"
       ],
@@ -37,6 +43,9 @@
       "type": "registry:ui",
       "title": "Big",
       "description": "Display heading, 800 weight.",
+      "categories": [
+        "UI"
+      ],
       "registryDependencies": [
         "@jbm/tokens"
       ],
@@ -53,6 +62,9 @@
       "type": "registry:ui",
       "title": "Card",
       "description": "Raised surface; dark variant for code.",
+      "categories": [
+        "UI"
+      ],
       "registryDependencies": [
         "@jbm/tokens"
       ],
@@ -69,6 +81,9 @@
       "type": "registry:ui",
       "title": "Chip",
       "description": "Outline, accent or solid pill; sans or mono.",
+      "categories": [
+        "UI"
+      ],
       "registryDependencies": [
         "@jbm/tokens"
       ],
@@ -85,6 +100,9 @@
       "type": "registry:ui",
       "title": "StatCard",
       "description": "Label, big value, sub; stacked or row layout.",
+      "categories": [
+        "UI"
+      ],
       "registryDependencies": [
         "@jbm/tokens",
         "@jbm/card"
@@ -102,6 +120,9 @@
       "type": "registry:ui",
       "title": "Callout",
       "description": "Sentence in an accent, ink or note pill.",
+      "categories": [
+        "UI"
+      ],
       "registryDependencies": [
         "@jbm/tokens"
       ],
@@ -118,6 +139,9 @@
       "type": "registry:ui",
       "title": "BulletList",
       "description": "Arrow or dot list.",
+      "categories": [
+        "UI"
+      ],
       "registryDependencies": [
         "@jbm/tokens"
       ],
@@ -134,6 +158,9 @@
       "type": "registry:ui",
       "title": "Brand",
       "description": "tacosdedatos lockup.",
+      "categories": [
+        "UI"
+      ],
       "registryDependencies": [
         "@jbm/tokens"
       ],
@@ -150,6 +177,9 @@
       "type": "registry:ui",
       "title": "Paper",
       "description": "Paper cut-out primitives: Paper shape, Sticker (slanted note with display type), Caption.",
+      "categories": [
+        "UI"
+      ],
       "registryDependencies": [
         "@jbm/tokens"
       ],
@@ -166,6 +196,9 @@
       "type": "registry:ui",
       "title": "UI bits",
       "description": "Illustrated interface pieces as paper cut-outs: UiButton, UiInput, UiCard, PhoneFrame, Badge, TokenGlyph.",
+      "categories": [
+        "UI Bits"
+      ],
       "registryDependencies": [
         "@jbm/ui-button",
         "@jbm/ui-input",
@@ -188,6 +221,9 @@
       "type": "registry:ui",
       "title": "ReplayButton",
       "description": "Controlled replay icon that charges from tail to arrowhead. Supply progress and charging state from any animation.",
+      "categories": [
+        "Motion"
+      ],
       "registryDependencies": [
         "@jbm/tokens"
       ],
@@ -204,6 +240,9 @@
       "type": "registry:hook",
       "title": "Motion hooks",
       "description": "useSec, useIn, useFade, useProgress for Remotion.",
+      "categories": [
+        "Foundations"
+      ],
       "dependencies": [
         "remotion"
       ],
@@ -220,6 +259,9 @@
       "type": "registry:component",
       "title": "Scene",
       "description": "Full-bleed canvas frame.",
+      "categories": [
+        "Layout"
+      ],
       "registryDependencies": [
         "@jbm/tokens"
       ],
@@ -236,6 +278,9 @@
       "type": "registry:component",
       "title": "Pop",
       "description": "Spring entrance + Stagger + Leave (exit).",
+      "categories": [
+        "Motion"
+      ],
       "dependencies": [
         "remotion"
       ],
@@ -255,6 +300,9 @@
       "type": "registry:component",
       "title": "Counter",
       "description": "Number counting up.",
+      "categories": [
+        "Motion"
+      ],
       "dependencies": [
         "remotion"
       ],
@@ -275,6 +323,9 @@
       "type": "registry:component",
       "title": "ProbBar",
       "description": "Labelled probability bar that fills.",
+      "categories": [
+        "Motion"
+      ],
       "dependencies": [
         "remotion"
       ],
@@ -296,6 +347,9 @@
       "type": "registry:component",
       "title": "CodeCard",
       "description": "Dark code card that types each line in place.",
+      "categories": [
+        "Motion"
+      ],
       "dependencies": [
         "remotion"
       ],
@@ -326,6 +380,9 @@
       "type": "registry:component",
       "title": "Captions",
       "description": "Kinetic subtitle pill from aligned words.",
+      "categories": [
+        "Motion"
+      ],
       "dependencies": [
         "remotion"
       ],
@@ -346,6 +403,9 @@
       "type": "registry:component",
       "title": "RebuildScreens",
       "description": "A phone screen built piece by piece, then rebuilt on new screens on each cue; Stamp for a loud sticker.",
+      "categories": [
+        "Motion"
+      ],
       "dependencies": [
         "remotion"
       ],
@@ -368,6 +428,9 @@
       "type": "registry:component",
       "title": "Catalog",
       "description": "Catalogue sheet of interface pieces that unfolds a second row of design-token glyphs.",
+      "categories": [
+        "Motion"
+      ],
       "dependencies": [
         "remotion"
       ],
@@ -392,6 +455,9 @@
       "type": "registry:component",
       "title": "Propagate",
       "description": "One source card fanning out to a row of screens; bug, fix and recolour cues travel down the lines.",
+      "categories": [
+        "Motion"
+      ],
       "dependencies": [
         "remotion"
       ],
@@ -415,6 +481,9 @@
       "type": "registry:component",
       "title": "Shelf",
       "description": "Pile of library cards on their own cues, plus Twice: a button, the same button again, a cross through the second.",
+      "categories": [
+        "Motion"
+      ],
       "dependencies": [
         "remotion"
       ],
@@ -438,6 +507,9 @@
       "type": "registry:component",
       "title": "Scene spec",
       "description": "Compose timed blocks with explicit portrait layouts, orientation overrides, and configurable safe areas.",
+      "categories": [
+        "Layout"
+      ],
       "dependencies": [
         "remotion"
       ],
@@ -476,6 +548,9 @@
       "type": "registry:ui",
       "title": "UiButton",
       "description": "Illustrated button with paper, ink, and accent tones.",
+      "categories": [
+        "UI Bits"
+      ],
       "registryDependencies": [
         "@jbm/tokens",
         "@jbm/paper"
@@ -493,6 +568,9 @@
       "type": "registry:ui",
       "title": "UiInput",
       "description": "Illustrated text field with a controllable cursor.",
+      "categories": [
+        "UI Bits"
+      ],
       "registryDependencies": [
         "@jbm/tokens",
         "@jbm/paper"
@@ -510,6 +588,9 @@
       "type": "registry:ui",
       "title": "UiCard",
       "description": "Illustrated card with a picture and text bars.",
+      "categories": [
+        "UI Bits"
+      ],
       "registryDependencies": [
         "@jbm/tokens",
         "@jbm/paper"
@@ -527,6 +608,9 @@
       "type": "registry:ui",
       "title": "Piece",
       "description": "Choose a button, input, or card illustration by kind.",
+      "categories": [
+        "UI Bits"
+      ],
       "registryDependencies": [
         "@jbm/paper",
         "@jbm/ui-button",
@@ -546,6 +630,9 @@
       "type": "registry:ui",
       "title": "PhoneFrame",
       "description": "Phone silhouette that holds your own content.",
+      "categories": [
+        "UI Bits"
+      ],
       "registryDependencies": [
         "@jbm/tokens",
         "@jbm/paper"
@@ -563,6 +650,9 @@
       "type": "registry:ui",
       "title": "Badge",
       "description": "Check and cross badges in paper, ink, and accent tones.",
+      "categories": [
+        "UI Bits"
+      ],
       "registryDependencies": [
         "@jbm/tokens",
         "@jbm/paper"
@@ -580,6 +670,9 @@
       "type": "registry:ui",
       "title": "TokenGlyph",
       "description": "Color, typography, and spacing illustrations.",
+      "categories": [
+        "UI Bits"
+      ],
       "registryDependencies": [
         "@jbm/tokens",
         "@jbm/paper"
@@ -597,6 +690,9 @@
       "type": "registry:ui",
       "title": "Text fill",
       "description": "A controlled character sweep from muted text through vermilion into ink. Drive progress with a slider, scroll, or a video timeline.",
+      "categories": [
+        "Motion"
+      ],
       "registryDependencies": [
         "@jbm/tokens"
       ],
@@ -613,6 +709,9 @@
       "type": "registry:ui",
       "title": "Scroll text fill",
       "description": "Scroll to bring text into focus, one character at a time. Keyboard scrolling, reversible progress, and reduced-motion support.",
+      "categories": [
+        "Motion"
+      ],
       "registryDependencies": [
         "@jbm/text-fill",
         "@jbm/tokens"
@@ -630,6 +729,9 @@
       "type": "registry:ui",
       "title": "Flip text",
       "description": "Letters tumble on hover with a vermilion accent. Click, tap, or use the keyboard to flip the whole phrase. Respects reduced motion.",
+      "categories": [
+        "Motion"
+      ],
       "registryDependencies": [
         "@jbm/tokens"
       ],
@@ -646,6 +748,9 @@
       "type": "registry:ui",
       "title": "Scroll stack",
       "description": "Stack any React content as you scroll. Successive items scale into place while earlier ones fade. Page or contained scrolling, keyboard access, and a plain-list fallback.",
+      "categories": [
+        "Motion"
+      ],
       "registryDependencies": [
         "@jbm/tokens"
       ],
@@ -662,6 +767,9 @@
       "type": "registry:ui",
       "title": "Rule",
       "description": "A labelled divider with ink or vermilion emphasis and two line weights.",
+      "categories": [
+        "UI"
+      ],
       "registryDependencies": [
         "@jbm/tokens"
       ],
@@ -678,6 +786,9 @@
       "type": "registry:ui",
       "title": "Action Link",
       "description": "A text anchor with an optional arrow and visible hover and keyboard focus.",
+      "categories": [
+        "UI"
+      ],
       "registryDependencies": [
         "@jbm/tokens"
       ],
@@ -694,6 +805,9 @@
       "type": "registry:ui",
       "title": "Index Row",
       "description": "A numbered record with optional evidence, linked title, and active state.",
+      "categories": [
+        "UI"
+      ],
       "registryDependencies": [
         "@jbm/tokens",
         "@jbm/action-link"
@@ -711,6 +825,9 @@
       "type": "registry:ui",
       "title": "Figure Caption",
       "description": "An editorial figure label, caption, and provenance that wraps on narrow screens.",
+      "categories": [
+        "UI"
+      ],
       "registryDependencies": [
         "@jbm/tokens"
       ],
@@ -727,6 +844,9 @@
       "type": "registry:ui",
       "title": "Ticket",
       "description": "Admission-style surface with a colored header, flexible body, and perforated footer stub.",
+      "categories": [
+        "UI"
+      ],
       "registryDependencies": [
         "@jbm/tokens"
       ],
@@ -743,6 +863,9 @@
       "type": "registry:ui",
       "title": "Chat Bubble",
       "description": "Messages with optional speakers and tails, incoming/outgoing alignment, and three palette tones.",
+      "categories": [
+        "UI"
+      ],
       "registryDependencies": [
         "@jbm/tokens"
       ],
@@ -759,6 +882,9 @@
       "type": "registry:ui",
       "title": "Document",
       "description": "Folded paper illustration with optional label and accent heading.",
+      "categories": [
+        "UI Bits"
+      ],
       "registryDependencies": [
         "@jbm/tokens"
       ],
@@ -775,6 +901,9 @@
       "type": "registry:ui",
       "title": "Folder",
       "description": "Labelled folder illustration with a controlled open state. No built-in autoplay.",
+      "categories": [
+        "UI Bits"
+      ],
       "registryDependencies": [
         "@jbm/tokens"
       ],
@@ -791,6 +920,9 @@
       "type": "registry:ui",
       "title": "Score Scale",
       "description": "A read-only score meter with endpoint labels and a controlled marker.",
+      "categories": [
+        "UI"
+      ],
       "registryDependencies": [
         "@jbm/tokens"
       ],
@@ -807,6 +939,9 @@
       "type": "registry:ui",
       "title": "Comparison Bars",
       "description": "Readable comparison rows on a shared zero-based scale, with optional emphasis.",
+      "categories": [
+        "UI"
+      ],
       "registryDependencies": [
         "@jbm/tokens"
       ],
@@ -823,6 +958,9 @@
       "type": "registry:ui",
       "title": "Clock",
       "description": "A deterministic analog clock and time label. Supply time explicitly for web or video.",
+      "categories": [
+        "UI"
+      ],
       "registryDependencies": [
         "@jbm/tokens"
       ],
@@ -838,6 +976,9 @@
       "name": "scene-geometry",
       "title": "Scene geometry",
       "description": "Shared points, bounds, arc-length path interpolation and travel tilt.",
+      "categories": [
+        "Foundations"
+      ],
       "type": "registry:lib",
       "registryDependencies": [],
       "files": [
@@ -852,6 +993,9 @@
       "name": "cajon",
       "title": "Cajón",
       "description": "A fixed-size filing drawer with complete folders packed front to back.",
+      "categories": [
+        "UI Bits"
+      ],
       "type": "registry:component",
       "registryDependencies": [
         "@jbm/tokens",
@@ -870,6 +1014,9 @@
       "name": "mano",
       "title": "Mano",
       "description": "Position and rotate the independent Hand illustration with controlled coordinates.",
+      "categories": [
+        "Motion"
+      ],
       "type": "registry:component",
       "registryDependencies": [
         "@jbm/hand",
@@ -887,6 +1034,9 @@
       "name": "bandeja",
       "title": "Bandeja",
       "description": "A shallow paper tray with optional sheets.",
+      "categories": [
+        "UI Bits"
+      ],
       "type": "registry:component",
       "registryDependencies": [
         "@jbm/tokens",
@@ -904,6 +1054,9 @@
       "name": "tool-caddy",
       "title": "Tool caddy",
       "description": "An empty divided desktop organizer.",
+      "categories": [
+        "UI Bits"
+      ],
       "type": "registry:component",
       "registryDependencies": [
         "@jbm/tokens"
@@ -920,6 +1073,9 @@
       "name": "escritorio",
       "title": "Escritorio",
       "description": "An empty desk with separate finish and optional file cabinet.",
+      "categories": [
+        "Layout"
+      ],
       "type": "registry:component",
       "registryDependencies": [
         "@jbm/tokens",
@@ -939,6 +1095,9 @@
       "name": "burbuja",
       "title": "Burbuja",
       "description": "The existing ChatBubble with selected words highlighted by TextFill.",
+      "categories": [
+        "UI"
+      ],
       "type": "registry:component",
       "registryDependencies": [
         "@jbm/tokens",
@@ -957,6 +1116,9 @@
       "name": "hand",
       "title": "Hand",
       "description": "An independent hand illustration with open, pointing and pinching poses.",
+      "categories": [
+        "UI Bits"
+      ],
       "type": "registry:component",
       "registryDependencies": [
         "@jbm/tokens"
@@ -973,6 +1135,9 @@
       "name": "file-cabinet",
       "title": "File cabinet",
       "description": "A reusable cabinet containing a controlled filing drawer.",
+      "categories": [
+        "UI Bits"
+      ],
       "type": "registry:component",
       "registryDependencies": [
         "@jbm/tokens",
@@ -991,6 +1156,9 @@
       "name": "paper-clip",
       "title": "Paper clip",
       "description": "Independent wire clip for paper edges.",
+      "categories": [
+        "UI Bits"
+      ],
       "type": "registry:ui",
       "registryDependencies": [
         "@jbm/tokens"
@@ -1007,6 +1175,9 @@
       "name": "clipped-note",
       "title": "Clipped note",
       "description": "Paper note with an optional independent clip, rotation, and paper tones.",
+      "categories": [
+        "UI Bits"
+      ],
       "type": "registry:ui",
       "registryDependencies": [
         "@jbm/tokens",
@@ -1025,6 +1196,9 @@
       "name": "punched-tag",
       "title": "Punched tag",
       "description": "Card-stock label with a punched hole and configurable content.",
+      "categories": [
+        "UI Bits"
+      ],
       "type": "registry:ui",
       "registryDependencies": [
         "@jbm/tokens",
@@ -1042,6 +1216,9 @@
       "name": "paper-line",
       "title": "Paper line",
       "description": "Controlled grapheme reveal, ink lift, dotted underline, and strike-through.",
+      "categories": [
+        "Motion"
+      ],
       "type": "registry:ui",
       "registryDependencies": [
         "@jbm/tokens",
@@ -1059,6 +1236,9 @@
       "name": "stamp",
       "title": "Stamp",
       "description": "Controlled ink impression with press and angle controls.",
+      "categories": [
+        "UI Bits"
+      ],
       "type": "registry:ui",
       "registryDependencies": [
         "@jbm/tokens",
@@ -1076,6 +1256,9 @@
       "name": "tape-marker",
       "title": "Tape marker",
       "description": "Independent folded paper checkpoint marker.",
+      "categories": [
+        "UI Bits"
+      ],
       "type": "registry:ui",
       "registryDependencies": [
         "@jbm/tokens",
@@ -1093,6 +1276,9 @@
       "name": "paper-tape",
       "title": "Paper tape",
       "description": "Feeding paper with shared coordinates for writing, markers, and attached notes.",
+      "categories": [
+        "UI Bits"
+      ],
       "type": "registry:ui",
       "registryDependencies": [
         "@jbm/tokens",
@@ -1111,6 +1297,9 @@
       "name": "frontmatter",
       "title": "Frontmatter",
       "description": "Metadata fields with YAML delimiters, emphasis, dimming, and stacked layout.",
+      "categories": [
+        "UI"
+      ],
       "type": "registry:ui",
       "registryDependencies": [
         "@jbm/tokens",
@@ -1128,6 +1317,9 @@
       "name": "folder-contents",
       "title": "Folder contents",
       "description": "Nested folders and documents with independent extraction and rigid-object reveal.",
+      "categories": [
+        "UI Bits"
+      ],
       "type": "registry:ui",
       "registryDependencies": [
         "@jbm/tokens",
@@ -1146,6 +1338,9 @@
       "name": "folder-carry",
       "title": "Folder carry",
       "description": "Continuous folder transport with shared tab contact geometry.",
+      "categories": [
+        "Motion"
+      ],
       "type": "registry:ui",
       "registryDependencies": [
         "@jbm/tokens",

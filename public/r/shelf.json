@@ -21,5 +21,8 @@
       "target": "src/jbm/motion/shelf.tsx"
     }
   ],
+  "categories": [
+    "Motion"
+  ],
   "type": "registry:component"
 }

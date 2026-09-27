@@ -16,5 +16,8 @@
       "target": "src/jbm/ui/paper-tape.tsx"
     }
   ],
+  "categories": [
+    "UI Bits"
+  ],
   "type": "registry:ui"
 }

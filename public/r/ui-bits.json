@@ -20,5 +20,8 @@
       "target": "src/jbm/ui/ui-bits.tsx"
     }
   ],
+  "categories": [
+    "UI Bits"
+  ],
   "type": "registry:ui"
 }

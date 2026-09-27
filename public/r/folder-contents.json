@@ -16,5 +16,8 @@
       "target": "src/jbm/ui/folder-contents.tsx"
     }
   ],
+  "categories": [
+    "UI Bits"
+  ],
   "type": "registry:ui"
 }

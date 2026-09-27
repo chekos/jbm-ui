@@ -14,5 +14,8 @@
       "target": "src/jbm/ui/label.tsx"
     }
   ],
+  "categories": [
+    "UI"
+  ],
   "type": "registry:ui"
 }

@@ -18,5 +18,8 @@
       "target": "src/jbm/motion/counter.tsx"
     }
   ],
+  "categories": [
+    "Motion"
+  ],
   "type": "registry:component"
 }

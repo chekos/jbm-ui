@@ -14,5 +14,8 @@
       "target": "src/jbm/ui/replay-button.tsx"
     }
   ],
+  "categories": [
+    "Motion"
+  ],
   "type": "registry:ui"
 }

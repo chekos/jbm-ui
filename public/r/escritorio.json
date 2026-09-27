@@ -17,5 +17,8 @@
       "target": "src/jbm/motion/escritorio.tsx"
     }
   ],
+  "categories": [
+    "Layout"
+  ],
   "type": "registry:component"
 }

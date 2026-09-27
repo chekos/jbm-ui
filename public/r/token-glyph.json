@@ -15,5 +15,8 @@
       "target": "src/jbm/ui/token-glyph.tsx"
     }
   ],
+  "categories": [
+    "UI Bits"
+  ],
   "type": "registry:ui"
 }

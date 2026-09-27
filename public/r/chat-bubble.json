@@ -14,5 +14,8 @@
       "target": "src/jbm/ui/chat-bubble.tsx"
     }
   ],
+  "categories": [
+    "UI"
+  ],
   "type": "registry:ui"
 }
