@@ -7466,7 +7466,7 @@
               "type": "HandPose",
               "required": false,
               "default": "\"point\"",
-              "description": "Silhouette: `open` (open palm, fingers together), `point` (index finger extended), `pinch` (index bent over the thumb; also the pen grip Pluma uses, so there is no pen pose), `grip` (front view, the four fingers curled to knuckle-height bumps and the thumb folded across the palm: the grabbing hand; lay the bumps over a sheet or tab edge), `type` (the open palm with the fingers foreshortened and the thumb tucked beside the index; turn it 180° over a keyboard so the fingertips rest on the home row), or `hold` (side-on fist: the four fingers stacked and pointing left, the thumb resting across the top; the fingers wrap a mug handle). Also sets the accessible label, e.g. \"Hand: point\"."
+              "description": "Silhouette: `open` (open palm, fingers together), `point` (index finger extended), `pinch` (index bent over the thumb; also the pen grip Pluma uses, so there is no pen pose), `grip` (front-view fist: four finger capsules with knuckle bumps on top and the curled fingertips in a row beneath, the thumb lying across under them; lay the knuckles over a sheet or tab edge), `type` (the hand from above on a keyboard: middle, ring, and pinky leaning together, the index bent up-left at its middle knuckle, the thumb low and pointing left toward the space bar; use it upright, fingertips on the keys), or `hold` (the side-view mug grip turned so the wrist is at the bottom: four stacked fingers with their curled tips on the palm, the thumb's back continuing the back of the hand and opening from the index in a V; rotate it about -75° to put the fingers through a handle on the left). Also sets the accessible label, e.g. \"Hand: point\"."
             },
             {
               "name": "halo",
@@ -7514,8 +7514,9 @@
       ],
       "qa": [
         "Switch Pose through all six: each silhouette sits in the same box with the wrist at the bottom and keeps simple geometric line art and the same outline weight.",
-        "Enlarge every pose (point and pinch included) and inspect the finger joins: each interior divider starts on the outline's valley point, continues the finger's side, and has the outline's stroke width, with no notch or step, and grip, type, and hold keep the open palm's wrist cut and palm base exactly.",
-        "Name each pose at gallery size: grip reads as a grabbing hand (curled fingers, thumb across the palm), hold as a fist holding something from the side (thumb over the top). type alone reads as a relaxed flat hand; it reads as typing only when turned 180° over a DeskProp keyboard.",
+        "Enlarge every pose (point and pinch included) and inspect the finger joins: each interior divider starts on the outline's valley point, continues the finger's side, and has the outline's stroke width, with no notch or step, and grip, type, and hold keep the open palm's wrist cut exactly (grip and type also its heel and right side).",
+        "Name each pose at gallery size and compare it with its generated reference (Paper page hands): grip reads as a fist gripping an edge (knuckles on top, fingertips in a row, thumb across beneath), type as a hand from above with the index curled and the thumb low toward the space bar, hold as the side-view mug grip (stacked fingers, thumb opening from the index).",
+        "In context, grip over a Paper sheet's top edge, type over a DeskProp keyboard (fingertips on the upper rows, thumb over the space bar), and hold rotated about -75° on a DeskProp mug so the fingers wrap the handle and the thumb rides on top.",
         "Check the card fill and ink stroke read on cream, and the aria-label follows the pose.",
         "Scale with width at narrow screens: the 30:29 aspect ratio holds."
       ],

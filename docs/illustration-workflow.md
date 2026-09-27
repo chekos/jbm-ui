@@ -35,6 +35,7 @@ Content count changes packing, not furniture dimensions. One folder belongs at t
 Compare the actual rendered component with the source image and existing library. Actively look for reasons to reject it before delivery:
 
 - Inspect normal viewing size and enlarged detail. Check every contour intersection for steps, gaps, unintended overlaps, thickness changes, and broken tangents. Rounded caps do not repair misaligned paths. At every hand pose's finger joins, dividers start on the outline's valley point, continue the finger's side, and share the outline's stroke width; fingers stay together unless a spread pose was requested.
+- When a pose traces a reference, overlay the reference raster (scaled so its wrist matches the shared wrist cut) under thin outlines of the drawing and compare landmarks, not impressions. At the hand's heavy outline, a V between two contours narrower than about 35° fills solid with ink; open it or close it into a shared divider.
 - Stress marks such as creases are texture in the stock, not marks on the content: keep them short, radiating from their source, under the writing, and never meeting into an X or a check.
 - Inspect endpoints, intermediate states, and extremes. Check hidden geometry, front/back ordering, clipping, and contact points throughout travel, not only in one attractive frame.
 - Exercise each control independently, then meaningful combinations. Check zero, one, typical, and crowded counts; both sides; every pose; and desktop/mobile layouts and keyboard input.
