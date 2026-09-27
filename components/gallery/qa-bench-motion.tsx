@@ -176,14 +176,32 @@ export default function MotionBench({
     seek(frame + delta)
   }
 
+  // Opening a strip cell unmounts the strip and the focused cell with it: focus moves to the frame
+  // slider (which announces the opened frame) and the bench scrolls back into view, since on
+  // phones the single stage sits far above the stacked strip.
+  const bench = useRef<HTMLDivElement>(null)
+  const scrub = useRef<HTMLInputElement>(null)
+  const focusScrub = useRef(false)
   function openFrame(target: number, stripOrientation?: Orientation) {
     if (stripOrientation) setOrientation(stripOrientation)
     setView("single")
     seek(target)
+    focusScrub.current = true
   }
+  useEffect(() => {
+    if (view !== "single" || !focusScrub.current) return
+    focusScrub.current = false
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    bench.current?.scrollIntoView({
+      block: "nearest",
+      behavior: reduce ? "auto" : "smooth",
+    })
+    scrub.current?.focus({ preventScroll: true })
+  }, [view])
 
   return (
     <div
+      ref={bench}
       className="bench"
       data-layout={orientationAware ? "rail" : "bar"}
       data-view={view}
@@ -298,6 +316,7 @@ export default function MotionBench({
               Frame
             </label>
             <input
+              ref={scrub}
               id={`${id}-frame`}
               type="range"
               min={0}
