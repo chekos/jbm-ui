@@ -48,7 +48,12 @@ export const urlStateNames = [
   ...deskSurfaceNames,
   "register",
   "slip",
+  "paper",
+  "tear",
 ]
+
+/** Sheets under stress, previewed by PaperDemo: Paper (tension, tab) and Tear. */
+export const paperNames = ["paper", "tear"]
 
 /** Desk illustration pieces, previewed by DeskDemo. */
 export const deskNames = [

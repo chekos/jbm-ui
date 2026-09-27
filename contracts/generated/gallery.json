@@ -153,9 +153,11 @@
     {
       "name": "paper",
       "title": "Paper",
-      "description": "Paper cut-out primitives: a flat card-stock shape, a slanted Sticker with display type, and a centered Caption.",
+      "description": "Paper cut-out primitives: a card-stock sheet that can crease, start to tear, and carry a real tab, a slanted Sticker with display type, and a centered Caption.",
       "category": "UI",
-      "capabilities": [],
+      "capabilities": [
+        "controls"
+      ],
       "needsRemotion": false,
       "registryDependencies": [
         "@jbm/tokens"
@@ -1197,6 +1199,24 @@
       "snippet": "import { PunchedTag } from \"@/jbm/ui/punched-tag\"\n\n<PunchedTag tone=\"ink\">Modelo</PunchedTag>",
       "installName": "punched-tag",
       "sourcePath": "registry/jbm/ui/punched-tag.tsx",
+      "inRegistry": true
+    },
+    {
+      "name": "tear",
+      "title": "Tear",
+      "description": "A sheet torn into strips along seams: controlled progress moves each strip to its own destination, with frayed, seeded edges at every seam.",
+      "category": "UI Bits",
+      "capabilities": [
+        "controls"
+      ],
+      "needsRemotion": false,
+      "registryDependencies": [
+        "@jbm/tokens",
+        "@jbm/paper"
+      ],
+      "snippet": "import { Tear } from \"@/jbm/ui/tear\"\n\n// progress comes from your timeline, e.g. interpolate(frame, [0, 45], [0, 1]).\n<Tear\n  w={520}\n  h={760}\n  radius={10}\n  seams={[190, 380, 570]}\n  progress={0.6}\n  stagger={0.1}\n  pieces={[\n    { to: { x: -40, y: -70, rotate: -5 } },\n    { to: { x: 36, y: -24, rotate: 3 } },\n    { to: { x: -30, y: 24, rotate: -2 } },\n    { to: { x: 34, y: 72, rotate: 3 } },\n  ]}\n>\n  {({ index, top }) => (\n    <div style={{ position: \"absolute\", left: 40, top: top + 32 }}>strip {index + 1}</div>\n  )}\n</Tear>",
+      "installName": "tear",
+      "sourcePath": "registry/jbm/ui/tear.tsx",
       "inRegistry": true
     },
     {
