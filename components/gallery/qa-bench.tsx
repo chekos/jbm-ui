@@ -3,6 +3,8 @@
 import { useLayoutEffect, useRef } from "react"
 import dynamic from "next/dynamic"
 import { ItemPreview } from "./qa-bench-preview"
+import { BenchParams } from "./bench-url"
+import { urlStateNames } from "./demo-data"
 
 // The Remotion Player is client-only and heavy; only motion items load it.
 const MotionBench = dynamic(() => import("./qa-bench-motion"), {
@@ -60,6 +62,15 @@ export function QaBench({
           title={title}
           orientationAware={orientationAware}
         />
+      ) : urlStateNames.includes(name) ? (
+        // Controlled illustrations: Copy link above the preview, control values in the URL.
+        <div className="bench" data-layout="controls">
+          <BenchParams>
+            <div className="bench-preview">
+              <ItemPreview name={name} />
+            </div>
+          </BenchParams>
+        </div>
       ) : (
         <div className="bench">
           <div className="bench-preview">

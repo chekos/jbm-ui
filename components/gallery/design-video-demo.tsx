@@ -1,6 +1,7 @@
 "use client"
 
-import { useState, type ReactNode } from "react"
+import type { ReactNode } from "react"
+import { useBenchParam } from "./bench-url"
 import { PaperTape } from "@/registry/jbm/ui/paper-tape"
 import { TapeMarker } from "@/registry/jbm/ui/tape-marker"
 import { PaperClip } from "@/registry/jbm/ui/paper-clip"
@@ -75,13 +76,40 @@ function Toggle({
     </label>
   )
 }
+/** URL keys on /c/<name> benches: each piece names its shared state slots after its controls. */
+const slotKeys: Record<string, Record<string, string>> = {
+  "paper-tape": { progress: "feed", flag: "vertical", other: "marker" },
+  "paper-line": {
+    progress: "reveal",
+    secondary: "lift",
+    third: "strike",
+    flag: "dotted",
+    other: "accent",
+  },
+  stamp: { progress: "press", secondary: "angle" },
+  "folder-contents": {
+    progress: "open",
+    secondary: "extract",
+    third: "lift",
+    other: "reveal",
+    count: "folders",
+  },
+  "folder-carry": { progress: "carry", secondary: "angle", other: "hand" },
+  frontmatter: { flag: "stacked", other: "highlight", secondary: "dim" },
+  "clipped-note": { other: "clip", flag: "accent", secondary: "rotation" },
+  "punched-tag": { flag: "ink" },
+  "tape-marker": { other: "label" },
+}
+
 export function DesignVideoDemo({ name }: { name: string }) {
-  const [progress, setProgress] = useState(0.7)
-  const [secondary, setSecondary] = useState(0)
-  const [third, setThird] = useState(0)
-  const [flag, setFlag] = useState(false)
-  const [other, setOther] = useState(true)
-  const [count, setCount] = useState(3)
+  const key = (slot: string) => slotKeys[name]?.[slot] ?? slot
+  const unit = { clamp: [0, 1] } as const
+  const [progress, setProgress] = useBenchParam(key("progress"), 0.7, unit)
+  const [secondary, setSecondary] = useBenchParam(key("secondary"), 0, unit)
+  const [third, setThird] = useBenchParam(key("third"), 0, unit)
+  const [flag, setFlag] = useBenchParam(key("flag"), false)
+  const [other, setOther] = useBenchParam(key("other"), true)
+  const [count, setCount] = useBenchParam(key("count"), 3, { clamp: [0, 8] })
   let art: ReactNode, controls: ReactNode
   if (name === "paper-tape") {
     art = (

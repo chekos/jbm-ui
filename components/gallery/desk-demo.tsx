@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useBenchParam } from "./bench-url"
 import { Cajon } from "@/registry/jbm/motion/cajon"
 import { Hand, type HandPose } from "@/registry/jbm/ui/hand"
 import { Mano } from "@/registry/jbm/motion/mano"
@@ -33,16 +33,24 @@ const names = [
   "archivo",
 ]
 export function DeskDemo({ name }: { name: string }) {
-  const [count, setCount] = useState(3)
-  const [open, setOpen] = useState(1)
-  const [pull, setPull] = useState(0)
-  const [pose, setPose] = useState<HandPose>("point")
-  const [wood, setWood] = useState(false)
-  const [right, setRight] = useState(false)
-  const [cabinet, setCabinet] = useState(false)
-  const [progress, setProgress] = useState(1)
-  const [angle, setAngle] = useState(0)
-  const [position, setPosition] = useState(0)
+  // On /c/<name> benches each value lives in the URL (?open=0.5&pose=pinch); see bench-url.tsx.
+  const unit = { clamp: [0, 1] } as const
+  const [count, setCount] = useBenchParam(
+    "count",
+    3,
+    name === "bandeja" ? { clamp: [0, 12] } : { allowed: [0, 1, 3, 6, 12] }
+  )
+  const [open, setOpen] = useBenchParam("open", 1, unit)
+  const [pull, setPull] = useBenchParam("lift", 0, unit)
+  const [pose, setPose] = useBenchParam<HandPose>("pose", "point", {
+    allowed: ["open", "point", "pinch"],
+  })
+  const [wood, setWood] = useBenchParam("wood", false)
+  const [right, setRight] = useBenchParam("right", false)
+  const [cabinet, setCabinet] = useBenchParam("cabinet", false)
+  const [progress, setProgress] = useBenchParam("highlight", 1, unit)
+  const [angle, setAngle] = useBenchParam("angle", 0, { clamp: [-30, 30] })
+  const [position, setPosition] = useBenchParam("position", 0, unit)
   const folders = names
     .slice(0, count)
     .map((name, i) => ({ name, accent: i === 0, pulled: i === 0 ? pull : 0 }))

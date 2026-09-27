@@ -1143,6 +1143,9 @@ details > p {
   --bench-above: calc(var(--bench-gap) + 36px);
   --bench-below: calc(var(--bench-gap) + var(--bench-bar-h));
 }
+.bench[data-layout="controls"] {
+  --bench-above: calc(var(--bench-gap) + 36px);
+}
 .bench-stage,
 .bench-preview,
 .bench-loading {

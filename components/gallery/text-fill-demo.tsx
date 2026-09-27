@@ -2,14 +2,16 @@
 import { FlipText } from "@/registry/jbm/ui/flip-text"
 import { ProgressControl } from "./progress-control"
 
-import { useState } from "react"
+import { useBenchParam } from "./bench-url"
 import { TextFill } from "@/registry/jbm/ui/text-fill"
 import { ScrollTextFill } from "@/registry/jbm/ui/scroll-text-fill"
 
 const text = "Una idea toma forma. Letra por letra."
 
 export function TextFillDemo() {
-  const [progress, setProgress] = useState(0.45)
+  const [progress, setProgress] = useBenchParam("progress", 0.45, {
+    clamp: [0, 1],
+  })
   return (
     <div style={{ width: "100%", padding: 24 }}>
       <p style={{ margin: "0 0 24px", fontSize: "clamp(24px, 3vw, 40px)" }}>

@@ -15,6 +15,34 @@ export const designNames = [
   "folder-carry",
 ]
 
+/**
+ * Controlled illustrations whose /c/<name> bench keeps its control values in the URL and offers
+ * Copy link (useBenchParam in bench-url.tsx). Index cards keep local state.
+ */
+export const urlStateNames = [
+  "clipped-note",
+  "punched-tag",
+  "paper-line",
+  "stamp",
+  "tape-marker",
+  "paper-tape",
+  "frontmatter",
+  "folder-contents",
+  "folder-carry",
+  "cajon",
+  "file-cabinet",
+  "hand",
+  "mano",
+  "bandeja",
+  "escritorio",
+  "burbuja",
+  "folder",
+  "score-scale",
+  "clock",
+  "ticket",
+  "text-fill",
+]
+
 /** Desk illustration pieces, previewed by DeskDemo. */
 export const deskNames = [
   "cajon",

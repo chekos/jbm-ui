@@ -167,13 +167,28 @@ function codecFor<T extends number | boolean | string>(
 
 /**
  * useState for one control, mirrored to `?<key>=` on a /c/<name> bench (plain local state on index
- * cards). Numbers are written with two decimals, booleans as 1/0, strings only from `allowed`.
- * A value outside `clamp` falls back to the nearest bound.
+ * cards). Numbers are written with two decimals and booleans as 1/0; a value outside `allowed` is
+ * ignored and a number outside `clamp` falls back to the nearest bound.
  */
+type ParamOptions<T> = { allowed?: readonly T[]; clamp?: readonly [number, number] }
+export function useBenchParam(
+  key: string,
+  initial: number,
+  options?: ParamOptions<number>
+): [number, (value: number) => void]
+export function useBenchParam(
+  key: string,
+  initial: boolean
+): [boolean, (value: boolean) => void]
+export function useBenchParam<T extends string>(
+  key: string,
+  initial: T,
+  options: ParamOptions<T>
+): [T, (value: T) => void]
 export function useBenchParam<T extends number | boolean | string>(
   key: string,
   initial: T,
-  options: { allowed?: readonly T[]; clamp?: [number, number] } = {}
+  options: ParamOptions<T> = {}
 ): [T, (value: T) => void] {
   const store = useContext(BenchParamsContext)
   const [local, setLocal] = useState(initial)
@@ -181,6 +196,8 @@ export function useBenchParam<T extends number | boolean | string>(
   const codec = codecFor(initial, options.allowed)
   const text = store.get(key)
   let value = text === null ? undefined : codec.parse(text)
+  if (value !== undefined && options.allowed && !options.allowed.includes(value))
+    value = undefined
   if (typeof value === "number" && options.clamp)
     value = Math.min(options.clamp[1], Math.max(options.clamp[0], value)) as T
   return [

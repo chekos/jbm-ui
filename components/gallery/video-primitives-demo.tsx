@@ -2,7 +2,7 @@
 
 import { WorkOrderExample } from "./design-video-demo"
 
-import { useState } from "react"
+import { useBenchParam } from "./bench-url"
 import { Ticket } from "@/registry/jbm/ui/ticket"
 import { ChatBubble } from "@/registry/jbm/ui/chat-bubble"
 import { Document } from "@/registry/jbm/ui/document"
@@ -14,7 +14,7 @@ import { color, font } from "@/registry/jbm/lib/tokens"
 import { ProgressControl, RangeControl } from "./progress-control"
 
 function TicketDemo() {
-  const [accent, setAccent] = useState(true)
+  const [accent, setAccent] = useBenchParam("accent", true)
   return (
     <div style={{ display: "grid", gap: 24 }}>
       <Ticket
@@ -55,7 +55,7 @@ function TicketDemo() {
   )
 }
 function FolderDemo() {
-  const [open, setOpen] = useState(0.6)
+  const [open, setOpen] = useBenchParam("open", 0.5, { clamp: [0, 1] })
   return (
     <div style={{ display: "grid", gap: 20 }}>
       <Folder
@@ -73,7 +73,7 @@ function FolderDemo() {
   )
 }
 function ScoreDemo() {
-  const [value, setValue] = useState(6)
+  const [value, setValue] = useBenchParam("score", 6, { clamp: [0, 10] })
   return (
     <div style={{ display: "grid", gap: 32 }}>
       <ScoreScale
@@ -96,7 +96,9 @@ function ScoreDemo() {
   )
 }
 function ClockDemo() {
-  const [minutes, setMinutes] = useState(510)
+  const [minutes, setMinutes] = useBenchParam("minutes", 510, {
+    clamp: [0, 1439],
+  })
   return (
     <div style={{ display: "grid", justifyItems: "center", gap: 32 }}>
       <Clock hours={0} minutes={minutes} size={96} />

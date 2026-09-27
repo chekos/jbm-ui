@@ -49,7 +49,7 @@ export default {
   examples: [
     {
       title: "Half-open folder",
-      code: 'import { Folder } from "@/jbm/ui/folder"\n\n<Folder label="Ideas" open={0.6} />\n// open: 0 (closed) to 1 (open); no internal timer.',
+      code: 'import { Folder } from "@/jbm/ui/folder"\n\n<Folder label="Ideas" open={0.5} />\n// open: 0 (closed) to 1 (open); no internal timer.',
     },
     {
       title: "Drive it from a Remotion timeline",

@@ -736,7 +736,7 @@
       "registryDependencies": [
         "@jbm/tokens"
       ],
-      "snippet": "import { Folder } from \"@/jbm/ui/folder\"\n\n<Folder label=\"Ideas\" open={0.6} />\n// open: 0 (closed) to 1 (open); no internal timer.",
+      "snippet": "import { Folder } from \"@/jbm/ui/folder\"\n\n<Folder label=\"Ideas\" open={0.5} />\n// open: 0 (closed) to 1 (open); no internal timer.",
       "installName": "folder",
       "sourcePath": "registry/jbm/ui/folder.tsx",
       "inRegistry": true
