@@ -1193,6 +1193,42 @@ details > p {
   align-items: center;
   min-height: 24px;
 }
+/* Docs / Schema: the contract’s reference links, one mono-labelled row each. */
+.item-refs {
+  display: grid;
+  gap: 4px;
+  margin: 12px 0 0;
+  padding-top: 12px;
+  border-top: 1px solid var(--jbm-line);
+  font-size: 12px;
+}
+.item-refs > div {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr);
+  gap: 0 16px;
+  align-items: baseline;
+}
+.item-refs dt {
+  color: var(--jbm-dim);
+  font-family: var(--font-mono);
+  letter-spacing: 0.02em;
+}
+.item-refs dd,
+.item-refs ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.item-refs ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 24px;
+}
+.item-refs a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+}
 /* Usage examples: a quiet caption over each snippet. */
 .item-example {
   margin: 12px 0 0;

@@ -263,6 +263,9 @@ export function getCatalog() {
         "Each installed file: source path in this repo, target path shadcn writes in the consumer project, and the import specifier.",
       endpoints:
         "Per-item Markdown and JSON with the same content as this entry plus install setup.",
+      docs: "Optional. Guides that cover the item, as {title, url}.",
+      schemas:
+        "Optional. JSON Schemas for the item's input data (for scene-spec, the scenes file), as {title, url}.",
       related:
         "Other items by relation: installs (registry dependency), installed-by, re-exports, bundled-in, example-import.",
     },

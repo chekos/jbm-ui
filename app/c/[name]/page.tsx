@@ -57,6 +57,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 }
 
+// Contract links on the production origin resolve on this deployment, so previews stay local.
+const localHref = (url: string) =>
+  url.startsWith("https://jbm-ui.bns.studio/")
+    ? url.slice("https://jbm-ui.bns.studio".length)
+    : url
+
 const source = (path: string) =>
   `https://github.com/chekos/jbm-ui/blob/main/${path}`
 
@@ -66,6 +72,10 @@ export default async function ItemPage({ params }: Props) {
   const player = isPlayerPreview(item.name)
   const contract = getContract(item.name)
   const { examples } = contract
+  const references = [
+    { label: "Docs", links: contract.docs ?? [] },
+    { label: "Schema", links: contract.schemas ?? [] },
+  ].filter((row) => row.links.length > 0)
   const categoryHref = `/?cat=${categorySlug(item.category)}`
 
   return (
@@ -172,6 +182,27 @@ export default async function ItemPage({ params }: Props) {
               <a href={`/catalog/${item.name}.json`}>Agent JSON</a>
             </li>
           </ul>
+          {references.length > 0 && (
+            <dl className="item-refs">
+              {references.map((row) => (
+                <div key={row.label}>
+                  <dt>{row.label}</dt>
+                  <dd>
+                    <ul>
+                      {row.links.map((link) => (
+                        <li key={link.url}>
+                          <a href={localHref(link.url)}>
+                            {link.title}
+                            {localHref(link.url).startsWith("/") ? "" : " ↗"}
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          )}
         </section>
         {examples.length > 0 && (
           <section aria-labelledby="usage-heading">
