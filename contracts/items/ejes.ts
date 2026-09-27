@@ -22,6 +22,7 @@ export default {
   description:
     "Two ink axes that split an area into four named quadrants, with quiet labels and a focus quadrant.",
   category: "UI Bits",
+  family: "Desk objects",
   capabilities: ["controls"],
   api: [
     {

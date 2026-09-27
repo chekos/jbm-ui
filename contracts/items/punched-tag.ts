@@ -7,6 +7,7 @@ export default {
   description:
     "Card-stock luggage-style label with a punched hole and bold content, in paper, accent, or ink stock.",
   category: "UI Bits",
+  family: "Tape, clips & marks",
   capabilities: ["controls"],
   api: [
     {

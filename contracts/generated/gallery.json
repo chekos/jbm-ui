@@ -564,6 +564,7 @@
       "title": "UiButton",
       "description": "Illustrated pill button with a label bar, in ink, accent, or outlined paper tones.",
       "category": "UI Bits",
+      "family": "Interface bits",
       "capabilities": [],
       "needsRemotion": false,
       "registryDependencies": [
@@ -580,6 +581,7 @@
       "title": "UiInput",
       "description": "Illustrated outlined text field with a placeholder bar and a cursor you switch on or off.",
       "category": "UI Bits",
+      "family": "Interface bits",
       "capabilities": [],
       "needsRemotion": false,
       "registryDependencies": [
@@ -596,6 +598,7 @@
       "title": "UiCard",
       "description": "Illustrated content card with a line-art picture (hills and a vermilion sun) over two text bars.",
       "category": "UI Bits",
+      "family": "Interface bits",
       "capabilities": [],
       "needsRemotion": false,
       "registryDependencies": [
@@ -612,6 +615,7 @@
       "title": "Piece",
       "description": "Picks the button, input, or card illustration by kind and sizes it from one width.",
       "category": "UI Bits",
+      "family": "Interface bits",
       "capabilities": [],
       "needsRemotion": false,
       "registryDependencies": [
@@ -630,6 +634,7 @@
       "title": "PhoneFrame",
       "description": "Phone silhouette with a thick ink edge and speaker slot that stacks your content at the bottom of its screen.",
       "category": "UI Bits",
+      "family": "Interface bits",
       "capabilities": [],
       "needsRemotion": false,
       "registryDependencies": [
@@ -646,6 +651,7 @@
       "title": "Badge",
       "description": "Round check or cross badge in accent, ink, or paper tones for fixed and broken states.",
       "category": "UI Bits",
+      "family": "Interface bits",
       "capabilities": [],
       "needsRemotion": false,
       "registryDependencies": [
@@ -662,6 +668,7 @@
       "title": "TokenGlyph",
       "description": "Square glyphs for design tokens: overlapping colour swatches, an Aa type sample, or a spacing dimension line.",
       "category": "UI Bits",
+      "family": "Interface bits",
       "capabilities": [],
       "needsRemotion": false,
       "registryDependencies": [
@@ -841,6 +848,7 @@
       "title": "Document",
       "description": "Folded paper illustration with optional label and accent heading.",
       "category": "UI Bits",
+      "family": "Paper & writing",
       "capabilities": [],
       "needsRemotion": false,
       "registryDependencies": [
@@ -856,6 +864,7 @@
       "title": "Folder",
       "description": "Controlled folder illustration that pulls its sheet upright from 0 to 1.",
       "category": "UI Bits",
+      "family": "Folders & drawers",
       "capabilities": [
         "controls"
       ],
@@ -935,6 +944,7 @@
       "title": "Cajon",
       "description": "A fixed-size filing drawer whose complete folders fan front to back, darker with depth.",
       "category": "UI Bits",
+      "family": "Folders & drawers",
       "capabilities": [
         "controls"
       ],
@@ -954,6 +964,7 @@
       "title": "Mano",
       "description": "Position and rotate the independent Hand illustration with controlled coordinates.",
       "category": "UI Bits",
+      "family": "Hands",
       "capabilities": [
         "controls"
       ],
@@ -973,6 +984,7 @@
       "title": "Pluma",
       "description": "A pen held in the Hand's pinch, with a helper that reports the nib point.",
       "category": "UI Bits",
+      "family": "Hands",
       "capabilities": [
         "controls"
       ],
@@ -992,6 +1004,7 @@
       "title": "Bandeja",
       "description": "A shallow paper tray with optional sheets.",
       "category": "UI Bits",
+      "family": "Desk objects",
       "capabilities": [
         "controls"
       ],
@@ -1010,6 +1023,7 @@
       "title": "ToolCaddy",
       "description": "An empty divided desktop organizer.",
       "category": "UI Bits",
+      "family": "Desk objects",
       "capabilities": [],
       "needsRemotion": false,
       "registryDependencies": [
@@ -1063,6 +1077,7 @@
       "title": "Ejes",
       "description": "Two ink axes that split an area into four named quadrants, with quiet labels and a focus quadrant.",
       "category": "UI Bits",
+      "family": "Desk objects",
       "capabilities": [
         "controls"
       ],
@@ -1081,6 +1096,7 @@
       "title": "DeskProp",
       "description": "A free-standing keycap, keyboard, or mug to place on a desk.",
       "category": "UI Bits",
+      "family": "Desk objects",
       "capabilities": [
         "controls"
       ],
@@ -1118,6 +1134,7 @@
       "title": "Hand",
       "description": "Static line-art hand in open-palm, pointing, pinching, gripping, typing, or holding pose, independent of placement and props.",
       "category": "UI Bits",
+      "family": "Hands",
       "capabilities": [
         "controls"
       ],
@@ -1135,6 +1152,7 @@
       "title": "FileCabinet",
       "description": "SVG cabinet enclosure around a controlled filing drawer whose folders slide out and lift.",
       "category": "UI Bits",
+      "family": "Folders & drawers",
       "capabilities": [
         "controls"
       ],
@@ -1154,6 +1172,7 @@
       "title": "PaperClip",
       "description": "Independent ink wire clip to lay across a paper edge.",
       "category": "UI Bits",
+      "family": "Tape, clips & marks",
       "capabilities": [],
       "needsRemotion": false,
       "registryDependencies": [
@@ -1169,6 +1188,7 @@
       "title": "ClippedNote",
       "description": "Paper note with an optional paper clip, rotation, and paper, accent, or ink stock.",
       "category": "UI Bits",
+      "family": "Tape, clips & marks",
       "capabilities": [
         "controls"
       ],
@@ -1188,6 +1208,7 @@
       "title": "PunchedTag",
       "description": "Card-stock luggage-style label with a punched hole and bold content, in paper, accent, or ink stock.",
       "category": "UI Bits",
+      "family": "Tape, clips & marks",
       "capabilities": [
         "controls"
       ],
@@ -1206,6 +1227,7 @@
       "title": "VideoPrint",
       "description": "A printed video still on a Paper sheet: a pale 16:9 line sketch, an ink scrub rule with anchor ticks, title and date, and an optional punched link tag.",
       "category": "UI Bits",
+      "family": "Paper & writing",
       "capabilities": [
         "controls"
       ],
@@ -1226,6 +1248,7 @@
       "title": "Hilo",
       "description": "An ink thread tied between two points that lays out, sags, and snaps into frayed ends with an optional vermilion notch.",
       "category": "UI Bits",
+      "family": "Paper & writing",
       "capabilities": [
         "controls"
       ],
@@ -1244,6 +1267,7 @@
       "title": "Tear",
       "description": "A sheet torn into strips along seams: controlled progress moves each strip to its own destination, with frayed, seeded edges at every seam.",
       "category": "UI Bits",
+      "family": "Paper & writing",
       "capabilities": [
         "controls"
       ],
@@ -1280,6 +1304,7 @@
       "title": "Register",
       "description": "Paper sheet of drawn writing whose shape says who reads it: steps, lists, tables, sourced prose, or a mixed page.",
       "category": "UI Bits",
+      "family": "Paper & writing",
       "capabilities": [
         "controls"
       ],
@@ -1299,6 +1324,7 @@
       "title": "Slip",
       "description": "Taped paper slip of out-of-register writing that peels, lifts, and travels while registers reflow around it.",
       "category": "UI Bits",
+      "family": "Paper & writing",
       "capabilities": [
         "controls"
       ],
@@ -1319,6 +1345,7 @@
       "title": "Stamp",
       "description": "Vermilion rubber-stamp impression that drops, makes contact, and inks in as a 0–1 press progresses.",
       "category": "UI Bits",
+      "family": "Tape, clips & marks",
       "capabilities": [
         "controls"
       ],
@@ -1337,6 +1364,7 @@
       "title": "TapeMarker",
       "description": "Folded vermilion paper checkpoint marker with an optional label above it.",
       "category": "UI Bits",
+      "family": "Tape, clips & marks",
       "capabilities": [
         "controls"
       ],
@@ -1355,6 +1383,7 @@
       "title": "PaperTape",
       "description": "Strip of paper fed out by length, with printed marks, checkpoint markers, and attachments on one coordinate system.",
       "category": "UI Bits",
+      "family": "Tape, clips & marks",
       "capabilities": [
         "controls"
       ],
@@ -1392,6 +1421,7 @@
       "title": "FolderContents",
       "description": "Folder that opens to reveal a sheet and a fan of nested folders whose documents extract independently.",
       "category": "UI Bits",
+      "family": "Folders & drawers",
       "capabilities": [
         "controls"
       ],
@@ -1411,6 +1441,7 @@
       "title": "FolderCarry",
       "description": "Folder carried along a path by its tab, interpolating size and label between two resting places.",
       "category": "UI Bits",
+      "family": "Folders & drawers",
       "capabilities": [
         "controls"
       ],

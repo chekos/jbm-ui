@@ -7,6 +7,7 @@ export default {
   description:
     "Folded vermilion paper checkpoint marker with an optional label above it.",
   category: "UI Bits",
+  family: "Tape, clips & marks",
   capabilities: ["controls"],
   api: [
     {

@@ -6,6 +6,7 @@ export default {
   title: "UiButton",
   description: "Illustrated pill button with a label bar, in ink, accent, or outlined paper tones.",
   category: "UI Bits",
+  family: "Interface bits",
   capabilities: [],
   api: [
     {

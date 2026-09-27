@@ -6,6 +6,7 @@ export default {
   title: "Pluma",
   description: "A pen held in the Hand's pinch, with a helper that reports the nib point.",
   category: "UI Bits",
+  family: "Hands",
   capabilities: ["controls"],
   api: [
     {

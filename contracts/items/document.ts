@@ -6,6 +6,7 @@ export default {
   title: "Document",
   description: "Folded paper illustration with optional label and accent heading.",
   category: "UI Bits",
+  family: "Paper & writing",
   capabilities: [],
   api: [
     {

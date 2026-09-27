@@ -8,6 +8,7 @@ import {
   useState,
   type ReactNode,
 } from "react"
+import { createPortal } from "react-dom"
 import { usePathname, useSearchParams } from "next/navigation"
 import { CopyButton } from "./code-block"
 
@@ -70,6 +71,45 @@ export function CopyBenchLink({ href }: { href: string }) {
   )
 }
 
+/**
+ * Where a demo puts bench-level switches (Hilo: Thread / Thread to drawer): the start of the
+ * toolbar, across from Copy link. Undefined outside a bench (index cards render the switch in
+ * place); null until the toolbar has mounted.
+ */
+const ToolbarSlotContext = createContext<HTMLElement | null | undefined>(
+  undefined
+)
+
+/**
+ * Renders its children in the /c/<name> bench toolbar, next to Copy link, or in place on an index
+ * card. The toolbar keeps its height either way, so moving a switch there shifts nothing.
+ */
+export function BenchToolbarSlot({ children }: { children: ReactNode }) {
+  const slot = useContext(ToolbarSlotContext)
+  if (slot === undefined) return <>{children}</>
+  return slot ? createPortal(children, slot) : null
+}
+
+/** The controlled-illustration bench toolbar: the demo's slot, then Copy link. */
+function ParamsToolbar({
+  href,
+  children,
+}: {
+  href: string
+  children: ReactNode
+}) {
+  const [slot, setSlot] = useState<HTMLElement | null>(null)
+  return (
+    <ToolbarSlotContext.Provider value={slot}>
+      <div className="bench-toolbar">
+        <div className="bench-toolbar-slot" ref={setSlot} />
+        <CopyBenchLink href={href} />
+      </div>
+      {children}
+    </ToolbarSlotContext.Provider>
+  )
+}
+
 type Store = {
   get(key: string): string | null
   set(key: string, value: string | null): void
@@ -90,10 +130,7 @@ function BenchParamsFromUrl({ children }: { children: ReactNode }) {
   }
   return (
     <BenchParamsContext.Provider value={store}>
-      <div className="bench-toolbar">
-        <CopyBenchLink href={href} />
-      </div>
-      {children}
+      <ParamsToolbar href={href}>{children}</ParamsToolbar>
     </BenchParamsContext.Provider>
   )
 }
@@ -110,14 +147,7 @@ function BenchParamsFromUrl({ children }: { children: ReactNode }) {
 export function BenchParams({ children }: { children: ReactNode }) {
   return (
     <Suspense
-      fallback={
-        <>
-          <div className="bench-toolbar">
-            <CopyBenchLink href="" />
-          </div>
-          {children}
-        </>
-      }
+      fallback={<ParamsToolbar href="">{children}</ParamsToolbar>}
     >
       <BenchParamsFromUrl>{children}</BenchParamsFromUrl>
     </Suspense>

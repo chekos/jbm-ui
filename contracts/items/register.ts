@@ -23,6 +23,7 @@ export default {
   description:
     "Paper sheet of drawn writing whose shape says who reads it: steps, lists, tables, sourced prose, or a mixed page.",
   category: "UI Bits",
+  family: "Paper & writing",
   capabilities: ["controls"],
   api: [
     {

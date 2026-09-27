@@ -29,3 +29,22 @@ export const categoryDefinitions: Record<Exclude<Category, "All">, string> = {
   Foundations:
     "Tokens, geometry, and hooks the other items are built from.",
 }
+
+/**
+ * Families within a large category, in index order: each prints as a small sub-heading and keeps
+ * related pieces together (Folder beside FolderContents and FolderCarry). Every item in a category
+ * listed here names one in its contract's `family`; items keep gallery order within a family.
+ */
+export const categoryFamilies = {
+  "UI Bits": [
+    "Interface bits",
+    "Folders & drawers",
+    "Desk objects",
+    "Hands",
+    "Paper & writing",
+    "Tape, clips & marks",
+  ],
+} as const satisfies Partial<Record<Exclude<Category, "All">, readonly string[]>>
+
+export type Family =
+  (typeof categoryFamilies)[keyof typeof categoryFamilies][number]

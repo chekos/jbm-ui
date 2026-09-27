@@ -7,6 +7,7 @@ export default {
   description:
     "A sheet torn into strips along seams: controlled progress moves each strip to its own destination, with frayed, seeded edges at every seam.",
   category: "UI Bits",
+  family: "Paper & writing",
   capabilities: ["controls"],
   api: [
     {

@@ -291,6 +291,8 @@ export function usePlayback(durationInFrames: number, label: string) {
 }
 
 export const playerChrome = {
+  // The owner uses Remotion under its free license (issue #114); this silences the per-page notice.
+  acknowledgeRemotionLicense: true,
   controls: false,
   loop: false,
   moveToBeginningWhenEnded: false,

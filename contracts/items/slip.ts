@@ -7,6 +7,7 @@ export default {
   description:
     "Taped paper slip of out-of-register writing that peels, lifts, and travels while registers reflow around it.",
   category: "UI Bits",
+  family: "Paper & writing",
   capabilities: ["controls"],
   api: [
     {

@@ -23,6 +23,7 @@ export default {
   description:
     "A fixed-size filing drawer whose complete folders fan front to back, darker with depth.",
   category: "UI Bits",
+  family: "Folders & drawers",
   capabilities: ["controls"],
   api: [
     {

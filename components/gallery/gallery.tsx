@@ -28,7 +28,13 @@ import { AddCommand, InstallOnce } from "./install"
 import { CodeBlock } from "./code-block"
 import { color } from "@/registry/jbm/lib/tokens"
 import { examples } from "./examples"
-import { categories, categoryDefinitions, type Category } from "./categories"
+import {
+  categories,
+  categoryDefinitions,
+  categoryFamilies,
+  type Category,
+} from "./categories"
+import { BenchCompactProvider } from "./bench-compact"
 import {
   categorySlug,
   getGalleryItems,
@@ -130,14 +136,16 @@ const prefilterCategories = Object.fromEntries(
 )
 const prefilterScript = `(function(s){var st=s&&s.previousElementSibling;if(!st||st.tagName!=="STYLE")return;var q=new URLSearchParams(location.search),c=${JSON.stringify(
   prefilterCategories
-)},cat=q.get("cat"),g=c.hasOwnProperty(cat)?c[cat]:null,t=(q.get("q")||"").toLowerCase().split(/\\s+/).filter(Boolean),r=[];if(!g&&!t.length)return;if(g){r.push(".results>.gallery-section:not(#"+cat+"){display:none}.section-jump{visibility:hidden}");document.querySelectorAll(".filters button[data-cat]").forEach(function(b){b.setAttribute("aria-pressed",b.getAttribute("data-cat")===cat?"true":"false")});if(!t.length){var n=document.querySelector(".result-count");if(n)n.textContent=g[1]+" "+g[0]+" "+(g[1]===1?"item":"items")}}if(t.length){var a=t.map(function(x){return"[data-search*="+JSON.stringify(x)+"]"});r.push(a.map(function(x){return".component-card:not("+x+")"}).join(",")+"{display:none}.gallery-section:not(:has(.component-card"+a.join("")+")){display:none}");var tb=document.querySelector(".toolbar");if(tb)tb.setAttribute("data-search","open")}st.textContent=r.join("")})(document.currentScript)`
+)},cat=q.get("cat"),g=c.hasOwnProperty(cat)?c[cat]:null,t=(q.get("q")||"").toLowerCase().split(/\\s+/).filter(Boolean),r=[];if(!g&&!t.length)return;if(g){r.push(".results>.gallery-section:not(#"+cat+"){display:none}.section-jump{visibility:hidden}");document.querySelectorAll(".filters button[data-cat]").forEach(function(b){b.setAttribute("aria-pressed",b.getAttribute("data-cat")===cat?"true":"false")});if(!t.length){var n=document.querySelector(".result-count");if(n)n.textContent=g[1]+" "+g[0]+" "+(g[1]===1?"item":"items")}}if(t.length){var a=t.map(function(x){return"[data-search*="+JSON.stringify(x)+"]"});r.push(a.map(function(x){return".component-card:not("+x+")"}).join(",")+"{display:none}.gallery-section:not(:has(.component-card"+a.join("")+")),.gallery-family:not(:has(.component-card"+a.join("")+")){display:none}");var tb=document.querySelector(".toolbar");if(tb)tb.setAttribute("data-search","open")}st.textContent=r.join("")})(document.currentScript)`
 
 // Runs right after the results are parsed when the URL has a query: sets each chip's count and the
 // result status to what React will render (the cards' data-search text decides), so the chip row
-// keeps its width when React takes over.
+// keeps its width when React takes over. When nothing matches it also shows the empty state (always
+// in the HTML, hidden) with React's words, so a zero-match link paints its message at once instead
+// of an empty page that grows when the client loads.
 const prefilterCountsScript = `(function(){var q=new URLSearchParams(location.search),raw=q.get("q")||"",t=raw.toLowerCase().split(/\\s+/).filter(Boolean);if(!t.length)return;var c=${JSON.stringify(
   prefilterCategories
-)},cat=q.get("cat"),g=c.hasOwnProperty(cat)?c[cat]:null,all=0,n=0;function m(e){var x=e.getAttribute("data-search")||"";return t.every(function(w){return x.indexOf(w)>=0})}document.querySelectorAll(".results>.gallery-section").forEach(function(s){var k=0;s.querySelectorAll(".component-card").forEach(function(e){if(m(e))k++});all+=k;if(!g||s.id===cat)n+=k;var b=document.querySelector('.filters button[data-cat="'+s.id+'"] span');if(b)b.textContent=k});var a=document.querySelector('.filters button[data-cat=""] span');if(a)a.textContent=all;var r=document.querySelector(".result-count");if(r&&n)r.textContent=n+" "+(g?g[0]+" ":"")+(n===1?"item":"items")+" matching \u201c"+raw+"\u201d"})()`
+)},cat=q.get("cat"),g=c.hasOwnProperty(cat)?c[cat]:null,all=0,n=0;function m(e){var x=e.getAttribute("data-search")||"";return t.every(function(w){return x.indexOf(w)>=0})}document.querySelectorAll(".results>.gallery-section").forEach(function(s){var k=0;s.querySelectorAll(".component-card").forEach(function(e){if(m(e))k++});all+=k;if(!g||s.id===cat)n+=k;var b=document.querySelector('.filters button[data-cat="'+s.id+'"] span');if(b)b.textContent=k});var a=document.querySelector('.filters button[data-cat=""] span');if(a)a.textContent=all;var r=document.querySelector(".result-count");if(r&&n)r.textContent=n+" "+(g?g[0]+" ":"")+(n===1?"item":"items")+" matching \u201c"+raw+"\u201d";if(n)return;var e=document.querySelector(".results>.empty"),w=g?g[0]:"the collection",o=g?all:0,h=o+" "+(o===1?"item":"items")+" match in other categories.",l="No \u201c"+raw+"\u201d in "+w+".";if(e){e.hidden=false;e.querySelector("h2").textContent=l;e.querySelector("p").textContent=o>0?h:"Try another name or tag, or browse the full collection.";var sa=e.querySelector("[data-search-all]");if(sa)sa.hidden=!(o>0)}if(r){r.textContent=(l+" "+(o>0?h:"")).trim();r.classList.add("sr-only")}var j=document.querySelector(".section-jump");if(j)j.style.display="none"})()`
 
 /**
  * Clears the pre-paint filter rules once React has rendered the address bar's filter: hydration
@@ -226,7 +234,14 @@ function Preview({ item }: { item: GalleryItem }) {
   )
 }
 
-function ComponentCard({ item }: { item: GalleryItem }) {
+function ComponentCard({
+  item,
+  heading: Heading = "h3",
+}: {
+  item: GalleryItem
+  /** h4 under a family sub-heading, so the outline reads section, family, item. */
+  heading?: "h3" | "h4"
+}) {
   const { name } = item
   const documentation = name === "surface-depth"
   const tags = item.capabilities
@@ -239,12 +254,15 @@ function ComponentCard({ item }: { item: GalleryItem }) {
       // What search matches, for the pre-paint filter (prefilterScript).
       data-search={searchText.get(name)}
     >
-      <Preview item={item} />
+      {/* Index cards show each demo's compact control set (at most three); /c pages show all. */}
+      <BenchCompactProvider>
+        <Preview item={item} />
+      </BenchCompactProvider>
       <div className="card-content">
         <div className="card-heading">
-          <h3>
+          <Heading>
             <Link href={`/c/${name}`}>{item.title}</Link>
-          </h3>
+          </Heading>
           {tags.length > 0 && (
             <p className="card-tags">
               <span className="sr-only">Preview: </span>
@@ -608,34 +626,73 @@ export function Gallery() {
               <p className="section-description">
                 {categoryDefinitions[group]}
               </p>
-              <div className="gallery-grid">
-                {members.map((item) => (
-                  <ComponentCard key={item.name} item={item} />
-                ))}
-              </div>
+              {group in categoryFamilies ? (
+                // Large categories group their cards under family sub-headings.
+                categoryFamilies[group as keyof typeof categoryFamilies].map(
+                  (family) => {
+                    const cards = members.filter((item) => item.family === family)
+                    if (!cards.length) return null
+                    const familyId = `${id}-${family.toLowerCase().replaceAll(/[^a-z]+/g, "-")}`
+                    return (
+                      <div
+                        key={family}
+                        className="gallery-family"
+                        role="group"
+                        aria-labelledby={familyId}
+                      >
+                        <h3 id={familyId} className="family-heading">
+                          {family}
+                          <span className="sr-only">, </span>
+                          <span>
+                            {cards.length}
+                            <span className="sr-only"> {plural(cards.length)}</span>
+                          </span>
+                        </h3>
+                        <div className="gallery-grid">
+                          {cards.map((item) => (
+                            <ComponentCard key={item.name} item={item} heading="h4" />
+                          ))}
+                        </div>
+                      </div>
+                    )
+                  }
+                )
+              ) : (
+                <div className="gallery-grid">
+                  {members.map((item) => (
+                    <ComponentCard key={item.name} item={item} />
+                  ))}
+                </div>
+              )}
             </section>
           )
         })}
-        {items.length === 0 && (
-          <div className="empty">
-            <h2>
-              No “{query}” in {where}.
-            </h2>
-            <p>
-              {everywhere > 0
-                ? `${everywhere} ${plural(everywhere)} match in other categories.`
-                : "Try another name or tag, or browse the full collection."}
-            </p>
-            <div className="empty-actions">
-              {everywhere > 0 && (
-                <button onClick={() => setFilter("All")}>
-                  Search all categories
-                </button>
-              )}
-              <button onClick={clear}>Clear</button>
-            </div>
+        {/* Always in the HTML, hidden while anything matches: prefilterCountsScript shows it
+            before first paint for a zero-match link, with the same single-string texts React
+            renders, so hydration takes it over in place. */}
+        <div
+          className="empty"
+          hidden={items.length > 0}
+          suppressHydrationWarning
+        >
+          <h2 suppressHydrationWarning>{`No “${query}” in ${where}.`}</h2>
+          <p suppressHydrationWarning>
+            {everywhere > 0
+              ? `${everywhere} ${plural(everywhere)} match in other categories.`
+              : "Try another name or tag, or browse the full collection."}
+          </p>
+          <div className="empty-actions">
+            <button
+              data-search-all=""
+              hidden={everywhere === 0}
+              suppressHydrationWarning
+              onClick={() => setFilter("All")}
+            >
+              Search all categories
+            </button>
+            <button onClick={clear}>Clear</button>
           </div>
-        )}
+        </div>
       </div>
       <InlineScript html={prefilterCountsScript} />
     </>

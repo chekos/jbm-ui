@@ -6,6 +6,7 @@ export default {
   title: "PaperClip",
   description: "Independent ink wire clip to lay across a paper edge.",
   category: "UI Bits",
+  family: "Tape, clips & marks",
   capabilities: [],
   api: [
     {

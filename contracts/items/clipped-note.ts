@@ -7,6 +7,7 @@ export default {
   description:
     "Paper note with an optional paper clip, rotation, and paper, accent, or ink stock.",
   category: "UI Bits",
+  family: "Tape, clips & marks",
   capabilities: ["controls"],
   api: [
     {

@@ -6,6 +6,7 @@ export default {
   title: "Mano",
   description: "Position and rotate the independent Hand illustration with controlled coordinates.",
   category: "UI Bits",
+  family: "Hands",
   capabilities: ["controls"],
   api: [
     {
