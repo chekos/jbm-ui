@@ -88,9 +88,9 @@ test("card folder prints its whole label on a widened tab and keeps legacy tones
   const legacy = render(Folder, { label: "Notes", open: 0 })
   assert.match(legacy, /matrix\(1 0 0 1 46 180\)/)
   assert.match(legacy, /fill="#C63D24"/)
-  const card = render(Folder, { tone: "card", label: "Training Within Industry", sublabel: "Job Instruction" })
+  const card = render(Folder, { tone: "card", label: "Training Within Industry 1940s", sublabel: "Job Instruction" })
   assert.match(card, /fill="#FFFCF5"/)
-  assert.ok(card.includes(">Training Within Industry<"), "tab labels are never truncated")
+  assert.ok(card.includes(">Training Within Industry 1940s<"), "tab labels are never truncated")
   assert.ok(!card.includes("…"))
   assert.ok(card.includes(">Job Instruction<"))
   // The tab widens to fit the label, up to the body width.

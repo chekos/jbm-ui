@@ -5,7 +5,7 @@
       "name": "tokens",
       "entry": "component",
       "title": "Tokens",
-      "description": "Cream, ink, and vermilion palette, Geist font stacks, radii, surface shadows and borders, stage safe areas, and a CSS variables string.",
+      "description": "Cream, ink, and vermilion palette, Geist font stacks and tab-name metrics, radii, surface shadows and borders, stage safe areas, and a CSS variables string.",
       "category": "Foundations",
       "capabilities": [],
       "needsRemotion": false,
@@ -28,6 +28,35 @@
           "export": "font",
           "kind": "constant",
           "summary": "Font stacks for sans and mono: the host's --font-sans / --font-mono CSS variable when set (for example by next/font), else Geist and Geist Mono, then system fallbacks."
+        },
+        {
+          "export": "sansWidth",
+          "kind": "function",
+          "summary": "Estimated advance width of a line set in Geist 800 (tab names) or Geist 400 italic (sublabels), from a built-in per-glyph table measured in the browser, so layouts that size tabs match before fonts load and in Remotion. Accented letters measure as their base letter; other non-ASCII glyphs as an average. Kerning is ignored, so it errs slightly wide.",
+          "params": [
+            {
+              "name": "text",
+              "type": "string",
+              "required": true,
+              "default": null,
+              "description": "The line."
+            },
+            {
+              "name": "size",
+              "type": "number",
+              "required": true,
+              "default": null,
+              "description": "Font size in the units you want back."
+            },
+            {
+              "name": "italic",
+              "type": "boolean",
+              "required": false,
+              "default": "false",
+              "description": "true for Geist 400 italic; default false (Geist 800)."
+            }
+          ],
+          "returns": "Width in the same units as size."
         },
         {
           "export": "radius",
@@ -948,7 +977,7 @@
               "type": "PaperTab",
               "required": false,
               "default": null,
-              "description": "A pestaña fixed behind the top edge: `{ label, reveal = 1, offset = max(radius, 24), size = 32 }`. The label is Geist 800 at `size` stage px in the tone's text colour (ink on paper). `reveal` 0 hides the whole tab behind the sheet; 1 shows it with its base still tucked 14px behind the edge. It shares the sheet's stock, edge, and shadow."
+              "description": "A pestaña fixed behind the top edge: `{ label, reveal = 1, offset = max(radius, 24), size = 32 }`. The label is Geist 800 at `size` stage px in the tone's text colour (ink on paper). `reveal` 0 hides the whole tab behind the sheet; 1 shows it with its base still tucked 14px behind the edge. It shares the sheet's stock, edge, and shadow. The tab stays on the sheet: it sits in a row from the left edge to the top-right radius, so a tab too long for its offset slides left; on a sized sheet a label too long for that row sets smaller (sansWidth) so the whole name fits, and without a width it ends in an ellipsis."
             },
             {
               "name": "style",
@@ -962,7 +991,7 @@
               "type": "React.ReactNode",
               "required": false,
               "default": null,
-              "description": "Content placed on the paper. Creases and the tear's lips draw above it, like marks in the sheet itself."
+              "description": "Content placed on the paper. Creases and the tear's lips draw above it, like marks in the sheet itself; the tear's mouth cuts through it, so writing across the seam never covers the hole."
             }
           ],
           "passthrough": []
@@ -1184,7 +1213,7 @@
       ],
       "stage": {
         "mode": "fluid",
-        "reason": "Paper takes w×h when given and otherwise fills its container's width with height following children. A tab rises size + 2 × round(size × 0.3) + 2px edge above the top edge at reveal 1 (about 53px at size 32) without changing layout size; the tear cuts into the box and never adds to it. Sticker is inline and sized by its text: at the default size 72 it is about 72 × 1.05 + 2 × 13 ≈ 102 stage px tall. Rotation does not change layout size, so tilted corners can extend beyond the box."
+        "reason": "Paper takes w×h when given and otherwise fills its container's width with height following children. A tab rises size + 2 × round(size × 0.3) + 2 × edge width above the top edge at reveal 1 (56px at size 32 with the 2px edge; the 14px tuck is behind the sheet) without changing layout size; the tear cuts into the box and never adds to it. Sticker is inline and sized by its text: at the default size 72 it is about 72 × 1.05 + 2 × 13 ≈ 102 stage px tall. Rotation does not change layout size, so tilted corners can extend beyond the box."
       },
       "examples": [
         {
@@ -1205,7 +1234,7 @@
         "Check rotated pieces and stickers near the safe-area edge: rotation does not reserve layout space, so tilted corners and the longer drop shadow must not clip.",
         "Stickers never wrap; check the longest word at the chosen size fits the frame in portrait.",
         "Toggle edge and shadow off and confirm the piece still separates from the cream canvas where it is used.",
-        "Drag Tension through 0, 0.3, 0.6, 0.8, and 1: creases grow from the pulled corners and meet at the centre at 0.8; the tear opens only past 0.6, its lips join the edge on the border's centreline, and its mouth shows what lies under the sheet rather than a painted fill.",
+        "Drag Tension through 0, 0.3, 0.6, 0.8, and 1: creases grow from the pulled corners and meet at the centre at 0.8; the tear opens only past 0.6, its lips are a 2px edge on the sheet's side of the cut, and its mouth shows what lies under the sheet rather than a painted fill. The mouth cuts the sheet's writing too: with a ruled line or an ink band across the seam (bench: Tear through the writing), the tear stays open through it.",
         "Try each Pulled corners preset and Tear from the right edge, and the tear on the ink stock.",
         "Drag Tab reveal from 0 to 1: at 0 the whole tab is hidden behind the sheet; in between the top edge cuts the label rather than drawing over it; at 1 the label is Geist 800 at 32 stage px and the tab base stays tucked behind the edge.",
         "With tension 0 and no tab the markup equals the original single div; existing scenes depend on it."
@@ -5172,7 +5201,7 @@
               "type": "string",
               "required": false,
               "default": null,
-              "description": "Mono label; also names the image for assistive technology. On the front panel (accent and ink default) labels longer than 16 characters show their first 15 characters plus an ellipsis. On the tab (card default) the label is drawn whole: the tab widens to fit it, up to the body width, then the label compresses."
+              "description": "Folder name; also names the image for assistive technology. On the front panel (accent and ink default) it is Geist Mono 600 and follows fitLine: whole when it fits, compressed horizontally down to 0.8, then compressed with an ellipsis. On the tab (card default) it is a tab name in Geist 800, drawn whole: the tab widens to fit it (sansWidth from tokens), up to the body width, then the name compresses; it stays drawn over the rising default sheet, with a halo in the tab's fill, so it reads in every open beat."
             },
             {
               "name": "open",
@@ -5193,7 +5222,7 @@
               "type": "string",
               "required": false,
               "default": null,
-              "description": "Short mono line on the front panel, projected with it as it opens: under a front label, or near the panel's top-left when the label is on the tab."
+              "description": "Short mono line on the front panel, projected with it as it opens: under a front label, or near the panel's top-left when the label is on the tab. Same overflow rule as a front label (fitLine)."
             },
             {
               "name": "labelOn",
@@ -5216,6 +5245,80 @@
           "export": "FolderTone",
           "kind": "type",
           "summary": "\"accent\" | \"ink\" | \"card\"."
+        },
+        {
+          "export": "fitLine",
+          "kind": "function",
+          "summary": "The one overflow rule for folder text: the line whole when it fits `room`, compressed horizontally down to 0.8 when that is enough, otherwise compressed to 0.8 and cut to end with an ellipsis.",
+          "params": [
+            {
+              "name": "text",
+              "type": "string",
+              "required": true,
+              "default": null,
+              "description": "The line."
+            },
+            {
+              "name": "width",
+              "type": "(t: string) => number",
+              "required": true,
+              "default": null,
+              "description": "Measures a candidate string (e.g. a sansWidth or mono estimate)."
+            },
+            {
+              "name": "room",
+              "type": "number",
+              "required": true,
+              "default": null,
+              "description": "Available width in the same units."
+            }
+          ],
+          "returns": "{ text, scale }: the string to draw and its horizontal scale."
+        },
+        {
+          "export": "oklab",
+          "kind": "function",
+          "summary": "A #RRGGBB colour in OKLab ([lightness 0–1, a, b]); used to mix drawer shades and pick label ink.",
+          "params": [
+            {
+              "name": "hex",
+              "type": "string",
+              "required": true,
+              "default": null,
+              "description": "A #RRGGBB colour."
+            }
+          ],
+          "returns": "[L, a, b]."
+        },
+        {
+          "export": "oklabHex",
+          "kind": "function",
+          "summary": "An OKLab triple back to #RRGGBB, clamped to sRGB.",
+          "params": [
+            {
+              "name": "lab",
+              "type": "readonly [number, number, number]",
+              "required": true,
+              "default": null,
+              "description": "[L, a, b]."
+            }
+          ],
+          "returns": "A #RRGGBB string."
+        },
+        {
+          "export": "labelInkOn",
+          "kind": "function",
+          "summary": "Readable label colour for a fill: color.ink when its OKLab lightness is above 0.6, else color.bg (cream). Non-hex fills get cream.",
+          "params": [
+            {
+              "name": "fill",
+              "type": "string",
+              "required": true,
+              "default": null,
+              "description": "A #RRGGBB fill."
+            }
+          ],
+          "returns": "color.ink or color.bg."
         },
         {
           "export": "frontPlane",
@@ -5346,9 +5449,9 @@
       ],
       "qa": [
         "Drag open through 0, 0.5, and 1: the sheet never cuts through the front panel and its lower corner clears the folder edge.",
-        "Check the label stays on the front plane while it foreshortens, and long labels truncate with an ellipsis.",
-        "Compare accent, ink, and card tones; the ink folder keeps a visible 2px edge on cream, and the card folder is cream with ink text and no vermilion on the folder itself (the default sheet keeps its one accent line).",
-        "Card tone: the tab widens for \"Doorways\", reaches the body width for \"Training Within Industry\", and never shows an ellipsis. Opening lifts the default sheet in front of the tab, as it would a real one.",
+        "Check the label stays on the front plane while it foreshortens; a long label and sublabel follow the same rule: compressed to at most 0.8, then an ellipsis.",
+        "Compare accent, ink, and card tones; the ink folder keeps a visible 2px edge on cream. Vermilion appears only on the accent tone: the default sheet's heading bar is ink on ink and card folders.",
+        "Card tone: the tab name is bold sans (Geist 800), the tab widens for \"Doorways\", reaches the body width for \"Training Within Industry\", and never shows an ellipsis. At open 0.5 and 1 the whole name stays readable over the rising sheet.",
         "Sublabel: stays on the front panel and leans with it through open 0 → 1, under a front label or near the top-left under a tab label.",
         "Scale with style.width at narrow widths: the silhouette keeps its 260:220 proportions."
       ],
@@ -5783,7 +5886,7 @@
               "type": "number",
               "required": false,
               "default": null,
-              "description": "Drawer width in parent SVG units. The front folder is w − 52 wide and its height (and the front's) scales with it at 150:205; folders further back are narrower."
+              "description": "Drawer width in parent SVG units. The front folder is w − 52 wide and its height (and the front's) scales with it at 150:205; folders further back are narrower. Above the 420 reference the furniture grows with it: walls, margins, front travel, the front folder's rise, lift clearance, and the handle all scale by w / 420 (narrower drawers keep the reference sizes)."
             },
             {
               "name": "h",
@@ -5797,14 +5900,14 @@
               "type": "readonly DrawerFolder[]",
               "required": true,
               "default": null,
-              "description": "Folders front to back (index 0 nearest the front, drawn last). Each is a DrawerFolder: name (drawn whole on its tab), accent, pulled, k, open, reveal, sublabel, sublabelReveal."
+              "description": "Folders front to back (index 0 nearest the front, drawn last). Each is a DrawerFolder: name (drawn whole on its tab in Geist 800), accent, pulled, k, open, reveal, sublabel (Geist italic), sublabelReveal."
             },
             {
               "name": "open",
               "type": "number",
               "required": false,
               "default": null,
-              "description": "Drawer opening from 0 (closed) to 1 (front slid forward 104 units, folders raised 62 and fanned by depthSpacing). Clamped; pulled folders only rise while open."
+              "description": "Drawer opening from 0 (closed) to 1 (front slid forward 104 units, folders raised 62 and fanned by depthSpacing; both × w / 420 above 420). Clamped; pulled and ajar folders only rise while open."
             },
             {
               "name": "depthSpacing",
@@ -5825,7 +5928,7 @@
               "type": "number",
               "required": false,
               "default": null,
-              "description": "Name size in parent SVG units (default 13). Tab height is 27/13 of it, the sublabel 0.8 of it. For video at 1080 use about 24–36."
+              "description": "Name size in parent SVG units (default 13). Tab height is 27/13 of it, the sublabel 0.8 of it. Tab widths come from sansWidth (Geist 800). Perspective does not depend on it: a folder's inset follows its depth in the drawer (its rise over the rise of eight folders), up to a fifth of the width at the back. For video at 1080 use about 24–36."
             }
           ],
           "passthrough": [
@@ -5856,7 +5959,7 @@
               "type": "number",
               "required": false,
               "default": "420",
-              "description": "Drawer width in parent SVG units. The front folder is w − 52 wide and its height (and the front's) scales with it at 150:205; folders further back are narrower."
+              "description": "Drawer width in parent SVG units. The front folder is w − 52 wide and its height (and the front's) scales with it at 150:205; folders further back are narrower. Above the 420 reference the furniture grows with it: walls, margins, front travel, the front folder's rise, lift clearance, and the handle all scale by w / 420 (narrower drawers keep the reference sizes)."
             },
             {
               "name": "h",
@@ -5870,14 +5973,14 @@
               "type": "readonly DrawerFolder[]",
               "required": true,
               "default": null,
-              "description": "Folders front to back (index 0 nearest the front, drawn last). Each is a DrawerFolder: name (drawn whole on its tab), accent, pulled, k, open, reveal, sublabel, sublabelReveal."
+              "description": "Folders front to back (index 0 nearest the front, drawn last). Each is a DrawerFolder: name (drawn whole on its tab in Geist 800), accent, pulled, k, open, reveal, sublabel (Geist italic), sublabelReveal."
             },
             {
               "name": "open",
               "type": "number",
               "required": false,
               "default": "1",
-              "description": "Drawer opening from 0 (closed) to 1 (front slid forward 104 units, folders raised 62 and fanned by depthSpacing). Clamped; pulled folders only rise while open."
+              "description": "Drawer opening from 0 (closed) to 1 (front slid forward 104 units, folders raised 62 and fanned by depthSpacing; both × w / 420 above 420). Clamped; pulled and ajar folders only rise while open."
             },
             {
               "name": "depthSpacing",
@@ -5898,10 +6001,10 @@
               "type": "number",
               "required": false,
               "default": "13",
-              "description": "Name size in parent SVG units (default 13). Tab height is 27/13 of it, the sublabel 0.8 of it. For video at 1080 use about 24–36."
+              "description": "Name size in parent SVG units (default 13). Tab height is 27/13 of it, the sublabel 0.8 of it. Tab widths come from sansWidth (Geist 800). Perspective does not depend on it: a folder's inset follows its depth in the drawer (its rise over the rise of eight folders), up to a fifth of the width at the back. For video at 1080 use about 24–36."
             }
           ],
-          "returns": "{ x, y, w, h, front, frontHeight, depthSpacing, labelSize, band, folders, anchors }. Each folder has x, y (top of tab), w, h, tabX, tabWidth, tabHeight, tabSlope, anchor (tab grip point), label { x, y baseline, mid, end, scale }, sublabel { x, y, scale }, flap (front flap's top edge), and light (effective k). anchors(i, n) returns n points on folder i's tab midline, from the name's first letter (where reveal starts) to the tab's straight edge; [] for an unknown folder or n < 1."
+          "returns": "{ x, y, w, h, front, frontTop, frontHeight, scale, depthSpacing, labelSize, band, folders, anchors }. frontTop is the drawer front's top edge; scale is max(1, w / 420). Each folder has x, y (top of tab), w, h, tabX, tabWidth, tabHeight, tabSlope, anchor (tab grip point), label { x, y baseline, mid, end, scale }, sublabel { x, y, scale }, flap (front flap's top edge), opening { drop, lean } (the ajar flap), visible (0–1, how much of the tab shows above the drawer front; 0 inside a closed drawer), and light (effective k). anchors(i, n) returns n points on folder i's tab midline, from just before the name (clear of its first letter, where a knot sits) to the tab's straight edge; once a tab is below the drawer front's top edge the points stop at that rim, so threads never reach through the front. [] for an unknown folder or n < 1."
         },
         {
           "export": "drawerLight",
@@ -5926,7 +6029,7 @@
         {
           "export": "DrawerFolder",
           "kind": "type",
-          "summary": "{ name, accent?, pulled?, k?, open?, reveal?, sublabel?, sublabelReveal? }: one folder. pulled 0–1 lifts it out and brings k to 1; k defaults to a ramp from 1 (front) to 0.72 (back); open 0–1 stands the front flap ajar; reveal 0–1 inks the name in grapheme by grapheme (sublabelReveal defaults to it)."
+          "summary": "{ name, accent?, pulled?, k?, open?, reveal?, sublabel?, sublabelReveal? }: one folder. pulled 0–1 lifts it out and brings k to 1; k defaults to a ramp from 1 (front) to 0.72 (back); open 0–1 stands the front flap ajar: its top edge drops a fifth of the folder height and leans out, and the folder rises (by that drop plus a lip, at most as far as keeps the tab of the folder behind it in view) so at least half the shaded opening shows above whatever is in front of it (vermilion folders shade toward ink, never a new colour); reveal 0–1 inks the name in grapheme by grapheme (sublabelReveal defaults to it)."
         },
         {
           "export": "CajonProps",
@@ -5965,8 +6068,9 @@
         "Try 1, 3, 6, and 8 folders with and without sublabels: every tab and the band under it stay visible, back folders are narrower and darker, never larger. At 12 folders the stair keeps the height of eight and labels may overlap.",
         "Sweep Name reveal 0 → 1: tabs start blank and names ink in from the left, one grapheme at a time; the tab never changes width.",
         "Lift a back folder: it rises behind the folders in front and brightens to k 1; its complete outline appears as it clears them.",
-        "Set Flap ajar on the front folder: the flap's top edge drops and leans past the body, showing a shaded opening, with the bottom corners fixed.",
-        "Long names (\"Training Within Industry 1940s\") draw whole: the tab widens to the folder, then the name compresses; there is no ellipsis.",
+        "Pick any folder in Target and set Flap ajar: the folder rises until its shaded opening shows above the folder (or drawer front) in front of it while the tab of the folder behind stays in view, the flap's top edge drops and its corners lean just past the body, and the bottom corners stay fixed. On a vermilion folder the opening is a darker vermilion.",
+        "Tab names are bold sans (Geist 800), sublabels italic sans. Long names (\"Training Within Industry 1940s\") draw whole: the tab widens to the folder, then the name compresses; there is no ellipsis.",
+        "Set Name size to 24 with six folders: back folders narrow exactly as at 13; at w 900 the handle, walls, and travel grow with the drawer.",
         "Switch Tab layout to stagger3: tabs cycle left, center, right and sublabels stay inside the folder.",
         "The Mano anchor in the hand example is an estimate of the pinch fingertip; verify it visually for your pose."
       ],
@@ -6046,14 +6150,21 @@
               "type": "boolean | ManoArm",
               "required": false,
               "default": null,
-              "description": "Sleeve from the frame edge to the wrist, drawn behind the hand. `true` for defaults, or `{ from, width, frame, tone }`: `from` is \"edge\" (default: straight out of the wrist along the forearm axis until it leaves `frame`, or 8 × size without one) or a point in parent units the sleeve bends toward; `width` defaults to 1.15 × the wrist; `tone` is solid `ink` (default) or `card` with an ink outline."
+              "description": "Sleeve from the frame edge to the wrist, drawn behind the hand. `true` for defaults, or `{ from, width, frame, tone }`: `from` is \"edge\" (default: straight out of the wrist along the forearm axis until it leaves `frame`, or 8 × size without one) or a point in parent units: the sleeve then leaves the wrist straight for a forearm stub (cuff depth + width long, square to the wrist) and bends there, at constant width with a rounded outer elbow, to end centred on that point. `width` defaults to 1.15 × the wrist (open and type keep the thumb-side corner on the hand contour and overhang the far side only); `tone` is solid `ink` (default) or `card` with an ink outline."
             },
             {
               "name": "cuff",
               "type": "\"ink\" | \"accent\"",
               "required": false,
               "default": null,
-              "description": "Band at the sleeve's wrist end, 0.45 × the sleeve width long: `ink`, or `accent` (vermilion) to mark the viewer's own hand. Ignored without `arm`. On an ink sleeve an ink cuff shows as a card seam."
+              "description": "Band across the full sleeve width at the wrist end, max(0.45 × sleeve width, 0.6 × wrist) long: `ink`, or `accent` (vermilion) to mark the viewer's own hand. Ignored without `arm`. On an ink sleeve an ink cuff shows as a card seam."
+            },
+            {
+              "name": "halo",
+              "type": "boolean",
+              "required": false,
+              "default": null,
+              "description": "Pass Hand's card knock-out ring through, for ink art drawn behind the hand. Default false."
             }
           ],
           "passthrough": []
@@ -6111,9 +6222,16 @@
               "required": false,
               "default": null,
               "description": "As Mano's cuff; null band when unset."
+            },
+            {
+              "name": "halo",
+              "type": "boolean",
+              "required": false,
+              "default": null,
+              "description": "Card knock-out ring around the hand's contour, for ink art passing behind it (see Hand)."
             }
           ],
-          "returns": "{ wrist, axis, sleeve, cuff, stroke }: the wrist edge (thumb side first), the unit vector into the sleeve, the sleeve's four corners (wrist end, then far end), the cuff band's four corners or null, and the outline width."
+          "returns": "{ wrist, axis, spine, width, sleeve, cuff, stroke }: the wrist edge (thumb side first), the unit vector from the wrist into the sleeve stub, the sleeve centreline (wrist-end centre, the bend for a point `from`, the far end), the constant sleeve width, the sleeve outline polygon (wrist-end corners first, thumb side then far side; four points when straight), the cuff band's four corners or null, and the outline width."
         }
       ],
       "omit": {
@@ -6147,7 +6265,8 @@
         }
       ],
       "qa": [
-        "Turn Arm on for every pose and rotation: the sleeve meets the wrist edge exactly, runs out along the forearm, and leaves the frame; no hand floats or clips mid-palm.",
+        "Turn Arm on for every pose and rotation: the sleeve meets the wrist edge exactly, runs out along the forearm, and leaves the frame; no hand floats or clips mid-palm. On open and type the sleeve's thumb-side corner continues the hand contour without a step.",
+        "Give arm a `from` point to either side: the sleeve keeps its width from wrist to far end, the cuff stays a full square band on the straight stub, and the elbow is rounded.",
         "Switch Cuff between none, ink, and accent: only accent is vermilion; the band stays at the wrist through rotation and pose changes.",
         "Switch pose through all six at the same at: the hand stays in its box and does not jump unexpectedly.",
         "Drag Rotation from −30 to 30: the hand pivots about at (or the anchor point), not its centre.",
@@ -6192,7 +6311,7 @@
         {
           "export": "Pluma",
           "kind": "component",
-          "summary": "SVG group: an ink pen (round-ended barrel, card ring, pointed cone) held in the Hand's pinch pose through Mano. The pen is drawn behind the hand: the nib leaves past the thumb tip and the barrel shows above the knuckles. Rotation, grip point, and nib are props; no internal timer. Render inside an <svg>.",
+          "summary": "SVG group: an ink pen (round-ended barrel, card ring, pointed cone) held in the Hand's pinch pose through Mano. The pen is drawn behind the hand: the nib leaves past the thumb tip and the barrel shows above the knuckles. The pen has a thin card halo and the hand a card knock-out ring (Hand's halo), so the barrel's edge and the hand's contours stay separate where they cross. Rotation, grip point, and nib are props; no internal timer. Render inside an <svg>.",
           "props": [
             {
               "name": "at",
@@ -6213,7 +6332,7 @@
               "type": "Pt",
               "required": false,
               "default": null,
-              "description": "Nib position relative to at in parent units, before rotation. The pen runs from the nib through at and 17/30 × size past it. Defaults to the pinch's writing slant, (−7.75, 9.81) × size/30: at size 180, (−46.5, 58.9)."
+              "description": "Nib position relative to at in parent units, before rotation. The pen runs from the nib through at and 17/30 × size past it. Defaults to the pinch's writing slant, (−7.75, 9.81) × size/30: at size 180, (−46.5, 58.9). A custom direction turns the hand about at by the same amount, so the barrel always lies in the pinch rather than across the palm; the length sets the nib's reach."
             },
             {
               "name": "size",
@@ -6309,7 +6428,10 @@
         "Rotate from −40° to 40° with the nib marker on: plumaNib lands on the drawn nib tip at every angle and size.",
         "Enlarge the pinch: the pen passes between the index pad and the thumb, behind the hand; the nib and ring show past the thumb tip and the barrel above the knuckles.",
         "Turn Hand off: the pen alone keeps its length, ring, and nib; a stranger names it \"pen\".",
-        "Arm and cuff: the sleeve attaches at the wrist; only cuff accent is vermilion."
+        "Arm and cuff: the sleeve attaches at the wrist; only cuff accent is vermilion.",
+        "At 2× and angles −40°, 0°, 40°: wherever the barrel meets the thumb or index contour a thin card gap separates them; no outline disappears into the barrel.",
+        "Set nibOffset to (0, 90) and (−80, 20): the hand turns with the pen and the barrel still passes through the pinch, never behind the palm.",
+        "On the bench, drag Write to End at Rotation −30° and 30° with Arm on and off: the whole hand, barrel tail included, stays inside the stage."
       ],
       "docs": [
         {
@@ -6738,7 +6860,7 @@
               "type": "number",
               "required": false,
               "default": "1",
-              "description": "Light on the whole desk, 0–1: multiplies the cream's OKLab lightness (1 full cream, 0.72 the visual language's deepest folder). Every fill follows it; the ink stroke does not. Clamped."
+              "description": "Light on the whole desk, 0–1: multiplies the cream's OKLab lightness (1 full cream, 0.72 the visual language's deepest folder). Every fill follows it, the drawer pull included; the ink stroke does not. Clamped."
             },
             {
               "name": "edge",
@@ -6752,14 +6874,14 @@
               "type": "DeskTopDrawerSide",
               "required": false,
               "default": null,
-              "description": "Edge that holds an empty drawer region (start left, end right, top, bottom), separated from the surface by a 6-unit seam and drawn as a panel with a recessed opening. Omit for no drawer."
+              "description": "Edge that holds an empty drawer region (start left, end right, top, bottom), separated from the surface by a 6-unit seam and drawn as a panel with a recessed opening. The plan under both is one slab in the front band's shade, so the seam reads as a groove in one desk rather than a gap. Omit for no drawer."
             },
             {
               "name": "drawerSize",
               "type": "number",
               "required": false,
               "default": null,
-              "description": "Drawer region depth across its edge in parent units, seam included. Defaults to 40% of box.w; kept between 42 and 80% of the plan."
+              "description": "Drawer region depth across its edge in parent units, seam included: along the width for start and end, along the height for top and bottom. Defaults to 40% of that dimension; kept between 42 and 80% of the plan."
             }
           ],
           "passthrough": []
@@ -6781,7 +6903,7 @@
               "type": "number",
               "required": false,
               "default": "1",
-              "description": "Light on the whole desk, 0–1: multiplies the cream's OKLab lightness (1 full cream, 0.72 the visual language's deepest folder). Every fill follows it; the ink stroke does not. Clamped."
+              "description": "Light on the whole desk, 0–1: multiplies the cream's OKLab lightness (1 full cream, 0.72 the visual language's deepest folder). Every fill follows it, the drawer pull included; the ink stroke does not. Clamped."
             },
             {
               "name": "edge",
@@ -6795,14 +6917,14 @@
               "type": "DeskTopDrawerSide",
               "required": false,
               "default": null,
-              "description": "Edge that holds an empty drawer region (start left, end right, top, bottom), separated from the surface by a 6-unit seam and drawn as a panel with a recessed opening. Omit for no drawer."
+              "description": "Edge that holds an empty drawer region (start left, end right, top, bottom), separated from the surface by a 6-unit seam and drawn as a panel with a recessed opening. The plan under both is one slab in the front band's shade, so the seam reads as a groove in one desk rather than a gap. Omit for no drawer."
             },
             {
               "name": "drawerSize",
               "type": "number",
               "required": false,
               "default": null,
-              "description": "Drawer region depth across its edge in parent units, seam included. Defaults to 40% of box.w; kept between 42 and 80% of the plan."
+              "description": "Drawer region depth across its edge in parent units, seam included: along the width for start and end, along the height for top and bottom. Defaults to 40% of that dimension; kept between 42 and 80% of the plan."
             }
           ],
           "returns": "{ box, surface, center, drawer, front, fill }: surface is the flat top Box; center its centre; drawer is { panel, well } or null; front is the edge band Box (h 0 when flat); fill holds the surface, front, panel, and well colours after light. All in parent SVG units."
@@ -6859,9 +6981,9 @@
       ],
       "qa": [
         "Drag Edge from Flat to Tilted: the front band grows from the bottom inside the box, the surface loses the same depth, and their shared edge stays one line with square corners where they meet.",
-        "Step Drawer through none, start, end, top, and bottom: the box never moves; the panel sits on the chosen edge with a 6-unit seam; its opening is darker than the surface.",
+        "Step Drawer through none, start, end, top, and bottom: the box never moves; the panel sits on the chosen edge with a 6-unit groove (never a bright gap); its opening is darker than the surface; a top or bottom drawer takes 40% of the height, not of the width.",
         "With a start, end, or bottom drawer and Edge above half, a small pull shows on the band under the drawer; a top drawer shows none.",
-        "Drag Light from 1 to 0.6: every fill darkens together and keeps its hue; the ink edge does not change.",
+        "Drag Light from 1 to 0.72: every fill, the drawer pull included, darkens together and keeps its hue; the ink edge does not change.",
         "At 2× zoom check the rounded corners, the seam, and that no contour doubles or steps."
       ],
       "docs": [
@@ -6911,7 +7033,7 @@
               "type": "Pt",
               "required": false,
               "default": null,
-              "description": "Where the axes cross. Defaults to the centre of box; clamped inside it."
+              "description": "Where the axes cross. Defaults to the centre of box. Clamped to the range (ejesLayout().range) that keeps every label inside the box, the top and bottom labels left of the vertical axis, the right label right of it, and the top label below the left/right labels; a box too small for its labels crosses at its centre."
             },
             {
               "name": "h",
@@ -6939,7 +7061,7 @@
               "type": "boolean | number",
               "required": false,
               "default": "false",
-              "description": "Label size: false or 0 is full (36 units, weight 650), true or 1 is quiet (22 units, weight 500) at the same axis ends; numbers between interpolate the size so the shrink can be animated."
+              "description": "Label size: false or 0 is full (36 units, weight 650), true or 1 is quiet (22 units, weight 500) at the same axis ends; numbers between interpolate the size and the (variable) weight together, so an animated shrink never pops."
             },
             {
               "name": "reveal",
@@ -6981,14 +7103,14 @@
               "type": "number",
               "required": false,
               "default": "16",
-              "description": "Gap between a focus outline and the box edges and axes, in parent units (default 16). The side against a label also clears that label."
+              "description": "Gap between a focus outline and the box edges and axes, in parent units (default 16). Outlines clear the labels as one aligned set: both top quadrants give up the strip for the left/right labels, both give up the strip above the horizontal axis for the top label, and both bottom quadrants the strip below it for the bottom label. An outline under 40 units on a side is not drawn."
             },
             {
               "name": "weight",
               "type": "number",
               "required": false,
-              "default": "3",
-              "description": "Axis and outline stroke width in parent units (default 3)."
+              "default": "2",
+              "description": "Axis and outline stroke width in parent units (default 2, the desk's line weight)."
             }
           ],
           "passthrough": []
@@ -7003,7 +7125,7 @@
               "type": "Pt",
               "required": false,
               "default": null,
-              "description": "Where the axes cross. Defaults to the centre of box; clamped inside it."
+              "description": "Where the axes cross. Defaults to the centre of box. Clamped to the range (ejesLayout().range) that keeps every label inside the box, the top and bottom labels left of the vertical axis, the right label right of it, and the top label below the left/right labels; a box too small for its labels crosses at its centre."
             },
             {
               "name": "h",
@@ -7031,7 +7153,7 @@
               "type": "boolean | number",
               "required": false,
               "default": "false",
-              "description": "Label size: false or 0 is full (36 units, weight 650), true or 1 is quiet (22 units, weight 500) at the same axis ends; numbers between interpolate the size so the shrink can be animated."
+              "description": "Label size: false or 0 is full (36 units, weight 650), true or 1 is quiet (22 units, weight 500) at the same axis ends; numbers between interpolate the size and the (variable) weight together, so an animated shrink never pops."
             },
             {
               "name": "reveal",
@@ -7052,7 +7174,7 @@
               "type": "number",
               "required": false,
               "default": "16",
-              "description": "Gap between a focus outline and the box edges and axes, in parent units (default 16). The side against a label also clears that label."
+              "description": "Gap between a focus outline and the box edges and axes, in parent units (default 16). Outlines clear the labels as one aligned set: both top quadrants give up the strip for the left/right labels, both give up the strip above the horizontal axis for the top label, and both bottom quadrants the strip below it for the bottom label. An outline under 40 units on a side is not drawn."
             },
             {
               "name": "labels",
@@ -7062,7 +7184,7 @@
               "description": "Optional; when given, an empty label frees its strip so focus outlines can reach the axis."
             }
           ],
-          "returns": "{ box, center, horizontal: { x1, x2, y }, vertical: { x, y1, y2 }, type: { size, quiet }, labels: { top|bottom|left|right: { x, y, anchor, baseline, opacity } }, quadrants: { tl|tr|bl|br: Box }, focus: { tl|tr|bl|br: Box } }, in parent SVG units."
+          "returns": "{ box, center, horizontal: { x1, x2, y }, vertical: { x, y1, y2 }, type: { size, quiet }, labels: { top|bottom|left|right: { x, y, anchor, baseline, opacity } }, quadrants: { tl|tr|bl|br: Box }, range: { x: [min, max], y: [min, max] }, focus: { tl|tr|bl|br: Box } }, in parent SVG units; a focus box too small to draw has w and h 0."
         },
         {
           "export": "quadrants",
@@ -7104,9 +7226,10 @@
       "qa": [
         "Drag Horizontal and Vertical independently from Hidden to Drawn in both Grow from modes: each axis grows only by its own control, and each label fades in as the line reaches it, not before.",
         "Drag Quiet from Full to Quiet: labels shrink toward the axis ends without moving off them; at Quiet they are small but readable.",
-        "Step Focus through each quadrant and All four with every Tone: outlines never cross a label or an axis; Light fill has no outline; only Accent outline is vermilion.",
+        "Step Focus through each quadrant and All four with every Tone: outlines never cross a label or an axis, and all four line up as one set (shared top, shared edges either side of the horizontal axis); Light fill has no outline; only Accent outline is vermilion.",
         "Drag Outline: the rounded outline draws around its perimeter; at 0 nothing shows.",
-        "Check a narrow screen: the labels stay inside the box and stay legible at quiet size."
+        "Check a narrow screen: the labels stay inside the box and stay legible at quiet size.",
+        "Pass a center near a corner (e.g. { x: 90, y: 300 } in a 580 × 380 box): the crossing moves only as far as its labels allow, no label leaves the box or crosses an axis, and focus outlines too small to read are not drawn."
       ],
       "docs": [
         {
@@ -7183,7 +7306,7 @@
               "type": "number",
               "required": false,
               "default": "0",
-              "description": "Key travel, 0–1: the keycap's top sinks and centres; on a keyboard, the keys listed in keys do. The mug ignores it. Clamped."
+              "description": "Key travel, 0–1: the keycap's dished top sinks, centres, and shrinks 4 units a side; on a keyboard, the keys listed in keys inset 3 units a side. A pressed face takes a light ink wash (0.12 at 1) so the pressed key reads at normal size. The mug ignores it. Clamped."
             },
             {
               "name": "keys",
@@ -7240,7 +7363,7 @@
               "type": "number",
               "required": false,
               "default": "0",
-              "description": "Key travel, 0–1: the keycap's top sinks and centres; on a keyboard, the keys listed in keys do. The mug ignores it. Clamped."
+              "description": "Key travel, 0–1: the keycap's dished top sinks, centres, and shrinks 4 units a side; on a keyboard, the keys listed in keys inset 3 units a side. A pressed face takes a light ink wash (0.12 at 1) so the pressed key reads at normal size. The mug ignores it. Clamped."
             },
             {
               "name": "keys",
@@ -7443,7 +7566,14 @@
               "type": "HandPose",
               "required": false,
               "default": "\"point\"",
-              "description": "Silhouette: `open` (open palm, fingers together), `point` (index finger extended), `pinch` (index bent over the thumb; also the pen grip Pluma uses, so there is no pen pose), `grip` (all four fingers curled, as on a sheet or tab edge), `type` (four fingers down with the thumb tucked, resting on keys), or `hold` (side-on fist around a mug handle or object). Also sets the accessible label, e.g. \"Hand: point\"."
+              "description": "Silhouette: `open` (open palm, fingers together), `point` (index finger extended), `pinch` (index bent over the thumb; also the pen grip Pluma uses, so there is no pen pose), `grip` (a C-grip: four fingers curled, the thumb folded in under the index, with a slot between index pad and thumb where a sheet or tab edge sits), `type` (thumb tucked, fingers bent down onto rounded pads above a knuckle line; turn it 180° for fingertips on keys), or `hold` (side-on fist around a mug handle or object). Also sets the accessible label, e.g. \"Hand: point\"."
+            },
+            {
+              "name": "halo",
+              "type": "boolean",
+              "required": false,
+              "default": "false",
+              "description": "Knock the hand out of what it overlaps: a card ring half the outline wide just outside the contour, so ink art passing behind the hand (a pen barrel, a thread) never fuses with its outline. Default false."
             }
           ],
           "passthrough": [
@@ -7490,7 +7620,7 @@
       "qa": [
         "Switch Pose through all six: each silhouette sits in the same box with the wrist at the bottom and keeps simple geometric line art and the same outline weight.",
         "Enlarge the open palm, type, and grip poses and inspect the finger joins: outer contour and interior dividers meet on the same centerline with the same stroke width.",
-        "Name each pose in one noun at gallery size: grip reads as a closed hand, type as fingers down, hold as a fist.",
+        "Name each pose in one noun at gallery size: grip reads as a hand gripping an edge (thumb opposed to the index, a slot between them), type as fingertips (rotate 180° over a keyboard), hold as a fist.",
         "Check the card fill and ink stroke read on cream, and the aria-label follows the pose.",
         "Scale with width at narrow screens: the 30:29 aspect ratio holds."
       ],
@@ -7939,6 +8069,13 @@
               "description": "Stock: `paper` (card with ink text), `accent` (vermilion), or `ink`; text switches to cream on accent and ink."
             },
             {
+              "name": "scale",
+              "type": "number",
+              "required": false,
+              "default": "1",
+              "description": "Size multiplier (default 1) for the tag's own geometry: hole (14 × scale px), its ring (2 × scale, at least 1px), the radii, gap, padding, and type, so a tag on a smaller print keeps its proportions."
+            },
+            {
               "name": "style",
               "type": "CSSProperties",
               "required": false,
@@ -7962,7 +8099,8 @@
       "qa": [
         "Toggle Ink stock: the hole stays cream with an ink ring and the text stays legible.",
         "Check a long label at narrow width: it wraps inside the tag and the hole keeps its 14px circle.",
-        "Compare the shadow and edge with other paper surfaces."
+        "Compare the shadow and edge with other paper surfaces.",
+        "Set scale to 0.575 (a 276px VideoPrint): the hole, ring, radii, and type shrink together and the hole stays in proportion to the text."
       ],
       "docs": [
         {
@@ -8041,7 +8179,7 @@
               "type": "number",
               "required": false,
               "default": "1",
-              "description": "0–1: the tag drops 14px into place while it fades in. Only used with link; 0 hides it."
+              "description": "0–1: the tag drops 14 × w/480 px into place; it fades in over the first fifth of the drop and is opaque from then on, so the sheet's edge never shows through it. Only used with link; 0 hides it."
             },
             {
               "name": "w",
@@ -8134,7 +8272,7 @@
       "qa": [
         "Drag Scrub from 0 to 1: the ink bar grows from the left edge of the frame, each tick appears exactly when the bar reaches it, and nothing inks ahead of the bar.",
         "The frame reads as a pale sketch (tinted fill, ink outline, head circle and shoulder arc), never a solid ink block; compare with the video and puertas board panels.",
-        "Toggle the link and drag Tag drops in: the mono URL tag straddles the bottom edge, its hole ringed in ink; a long URL extends past the sheet instead of wrapping.",
+        "Toggle the link and drag Tag drops in: the mono URL tag straddles the bottom edge, its hole ringed in ink and scaled with the print (PunchedTag scale = w/480); a long URL extends past the sheet instead of wrapping. At Half the tag is already opaque.",
         "Turn the sheet off: the frame, rule, and type keep their positions (anchors unchanged).",
         "Check a thread tied to videoPrintLayout().marks lands on the tick centreline, at w 300 and 480.",
         "The print uses no vermilion of its own."
@@ -8235,14 +8373,14 @@
               "type": "number",
               "required": false,
               "default": null,
-              "description": "0–1: curled fibers peeling off each broken end (0 none, then 3–5 of them, up to about 6× width long, splayed up to 88° from the thread). 0 is a clean cut."
+              "description": "0–1: curled fibers peeling off each broken end (0 none, then 3–5 of them, uneven lengths up to about 8× width, one trailing past the tip). They all fall to the gravity side of the thread, 12–74° from it, so an end reads as unravelled thread, never a symmetric fan or arrowhead. 0 is a clean cut."
             },
             {
               "name": "slack",
               "type": "number",
               "required": false,
               "default": null,
-              "description": "0–1. Before a snap, how far the thread sags under gravity (the middle drops up to a quarter of the from→to distance). After a snap, how limply each end hangs from its anchor (the tip drops up to 0.3 of its piece's length)."
+              "description": "0–1. Before a snap, how far the thread sags under gravity (the middle drops up to a quarter of the from→to distance). As the ends recoil that sag hands over to the ends: fully snapped, the route no longer sags and each end hangs from its own anchor, tangent there, its free tip dropping up to half its piece's length."
             },
             {
               "name": "notch",
@@ -8327,14 +8465,14 @@
               "type": "number",
               "required": false,
               "default": "0.6",
-              "description": "0–1: curled fibers peeling off each broken end (0 none, then 3–5 of them, up to about 6× width long, splayed up to 88° from the thread). 0 is a clean cut."
+              "description": "0–1: curled fibers peeling off each broken end (0 none, then 3–5 of them, uneven lengths up to about 8× width, one trailing past the tip). They all fall to the gravity side of the thread, 12–74° from it, so an end reads as unravelled thread, never a symmetric fan or arrowhead. 0 is a clean cut."
             },
             {
               "name": "slack",
               "type": "number",
               "required": false,
               "default": "0",
-              "description": "0–1. Before a snap, how far the thread sags under gravity (the middle drops up to a quarter of the from→to distance). After a snap, how limply each end hangs from its anchor (the tip drops up to 0.3 of its piece's length)."
+              "description": "0–1. Before a snap, how far the thread sags under gravity (the middle drops up to a quarter of the from→to distance). As the ends recoil that sag hands over to the ends: fully snapped, the route no longer sags and each end hangs from its own anchor, tangent there, its free tip dropping up to half its piece's length."
             },
             {
               "name": "notch",
@@ -8393,7 +8531,7 @@
       ],
       "stage": {
         "mode": "fluid",
-        "reason": "Spans its anchors: the box from `from` to `to`, plus the bow (bend × distance for `arc`), the sag (up to slack × a quarter of the distance below the chord), and after a snap the hanging ends (up to 0.3 of each piece below its anchor). Knots add 1.4 × width around each anchor. Size the parent SVG for those extremes."
+        "reason": "Spans its anchors: the box from `from` to `to`, plus the bow (bend × distance for `arc`), the sag (up to slack × a quarter of the distance below the chord), and after a snap the hanging ends (up to half of each piece below its anchor, replacing the sag). Knots add 1.4 × width around each anchor. Size the parent SVG for those extremes."
       },
       "examples": [
         {
@@ -8412,9 +8550,9 @@
       "qa": [
         "Drag Draw from 0 to 1 without a snap: the thread grows from `from` along one smooth curve, the `from` knot appears first, and the `to` knot only when it arrives.",
         "Turn on the snap and drag past 50%: at the snap the two pieces coincide with the tied thread (no jump), then recoil apart; `from` and `to` never move.",
-        "Fray 0 is a clean cut with no fibers; 1 gives five curled fibers per end. With the notch they show as whiskers above and below its ends; without it they must read as frayed tufts, never arrowheads.",
-        "Slack 0 keeps the snapped ends on the original line (the rompe look); 1 lets them hang limply. The notch runs tip to tip at every slack and is the only vermilion.",
-        "Try Break point 5% and 95%, Bend −0.5 and 1, both curve families, and Width 1 and 6: nothing leaves the viewBox unexpectedly and stroke joins stay round.",
+        "Fray 0 is a clean cut with no fibers; 1 gives five curled fibers per end, all falling to one side with uneven lengths. With the notch they show as whiskers at its ends; without it they read as frayed tufts, never arrowheads or fletching.",
+        "Slack 0 keeps the snapped ends on the original line (the rompe look); 1 lets them hang limply as two ends, each from its own anchor, never one deep V. The notch runs tip to tip at every slack and is the only vermilion.",
+        "Try Break point 5% and 95%, Bend at both ends of its range (−0.3 to 0.3 for arc, −0.5 to 1 for S), both curve families, Slack 1, and Width 1 and 6: nothing leaves the viewBox and stroke joins stay round.",
         "Place the anchors on real objects (a Cajon tab from cajonLayout, a VideoPrint mark from videoPrintLayout) and check the knots land on them."
       ],
       "docs": [
@@ -8878,7 +9016,7 @@
         {
           "export": "Register",
           "kind": "component",
-          "summary": "A Paper sheet (2px ink edge, house paper shadow) carrying one register of drawn writing: bars, boxes, and rules, never legible prose. `mono` is a prompt chevron, prompt bar, and outlined result box per step; `plain` short numbered lists in two columns; `grid` ruled tables with an ink header; `prose` a justified block with paragraph ends and a block of source ticks; `mixed` stacks registers on one long page. Every quantity is a prop (no timer), so a slider or video frame drives it. Anchors, seams, and the gap are in the sheet's px from its outer top-left corner, the same space `children` draw in.",
+          "summary": "A Paper sheet (2px ink edge, house paper shadow) carrying one register of drawn writing: bars, boxes, and rules, never legible prose. `mono` is a prompt chevron, prompt bar, and outlined result box per step; `plain` short numbered lists in two columns; `grid` ruled tables with an ink header; `prose` a justified block with paragraph ends (every fifth line and the last, never two in a row and never the first line after a gap) and a block of source ticks; `mixed` stacks registers on one long page. Every quantity is a prop (no timer), so a slider or video frame drives it. Anchors, seams, and the gap are in the sheet's px from its outer top-left corner, the same space `children` draw in.",
           "props": [
             {
               "name": "kind",
@@ -8920,7 +9058,7 @@
               "type": "readonly RegisterBand[]",
               "required": false,
               "default": null,
-              "description": "Mixed only: the stacked registers, top to bottom, each `{ kind, n?, weight? }` (weight is its share of the writing height; by default each band gets the height its writing naturally runs, so a page reads evenly filled; at most 8 bands). Overrides n."
+              "description": "Mixed only: the stacked registers, top to bottom, each `{ kind, n?, weight? }` (weight sets its share of the page before row pitches are capped; each band then sits at the height its writing actually uses, bands follow each other with even separators at least 2 × (frayReach() + 2) px tall so a Tear at a seam never frays into the writing, and any leftover height collects at the foot of the page; at most 8 bands). Overrides n."
             },
             {
               "name": "gapAt",
@@ -9047,7 +9185,7 @@
               "type": "readonly RegisterBand[]",
               "required": false,
               "default": null,
-              "description": "Mixed only: the stacked registers, top to bottom, each `{ kind, n?, weight? }` (weight is its share of the writing height; by default each band gets the height its writing naturally runs, so a page reads evenly filled; at most 8 bands). Overrides n."
+              "description": "Mixed only: the stacked registers, top to bottom, each `{ kind, n?, weight? }` (weight sets its share of the page before row pitches are capped; each band then sits at the height its writing actually uses, bands follow each other with even separators at least 2 × (frayReach() + 2) px tall so a Tear at a seam never frays into the writing, and any leftover height collects at the foot of the page; at most 8 bands). Overrides n."
             },
             {
               "name": "gapAt",
@@ -9871,7 +10009,7 @@
               "type": "string",
               "required": false,
               "default": null,
-              "description": "Mono label for the outer folder; also names the image for assistive technology. On the front panel (accent and ink) it truncates after 16 characters; on the tab (card tone default, or labelOn \"tab\") it is drawn whole."
+              "description": "Mono label for the outer folder; also names the image for assistive technology. On the front panel (accent and ink) it follows Folder's fitLine rule (compressed to 0.8, then an ellipsis); on the tab (card tone default, or labelOn \"tab\") it is a Geist 800 tab name drawn whole."
             },
             {
               "name": "tone",
@@ -10027,21 +10165,28 @@
               "type": "string",
               "required": false,
               "default": null,
-              "description": "Folder name (first 16 characters); also labels the group as \"Carrying …\" for assistive technology. Shown on the tab at 0 and on the front panel at 1, crossfading between."
+              "description": "Folder name; also labels the group as \"Carrying …\" for assistive technology. On the tab (shown at 0) it follows Cajon's rule: drawn whole in Geist 800, compressed when the tab is short, never cut. On the front panel (shown at 1) it follows Folder's fitLine rule. The two crossfade."
             },
             {
               "name": "fill",
               "type": "string",
               "required": false,
               "default": "color.accent",
-              "description": "Folder fill passed to FolderOutline: a palette token such as color.accent (default, vermilion), color.ink, or color.card for a plain cream folder."
+              "description": "Folder fill passed to FolderOutline: a palette token such as color.accent (default, vermilion), color.ink, or color.card, or a drawer shade from drawerLight(k) for a folder lifted out of a Cajon."
             },
             {
               "name": "labelColor",
               "type": "string",
               "required": false,
-              "default": "fill === color.card || fill === color.bg ? color.ink : color.bg",
-              "description": "Label color. Defaults to color.ink on color.card or color.bg fills and color.bg (cream) on anything else."
+              "default": "labelInkOn(fill)",
+              "description": "Label color. Defaults to labelInkOn(fill): color.ink on light fills (OKLab lightness above 0.6, including every drawerLight shade from k 0.72 up) and color.bg (cream) on vermilion and ink."
+            },
+            {
+              "name": "labelSize",
+              "type": "number",
+              "required": false,
+              "default": null,
+              "description": "Tab name size in the parent SVG's units. Defaults to 13/27 of the tab height, Cajon's ratio, so a folder carried out of a drawer keeps the drawer's tab type at the handoff."
             }
           ],
           "passthrough": []
@@ -10122,7 +10267,7 @@
         {
           "export": "FolderGeometry",
           "kind": "type",
-          "summary": "Folder silhouette box: `x`, `y` (top of the tab), `w`, `h`, `tabX`, `tabWidth`, and optional `tabHeight` (27) and `tabSlope` (17), all in SVG units."
+          "summary": "Folder silhouette box: `x`, `y` (top of the tab), `w`, `h`, `tabX`, `tabWidth`, and optional `tabHeight` (27), `tabSlope` (17), and `flap` (absolute y of the front flap's top edge; defaults to 40/27 of the tab height below `y`), all in SVG units. A cajonLayout() folder is a FolderGeometry, flap included, so the fold line matches the drawer's."
         }
       ],
       "stage": {
@@ -10148,6 +10293,7 @@
         "Drag Carry progress to 0, 0.5, and 1: the folder matches its resting geometry exactly at both ends, and the label moves from tab to front panel without both copies fully visible mid-way.",
         "Toggle Show hand and sweep progress: the pinch stays on the tab's grip throughout; adjust Hand angle and confirm the contact point does not drift.",
         "Check the scale change reads as smooth growth with no jump in tab shape at the endpoints.",
+        "Carry a folder out of a Cajon with fill drawerLight(0.8) and the drawer's folder as `from`: at progress 0 the tab name is ink, whole, the same size as the drawer's names, and the fold line sits on the drawer's flap line.",
         "Check narrow screens: the demo SVG scales to 100% width without clipping either resting place."
       ],
       "docs": [

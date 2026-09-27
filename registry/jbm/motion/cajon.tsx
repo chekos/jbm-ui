@@ -1,6 +1,6 @@
-import { color, font } from "../lib/tokens"
+import { color, font, sansWidth } from "../lib/tokens"
 import { unit, type Box, type Pt } from "../lib/geometry"
-import { FolderOutline } from "../ui/folder"
+import { FolderOutline, oklab, oklabHex } from "../ui/folder"
 
 export type DrawerFolder = {
   /** Tab name, drawn in full: the tab widens to fit it, then the name compresses. */
@@ -34,47 +34,14 @@ export type CajonProps = Partial<Box> & {
 /** Light at the back of the drawer when k is not given. */
 export const backLight = 0.72
 
-type Lab = [number, number, number]
-const toLinear = (c: number) =>
-  c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4
-const toSrgb = (c: number) =>
-  c <= 0.0031308 ? 12.92 * c : 1.055 * c ** (1 / 2.4) - 0.055
-function oklab(hex: string): Lab {
-  const [r, g, b] = [1, 3, 5].map((i) =>
-    toLinear(parseInt(hex.slice(i, i + 2), 16) / 255)
-  )
-  const l = Math.cbrt(0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b)
-  const m = Math.cbrt(0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b)
-  const s = Math.cbrt(0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b)
-  return [
-    0.2104542553 * l + 0.793617785 * m - 0.0040720468 * s,
-    1.9779984951 * l - 2.428592205 * m + 0.4505937099 * s,
-    0.0259040371 * l + 0.7827717662 * m - 0.808675766 * s,
-  ]
-}
-function hex([L, a, b]: Lab) {
-  const l = (L + 0.3963377774 * a + 0.2158037573 * b) ** 3
-  const m = (L - 0.1055613458 * a - 0.0638541728 * b) ** 3
-  const s = (L - 0.0894841775 * a - 1.291485548 * b) ** 3
-  return (
-    "#" +
-    [
-      4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s,
-      -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s,
-      -0.0041960863 * l - 0.7034186147 * m + 1.707614701 * s,
-    ]
-      .map((c) =>
-        Math.round(255 * Math.max(0, Math.min(1, toSrgb(c))))
-          .toString(16)
-          .padStart(2, "0")
-      )
-      .join("")
-      .toUpperCase()
-  )
-}
 const card = oklab(color.card),
   cream = oklab(color.bg),
-  ink = oklab(color.ink)
+  ink = oklab(color.ink),
+  accent = oklab(color.accent)
+/** The inside of an ajar vermilion folder: the accent mixed a third of the way to ink in OKLab. */
+const accentShade = oklabHex(
+  [0, 1, 2].map((i) => accent[i] + (ink[i] - accent[i]) / 3) as [number, number, number]
+)
 
 /**
  * Folder fill for light k, mixed in OKLab from the palette tokens alone: k 1 is the card, lower k
@@ -86,7 +53,7 @@ export function drawerLight(k: number): string {
   // Chroma warms from card toward cream (1.6× its offset) over the drawer's range, then yields to ink.
   const tint = (i: number) =>
     (card[i] + (cream[i] - card[i]) * warm * 1.6) * (1 - t) + ink[i] * t
-  return hex([card[0] + (ink[0] - card[0]) * t, tint(1), tint(2)])
+  return oklabHex([card[0] + (ink[0] - card[0]) * t, tint(1), tint(2)])
 }
 
 const segmenter = new Intl.Segmenter(undefined, { granularity: "grapheme" })
@@ -106,10 +73,15 @@ export function cajonLayout({
   labelSize = 13,
 }: CajonProps) {
   const p = unit(open)
-  const front = y - 22 + 104 * p
-  const width = w - 52
+  // Furniture (walls, travel, rise, handle) grows with drawers wider than the 420-unit reference;
+  // narrower drawers, such as a cabinet's, keep the reference sizes.
+  const sc = Number.isFinite(w) && w > 420 ? w / 420 : 1
+  const front = y - 22 * sc + 104 * sc * p
+  /** Top edge of the drawer front: everything below it is inside the drawer. */
+  const frontTop = front + 32 * sc
+  const width = w - 52 * sc
   const folderHeight = (width * 150) / 205
-  const frontHeight = folderHeight + 8
+  const frontHeight = folderHeight + 8 * sc
   const size = Number.isFinite(labelSize) && labelSize > 0 ? labelSize : 13
   const tabHeight = (size * 27) / 13
   const tabSlope = (size * 17) / 13
@@ -121,24 +93,34 @@ export function cajonLayout({
   const band = Math.max(0.4 * tabHeight, hasSublabel ? subSize * 1.9 : 0)
   const lip = 0.3 * tabHeight
   const n = folders.length
+  // The drawer's depth, as rise: eight folders' tabs and bands (seven steps) fill it.
+  const fullRise = (tabHeight + band + lip) * 7
   const step =
     depthSpacing !== undefined &&
     Number.isFinite(depthSpacing) &&
     depthSpacing >= 0
       ? depthSpacing
-      : ((tabHeight + band + lip) * 7) / Math.max(7, n - 1)
+      : fullRise / Math.max(7, n - 1)
   // The front folder rises 62 out of the drawer, more when its tab and band need the room.
-  const rest = front + 32 - Math.max(62, tabHeight + band + lip) * p
+  const rest = frontTop - Math.max(62 * sc, tabHeight + band + lip) * p
   const laid = folders.map((f, i) => {
-    // Perspective: a folder further back is narrower, never larger: each side moves in a quarter of its rise, at most a fifth of the width.
-    const inset = Math.min(0.25 * i * step, 0.2 * width)
+    // Perspective: a folder further back is narrower, never larger. The inset follows how far
+    // back the folder sits in the drawer (its rise over the drawer's full depth), up to a fifth
+    // of the width at the back wall, whatever the label size.
+    const inset = Math.min(1, (i * step) / fullRise) * 0.2 * width
     const fw = width - 2 * inset
     const fh = (folderHeight * fw) / width
-    const fx = x + 26 + inset
+    const fx = x + 26 * sc + inset
     const pulled = unit(f.pulled ?? 0)
-    const top = rest - i * step * p - pulled * p * (fh + 24)
-    const name = graphemes(f.name)
-    const textWidth = 0.6 * size * name.length
+    // An ajar flap drops a fifth of the height and leans out. The folder rises so the opening
+    // shows above the folder (or drawer front) in front of it: by the drop plus a lip, but never
+    // so far that it covers the tab of the folder behind it.
+    const ajar = unit(f.open ?? 0)
+    const drop = ajar * 0.2 * fh
+    const lean = ajar * 0.03 * fw
+    const rise = Math.min(drop + ajar * lip, i < n - 1 ? Math.max(0, step - tabHeight) : Infinity)
+    const top = rest - i * step * p - pulled * p * (fh + 24 * sc) - p * rise
+    const textWidth = sansWidth(f.name, size)
     const tabWidth = Math.min(fw, textWidth + 2 * pad + tabSlope)
     const room = tabWidth - 2 * pad - tabSlope
     const tabX =
@@ -146,9 +128,7 @@ export function cajonLayout({
     const baseline = top + (tabHeight * 16) / 27
     const midline = baseline - 0.35 * size
     // The sublabel starts under the name and shifts left (never past the folder edge) to fit.
-    const subWidth = f.sublabel
-      ? 0.56 * subSize * graphemes(f.sublabel).length
-      : 0
+    const subWidth = f.sublabel ? sansWidth(f.sublabel, subSize, true) : 0
     const subX = Math.max(fx + pad, Math.min(tabX + pad, fx + fw - pad - subWidth))
     const defaultK = n > 1 ? 1 - ((1 - backLight) * i) / (n - 1) : 1
     const k = unit(f.k ?? defaultK)
@@ -172,6 +152,10 @@ export function cajonLayout({
       },
       /** Top edge of the front flap when closed. */
       flap: top + tabHeight + band,
+      /** The ajar flap: how far its top edge drops and how far each side leans out. */
+      opening: { drop, lean },
+      /** 0–1: how much of the tab shows above the drawer front (0 once it is inside). */
+      visible: Math.max(0, Math.min(1, (frontTop - top) / tabHeight)),
       /** Sublabel baseline start and horizontal compression, on the band under the name. */
       sublabel: {
         x: subX,
@@ -181,14 +165,20 @@ export function cajonLayout({
       light: k + (1 - k) * pulled,
     }
   })
-  /** n thread endpoints on folder i's tab midline, from the name's first letter (where reveal starts) to the tab's straight edge. */
+  /**
+   * n thread endpoints on folder i's tab midline, from just before the name (clear of its first
+   * letter, where reveal starts) to the tab's straight edge. Once a tab is inside the closed
+   * drawer its endpoints drop no lower than the drawer's top rim, so threads never reach through
+   * the front.
+   */
   const anchors = (i: number, count: number): Pt[] => {
     const f = laid[i]
     if (!f || !(count >= 1)) return []
     const c = Math.floor(count)
+    const x0 = f.tabX + pad * 0.45
     return Array.from({ length: c }, (_, j) => ({
-      x: f.label.x + (c > 1 ? ((f.label.end - f.label.x) * j) / (c - 1) : 0),
-      y: f.label.mid,
+      x: x0 + (c > 1 ? ((f.label.end - x0) * j) / (c - 1) : 0),
+      y: Math.min(f.label.mid, frontTop),
     }))
   }
   return {
@@ -197,7 +187,9 @@ export function cajonLayout({
     w,
     h,
     front,
+    frontTop,
     frontHeight,
+    scale: sc,
     depthSpacing: step,
     labelSize: size,
     band,
@@ -226,7 +218,8 @@ function Inked({ text, reveal }: { text: string; reveal: number }) {
 export function Cajon(props: CajonProps) {
   const l = cajonLayout(props)
   const size = l.labelSize,
-    subSize = size * 0.8
+    subSize = size * 0.8,
+    sc = l.scale
   return (
     <g
       role="img"
@@ -236,7 +229,7 @@ export function Cajon(props: CajonProps) {
       strokeLinejoin="round"
     >
       <path
-        d={`M${l.x + 20} ${l.y + 10}H${l.x + l.w - 20}L${l.x + l.w} ${l.front + 32}H${l.x}Z`}
+        d={`M${l.x + 20 * sc} ${l.y + 10 * sc}H${l.x + l.w - 20 * sc}L${l.x + l.w} ${l.frontTop}H${l.x}Z`}
         fill={color.ink}
       />
       {[...props.folders.keys()].reverse().map((i) => {
@@ -245,8 +238,7 @@ export function Cajon(props: CajonProps) {
         const fill = f.accent ? color.accent : drawerLight(q.light)
         const text = f.accent ? color.card : color.ink
         const ajar = unit(f.open ?? 0)
-        const drop = ajar * 0.2 * q.h,
-          lean = ajar * 0.03 * q.w
+        const { drop, lean } = q.opening
         const bottom = q.y + q.h
         const reveal = f.reveal ?? 1
         return (
@@ -272,7 +264,7 @@ export function Cajon(props: CajonProps) {
                   y={q.flap}
                   width={q.w}
                   height={drop}
-                  fill={f.accent ? color.accent2 : drawerLight(q.light - 0.14)}
+                  fill={f.accent ? accentShade : drawerLight(q.light - 0.14)}
                   stroke="none"
                 />
                 <path
@@ -285,7 +277,8 @@ export function Cajon(props: CajonProps) {
             )}
             <text
               transform={`translate(${q.label.x} ${q.label.y}) scale(${q.label.scale} 1)`}
-              fontFamily={font.mono}
+              fontFamily={font.sans}
+              fontWeight={800}
               fontSize={size}
               stroke="none"
               fill={text}
@@ -296,27 +289,27 @@ export function Cajon(props: CajonProps) {
         )
       })}
       <path
-        d={`M${l.x + 20} ${l.y + 10}L${l.x} ${l.front + 32}V${l.front + 32 + l.frontHeight}L${l.x + 20} ${l.y + 10 + l.frontHeight}ZM${l.x + l.w - 20} ${l.y + 10}L${l.x + l.w} ${l.front + 32}V${l.front + 32 + l.frontHeight}L${l.x + l.w - 20} ${l.y + 10 + l.frontHeight}Z`}
+        d={`M${l.x + 20 * sc} ${l.y + 10 * sc}L${l.x} ${l.frontTop}V${l.frontTop + l.frontHeight}L${l.x + 20 * sc} ${l.y + 10 * sc + l.frontHeight}ZM${l.x + l.w - 20 * sc} ${l.y + 10 * sc}L${l.x + l.w} ${l.frontTop}V${l.frontTop + l.frontHeight}L${l.x + l.w - 20 * sc} ${l.y + 10 * sc + l.frontHeight}Z`}
         fill={color.bg}
       />
       <rect
         x={l.x}
-        y={l.front + 32}
+        y={l.frontTop}
         width={l.w}
         height={l.frontHeight}
         rx={2}
         fill={color.card}
       />
       <rect
-        x={l.x + l.w / 2 - 36}
-        y={l.front + 63}
-        width={72}
-        height={25}
-        rx={3}
+        x={l.x + l.w / 2 - 36 * sc}
+        y={l.front + 63 * sc}
+        width={72 * sc}
+        height={25 * sc}
+        rx={3 * sc}
         fill={color.bg}
       />
       <path
-        d={`M${l.x + l.w / 2 - 27} ${l.front + 72}h54v10h-54Z`}
+        d={`M${l.x + l.w / 2 - 27 * sc} ${l.front + 72 * sc}h${54 * sc}v${10 * sc}h${-54 * sc}Z`}
         fill={color.ink}
       />
     </g>

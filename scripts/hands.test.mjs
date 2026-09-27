@@ -129,9 +129,12 @@ test("mano arm: the sleeve sits on the wrist edge and leaves the frame", () => {
         const u = { x: B.x - A.x, y: B.y - A.y }
         const M = { x: (A.x + B.x) / 2, y: (A.y + B.y) / 2 }
         const [n1, n2, f2, f1] = g.sleeve
-        // Wrist end is centred on the wrist edge and lies along it.
-        assert.ok(close((n1.x + n2.x) / 2, M.x, 1e-6) && close((n1.y + n2.y) / 2, M.y, 1e-6))
+        assert.equal(g.sleeve.length, 4, "edge sleeve is one straight quad")
+        // Wrist end lies along the wrist edge; the open-palm family keeps its thumb corner on
+        // the hand contour (A), the others centre the sleeve on the wrist.
         assert.ok(close((n2.x - n1.x) * u.y - (n2.y - n1.y) * u.x, 0, 1e-6))
+        if (pose === "open" || pose === "type") assert.ok(close(n1.x, A.x, 1e-6) && close(n1.y, A.y, 1e-6), pose)
+        else assert.ok(close((n1.x + n2.x) / 2, M.x, 1e-6) && close((n1.y + n2.y) / 2, M.y, 1e-6), pose)
         // "edge" runs along the wrist normal, away from the fingers (the Hand's local +y side).
         assert.ok(close(dot(g.axis, u), 0, 1e-9))
         const down = { x: -Math.sin((angle * Math.PI) / 180), y: Math.cos((angle * Math.PI) / 180) }
@@ -153,13 +156,31 @@ test("mano arm: the sleeve sits on the wrist edge and leaves the frame", () => {
       }
 })
 
-test("mano arm from a point ends there; the hand is unchanged", () => {
+test("mano arm from a point bends at constant width and ends there; the hand is unchanged", () => {
   const props = { at: { x: 100, y: 50 }, pose: "point", size: 150, angle: 10 }
+  for (const from of [{ x: 400, y: 300 }, { x: 480, y: 330 }, { x: -200, y: 330 }, { x: 600, y: 120 }, { x: 60, y: 900 }]) {
+    const g = manoArm({ ...props, arm: { from, width: 50 }, cuff: "accent" })
+    const end = g.spine[g.spine.length - 1]
+    assert.ok(close(end.x, from.x) && close(end.y, from.y))
+    // Width at the wrist equals width at the far end.
+    const [farA, farB] = [...g.sleeve].sort(
+      (p, q) => Math.hypot(p.x - from.x, p.y - from.y) - Math.hypot(q.x - from.x, q.y - from.y)
+    )
+    const wrist = Math.hypot(g.sleeve[1].x - g.sleeve[0].x, g.sleeve[1].y - g.sleeve[0].y)
+    assert.ok(close(wrist, 50, 1e-6))
+    assert.ok(close(Math.hypot(farA.x - farB.x, farA.y - farB.y), 50, 1e-6), JSON.stringify(from))
+    assert.ok(close((farA.x + farB.x) / 2, from.x, 1e-6) && close((farA.y + farB.y) / 2, from.y, 1e-6))
+    // The stub leaves along the wrist normal and holds a full-width, square cuff.
+    if (g.spine.length === 3) {
+      const stub = { x: g.spine[1].x - g.spine[0].x, y: g.spine[1].y - g.spine[0].y }
+      assert.ok(close(stub.x * g.axis.y - stub.y * g.axis.x, 0, 1e-6))
+      assert.ok(Math.hypot(stub.x, stub.y) >= 50 + Math.hypot(g.cuff[3].x - g.cuff[0].x, g.cuff[3].y - g.cuff[0].y) - 1e-6)
+    }
+    const [c0, c1, c2, c3] = g.cuff
+    assert.ok(close(Math.hypot(c2.x - c3.x, c2.y - c3.y), 50, 1e-6))
+    assert.ok(close(dot({ x: c3.x - c0.x, y: c3.y - c0.y }, { x: c1.x - c0.x, y: c1.y - c0.y }), 0, 1e-6))
+  }
   const from = { x: 400, y: 300 }
-  const g = manoArm({ ...props, arm: { from, width: 50 } })
-  const F = { x: (g.sleeve[2].x + g.sleeve[3].x) / 2, y: (g.sleeve[2].y + g.sleeve[3].y) / 2 }
-  assert.ok(close(F.x, from.x) && close(F.y, from.y))
-  assert.ok(close(Math.hypot(g.sleeve[2].x - g.sleeve[3].x, g.sleeve[2].y - g.sleeve[3].y), 50))
   const plain = renderToStaticMarkup(h("svg", null, h(Mano, props)))
   const armed = renderToStaticMarkup(h("svg", null, h(Mano, { ...props, arm: { from } })))
   assert.ok(armed.includes(plain.slice(5, -6)), "hand markup changed")
@@ -176,7 +197,13 @@ test("cuff: vermilion only for accent, and only with an arm", () => {
   const g = manoArm({ at, size: 180, arm: true, cuff: "accent" })
   assert.deepEqual(g.cuff.slice(0, 2), g.sleeve.slice(0, 2))
   const w = Math.hypot(g.sleeve[1].x - g.sleeve[0].x, g.sleeve[1].y - g.sleeve[0].y)
-  assert.ok(close(Math.hypot(g.cuff[2].x - g.cuff[1].x, g.cuff[2].y - g.cuff[1].y), w * 0.45, 1e-6))
+  const [A, B] = g.wrist
+  const wristLen = Math.hypot(B.x - A.x, B.y - A.y)
+  const depth = Math.hypot(g.cuff[2].x - g.cuff[1].x, g.cuff[2].y - g.cuff[1].y)
+  assert.ok(close(depth, Math.max(w * 0.45, wristLen * 0.6), 1e-6))
+  // A narrow sleeve still gets a readable band.
+  const thin = manoArm({ at, size: 180, arm: { width: 20 }, cuff: "accent" })
+  assert.ok(Math.hypot(thin.cuff[3].x - thin.cuff[0].x, thin.cuff[3].y - thin.cuff[0].y) >= wristLen * 0.6 - 1e-6)
 })
 
 test("pluma: plumaNib is the drawn nib tip at every angle, size, and offset", () => {

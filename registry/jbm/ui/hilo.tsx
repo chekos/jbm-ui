@@ -106,16 +106,17 @@ function paramAt(table: number[], fraction: number) {
 
 /**
  * Fibers at a frayed end, in the order they appear as fray grows: how far behind the tip each
- * peels off (in widths), where it points (degrees from the thread), and its relative length.
- * Staggered roots and curled strokes read as unravelled thread, never as an arrowhead. Fixed, so
+ * peels off (in widths), where it points (degrees from the thread, turned toward gravity), and its
+ * relative length. All of them fall to the same side, with uneven lengths and one trailing past the
+ * tip, so an end reads as unravelled thread, never as a fan, fletching, or arrowhead. Fixed, so
  * every frame is identical.
  */
 const FIBERS = [
-  { root: 0, angle: 58, length: 1 },
-  { root: 1.2, angle: -50, length: 0.9 },
-  { root: 0.4, angle: 22, length: 0.8 },
-  { root: 2, angle: -78, length: 0.7 },
-  { root: 2.6, angle: 88, length: 0.55 },
+  { root: 0, angle: 12, length: 1.3 },
+  { root: 1.1, angle: 48, length: 0.62 },
+  { root: 0.5, angle: 28, length: 0.95 },
+  { root: 1.9, angle: 74, length: 0.4 },
+  { root: 2.7, angle: 38, length: 0.75 },
 ] as const
 
 /**
@@ -155,17 +156,18 @@ export function hiloGeometry({
     c1 = add(add(from, d, 1 / 3), n, (4 / 3) * k * L)
     c2 = add(add(from, d, 2 / 3), n, (4 / 3) * k * L)
   }
-  const sag = { x: 0, y: (4 / 3) * s * 0.25 * L }
-  const base: HiloCubic = [from, add(c1, sag), add(c2, sag), to]
-  const table = lengths(base)
-  const length = table[SAMPLES]
-
   // Phases: lay the thread, then (optionally) snap it.
   const p = unit(draw)
   const snaps = typeof snapAt === "number" && Number.isFinite(snapAt)
   const at = snaps ? unit(snapAt) : 1
   const lay = !snaps ? p : at <= 0 ? 1 : Math.min(1, p / at)
   const recoil = snaps && at < 1 && p > at ? (p - at) / (1 - at) : 0
+  // Before a snap slack sags the whole route; as the ends recoil the sag hands over to each end
+  // hanging from its own anchor, so a snapped thread is two limp ends, never one deep V.
+  const sag = { x: 0, y: (4 / 3) * s * 0.25 * L * (1 - recoil) }
+  const base: HiloCubic = [from, add(c1, sag), add(c2, sag), to]
+  const table = lengths(base)
+  const length = table[SAMPLES]
 
   const pieces: HiloCubic[] = []
   const strands: [Pt, Pt, Pt][] = []
@@ -184,7 +186,7 @@ export function hiloGeometry({
       z = split(base, tB, 1)
     // Each end hangs from its own anchor: the droop grows with u² from the anchor, so the anchor
     // and its tangent never move and only the free end falls.
-    const hang = (len: number) => recoil * s * 0.3 * len
+    const hang = (len: number) => recoil * s * 0.5 * len
     const lenA = sA * length,
       lenB = (1 - sB) * length
     const dA = hang(lenA),
@@ -219,7 +221,10 @@ export function hiloGeometry({
           const ahead = cubicPoint(piece, atEnd ? Math.min(1, t + 0.01) : Math.max(0, t - 0.01))
           const behind = cubicPoint(piece, atEnd ? Math.max(0, t - 0.01) : Math.min(1, t + 0.01))
           const out = norm(sub(ahead, behind))
-          const r = (fiber.angle * Math.PI) / 180
+          // Turn toward gravity (+y): the side of the thread that faces down, or the same fixed
+          // side when the end points straight up or down.
+          const side = out.x > 1e-6 ? 1 : out.x < -1e-6 ? -1 : 1
+          const r = (side * fiber.angle * Math.PI) / 180
           const dir = {
             x: out.x * Math.cos(r) - out.y * Math.sin(r),
             y: out.x * Math.sin(r) + out.y * Math.cos(r),

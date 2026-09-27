@@ -60,7 +60,8 @@ export function videoPrintLayout(
     dateY,
     marks: marks.map((m) => ({ x: frame.x + unit(m) * frame.w, y: ruleY })),
     /** The punched hole of the link tag: where a thread would tie on. Null without a link. */
-    tag: link ? { x: tagX + 2 + 10 * s + 7, y: at.y + h } : null,
+    // Sheet edge (2) + left padding + the hole's radius and ring, all scaled with the print.
+    tag: link ? { x: tagX + 2 + 10 * s + 7 * s + Math.max(1, 2 * s), y: at.y + h } : null,
     tagX,
   }
 }
@@ -212,11 +213,13 @@ export function VideoPrint({
             position: "absolute",
             left: l.tagX,
             top: l.h,
-            opacity: tagIn,
+            // Opaque for most of the drop, so the sheet's edge never shows through the tag body.
+            opacity: Math.min(1, tagIn / 0.2),
             transform: `translateY(calc(-50% - ${r2((1 - tagIn) * 14 * s)}px))`,
           }}
         >
           <PunchedTag
+            scale={s}
             style={{
               gap: 10 * s,
               padding: `${6 * s}px ${14 * s}px ${6 * s}px ${10 * s}px`,

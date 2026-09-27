@@ -5,7 +5,7 @@ export default {
   entry: "component",
   title: "Tokens",
   description:
-    "Cream, ink, and vermilion palette, Geist font stacks, radii, surface shadows and borders, stage safe areas, and a CSS variables string.",
+    "Cream, ink, and vermilion palette, Geist font stacks and tab-name metrics, radii, surface shadows and borders, stage safe areas, and a CSS variables string.",
   category: "Foundations",
   capabilities: [],
   api: [
@@ -20,6 +20,18 @@ export default {
       kind: "constant",
       summary:
         "Font stacks for sans and mono: the host's --font-sans / --font-mono CSS variable when set (for example by next/font), else Geist and Geist Mono, then system fallbacks.",
+    },
+    {
+      export: "sansWidth",
+      kind: "function",
+      summary:
+        "Estimated advance width of a line set in Geist 800 (tab names) or Geist 400 italic (sublabels), from a built-in per-glyph table measured in the browser, so layouts that size tabs match before fonts load and in Remotion. Accented letters measure as their base letter; other non-ASCII glyphs as an average. Kerning is ignored, so it errs slightly wide.",
+      params: {
+        text: "The line.",
+        size: "Font size in the units you want back.",
+        italic: "true for Geist 400 italic; default false (Geist 800).",
+      },
+      returns: "Width in the same units as size.",
     },
     {
       export: "radius",

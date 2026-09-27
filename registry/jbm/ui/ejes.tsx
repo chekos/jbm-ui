@@ -1,4 +1,4 @@
-import { color, font } from "../lib/tokens"
+import { color, font, sansWidth } from "../lib/tokens"
 import { unit, type Box, type Pt } from "../lib/geometry"
 
 export type Quadrant = "tl" | "tr" | "bl" | "br"
@@ -9,7 +9,11 @@ export type EjesFocusTone = "ink" | "fill" | "accent"
 export type EjesProps = {
   /** Area the axes span, in parent SVG units. */
   box: Box
-  /** Where the axes cross. Defaults to the centre of box; clamped inside it. */
+  /**
+   * Where the axes cross. Defaults to the centre of box. Clamped to the range that keeps every
+   * label inside box and clear of the other axis (see ejesLayout's `range`); a box too small for
+   * the labels crosses at its centre.
+   */
   center?: Pt
   /** Horizontal axis draw progress, 0–1. Clamped. */
   h: number
@@ -30,7 +34,7 @@ export type EjesProps = {
   focusProgress?: number
   /** Gap between a focus outline and the axes and box edges, in parent units. */
   focusInset?: number
-  /** Axis and outline stroke width, in parent units. */
+  /** Axis and outline stroke width, in parent units. Default 2, the desk's line weight. */
   weight?: number
 }
 
@@ -40,6 +44,8 @@ export const EJES_TYPE = { full: 36, quiet: 22 } as const
 const PAD = 14
 const GAP = 12
 const FADE = 60
+/** A focus outline smaller than this on either side is not drawn: it would read as a pill. */
+const FOCUS_MIN = 40
 
 /** Axis, label, and quadrant geometry; everything follows from box, center, and progress. */
 export function ejesLayout({
@@ -56,9 +62,25 @@ export function ejesLayout({
   EjesProps,
   "box" | "center" | "h" | "v" | "quiet" | "reveal" | "origin" | "focusInset"
 > & { labels?: Partial<EjesLabels> }) {
+  const q = unit(typeof quiet === "boolean" ? Number(quiet) : quiet)
+  const size = EJES_TYPE.full + (EJES_TYPE.quiet - EJES_TYPE.full) * q
+  // The crossing's valid range: the left label (right-aligned at the vertical axis) and the top
+  // and bottom labels (from the left edge) must end before the vertical axis, the right label
+  // must fit after it; the top label sits below the left and right labels and above the axis,
+  // the bottom label below it. Widths are Geist 800 estimates, so they err wide.
+  const tw = (side: EjesSide) => (labels?.[side] ? sansWidth(labels[side] as string, size) : 0)
+  const range = {
+    x: [
+      box.x + Math.max(PAD + Math.max(tw("top"), tw("bottom")) + GAP, GAP + tw("left")),
+      box.x + box.w - GAP - tw("right"),
+    ],
+    y: [box.y + PAD + size + 4 + size + GAP, box.y + box.h - GAP - size],
+  } as const
+  const pick = (want: number, [lo, hi]: readonly [number, number], mid: number) =>
+    lo <= hi ? Math.min(hi, Math.max(lo, want)) : mid
   const c = {
-    x: Math.min(box.x + box.w, Math.max(box.x, center?.x ?? box.x + box.w / 2)),
-    y: Math.min(box.y + box.h, Math.max(box.y, center?.y ?? box.y + box.h / 2)),
+    x: pick(center?.x ?? box.x + box.w / 2, range.x, box.x + box.w / 2),
+    y: pick(center?.y ?? box.y + box.h / 2, range.y, box.y + box.h / 2),
   }
   const ph = unit(h),
     pv = unit(v)
@@ -72,8 +94,6 @@ export function ejesLayout({
     origin === "start"
       ? { y1: box.y, y2: box.y + pv * box.h }
       : { y1: c.y - pv * (c.y - box.y), y2: c.y + pv * (bottom - c.y) }
-  const q = unit(typeof quiet === "boolean" ? Number(quiet) : quiet)
-  const size = EJES_TYPE.full + (EJES_TYPE.quiet - EJES_TYPE.full) * q
   // Labels sit at the left end of the horizontal axis and the top end of the vertical one.
   const hx = box.x + PAD,
     vy = box.y + PAD
@@ -105,13 +125,15 @@ export function ejesLayout({
     bl: { x: box.x, y: c.y, w: c.x - box.x, h: bottom - c.y },
     br: { x: c.x, y: c.y, w: right - c.x, h: bottom - c.y },
   } satisfies Record<Quadrant, Box>
-  // A focus outline keeps clear of the labels in its quadrant: it gives up a strip along the
-  // edge the label sits against (tl bottom for top, bl top for bottom, tl/tr top for left/right).
+  // Focus outlines keep clear of the labels, and stay one aligned set: both top quadrants give up
+  // the strip the left/right labels need, both give up the strip above the horizontal axis that
+  // the top label needs, and both bottom quadrants the strip below it for the bottom label.
   const has = (side: EjesSide) => !labels || Boolean(labels[side])
   const hStrip = (side: EjesSide) =>
     has(side) ? Math.max(focusInset, GAP + size + 6) : focusInset
   const vStrip = (side: EjesSide) =>
     has(side) ? Math.max(focusInset, PAD + size + 6) : focusInset
+  const topStrip = Math.max(vStrip("left"), vStrip("right"))
   const inset = (b: Box, top = focusInset, bottom = focusInset): Box => ({
     x: b.x + focusInset,
     y: b.y + top,
@@ -132,13 +154,22 @@ export function ejesLayout({
     ) as Record<EjesSide, (typeof anchors)[EjesSide] & { opacity: number }>,
     /** Each quadrant's full box between the axes and the edges. */
     quadrants: quad,
-    /** The rounded focus outline box for each quadrant. */
-    focus: {
-      tl: inset(quad.tl, vStrip("left"), hStrip("top")),
-      tr: inset(quad.tr, vStrip("right")),
-      bl: inset(quad.bl, hStrip("bottom")),
-      br: inset(quad.br),
-    } satisfies Record<Quadrant, Box>,
+    /** The crossing's valid range, [min, max] per axis; center is clamped into it. */
+    range,
+    /** The rounded focus outline box for each quadrant (w and h 0 when too small to draw). */
+    focus: Object.fromEntries(
+      (
+        [
+          ["tl", inset(quad.tl, topStrip, hStrip("top"))],
+          ["tr", inset(quad.tr, topStrip, hStrip("top"))],
+          ["bl", inset(quad.bl, hStrip("bottom"))],
+          ["br", inset(quad.br, hStrip("bottom"))],
+        ] as const
+      ).map(([k, b]) => [
+        k,
+        b.w < FOCUS_MIN || b.h < FOCUS_MIN ? { ...b, w: 0, h: 0 } : b,
+      ])
+    ) as Record<Quadrant, Box>,
   }
 }
 
@@ -148,7 +179,7 @@ export function Ejes({
   focus,
   focusTone = "ink",
   focusProgress = 1,
-  weight = 3,
+  weight = 2,
   quiet = false,
   origin = "center",
   focusInset = 16,
@@ -160,7 +191,8 @@ export function Ejes({
   ).filter((f, i, all) => quadrants.includes(f) && all.indexOf(f) === i)
   const fp = unit(focusProgress)
   const tone = focusTone === "accent" ? color.accent : color.ink
-  const weightText = l.type.quiet < 0.5 ? 650 : 500
+  // Geist is variable: the weight eases from 650 to 500 with the size, no mid-way jump.
+  const weightText = Math.round(650 - 150 * l.type.quiet)
   return (
     <g
       role="img"
@@ -169,6 +201,7 @@ export function Ejes({
       {fp > 0 &&
         focused.map((f) => {
           const b = l.focus[f]
+          if (!(b.w > 0 && b.h > 0)) return null
           return focusTone === "fill" ? (
             <rect
               key={f}

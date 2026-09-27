@@ -3,7 +3,7 @@
 import { useBenchParam } from "./bench-url"
 import { DeskTop, type DeskTopDrawerSide } from "@/registry/jbm/ui/desk-top"
 import { Ejes, type EjesFocusTone, type Quadrant } from "@/registry/jbm/ui/ejes"
-import { DeskProp, type DeskPropKind } from "@/registry/jbm/ui/desk-prop"
+import { DeskProp, deskPropLayout, type DeskPropKind } from "@/registry/jbm/ui/desk-prop"
 import {
   degrees,
   ProgressControl,
@@ -28,9 +28,11 @@ type DrawerOption = (typeof drawerOptions)[number]
 export function DeskSurfaceDemo({ name }: { name: string }) {
   // On /c/<name> benches each value lives in the URL; see bench-url.tsx.
   const unit = { clamp: [0, 1] } as const
-  const [light, setLight] = useBenchParam("light", 1, { clamp: [0.6, 1] })
-  const [edge, setEdge] = useBenchParam("edge", 0, unit)
-  const [drawer, setDrawer] = useBenchParam<DrawerOption>("drawer", "none", {
+  // The documented light range: 1 (front) down to 0.72, the deepest folder in the visual language.
+  const [light, setLight] = useBenchParam("light", 1, { clamp: [0.72, 1] })
+  // Opens as a nameable desk: tilted to show its front edge, with a drawer on the right.
+  const [edge, setEdge] = useBenchParam("edge", 1, unit)
+  const [drawer, setDrawer] = useBenchParam<DrawerOption>("drawer", "end", {
     allowed: drawerOptions,
   })
   const [h, setH] = useBenchParam("h", 1, unit)
@@ -99,6 +101,20 @@ export function DeskSurfaceDemo({ name }: { name: string }) {
         : [focus]
   const kinds: DeskPropKind[] =
     kind === "all" ? ["keycap", "keyboard", "mug"] : [kind]
+  // One prop alone: a fixed viewBox that holds it at the largest Scale and either extreme of
+  // Rotation, so it never clips and the Scale slider still reads as growth.
+  const propBox = (() => {
+    if (kind === "all") return "0 0 560 300"
+    const pts = [-30, 0, 30].flatMap(
+      (r) => deskPropLayout({ kind, x: 0, y: 0, scale: 2 * 1.4, rotate: r }).corners
+    )
+    const xs = pts.map((p) => p.x),
+      ys = pts.map((p) => p.y)
+    const m = 16
+    const x0 = Math.min(...xs) - m,
+      y0 = Math.min(...ys) - m
+    return `${Math.round(x0)} ${Math.round(y0)} ${Math.round(Math.max(...xs) + m - x0)} ${Math.round(Math.max(...ys) + m - y0)}`
+  })()
 
   return (
     <div style={{ width: "100%" }}>
@@ -114,7 +130,7 @@ export function DeskSurfaceDemo({ name }: { name: string }) {
         <svg
           viewBox={
             name === "desk-prop"
-              ? "0 0 560 300"
+              ? propBox
               : name === "ejes"
                 ? "0 0 800 500"
                 : "0 0 820 520"
@@ -149,8 +165,8 @@ export function DeskSurfaceDemo({ name }: { name: string }) {
               <DeskProp
                 key={k}
                 kind={k}
-                x={kinds.length === 1 ? 280 : [80, 270, 470][i]}
-                y={150}
+                x={kinds.length === 1 ? 0 : [80, 270, 470][i]}
+                y={kinds.length === 1 ? 0 : 150}
                 scale={kinds.length === 1 ? scale * 1.4 : 0.8}
                 rotate={rotate}
                 press={press}
@@ -171,7 +187,7 @@ export function DeskSurfaceDemo({ name }: { name: string }) {
               ariaLabel={`${name} Light`}
               value={light}
               onChange={setLight}
-              min={0.6}
+              min={0.72}
               max={1}
               step={0.01}
               format={(n) => `k ${n.toFixed(2)}`}

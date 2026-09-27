@@ -5,7 +5,9 @@ export { pointOn, pathTilt } from "../lib/geometry"
 export type ManoArm = {
   /**
    * Where the sleeve starts: a point in parent units, or "edge" (default) to run straight out
-   * of the wrist, along the forearm axis, until it leaves `frame`.
+   * of the wrist, along the forearm axis, until it leaves `frame`. With a point, the sleeve
+   * leaves the wrist straight for a short forearm stub (cuff depth + width) and then bends,
+   * at constant width, toward the point.
    */
   from?: Pt | "edge"
   /** Sleeve width in parent units. Defaults to 1.15 × the pose's wrist. */
@@ -26,23 +28,49 @@ export type ManoProps = {
   arm?: boolean | ManoArm
   /** Band the sleeve's wrist end: ink, or vermilion to mark the viewer's own hand. Needs `arm`. */
   cuff?: "ink" | "accent"
+  /** Card knock-out ring around the hand's contour, for ink art passing behind it (see Hand). */
+  halo?: boolean
 }
 type Quad = [Pt, Pt, Pt, Pt]
 export type ManoArmGeometry = {
   /** Wrist edge in parent units, thumb side first. */
   wrist: [Pt, Pt]
-  /** Unit vector from the wrist into the sleeve. */
+  /** Unit vector from the wrist into the sleeve (the forearm stub's direction). */
   axis: Pt
-  /** Sleeve outline: wrist end (thumb side, far side), then the far end. */
-  sleeve: Quad
-  /** Cuff band at the wrist end, when `cuff` is set. */
+  /**
+   * Sleeve centreline in parent units: the wrist-end centre, then (for a point `from`) the
+   * stub's end where the sleeve bends, then the far end.
+   */
+  spine: Pt[]
+  /** Sleeve width in parent units, constant along the spine. */
+  width: number
+  /**
+   * Sleeve outline polygon: the wrist end (thumb side, far side), down the far side to the far
+   * end, and back up the thumb side. The bend's outer corner is rounded.
+   */
+  sleeve: Pt[]
+  /** Cuff band on the straight stub at the wrist end, when `cuff` is set. */
   cuff: Quad | null
   /** Outline stroke width in parent units (the Hand's 1.234 viewBox units). */
   stroke: number
 }
 const OUTLINE = 1.234
 const far = 8
+/**
+ * Share of a wider-than-wrist sleeve's overhang on the thumb side. The open-palm family (open,
+ * type) steps in to its wrist corner on the thumb side, so its sleeve keeps that corner on the
+ * hand contour and overhangs only the far side.
+ */
+const thumbOverhang: Record<HandPose, number> = {
+  open: 0,
+  point: 0.5,
+  pinch: 0.5,
+  grip: 0.5,
+  type: 0,
+  hold: 0.5,
+}
 const add = (a: Pt, b: Pt, k = 1): Pt => ({ x: a.x + b.x * k, y: a.y + b.y * k })
+const sub = (a: Pt, b: Pt): Pt => ({ x: a.x - b.x, y: a.y - b.y })
 const unitVec = (v: Pt): Pt => {
   const l = Math.hypot(v.x, v.y) || 1
   return { x: v.x / l, y: v.y / l }
@@ -67,6 +95,40 @@ function exitDistance(p: Pt, d: Pt, box: Box): number {
   if (d.y < -1e-9) ts.push((box.y - p.y) / d.y)
   return Math.max(0, Math.min(...ts))
 }
+/**
+ * One side of a constant-width stroke along `spine`, offset by `side × w/2`: straight segments,
+ * a rounded outer corner, and a mitred inner corner at each bend.
+ */
+function offsetSide(spine: Pt[], w: number, side: 1 | -1): Pt[] {
+  const t = spine.slice(1).map((p, i) => unitVec(sub(p, spine[i])))
+  const nrm = t.map((v) => ({ x: -v.y * side, y: v.x * side }))
+  const out: Pt[] = [add(spine[0], nrm[0], w / 2)]
+  for (let i = 1; i < spine.length - 1; i++) {
+    const a = nrm[i - 1]
+    const b = nrm[i]
+    const turn = t[i - 1].x * t[i].y - t[i - 1].y * t[i].x
+    // This side is outside the bend when it turns away from the offset direction.
+    const outer = turn * side < 0
+    if (outer) {
+      const a0 = Math.atan2(a.y, a.x)
+      let da = Math.atan2(b.y, b.x) - a0
+      while (da > Math.PI) da -= 2 * Math.PI
+      while (da < -Math.PI) da += 2 * Math.PI
+      const steps = Math.max(1, Math.ceil(Math.abs(da) / (Math.PI / 12)))
+      for (let k = 0; k <= steps; k++) {
+        const ang = a0 + (da * k) / steps
+        out.push(add(spine[i], { x: Math.cos(ang), y: Math.sin(ang) }, w / 2))
+      }
+    } else {
+      // Mitre: where the two offset edges meet.
+      const m = unitVec(add(a, b))
+      const cos = m.x * a.x + m.y * a.y
+      out.push(add(spine[i], m, w / 2 / Math.max(cos, 0.2)))
+    }
+  }
+  out.push(add(spine[spine.length - 1], nrm[nrm.length - 1], w / 2))
+  return out
+}
 /** Sleeve and cuff geometry in parent units; pure, so scenes can test or reuse it. */
 export function manoArm({
   at,
@@ -81,42 +143,50 @@ export function manoArm({
   const [a, b] = handWrist[pose]
   const A = toParent(a, at, size, angle, anchor)
   const B = toParent(b, at, size, angle, anchor)
-  const M = { x: (A.x + B.x) / 2, y: (A.y + B.y) / 2 }
-  const u = unitVec({ x: B.x - A.x, y: B.y - A.y })
+  const L = Math.hypot(B.x - A.x, B.y - A.y)
+  const u = unitVec(sub(B, A))
   // Wrist normal pointing away from the fingers (thumb side first, so it is u turned clockwise).
   const n = { x: -u.y, y: u.x }
-  const w = spec.width ?? Math.hypot(B.x - A.x, B.y - A.y) * 1.15
+  const w = spec.width ?? L * 1.15
+  // Wrist-end corners: centred on the wrist edge, except that extra width on the open-palm
+  // family goes to the far side so the thumb-side corner stays on the hand contour.
+  const extra = w - L
+  const thumbExtra = extra > 0 ? extra * thumbOverhang[pose] : extra / 2
+  const P0 = add(A, u, -thumbExtra)
+  const P1 = add(P0, u, w)
+  const S0 = { x: (P0.x + P1.x) / 2, y: (P0.y + P1.y) / 2 }
+  const depth = Math.max(w * 0.45, L * 0.6)
   const from = spec.from ?? "edge"
-  const F =
-    from === "edge"
-      ? add(M, n, spec.frame ? exitDistance(M, n, spec.frame) + w : far * size)
-      : from
-  const d = unitVec({ x: F.x - M.x, y: F.y - M.y })
-  let q = { x: -d.y, y: d.x }
-  if (q.x * u.x + q.y * u.y > 0) q = { x: -q.x, y: -q.y }
-  // q points to the thumb side of the far end.
-  const sleeve: Quad = [
-    add(M, u, -w / 2),
-    add(M, u, w / 2),
-    add(F, q, -w / 2),
-    add(F, q, w / 2),
-  ]
-  const band = (k: number): Quad => {
-    const along = (p: Pt, t: Pt) => {
-      const l = Math.hypot(t.x - p.x, t.y - p.y) || 1
-      return add(p, { x: t.x - p.x, y: t.y - p.y }, Math.min(1, k / l))
-    }
-    return [sleeve[0], sleeve[1], along(sleeve[1], sleeve[2]), along(sleeve[0], sleeve[3])]
+  let spine: Pt[]
+  if (from === "edge") {
+    const len = spec.frame ? exitDistance(S0, n, spec.frame) + w : far * size
+    spine = [S0, add(S0, n, len)]
+  } else {
+    // A straight forearm stub (holding the cuff square), then bend toward the point.
+    const stub = add(S0, n, depth + w)
+    const toF = sub(from, stub)
+    const ahead = toF.x * n.x + toF.y * n.y
+    const aside = Math.abs(toF.x * n.y - toF.y * n.x)
+    spine =
+      Math.hypot(toF.x, toF.y) < w * 0.25 || (ahead > 0 && aside < ahead * 0.02)
+        ? [S0, add(S0, n, Math.max(Math.hypot(from.x - S0.x, from.y - S0.y), 1))]
+        : [S0, stub, from]
   }
+  // Offsetting by +1 lands on the thumb side (−u at the wrist), −1 on the far side.
+  const left = offsetSide(spine, w, 1)
+  const right = offsetSide(spine, w, -1)
+  const sleeve = [P0, P1, ...right.slice(1), ...left.slice(1).reverse()]
   return {
     wrist: [A, B],
-    axis: d,
+    axis: n,
+    spine,
+    width: w,
     sleeve,
-    cuff: cuff ? band(w * 0.45) : null,
+    cuff: cuff ? [P0, P1, add(P1, n, depth), add(P0, n, depth)] : null,
     stroke: (OUTLINE * size) / 30,
   }
 }
-const points = (q: Quad) => q.map((p) => `${+p.x.toFixed(2)},${+p.y.toFixed(2)}`).join(" ")
+const points = (q: readonly Pt[]) => q.map((p) => `${+p.x.toFixed(2)},${+p.y.toFixed(2)}`).join(" ")
 /** Placement wrapper; Hand owns the artwork and pose, callers own movement. */
 export function Mano({
   at,
@@ -126,6 +196,7 @@ export function Mano({
   anchor,
   arm,
   cuff,
+  halo,
 }: ManoProps) {
   const geo = arm
     ? manoArm({ at, pose, size, angle, anchor, arm, cuff })
@@ -174,6 +245,7 @@ export function Mano({
         >
           <Hand
             pose={pose}
+            halo={halo}
             width={size}
             height={(size * (anchor ? 29 : 44)) / 30}
             style={{ height: (size * (anchor ? 29 : 44)) / 30 }}

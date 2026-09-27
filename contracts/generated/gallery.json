@@ -4,7 +4,7 @@
     {
       "name": "tokens",
       "title": "Tokens",
-      "description": "Cream, ink, and vermilion palette, Geist font stacks, radii, surface shadows and borders, stage safe areas, and a CSS variables string.",
+      "description": "Cream, ink, and vermilion palette, Geist font stacks and tab-name metrics, radii, surface shadows and borders, stage safe areas, and a CSS variables string.",
       "category": "Foundations",
       "capabilities": [],
       "needsRemotion": false,

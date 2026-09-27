@@ -77,6 +77,7 @@ function FolderDemo() {
       />
       <ProgressControl
         label="Folder opening"
+        ariaLabel="folder Folder opening"
         value={open}
         onChange={setOpen}
         presets={["Closed", "Half", "Open"]}
@@ -85,7 +86,7 @@ function FolderDemo() {
         <label>
           Tone{" "}
           <select
-            aria-label="Folder tone"
+            aria-label="folder Tone"
             value={tone}
             onChange={(e) => setTone(e.target.value as FolderTone)}
           >
@@ -97,7 +98,7 @@ function FolderDemo() {
         <label>
           Label on{" "}
           <select
-            aria-label="Folder label placement"
+            aria-label="folder Label on"
             value={place}
             onChange={(e) => setPlace(e.target.value as typeof place)}
           >
@@ -109,6 +110,7 @@ function FolderDemo() {
         <label>
           <input
             type="checkbox"
+            aria-label="folder Sublabel"
             checked={sublabel}
             onChange={(e) => setSublabel(e.target.checked)}
           />{" "}

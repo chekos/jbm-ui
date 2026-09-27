@@ -11,7 +11,10 @@ export type DeskTopProps = {
   edge?: number
   /** Edge that holds an empty drawer region; omit for a desk with no drawer. */
   drawer?: DeskTopDrawerSide
-  /** Drawer region depth across its edge, in parent units. Defaults to 40% of the box. */
+  /**
+   * Drawer region depth across its edge, in parent units: along the width for start/end, along
+   * the height for top/bottom. Defaults to 40% of that dimension.
+   */
   drawerSize?: number
 }
 
@@ -68,7 +71,7 @@ export function deskTopLayout({
   const depth = drawer
     ? Math.max(
         SEAM + 2 * WELL + 8,
-        Math.min(across * 0.8, drawerSize ?? box.w * 0.4)
+        Math.min(across * 0.8, drawerSize ?? across * 0.4)
       )
     : 0
   let surface: Box = plan
@@ -106,8 +109,11 @@ export function deskTopLayout({
     drawer: region && well ? { panel: region, well } : null,
     /** The front edge band revealed by tilt; h is 0 when edge is 0. */
     front: { x: box.x, y: box.y + box.h - band, w: box.w, h: band },
+    /** The whole plan (surface, seam, and drawer region): one slab under both, so the seam reads as a groove in the desk. */
+    plan,
     fill: {
       surface: deskShade(color.bg, k),
+      handle: deskShade(color.card, k),
       front: deskShade(color.bg, k * 0.93),
       panel: deskShade(color.bg, k * 0.97),
       well: deskShade(color.bg, k * 0.9),
@@ -142,6 +148,11 @@ export function DeskTop({ light = 1, edge = 0, ...props }: DeskTopProps) {
         <path d={roundedRect(front, 0, 4)} fill={fill.front} />
       )}
       {drawer && (
+        // One desk: the plan is a single slab in the groove shade, and the seam between the
+        // surface and the drawer panel shows it instead of a gap to the page.
+        <path d={roundedRect(l.plan, ...r(l.plan))} fill={fill.front} />
+      )}
+      {drawer && (
         <>
           <path d={roundedRect(drawer.panel, ...r(drawer.panel))} fill={fill.panel} />
           <rect {...rect(drawer.well)} rx={3} fill={fill.well} />
@@ -155,7 +166,7 @@ export function DeskTop({ light = 1, edge = 0, ...props }: DeskTopProps) {
           width={44}
           height={6}
           rx={3}
-          fill={color.card}
+          fill={fill.handle}
         />
       )}
     </g>

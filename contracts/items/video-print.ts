@@ -27,7 +27,7 @@ export default {
         title: "The video's title in bold type under the rule; one line, ellipsis when long.",
         date: "The line under the title, usually source and date (\"YouTube · 4 nov 2025\").",
         link: "A URL set in mono on a punched tag straddling the bottom edge: the sign that this page was opened. Omit for a print nobody opened.",
-        opened: "0–1: the tag drops 14px into place while it fades in. Only used with link; 0 hides it.",
+        opened: "0–1: the tag drops 14 × w/480 px into place; it fades in over the first fifth of the drop and is opaque from then on, so the sheet's edge never shows through it. Only used with link; 0 hides it.",
         w: "Width in stage pixels (default 480). Everything scales with it; the height is 0.765 × w.",
         sheet: "Draw the Paper sheet (default). false keeps the same layout and anchors without the sheet, for nesting on a Paper you already have.",
         style: "Inline styles merged onto the outer box, e.g. position and left/top on a stage.",
@@ -64,7 +64,7 @@ export default {
   qa: [
     "Drag Scrub from 0 to 1: the ink bar grows from the left edge of the frame, each tick appears exactly when the bar reaches it, and nothing inks ahead of the bar.",
     "The frame reads as a pale sketch (tinted fill, ink outline, head circle and shoulder arc), never a solid ink block; compare with the video and puertas board panels.",
-    "Toggle the link and drag Tag drops in: the mono URL tag straddles the bottom edge, its hole ringed in ink; a long URL extends past the sheet instead of wrapping.",
+    "Toggle the link and drag Tag drops in: the mono URL tag straddles the bottom edge, its hole ringed in ink and scaled with the print (PunchedTag scale = w/480); a long URL extends past the sheet instead of wrapping. At Half the tag is already opaque.",
     "Turn the sheet off: the frame, rule, and type keep their positions (anchors unchanged).",
     "Check a thread tied to videoPrintLayout().marks lands on the tick centreline, at w 300 and 480.",
     "The print uses no vermilion of its own.",

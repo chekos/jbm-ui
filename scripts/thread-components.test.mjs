@@ -125,7 +125,34 @@ test("hilo lays by arc length, knots follow the tied ends, and snapping starts f
   assert.equal(tied.snapped, false)
   assert.equal(justAfter.snapped, true)
   assert.ok(near(justAfter.pieces[0][3], justAfter.pieces[1][0], 0.5))
-  assert.ok(near(cubicPoint(tied.base, 0.5), cubicPoint(justAfter.base, 0.5)))
+  assert.ok(near(cubicPoint(tied.base, 0.5), cubicPoint(justAfter.base, 0.5), 0.5))
+})
+
+test("hilo after a snap: the route's sag hands over to two ends hanging from their anchors", () => {
+  const level = { from: { x: 40, y: 100 }, to: { x: 460, y: 100 } }
+  const taut = hiloGeometry({ ...level, draw: 1, snapAt: 0, slack: 0 })
+  const limp = hiloGeometry({ ...level, draw: 1, snapAt: 0, slack: 1 })
+  // Fully snapped, slack no longer sags the route itself.
+  for (let i = 0; i < 4; i++) assert.ok(near(limp.base[i], taut.base[i], 1e-9))
+  const [a, b] = limp.pieces
+  // Each piece keeps its anchor and its anchor tangent; its free tip hangs lowest.
+  assert.ok(near(a[0], level.from) && near(b[3], level.to))
+  assert.ok(near(a[1], taut.pieces[0][1], 1e-9) && near(b[2], taut.pieces[1][2], 1e-9))
+  for (const [piece, tip] of [[a, 1], [b, 0]]) {
+    const ys = Array.from({ length: 21 }, (_, i) => cubicPoint(piece, i / 20).y)
+    assert.ok(Math.abs(Math.max(...ys) - cubicPoint(piece, tip).y) < 1e-9, "the free tip is the lowest point")
+  }
+  assert.ok(a[3].y > level.from.y + 20 && b[0].y > level.to.y + 20, "the ends hang limp")
+})
+
+test("hilo fibers all fall to one side of the thread, never a symmetric fan", () => {
+  const level = { from: { x: 40, y: 100 }, to: { x: 460, y: 100 } }
+  for (const notch of [false, true])
+    for (const width of [2, 6]) {
+      const g = hiloGeometry({ ...level, draw: 1, snapAt: 0, fray: 1, notch, width })
+      assert.equal(g.strands.length, 10)
+      for (const [root, , end] of g.strands) assert.ok(end.y >= root.y - 1e-6, "fibers curl down, with gravity")
+    }
 })
 
 test("hilo snapAt 0 starts laid and draw drives only the snap; no snapAt never snaps", () => {

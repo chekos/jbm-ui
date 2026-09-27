@@ -7,7 +7,7 @@ const propProps = {
   scale: "Uniform size multiplier (default 1). The ink stroke stays 2 parent units at any scale.",
   rotate: "Rotation in degrees around the centre (default 0).",
   press:
-    "Key travel, 0–1: the keycap's top sinks and centres; on a keyboard, the keys listed in keys do. The mug ignores it. Clamped.",
+    "Key travel, 0–1: the keycap's dished top sinks, centres, and shrinks 4 units a side; on a keyboard, the keys listed in keys inset 3 units a side. A pressed face takes a light ink wash (0.12 at 1) so the pressed key reads at normal size. The mug ignores it. Clamped.",
   keys: "Keyboard only: indices of the keys press applies to, row by row from the top left (0–26 the three full rows, 27–31 the bottom row, 29 the space bar).",
 }
 

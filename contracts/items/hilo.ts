@@ -9,8 +9,8 @@ const threadProps = {
   width: "Thread stroke width in user units (minimum 0.5). Knots are 1.4× it in radius, fibers 0.6×, the notch 4×.",
   snapAt: "The draw value (0–1) at which the laid thread snaps. Omit for a thread that never snaps. 0 starts fully laid, so draw drives only the snap.",
   breakAt: "Where the thread parts, as a fraction of its length from `from`; clamped to 0.05–0.95. The gap opens symmetrically around it: about a fifth of the length, at most 90 units.",
-  fray: "0–1: curled fibers peeling off each broken end (0 none, then 3–5 of them, up to about 6× width long, splayed up to 88° from the thread). 0 is a clean cut.",
-  slack: "0–1. Before a snap, how far the thread sags under gravity (the middle drops up to a quarter of the from→to distance). After a snap, how limply each end hangs from its anchor (the tip drops up to 0.3 of its piece's length).",
+  fray: "0–1: curled fibers peeling off each broken end (0 none, then 3–5 of them, uneven lengths up to about 8× width, one trailing past the tip). They all fall to the gravity side of the thread, 12–74° from it, so an end reads as unravelled thread, never a symmetric fan or arrowhead. 0 is a clean cut.",
+  slack: "0–1. Before a snap, how far the thread sags under gravity (the middle drops up to a quarter of the from→to distance). As the ends recoil that sag hands over to the ends: fully snapped, the route no longer sags and each end hangs from its own anchor, tangent there, its free tip dropping up to half its piece's length.",
   notch: "Fills the span between the frayed ends with a rounded vermilion bar, tip to tip (it follows hanging ends): the only accent the thread draws. Drawn over the fiber roots, so the fibers show as whiskers at its ends.",
   knots: "Small ink dots at the tied points: `from` as soon as any thread is laid, `to` once it is fully laid.",
 }
@@ -54,7 +54,7 @@ export default {
   stage: {
     mode: "fluid",
     reason:
-      "Spans its anchors: the box from `from` to `to`, plus the bow (bend × distance for `arc`), the sag (up to slack × a quarter of the distance below the chord), and after a snap the hanging ends (up to 0.3 of each piece below its anchor). Knots add 1.4 × width around each anchor. Size the parent SVG for those extremes.",
+      "Spans its anchors: the box from `from` to `to`, plus the bow (bend × distance for `arc`), the sag (up to slack × a quarter of the distance below the chord), and after a snap the hanging ends (up to half of each piece below its anchor, replacing the sag). Knots add 1.4 × width around each anchor. Size the parent SVG for those extremes.",
   },
   examples: [
     {
@@ -73,9 +73,9 @@ export default {
   qa: [
     "Drag Draw from 0 to 1 without a snap: the thread grows from `from` along one smooth curve, the `from` knot appears first, and the `to` knot only when it arrives.",
     "Turn on the snap and drag past 50%: at the snap the two pieces coincide with the tied thread (no jump), then recoil apart; `from` and `to` never move.",
-    "Fray 0 is a clean cut with no fibers; 1 gives five curled fibers per end. With the notch they show as whiskers above and below its ends; without it they must read as frayed tufts, never arrowheads.",
-    "Slack 0 keeps the snapped ends on the original line (the rompe look); 1 lets them hang limply. The notch runs tip to tip at every slack and is the only vermilion.",
-    "Try Break point 5% and 95%, Bend −0.5 and 1, both curve families, and Width 1 and 6: nothing leaves the viewBox unexpectedly and stroke joins stay round.",
+    "Fray 0 is a clean cut with no fibers; 1 gives five curled fibers per end, all falling to one side with uneven lengths. With the notch they show as whiskers at its ends; without it they read as frayed tufts, never arrowheads or fletching.",
+    "Slack 0 keeps the snapped ends on the original line (the rompe look); 1 lets them hang limply as two ends, each from its own anchor, never one deep V. The notch runs tip to tip at every slack and is the only vermilion.",
+    "Try Break point 5% and 95%, Bend at both ends of its range (−0.3 to 0.3 for arc, −0.5 to 1 for S), both curve families, Slack 1, and Width 1 and 6: nothing leaves the viewBox and stroke joins stay round.",
     "Place the anchors on real objects (a Cajon tab from cajonLayout, a VideoPrint mark from videoPrintLayout) and check the knots land on them.",
   ],
   docs: [

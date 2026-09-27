@@ -23,6 +23,27 @@ export const font = {
   mono: "var(--font-mono, 'Geist Mono'), 'Geist Mono', ui-monospace, monospace",
 } as const
 
+// Geist advances in em for printable ASCII (32–126), measured in the browser: 800 weight for tab
+// names, 400 italic for sublabels. Fonts may load after first render, so tab widths come from
+// these tables rather than from the DOM, and stay identical in the browser and in Remotion.
+const SANS_800 = [22,27,41,63,68,83,73,21,34,34,42,57,25,42,25,54,70,47,66,66,67,69,64,55,68,64,32,32,55,56,55,60,98,75,71,74,72,63,61,75,72,31,64,70,59,93,75,79,68,78,71,70,62,71,75,104,71,65,61,40,52,40,47,56,29,61,65,61,65,62,46,65,62,29,36,67,33,91,62,63,65,65,44,59,46,62,63,86,67,60,60,41,30,41,52]
+const SANS_ITALIC = [25,21,34,49,62,85,64,17,32,32,42,56,17,43,17,43,67,35,60,59,62,62,60,50,61,60,21,21,55,54,55,50,88,66,67,69,69,60,59,68,70,27,58,64,58,87,74,73,65,73,66,63,54,69,67,93,61,57,54,32,42,32,43,53,25,54,58,53,58,55,40,58,57,24,25,54,27,84,57,55,58,58,38,52,40,58,52,79,54,52,49,40,26,40,52]
+
+/**
+ * Estimated advance width of `text` set in Geist at `size`: 800 weight (tab names) or 400
+ * italic (sublabels). Accented letters measure as their base letter; anything else outside ASCII
+ * as an average glyph.
+ */
+export function sansWidth(text: string, size: number, italic = false): number {
+  const table = italic ? SANS_ITALIC : SANS_800
+  let em = 0
+  for (const ch of text.normalize("NFD").replace(/[\u0300-\u036f]/g, "")) {
+    const c = ch.codePointAt(0) ?? 0
+    em += c >= 32 && c < 127 ? table[c - 32] : italic ? 56 : 62
+  }
+  return (em / 100) * size
+}
+
 export const radius = { chip: 14, code: 12, card: 28, pill: 10 } as const
 /** Surface recipes: crisp contact, progressively softer depth, then inset edge light.
  * See docs/surface-depth.md. Keep shadow.card compatible with existing consumers.

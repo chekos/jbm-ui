@@ -119,33 +119,56 @@ export function DeskProp({
       {kind === "keycap" && (
         <>
           <rect x={-28} y={-28} width={56} height={56} rx={8} />
-          {/* The dished top: set back toward the far wall, centred as the key sinks. */}
+          {/* The dished top: set back toward the far wall, centred and shrinking as the key
+              sinks, with a light ink wash so a pressed key reads at normal size. */}
           <rect
-            x={-19 + 3 * p}
-            y={-22 + 6 * p}
-            width={38 - 6 * p}
-            height={38 - 6 * p}
+            x={-19 + 4 * p}
+            y={-22 + 7 * p}
+            width={38 - 8 * p}
+            height={38 - 8 * p}
             rx={5}
             fill={p > 0 ? color.bg : color.card}
           />
+          {p > 0 && (
+            <rect
+              x={-19 + 4 * p}
+              y={-22 + 7 * p}
+              width={38 - 8 * p}
+              height={38 - 8 * p}
+              rx={5}
+              fill={color.ink}
+              fillOpacity={+(0.12 * p).toFixed(3)}
+              stroke="none"
+            />
+          )}
         </>
       )}
       {kind === "keyboard" && (
         <>
           <rect x={-135} y={-65} width={270} height={130} rx={12} />
           {deskPropKeys.map((k, i) => {
+            // A pressed key sinks 3 units on every side and takes a light ink wash.
             const down = keys.includes(i) ? p : 0
+            const inset = 3 * down
+            const face = {
+              x: k.x + inset,
+              y: k.y + inset,
+              width: k.w - 2 * inset,
+              height: k.h - 2 * inset,
+              rx: 4,
+            }
             return (
-              <rect
-                key={i}
-                data-key={i}
-                x={k.x + down}
-                y={k.y + down}
-                width={k.w - 2 * down}
-                height={k.h - 2 * down}
-                rx={4}
-                fill={down > 0 ? color.bg : color.card}
-              />
+              <g key={i} data-key={i}>
+                <rect {...face} fill={down > 0 ? color.bg : color.card} />
+                {down > 0 && (
+                  <rect
+                    {...face}
+                    fill={color.ink}
+                    fillOpacity={+(0.12 * down).toFixed(3)}
+                    stroke="none"
+                  />
+                )}
+              </g>
             )
           })}
         </>

@@ -38,7 +38,9 @@ function Angle({
   onChange,
   from,
   span,
+  ariaLabel,
 }: {
+  ariaLabel?: string
   label: string
   value: number
   onChange: (n: number) => void
@@ -50,6 +52,7 @@ function Angle({
   return (
     <RangeControl
       label={label}
+      ariaLabel={ariaLabel}
       value={value}
       onChange={onChange}
       min={0}
@@ -63,7 +66,9 @@ function Toggle({
   label,
   value,
   onChange,
+  ariaLabel,
 }: {
+  ariaLabel?: string
   label: string
   value: boolean
   onChange: (v: boolean) => void
@@ -74,6 +79,7 @@ function Toggle({
     >
       <input
         type="checkbox"
+        aria-label={ariaLabel}
         checked={value}
         onChange={(e) => onChange(e.target.checked)}
       />
@@ -266,9 +272,9 @@ export function DesignVideoDemo({ name }: { name: string }) {
     )
     controls = (
       <>
-        <Range label="Carry progress" value={progress} onChange={setProgress} presets={["Start", "Midway", "Arrived"]} />
-        <Angle label="Hand angle" value={secondary} onChange={setSecondary} from={-30} span={60} />
-        <Toggle label="Show hand" value={other} onChange={setOther} />
+        <Range label="Carry progress" ariaLabel="folder-carry Carry progress" value={progress} onChange={setProgress} presets={["Start", "Midway", "Arrived"]} />
+        <Angle label="Hand angle" ariaLabel="folder-carry Hand angle" value={secondary} onChange={setSecondary} from={-30} span={60} />
+        <Toggle label="Show hand" ariaLabel="folder-carry Show hand" value={other} onChange={setOther} />
         <label style={{ display: "flex", gap: 8, alignItems: "center", fontSize: 12 }}>
           Folder fill
           <select

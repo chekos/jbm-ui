@@ -151,10 +151,11 @@ test("lifting preserves the entire folder and clears the drawer front", () => {
 })
 test("closed drawer hides complete folders behind the front with no open top gap", () => {
   const l = cajonLayout({folders:[{name:"front",pulled:1},{name:"back"}],open:0})
-  assert.equal(l.front+32,l.y+10)
+  assert.equal(l.frontTop,l.y+10)
   for(const f of l.folders) {
-    assert.ok(f.y>=l.front+32)
-    assert.ok(f.y+f.h<=l.front+32+l.frontHeight)
+    assert.ok(f.y>=l.frontTop)
+    assert.ok(f.y+f.h<=l.frontTop+l.frontHeight)
+    assert.equal(f.visible,0)
   }
 })
 test("desk dimensions stay fixed and cabinet is optional",()=>{
@@ -238,7 +239,7 @@ test("every tab and a band of back panel stay visible for one to eight folders",
                 )
               if (i === 0) {
                 assert.ok(
-                  f.y + f.tabHeight + l.band <= l.front + 32 + 1e-9,
+                  f.y + f.tabHeight + l.band <= l.frontTop + 1e-9,
                   "the front folder's tab and band clear the drawer front"
                 )
                 return
@@ -282,7 +283,7 @@ test("light ramps with depth from the palette tokens, and a lifted folder regain
   })
   assert.equal((markup.match(/#C63D24/g) ?? []).length, 1, "vermilion only on the accent folder")
 })
-test("anchors spread n thread ends along the tab from the name's first letter", () => {
+test("anchors spread n thread ends along the tab from just before the name", () => {
   const l = cajonLayout({ folders: [{ name: "Procida 2017" }, { name: "Taylor 1911" }] })
   assert.deepEqual(l.anchors(0, 0), [])
   assert.deepEqual(l.anchors(9, 3), [])
@@ -291,7 +292,8 @@ test("anchors spread n thread ends along the tab from the name's first letter", 
       const f = l.folders[i],
         pts = l.anchors(i, n)
       assert.equal(pts.length, n)
-      assert.equal(pts[0].x, f.label.x)
+      // The first end (a knot) sits in the tab's lead-in, clear of the first letter.
+      assert.ok(pts[0].x < f.label.x - 0.3 * l.labelSize && pts[0].x > f.tabX)
       for (const p of pts) {
         assert.ok(p.x >= f.tabX && p.x <= f.tabX + f.tabWidth - f.tabSlope)
         assert.ok(p.y > f.y && p.y < f.y + f.tabHeight)
@@ -321,4 +323,40 @@ test("a cabinet keeps its packed drawer: staggered tabs within the 48-unit rise"
       assert.ok(Math.abs(f.y - (l.front + 32 - 62 - i * spacing)) < 1e-9)
     )
   }
+})
+test("perspective follows depth, not label size; wide drawers scale their furniture", () => {
+  const folders = sources.slice(0, 6).map((name) => ({ name }))
+  const a = cajonLayout({ folders, labelSize: 13 })
+  const b = cajonLayout({ folders, labelSize: 24 })
+  a.folders.forEach((f, i) => assert.ok(Math.abs(f.w - b.folders[i].w) < 1e-9, `folder ${i}`))
+  // Six folders reach five-sevenths of the way back: each side moves in 5/7 of a fifth.
+  assert.ok(Math.abs(b.folders[5].w - (1 - 0.4 * 5 / 7) * b.folders[0].w) < 1e-9)
+  const wide = cajonLayout({ w: 840, folders, open: 1 })
+  const closed = cajonLayout({ w: 840, folders, open: 0 })
+  assert.equal(wide.scale, 2)
+  assert.ok(Math.abs(wide.front - closed.front - 208) < 1e-9, "travel doubles at twice the width")
+  assert.equal(cajonLayout({ w: 280, folders }).scale, 1)
+})
+test("an ajar flap shows: the folder rises so the opening clears what is in front of it", () => {
+  for (const labelSize of [13, 24])
+    for (const sub of [false, true])
+      for (let i = 0; i < 4; i++) {
+        const folders = sources.slice(0, 4).map((name, j) => ({
+          name,
+          sublabel: sub ? "Administrative Behavior" : undefined,
+          open: j === i ? 1 : 0,
+        }))
+        const l = cajonLayout({ folders, labelSize })
+        const f = l.folders[i]
+        const cover = i === 0 ? l.frontTop : l.folders[i - 1].y
+        assert.ok(f.opening.drop > 0)
+        // At least half the shaded opening shows above whatever covers the folder…
+        assert.ok(cover - f.flap >= 0.5 * f.opening.drop - 1e-9, `size ${labelSize} folder ${i}`)
+        // …and the folder behind keeps its whole tab in view.
+        if (i < 3) assert.ok(l.folders[i + 1].y + f.tabHeight <= f.y + 1e-9, `tab behind ${i}`)
+      }
+})
+test("anchors of tabs inside a closed drawer stop at its top rim", () => {
+  const l = cajonLayout({ folders: sources.slice(0, 3).map((name) => ({ name })), open: 0 })
+  for (let i = 0; i < 3; i++) for (const p of l.anchors(i, 2)) assert.ok(p.y <= l.frontTop + 1e-9)
 })

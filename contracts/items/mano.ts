@@ -20,8 +20,9 @@ export default {
         size: "Hand width in parent SVG units. Without anchor the box is size × 44/30 tall (264 at 180) with the 30×29 art centred vertically; with anchor it is size × 29/30 tall.",
         angle: "Rotation in degrees about at; positive is clockwise.",
         anchor: "Local point in the Hand's 30×29 viewBox held at `at`, including during rotation.",
-        arm: "Sleeve from the frame edge to the wrist, drawn behind the hand. `true` for defaults, or `{ from, width, frame, tone }`: `from` is \"edge\" (default: straight out of the wrist along the forearm axis until it leaves `frame`, or 8 × size without one) or a point in parent units the sleeve bends toward; `width` defaults to 1.15 × the wrist; `tone` is solid `ink` (default) or `card` with an ink outline.",
-        cuff: "Band at the sleeve's wrist end, 0.45 × the sleeve width long: `ink`, or `accent` (vermilion) to mark the viewer's own hand. Ignored without `arm`. On an ink sleeve an ink cuff shows as a card seam.",
+        arm: "Sleeve from the frame edge to the wrist, drawn behind the hand. `true` for defaults, or `{ from, width, frame, tone }`: `from` is \"edge\" (default: straight out of the wrist along the forearm axis until it leaves `frame`, or 8 × size without one) or a point in parent units: the sleeve then leaves the wrist straight for a forearm stub (cuff depth + width long, square to the wrist) and bends there, at constant width with a rounded outer elbow, to end centred on that point. `width` defaults to 1.15 × the wrist (open and type keep the thumb-side corner on the hand contour and overhang the far side only); `tone` is solid `ink` (default) or `card` with an ink outline.",
+        halo: "Pass Hand's card knock-out ring through, for ink art drawn behind the hand. Default false.",
+        cuff: "Band across the full sleeve width at the wrist end, max(0.45 × sleeve width, 0.6 × wrist) long: `ink`, or `accent` (vermilion) to mark the viewer's own hand. Ignored without `arm`. On an ink sleeve an ink cuff shows as a card seam.",
       },
     },
     {
@@ -39,7 +40,7 @@ export default {
         cuff: "As Mano's cuff; null band when unset.",
       },
       returns:
-        "{ wrist, axis, sleeve, cuff, stroke }: the wrist edge (thumb side first), the unit vector into the sleeve, the sleeve's four corners (wrist end, then far end), the cuff band's four corners or null, and the outline width.",
+        "{ wrist, axis, spine, width, sleeve, cuff, stroke }: the wrist edge (thumb side first), the unit vector from the wrist into the sleeve stub, the sleeve centreline (wrist-end centre, the bend for a point `from`, the far end), the constant sleeve width, the sleeve outline polygon (wrist-end corners first, thumb side then far side; four points when straight), the cuff band's four corners or null, and the outline width.",
     },
   ],
   omit: {
@@ -68,7 +69,8 @@ export default {
     },
   ],
   qa: [
-    "Turn Arm on for every pose and rotation: the sleeve meets the wrist edge exactly, runs out along the forearm, and leaves the frame; no hand floats or clips mid-palm.",
+    "Turn Arm on for every pose and rotation: the sleeve meets the wrist edge exactly, runs out along the forearm, and leaves the frame; no hand floats or clips mid-palm. On open and type the sleeve's thumb-side corner continues the hand contour without a step.",
+    "Give arm a `from` point to either side: the sleeve keeps its width from wrist to far end, the cuff stays a full square band on the straight stub, and the elbow is rounded.",
     "Switch Cuff between none, ink, and accent: only accent is vermilion; the band stays at the wrist through rotation and pose changes.",
     "Switch pose through all six at the same at: the hand stays in its box and does not jump unexpectedly.",
     "Drag Rotation from −30 to 30: the hand pivots about at (or the anchor point), not its centre.",

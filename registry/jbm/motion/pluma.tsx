@@ -8,7 +8,9 @@ export type PlumaProps = {
   angle?: number
   /**
    * Nib position relative to `at` in parent units, before rotation. The pen runs from the nib
-   * through `at` and on past the knuckles. Defaults to the pinch's natural writing slant.
+   * through `at` and on past the knuckles. Defaults to the pinch's natural writing slant; the
+   * hand turns about `at` by however far this points away from that slant, so the barrel always
+   * sits in the pinch instead of crossing the palm. Its length sets how far the nib reaches.
    */
   nibOffset?: Pt
   /** Hand width in parent units, as in Mano; the pen scales with it. */
@@ -77,6 +79,19 @@ export function Pluma({
   const tail = TAIL * s
   const coneBase = len - cone
   const barrelEnd = coneBase - ring
+  // The hand follows the pen: turn it by the offset's departure from the natural slant.
+  const natural = defaultNib(size)
+  let follow = dir - (Math.atan2(natural.y, natural.x) * 180) / Math.PI
+  while (follow > 180) follow -= 360
+  while (follow < -180) follow += 360
+  // A thin card halo (half the outline, outside the fill) keeps the pen's edge separate from
+  // the hand's contours wherever the barrel runs alongside them.
+  const halo = {
+    stroke: color.card,
+    strokeWidth: f(OUTLINE * s),
+    strokeLinejoin: "round" as const,
+    paintOrder: "stroke" as const,
+  }
   return (
     <g>
       <g
@@ -87,6 +102,7 @@ export function Pluma({
         <path
           d={`M${f(barrelEnd)} ${f(-w / 2)} H${f(-tail + w / 2)} A${f(w / 2)} ${f(w / 2)} 0 0 0 ${f(-tail + w / 2)} ${f(w / 2)} H${f(barrelEnd)} Z`}
           fill={color.ink}
+          {...halo}
         />
         {/* a card ring between the barrel and the cone */}
         <rect
@@ -100,9 +116,7 @@ export function Pluma({
         <path
           d={`M${f(coneBase)} ${f(-w / 2)} L${f(len)} 0 L${f(coneBase)} ${f(w / 2)} Z`}
           fill={color.ink}
-          stroke={color.ink}
-          strokeWidth={f(OUTLINE * s * 0.35)}
-          strokeLinejoin="round"
+          {...halo}
         />
       </g>
       {hand && (
@@ -110,8 +124,9 @@ export function Pluma({
           at={at}
           pose="pinch"
           size={size}
-          angle={angle}
+          angle={f(angle + follow)}
           anchor={GRIP}
+          halo
           arm={arm}
           cuff={cuff}
         />

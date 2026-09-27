@@ -6,7 +6,7 @@ const spec = {
   w: "Sheet width in stage px.",
   h: "Sheet height in stage px.",
   sources: "Prose only: source ticks, overriding n. In mixed, the prose band's ticks (default 3).",
-  bands: "Mixed only: the stacked registers, top to bottom, each `{ kind, n?, weight? }` (weight is its share of the writing height; by default each band gets the height its writing naturally runs, so a page reads evenly filled; at most 8 bands). Overrides n.",
+  bands: "Mixed only: the stacked registers, top to bottom, each `{ kind, n?, weight? }` (weight sets its share of the page before row pitches are capped; each band then sits at the height its writing actually uses, bands follow each other with even separators at least 2 × (frayReach() + 2) px tall so a Tear at a seam never frays into the writing, and any leftover height collects at the foot of the page; at most 8 bands). Overrides n.",
   gapAt: "Row index where a gap opens: mono steps, plain and grid rows of cells, prose lines then the spacer then source rows; for mixed, the band index (0 = above the first band, bands.length = below the last). Rows from here down move to make room; omit for no gap.",
   gap: "Gap height in px when fully open. Defaults to a quarter of the writing height; clamped to 60% of it. Marks are sized for the open gap at every reflow value, so reflow moves writing without resizing it.",
   reflow: "How open the gap is, 0–1 (default 1): run 1 → 0 on the sheet a slip leaves (it closes) and 0 → 1 on the sheet it lands on (it makes room).",
@@ -29,7 +29,7 @@ export default {
       export: "Register",
       kind: "component",
       summary:
-        "A Paper sheet (2px ink edge, house paper shadow) carrying one register of drawn writing: bars, boxes, and rules, never legible prose. `mono` is a prompt chevron, prompt bar, and outlined result box per step; `plain` short numbered lists in two columns; `grid` ruled tables with an ink header; `prose` a justified block with paragraph ends and a block of source ticks; `mixed` stacks registers on one long page. Every quantity is a prop (no timer), so a slider or video frame drives it. Anchors, seams, and the gap are in the sheet's px from its outer top-left corner, the same space `children` draw in.",
+        "A Paper sheet (2px ink edge, house paper shadow) carrying one register of drawn writing: bars, boxes, and rules, never legible prose. `mono` is a prompt chevron, prompt bar, and outlined result box per step; `plain` short numbered lists in two columns; `grid` ruled tables with an ink header; `prose` a justified block with paragraph ends (every fifth line and the last, never two in a row and never the first line after a gap) and a block of source ticks; `mixed` stacks registers on one long page. Every quantity is a prop (no timer), so a slider or video frame drives it. Anchors, seams, and the gap are in the sheet's px from its outer top-left corner, the same space `children` draw in.",
       props: {
         ...spec,
         rotate: "Sheet rotation in degrees (Paper's rotate).",

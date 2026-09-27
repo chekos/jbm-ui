@@ -1,7 +1,7 @@
 "use client"
 
-import { useEffect, useRef, useState, type ReactNode } from "react"
 import { useBenchParam } from "./bench-url"
+import { StageFit } from "./stage-fit"
 import { ProgressControl, StepperControl, type Presets } from "./progress-control"
 import {
   Register,
@@ -35,24 +35,6 @@ const countNoun: Record<RegisterKind, [string, string]> = {
 const countMax: Record<RegisterKind, number> = { mono: 12, plain: 12, grid: 8, prose: 12, mixed: 4 }
 const countDefault: Record<RegisterKind, number> = { mono: 7, plain: 10, grid: 7, prose: 8, mixed: 4 }
 
-/** A fixed-size stage in px, scaled down to its container on narrow screens. */
-function Fit({ w, h, children }: { w: number; h: number; children: ReactNode }) {
-  const ref = useRef<HTMLDivElement>(null)
-  const [k, setK] = useState(1)
-  useEffect(() => {
-    const el = ref.current
-    if (!el) return
-    const observer = new ResizeObserver(([entry]) => setK(Math.min(1, entry.contentRect.width / w)))
-    observer.observe(el)
-    return () => observer.disconnect()
-  }, [w])
-  return (
-    <div ref={ref} data-stage style={{ width: "100%", maxWidth: w, height: h * k, margin: "0 auto" }}>
-      <div style={{ width: w, height: h, position: "relative", transform: `scale(${k})`, transformOrigin: "0 0" }}>{children}</div>
-    </div>
-  )
-}
-
 function Toggle({ label, value, onChange }: { label: string; value: boolean; onChange: (v: boolean) => void }) {
   return (
     <label style={{ display: "flex", gap: 8, alignItems: "center", fontSize: 12 }}>
@@ -69,13 +51,14 @@ export function RegisterDemo({ name }: { name: string }) {
 function RegisterBench() {
   const unit = { clamp: [0, 1] } as const
   const [kind, setKind] = useBenchParam<RegisterKind>("kind", "mono", { allowed: kinds })
-  const [n, setN] = useBenchParam("n", 0, { clamp: [0, 12] })
+  // -1 is "the kind's default count"; 0 is a real count (prose with no sources).
+  const [n, setN] = useBenchParam("n", -1, { clamp: [-1, 12] })
   const [reveal, setReveal] = useBenchParam("reveal", 1, unit)
   const [gapOn, setGapOn] = useBenchParam("gap", false)
   const [reflow, setReflow] = useBenchParam("reflow", 1, unit)
   const [accent, setAccent] = useBenchParam("accent", false)
   const [guides, setGuides] = useBenchParam("guides", false)
-  const count = Math.min(countMax[kind], n || countDefault[kind])
+  const count = n < 0 ? countDefault[kind] : Math.max(kind === "prose" ? 0 : 1, Math.min(countMax[kind], n))
   const w = 300,
     h = kind === "mixed" ? 440 : 380
   const spec: RegisterSpec = {
@@ -92,7 +75,7 @@ function RegisterBench() {
   return (
     <div style={{ width: "100%" }}>
       <div style={{ padding: "28px 24px 12px" }}>
-        <Fit w={w + 40} h={h + 40}>
+        <StageFit w={w + 40} h={h + 40}>
           <div style={{ position: "absolute", left: 20, top: 20 }}>
             <Register {...spec} reveal={reveal} accent={accent ? [0] : []}>
               {guides && (
@@ -104,13 +87,21 @@ function RegisterBench() {
                     <circle key={i} cx={p.x} cy={p.y} r={5} fill="none" stroke={color.dim} />
                   ))}
                   {layout.gap && layout.gap.h > 0 && (
-                    <rect {...layout.gap} fill="none" stroke={color.dim} strokeDasharray="4 4" />
+                    <rect
+                      x={layout.gap.x}
+                      y={layout.gap.y}
+                      width={layout.gap.w}
+                      height={layout.gap.h}
+                      fill="none"
+                      stroke={color.dim}
+                      strokeDasharray="4 4"
+                    />
                   )}
                 </svg>
               )}
             </Register>
           </div>
-        </Fit>
+        </StageFit>
       </div>
       <div className="composition-options" style={{ display: "flex", flexWrap: "wrap", gap: 16, padding: "16px 24px" }}>
         <label>
@@ -120,7 +111,7 @@ function RegisterBench() {
             value={kind}
             onChange={(e) => {
               setKind(e.target.value as RegisterKind)
-              setN(0)
+              setN(-1)
             }}
           >
             {kinds.map((k) => (
@@ -167,7 +158,8 @@ function SlipDemo() {
   const [tape, setTape] = useBenchParam("tape", true)
   const [dashed, setDashed] = useBenchParam("dashed", false)
   const [hand, setHand] = useBenchParam("hand", true)
-  const [arm, setArm] = useBenchParam("arm", false)
+  // The pinch enters on a sleeve from the stage edge by default: hands never float (#135).
+  const [arm, setArm] = useBenchParam("arm", true)
   const src: RegisterSpec = { kind: "mono", n: 6, ...SHEET, gapAt: 3, gap: GAP, reflow: 1 - smooth(carry) }
   const dst: RegisterSpec = { kind: "prose", n: 3, ...SHEET, gapAt: 4, gap: GAP, reflow: smooth(carry) }
   // Resting places come from the fully open gaps, so the path does not move while the gaps animate.
@@ -185,7 +177,7 @@ function SlipDemo() {
   return (
     <div style={{ width: "100%" }}>
       <div style={{ padding: "20px 24px 8px" }}>
-        <Fit w={stageW} h={stageH}>
+        <StageFit w={stageW} h={stageH}>
           <div style={{ position: "absolute", left: SRC.x, top: SRC.y }}>
             <Register {...src} label="Tutorial page, steps" />
           </div>
@@ -217,7 +209,7 @@ function SlipDemo() {
               />
             </svg>
           )}
-        </Fit>
+        </StageFit>
       </div>
       <div className="composition-options" style={{ display: "flex", flexWrap: "wrap", gap: 16, padding: "16px 24px" }}>
         {range("Carry", carry, setCarry, ["Taped", "Half", "Landed"])}

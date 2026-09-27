@@ -20,9 +20,10 @@ export default {
         path: "Grip points in the parent SVG's units; start at folderGrip(from) and end at folderGrip(to) so the endpoints do not jump.",
         progress: "Carry progress from 0 (at `from`) to 1 (at `to`), by arc length along `path`. Clamped.",
         label:
-          "Folder name (first 16 characters); also labels the group as \"Carrying …\" for assistive technology. Shown on the tab at 0 and on the front panel at 1, crossfading between.",
-        fill: "Folder fill passed to FolderOutline: a palette token such as color.accent (default, vermilion), color.ink, or color.card for a plain cream folder.",
-        labelColor: "Label color. Defaults to color.ink on color.card or color.bg fills and color.bg (cream) on anything else.",
+          "Folder name; also labels the group as \"Carrying …\" for assistive technology. On the tab (shown at 0) it follows Cajon's rule: drawn whole in Geist 800, compressed when the tab is short, never cut. On the front panel (shown at 1) it follows Folder's fitLine rule. The two crossfade.",
+        fill: "Folder fill passed to FolderOutline: a palette token such as color.accent (default, vermilion), color.ink, or color.card, or a drawer shade from drawerLight(k) for a folder lifted out of a Cajon.",
+        labelColor: "Label color. Defaults to labelInkOn(fill): color.ink on light fills (OKLab lightness above 0.6, including every drawerLight shade from k 0.72 up) and color.bg (cream) on vermilion and ink.",
+        labelSize: "Tab name size in the parent SVG's units. Defaults to 13/27 of the tab height, Cajon's ratio, so a folder carried out of a drawer keeps the drawer's tab type at the handoff.",
       },
     },
     {
@@ -60,7 +61,7 @@ export default {
       export: "FolderGeometry",
       kind: "type",
       summary:
-        "Folder silhouette box: `x`, `y` (top of the tab), `w`, `h`, `tabX`, `tabWidth`, and optional `tabHeight` (27) and `tabSlope` (17), all in SVG units.",
+        "Folder silhouette box: `x`, `y` (top of the tab), `w`, `h`, `tabX`, `tabWidth`, and optional `tabHeight` (27), `tabSlope` (17), and `flap` (absolute y of the front flap's top edge; defaults to 40/27 of the tab height below `y`), all in SVG units. A cajonLayout() folder is a FolderGeometry, flap included, so the fold line matches the drawer's.",
     },
   ],
   stage: {
@@ -87,6 +88,7 @@ export default {
     "Drag Carry progress to 0, 0.5, and 1: the folder matches its resting geometry exactly at both ends, and the label moves from tab to front panel without both copies fully visible mid-way.",
     "Toggle Show hand and sweep progress: the pinch stays on the tab's grip throughout; adjust Hand angle and confirm the contact point does not drift.",
     "Check the scale change reads as smooth growth with no jump in tab shape at the endpoints.",
+    "Carry a folder out of a Cajon with fill drawerLight(0.8) and the drawer's folder as `from`: at progress 0 the tab name is ink, whole, the same size as the drawer's names, and the fold line sits on the drawer's flap line.",
     "Check narrow screens: the demo SVG scales to 100% width without clipping either resting place.",
   ],
   docs: [

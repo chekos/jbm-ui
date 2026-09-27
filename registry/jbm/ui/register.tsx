@@ -1,5 +1,5 @@
 import { useId, type CSSProperties, type ReactNode } from "react"
-import { Paper } from "./paper"
+import { Paper, frayReach } from "./paper"
 import { color, font } from "../lib/tokens"
 import { unit, type Box, type Pt } from "../lib/geometry"
 
@@ -147,7 +147,10 @@ function band(kind: Exclude<RegisterKind, "mixed">, n: number, box: Box, u: numb
       const s = slots[i]
       const bh = Math.min(5 * u, s.size * 0.45)
       const y = s.y + (s.h - bh) / 2
-      const end = i % 5 === 4 || i === lines - 1
+      // Paragraphs end every fifth line and on the last, but never twice in a row (the line before
+      // the last) and never on the first line after a gap, where a short line reads as a heading.
+      const end =
+        i === lines - 1 || (i % 5 === 4 && i !== lines - 2 && i !== gapAt)
       const bw = end ? w * endWidths[paragraph++ % endWidths.length] : w
       cells.push({
         row: i,
@@ -292,20 +295,46 @@ export function registerLayout(spec: RegisterSpec): RegisterLayout {
       if (i) weights.push(0.14)
       weights.push(Math.max(0.1, b.weight ?? natural(b.kind, counts[i])))
     })
-    const gapAt = spec.gapAt === undefined ? undefined : Math.max(0, Math.min(list.length, Math.round(spec.gapAt))) * 2
-    const { slots, gap } = stack(weights, inner.y, inner.h, gapAt, gapPx, reflow)
-    list.forEach((b, i) => {
+    const bandGap = spec.gapAt === undefined ? undefined : Math.max(0, Math.min(list.length, Math.round(spec.gapAt)))
+    const gapAt = bandGap === undefined ? undefined : bandGap * 2
+    const { slots } = stack(weights, inner.y, inner.h, gapAt, gapPx, reflow)
+    // First pass: each band in its weighted slot. Row pitches are capped, so a band may use less
+    // than its slot; measure what it uses.
+    const first = list.map((b, i) => {
       const s = slots[i * 2]
       const box = { x: inner.x, y: s.y + (s.h - s.size) / 2, w: inner.w, h: s.size }
+      const l = band(b.kind, counts[i], box, u)
+      const bottom = Math.max(box.y, ...l.rows.map((r) => r.y + r.h))
+      return { box, used: Math.min(box.h, bottom - box.y) }
+    })
+    // Second pass: stack the bands at the heights they use, with even separators wide enough that
+    // a Tear's fray at a seam stays clear of the writing on both sides; leftover height collects at
+    // the foot of the page. When the bands need more than the page, they share what is left.
+    const sep = Math.max(2 * (frayReach() + 2), slots.length > 1 ? slots[1].h : 0)
+    const open = bandGap === undefined ? 0 : gapPx * reflow
+    const used = first.reduce((a, f) => a + f.used, 0)
+    // Sized for the fully open gap, so reflowing moves the writing and never resizes a mark.
+    const room = Math.max(1, inner.h - sep * (list.length - 1) - (bandGap === undefined ? 0 : gapPx))
+    const fit = used > room ? room / used : 1
+    let y = inner.y
+    let prevBottom = inner.y
+    let gapBox: { y: number; h: number } | null = null
+    list.forEach((b, i) => {
+      if (bandGap === i) {
+        gapBox = { y, h: open }
+        y += open
+      }
+      const box = { x: inner.x, y, w: inner.w, h: first[i].used * fit }
       push(band(b.kind, counts[i], box, u).cells, i)
       out.bands.push(box)
-      out.rows.push({ x: inner.x, y: s.y, w: inner.w, h: s.h })
-      if (i) {
-        const sep = slots[i * 2 - 1]
-        out.seams.push(sep.y + sep.h / 2)
-      }
+      out.rows.push({ ...box })
+      if (i) out.seams.push(prevBottom + sep / 2)
+      prevBottom = box.y + box.h
+      y = prevBottom + sep
     })
-    if (gap) out.gap = { x: inner.x, y: gap.y, w: inner.w, h: gap.h }
+    if (bandGap === list.length) gapBox = { y: prevBottom, h: open }
+    const gapOut = gapBox as { y: number; h: number } | null
+    if (gapOut) out.gap = { x: inner.x, y: gapOut.y, w: inner.w, h: gapOut.h }
   }
   out.anchors = out.cells.flatMap((c) => (c.anchor ? [c.anchor] : []))
   return out

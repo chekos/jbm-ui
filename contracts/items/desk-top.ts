@@ -3,12 +3,12 @@ import type { ItemContract } from "../schema"
 const deskProps = {
   box: "Desk footprint { x, y, w, h } in the parent SVG's user units, including the front edge band and any drawer region. Tilt and the drawer never change it.",
   light:
-    "Light on the whole desk, 0–1: multiplies the cream's OKLab lightness (1 full cream, 0.72 the visual language's deepest folder). Every fill follows it; the ink stroke does not. Clamped.",
+    "Light on the whole desk, 0–1: multiplies the cream's OKLab lightness (1 full cream, 0.72 the visual language's deepest folder). Every fill follows it, the drawer pull included; the ink stroke does not. Clamped.",
   edge: "Camera tilt, 0–1: reveals the front edge band along the bottom, up to 22 units tall at 1, taken out of the surface's depth. 0 is straight down. Clamped.",
   drawer:
-    "Edge that holds an empty drawer region (start left, end right, top, bottom), separated from the surface by a 6-unit seam and drawn as a panel with a recessed opening. Omit for no drawer.",
+    "Edge that holds an empty drawer region (start left, end right, top, bottom), separated from the surface by a 6-unit seam and drawn as a panel with a recessed opening. The plan under both is one slab in the front band's shade, so the seam reads as a groove in one desk rather than a gap. Omit for no drawer.",
   drawerSize:
-    "Drawer region depth across its edge in parent units, seam included. Defaults to 40% of box.w; kept between 42 and 80% of the plan.",
+    "Drawer region depth across its edge in parent units, seam included: along the width for start and end, along the height for top and bottom. Defaults to 40% of that dimension; kept between 42 and 80% of the plan.",
 }
 
 export default {
@@ -72,9 +72,9 @@ export default {
   ],
   qa: [
     "Drag Edge from Flat to Tilted: the front band grows from the bottom inside the box, the surface loses the same depth, and their shared edge stays one line with square corners where they meet.",
-    "Step Drawer through none, start, end, top, and bottom: the box never moves; the panel sits on the chosen edge with a 6-unit seam; its opening is darker than the surface.",
+    "Step Drawer through none, start, end, top, and bottom: the box never moves; the panel sits on the chosen edge with a 6-unit groove (never a bright gap); its opening is darker than the surface; a top or bottom drawer takes 40% of the height, not of the width.",
     "With a start, end, or bottom drawer and Edge above half, a small pull shows on the band under the drawer; a top drawer shows none.",
-    "Drag Light from 1 to 0.6: every fill darkens together and keeps its hue; the ink edge does not change.",
+    "Drag Light from 1 to 0.72: every fill, the drawer pull included, darkens together and keeps its hue; the ink edge does not change.",
     "At 2× zoom check the rounded corners, the seam, and that no contour doubles or steps.",
   ],
   docs: [

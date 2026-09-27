@@ -1,5 +1,5 @@
 import * as React from "react";
-import { color, font, shadowLayers } from "../lib/tokens";
+import { color, font, sansWidth, shadowLayers } from "../lib/tokens";
 
 /**
  * Paper cut-out primitives. A `Paper` is a flat shape that reads as a piece of card stock laid on the
@@ -187,15 +187,45 @@ export function Paper({
       upper: spine.map((p) => [round(p.d), round(p.dy - open(p.d))]),
       lower: spine.map((p) => [round(p.d), round(p.dy + open(p.d))]),
     };
+    // The mouth is cut from the whole sheet (fill, writing, and overlay), in the root's own box.
+    // The rest of the clip reaches far past the box so the shadow and tab are never clipped.
     const at = ([d, dy]: [number, number]) => `${left ? `${d}px` : `calc(100% - ${d}px)`} calc(${seamCss} + ${dy}px)`;
-    const mouth = [...lips.lower.map(at), ...lips.upper.slice(0, -1).reverse().map(at)];
+    const y0 = (lip: [number, number][]) => `calc(${seamCss} + ${lip[0][1]}px)`;
+    const M = 4000;
+    const far = [`-${M}px -${M}px`, `calc(100% + ${M}px) -${M}px`];
     clipPath = left
-      ? `polygon(0 0, 100% 0, 100% 100%, 0 100%, ${mouth.join(", ")})`
-      : `polygon(0 0, 100% 0, ${[...lips.upper.map(at), ...lips.lower.slice(0, -1).reverse().map(at)].join(", ")}, 100% 100%, 0 100%)`;
+      ? `polygon(${[
+          ...far,
+          `calc(100% + ${M}px) calc(100% + ${M}px)`,
+          `-${M}px calc(100% + ${M}px)`,
+          `-${M}px ${y0(lips.lower)}`,
+          ...lips.lower.map(at),
+          ...lips.upper.slice(0, -1).reverse().map(at),
+          `-${M}px ${y0(lips.upper)}`,
+        ].join(", ")})`
+      : `polygon(${[
+          ...far,
+          `calc(100% + ${M}px) ${y0(lips.upper)}`,
+          ...lips.upper.map(at),
+          ...lips.lower.slice(0, -1).reverse().map(at),
+          `calc(100% + ${M}px) ${y0(lips.lower)}`,
+          `calc(100% + ${M}px) calc(100% + ${M}px)`,
+          `-${M}px calc(100% + ${M}px)`,
+        ].join(", ")})`;
   }
   const creaseInk = paperInk(tone);
   const cornerInset = Math.round(Math.max(0, radius) * (1 - Math.SQRT1_2)) + (edge ? 2 : 0);
-  const tabSize = tab ? Math.max(1, tab.size ?? 32) : 0;
+  // On a sized sheet a label too long for the width between the left edge and the top-right
+  // radius sets smaller, so the whole name fits; without a width the row ends it in an ellipsis.
+  const wantSize = tab ? Math.max(1, tab.size ?? 32) : 0;
+  const tabRoom = typeof w === "number" && w > 0 ? w - Math.max(radius, 0) : Infinity;
+  // Tab width is linear in its size: label (em) + 2 × 0.55 em padding + the edges.
+  const labelEm = tab ? sansWidth(tab.label, 1) : 0;
+  const edges = edge ? 4 : 0;
+  const tabSize =
+    tab && wantSize * (labelEm + 1.1) + edges > tabRoom
+      ? Math.max(1, Math.floor(((tabRoom - edges - 2) / (labelEm + 1.12)) * 10) / 10)
+      : wantSize;
   const tabRadius = Math.min(12, Math.max(0, radius), tabSize * 0.4);
   const tuck = 14;
   return (
@@ -210,33 +240,50 @@ export function Paper({
         transform: rotate ? `rotate(${rotate}deg)` : undefined,
         position: "relative",
         isolation: "isolate",
+        clipPath,
         ...style,
       }}
     >
       {tab && (
+        // A row from the sheet's left edge to its top-right corner radius: the spacer gives way
+        // first, so a long tab slides left to stay on the sheet; one wider than the row ends in an
+        // ellipsis rather than overhanging the edge.
         <div
           style={{
             position: "absolute",
-            left: (tab.offset ?? Math.max(radius, 24)) + inset,
+            left: inset,
+            right: Math.max(radius, 0) + inset,
             bottom: `calc(100% + ${-inset - tuck}px)`,
-            transform: `translateY(${round((1 - unit(tab.reveal, 1)) * 100)}%)`,
             zIndex: -2,
-            padding: `${Math.round(tabSize * 0.3)}px ${Math.round(tabSize * 0.55)}px ${Math.round(tabSize * 0.3) + tuck}px`,
-            background: paperFill(tone),
-            border: edge ? `2px solid ${edgeColor}` : "none",
-            borderRadius: `${tabRadius}px ${tabRadius}px 0 0`,
-            boxShadow: shadow ? paperShadow : "none",
-            boxSizing: "border-box",
-            fontFamily: font.sans,
-            fontWeight: 800,
-            fontSize: tabSize,
-            letterSpacing: -tabSize * 0.01,
-            lineHeight: 1,
-            color: paperInk(tone),
-            whiteSpace: "nowrap",
+            display: "flex",
+            alignItems: "flex-end",
           }}
         >
-          {tab.label}
+          <div style={{ flex: `0 1 ${tab.offset ?? Math.max(radius, 24)}px`, minWidth: 0 }} />
+          <div
+            style={{
+              flex: "none",
+              maxWidth: "100%",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              transform: `translateY(${round((1 - unit(tab.reveal, 1)) * 100)}%)`,
+              padding: `${Math.round(tabSize * 0.3)}px ${Math.round(tabSize * 0.55)}px ${Math.round(tabSize * 0.3) + tuck}px`,
+              background: paperFill(tone),
+              border: edge ? `2px solid ${edgeColor}` : "none",
+              borderRadius: `${tabRadius}px ${tabRadius}px 0 0`,
+              boxShadow: shadow ? paperShadow : "none",
+              boxSizing: "border-box",
+              fontFamily: font.sans,
+              fontWeight: 800,
+              fontSize: tabSize,
+              letterSpacing: -tabSize * 0.01,
+              lineHeight: 1,
+              color: paperInk(tone),
+              whiteSpace: "nowrap",
+            }}
+          >
+            {tab.label}
+          </div>
         </div>
       )}
       <div
@@ -249,7 +296,6 @@ export function Paper({
           border: edge ? `2px solid ${edgeColor}` : "none",
           borderRadius: radius,
           boxSizing: "border-box",
-          clipPath,
         }}
       />
       {children}
@@ -299,7 +345,8 @@ export function Paper({
                   points={lip.map(([d, dy], j) => `${round((left ? 1 : -1) * (j === 0 ? Math.max(d, 1) : d))},${dy}`).join(" ")}
                   fill="none"
                   stroke={edgeColor}
-                  strokeWidth={2}
+                  // The mouth clip keeps the half on the sheet: a 2px edge, like the border.
+                  strokeWidth={4}
                   strokeLinejoin="round"
                   strokeLinecap="round"
                 />

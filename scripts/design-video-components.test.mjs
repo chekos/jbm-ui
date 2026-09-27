@@ -184,3 +184,21 @@ test("carried folder takes the caller's fill and keeps its label legible on it",
   assert.match(card, /<text[^>]*fill="#20241F"/)
   assert.match(render(FolderCarry, { ...base, fill: "#20241F" }), /<text[^>]*fill="#FFF6E8"/)
 })
+test("carry label: ink on light drawer shades, whole names, Cajon's type at the handoff", async () => {
+  const { cajonLayout, drawerLight } = await import("../registry/jbm/motion/cajon.tsx")
+  const name = "Training Within Industry 1940s"
+  const l = cajonLayout({ folders: [{ name: "Anthropic 2024" }, { name }], open: 1 })
+  const from = l.folders[1],
+    to = tableFolderGeometry({ x: 220, y: 70 }, 190)
+  const path = [folderGrip(from), folderGrip(to)]
+  for (const k of [1, 0.9, 0.8, 0.72]) {
+    const m = render(FolderCarry, { from, to, path, progress: 0, label: name, fill: drawerLight(k) })
+    assert.match(m, /<text[^>]*fill="#20241F"/, `k ${k}`)
+    assert.ok(m.includes(`>${name}</text>`), "the tab shows the whole name")
+  }
+  const m = render(FolderCarry, { from, to, path, progress: 0, label: name, fill: drawerLight(0.8) })
+  // Same size as the drawer's tab names, and the fold line sits on the drawer's flap line.
+  assert.ok(m.includes(`font-size="${l.labelSize}"`))
+  const [, fx, fy] = m.match(/<path d="M([-\d.]+) ([-\d.]+)H[-\d.]+" stroke/).map(Number)
+  assert.ok(Math.abs(fx - from.x) < 1e-6 && Math.abs(fy - from.flap) < 1e-6)
+})

@@ -24,14 +24,14 @@ export default {
         shadow: "Applies paperShadow; false renders flat.",
         style: "Inline styles merged last, for example padding or layout for children.",
         children:
-          "Content placed on the paper. Creases and the tear's lips draw above it, like marks in the sheet itself.",
+          "Content placed on the paper. Creases and the tear's lips draw above it, like marks in the sheet itself; the tear's mouth cuts through it, so writing across the seam never covers the hole.",
         tension:
           "0–1 stress on the sheet. Creases grow from each pulled corner toward the centre and reach it at 0.8 (four corners make an X); from 0.6 a frayed tear opens at `seam` and runs in to 18% of the width (at most 140px; 72px without `w`) at 1. 0 draws neither and keeps the plain rendering.",
         pull: 'Corners being pulled, from "tl", "tr", "br", "bl"; each grows one crease. Default all four; ["tl", "br"] makes a single diagonal crease.',
         seam: "Y of the starting tear in stage px from the top edge; default half of `h` (50% without `h`). Use a Tear seam to continue the same edge. null draws creases only.",
         seamSide: '"left" or "right": the edge the tear starts from.',
         seed: "Fray pattern of the starting tear. With the same seed, seam, and w as a Tear, the lips follow that Tear's seam.",
-        tab: "A pestaña fixed behind the top edge: `{ label, reveal = 1, offset = max(radius, 24), size = 32 }`. The label is Geist 800 at `size` stage px in the tone's text colour (ink on paper). `reveal` 0 hides the whole tab behind the sheet; 1 shows it with its base still tucked 14px behind the edge. It shares the sheet's stock, edge, and shadow.",
+        tab: "A pestaña fixed behind the top edge: `{ label, reveal = 1, offset = max(radius, 24), size = 32 }`. The label is Geist 800 at `size` stage px in the tone's text colour (ink on paper). `reveal` 0 hides the whole tab behind the sheet; 1 shows it with its base still tucked 14px behind the edge. It shares the sheet's stock, edge, and shadow. The tab stays on the sheet: it sits in a row from the left edge to the top-right radius, so a tab too long for its offset slides left; on a sized sheet a label too long for that row sets smaller (sansWidth) so the whole name fits, and without a width it ends in an ellipsis.",
       },
     },
     {
@@ -133,7 +133,7 @@ export default {
   stage: {
     mode: "fluid",
     reason:
-      "Paper takes w×h when given and otherwise fills its container's width with height following children. A tab rises size + 2 × round(size × 0.3) + 2px edge above the top edge at reveal 1 (about 53px at size 32) without changing layout size; the tear cuts into the box and never adds to it. Sticker is inline and sized by its text: at the default size 72 it is about 72 × 1.05 + 2 × 13 ≈ 102 stage px tall. Rotation does not change layout size, so tilted corners can extend beyond the box.",
+      "Paper takes w×h when given and otherwise fills its container's width with height following children. A tab rises size + 2 × round(size × 0.3) + 2 × edge width above the top edge at reveal 1 (56px at size 32 with the 2px edge; the 14px tuck is behind the sheet) without changing layout size; the tear cuts into the box and never adds to it. Sticker is inline and sized by its text: at the default size 72 it is about 72 × 1.05 + 2 × 13 ≈ 102 stage px tall. Rotation does not change layout size, so tilted corners can extend beyond the box.",
   },
   examples: [
     {
@@ -154,7 +154,7 @@ export default {
     "Check rotated pieces and stickers near the safe-area edge: rotation does not reserve layout space, so tilted corners and the longer drop shadow must not clip.",
     "Stickers never wrap; check the longest word at the chosen size fits the frame in portrait.",
     "Toggle edge and shadow off and confirm the piece still separates from the cream canvas where it is used.",
-    "Drag Tension through 0, 0.3, 0.6, 0.8, and 1: creases grow from the pulled corners and meet at the centre at 0.8; the tear opens only past 0.6, its lips join the edge on the border's centreline, and its mouth shows what lies under the sheet rather than a painted fill.",
+    "Drag Tension through 0, 0.3, 0.6, 0.8, and 1: creases grow from the pulled corners and meet at the centre at 0.8; the tear opens only past 0.6, its lips are a 2px edge on the sheet's side of the cut, and its mouth shows what lies under the sheet rather than a painted fill. The mouth cuts the sheet's writing too: with a ruled line or an ink band across the seam (bench: Tear through the writing), the tear stays open through it.",
     "Try each Pulled corners preset and Tear from the right edge, and the tear on the ink stock.",
     "Drag Tab reveal from 0 to 1: at 0 the whole tab is hidden behind the sheet; in between the top edge cuts the label rather than drawing over it; at 1 the label is Geist 800 at 32 stage px and the tab base stays tucked behind the edge.",
     "With tension 0 and no tab the markup equals the original single div; existing scenes depend on it.",

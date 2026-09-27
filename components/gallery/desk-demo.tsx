@@ -1,7 +1,7 @@
 "use client"
 
 import { useBenchParam } from "./bench-url"
-import { Cajon, type DrawerFolder } from "@/registry/jbm/motion/cajon"
+import { Cajon, cajonLayout, type DrawerFolder } from "@/registry/jbm/motion/cajon"
 import { Hand, handPoses, type HandPose } from "@/registry/jbm/ui/hand"
 import { Mano } from "@/registry/jbm/motion/mano"
 import { Pluma, plumaNib } from "@/registry/jbm/motion/pluma"
@@ -16,6 +16,7 @@ import {
   degrees,
   ProgressControl,
   RangeControl,
+  StepperControl,
   type Presets,
 } from "./progress-control"
 
@@ -49,13 +50,13 @@ const poseLabels: Record<HandPose, string> = {
 type Cuff = "none" | "ink" | "accent"
 // The Mano and Pluma previews draw into a 500 × 340 viewBox; the sleeve runs to its edge.
 const frame = { x: 0, y: 0, w: 500, h: 340 }
-const line = { x: 90, y: 262, w: 320 }
+const line = { x: 40, y: 262, w: 270 }
 /**
  * Pluma writes a PaperLine: mono glyphs advance exactly 0.6 em, so the nib's x follows `write`
  * along the text and the line's `reveal` shows every grapheme the nib has reached.
  */
 const written = "trabajo bien hecho"
-const writtenSize = 28
+const writtenSize = 24
 const writtenGlyphs = Array.from(
   new Intl.Segmenter(undefined, { granularity: "grapheme" }).segment(written)
 ).length
@@ -79,10 +80,190 @@ export function DeskDemo({ name }: { name: string }) {
   // Top-down pieces keep their own controls; the rest share the ones below.
   return deskSurfaceNames.includes(name) ? (
     <DeskSurfaceDemo name={name} />
+  ) : name === "cajon" ? (
+    <CajonDemo />
   ) : (
     <DeskObjectDemo name={name} />
   )
 }
+
+const riseOptions = [0, 24, 36, 46, 60] as const
+/**
+ * The drawer bench: every DrawerFolder value can be aimed at one folder (or all), and the
+ * viewBox fits the drawer's own bounds, so few folders fill the preview instead of floating.
+ */
+function CajonDemo() {
+  const name = "cajon"
+  const unit = { clamp: [0, 1] } as const
+  const [count, setCount] = useBenchParam("count", 3, { clamp: [0, 12] })
+  const [open, setOpen] = useBenchParam("open", 1, unit)
+  // -1 aims the folder controls at every folder.
+  const [target, setTarget] = useBenchParam("target", 0, { clamp: [-1, 11] })
+  const [pull, setPull] = useBenchParam("lift", 0, unit)
+  const [ajar, setAjar] = useBenchParam("ajar", 0, unit)
+  const [reveal, setReveal] = useBenchParam("reveal", 1, unit)
+  const [setLight, setSetLight] = useBenchParam("setk", false)
+  const [k, setK] = useBenchParam("k", 0.86, { clamp: [0.72, 1] })
+  const [labelSize, setLabelSize] = useBenchParam("size", 13, { clamp: [10, 36] })
+  const [rise, setRise] = useBenchParam("rise", 0, { allowed: riseOptions })
+  const [titles, setTitles] = useBenchParam("titles", true)
+  const [stagger, setStagger] = useBenchParam("stagger", false)
+  const [accent, setAccent] = useBenchParam("accent", false)
+  const aimed = (i: number) => target === -1 || i === target
+  const folders: DrawerFolder[] = sources.slice(0, count).map(([source, title], i) => ({
+    name: source,
+    sublabel: titles ? title : undefined,
+    accent: accent && aimed(i),
+    pulled: aimed(i) ? pull : 0,
+    open: aimed(i) ? ajar : 0,
+    reveal: aimed(i) ? reveal : 1,
+    k: setLight && aimed(i) ? k : undefined,
+  }))
+  const props = {
+    x: 40,
+    y: 10,
+    folders,
+    open,
+    labelSize,
+    depthSpacing: rise === 0 ? undefined : rise,
+    tabLayout: stagger ? ("stagger3" as const) : ("stair" as const),
+  }
+  // Fit the drawer fully open, with room for a lift or an ajar flap once one is in use, so the
+  // preview does not rescale while a slider moves.
+  const extent = cajonLayout({
+    ...props,
+    open: 1,
+    folders: folders.map((f) => ({
+      ...f,
+      pulled: (f.pulled ?? 0) > 0 ? 1 : 0,
+      open: (f.open ?? 0) > 0 ? 1 : 0,
+    })),
+  })
+  const top = Math.min(extent.y, ...extent.folders.map((f) => f.y)) - 14
+  const bottom = extent.frontTop + extent.frontHeight + 14
+  const targetName = target === -1 ? "all folders" : (sources[target]?.[0] ?? "")
+  const range = (label: string, value: number, set: (n: number) => void, presets: Presets) => (
+    <ProgressControl
+      label={label}
+      ariaLabel={`${name} ${label}`}
+      value={value}
+      onChange={set}
+      presets={presets}
+    />
+  )
+  const check = (label: string, value: boolean, set: (v: boolean) => void) => (
+    <label>
+      <input
+        type="checkbox"
+        aria-label={`${name} ${label}`}
+        checked={value}
+        onChange={(e) => set(e.target.checked)}
+      />{" "}
+      {label}
+    </label>
+  )
+  return (
+    <div style={{ width: "100%" }}>
+      <div
+        style={{
+          minHeight: 300,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: 24,
+        }}
+      >
+        <svg
+          viewBox={`0 ${+top.toFixed(1)} 500 ${+(bottom - top).toFixed(1)}`}
+          style={{ width: "100%", maxWidth: 460, height: "auto" }}
+        >
+          <Cajon {...props} />
+        </svg>
+      </div>
+      <div
+        className="composition-options"
+        style={{ display: "flex", flexWrap: "wrap", gap: 16, padding: "16px 24px" }}
+      >
+        <StepperControl
+          label="Folders"
+          value={count}
+          onChange={(n) => {
+            setCount(n)
+            if (target >= n) setTarget(n > 0 ? n - 1 : 0)
+          }}
+          min={0}
+          max={12}
+          noun="folders"
+          format={(n) => `${n} ${n === 1 ? "folder" : "folders"}`}
+        />
+        {range("Open", open, setOpen, ["Closed", "Half", "Open"])}
+        {count > 0 && (
+          <>
+            <label>
+              Target{" "}
+              <select
+                aria-label={`${name} target folder`}
+                value={target}
+                onChange={(e) => setTarget(Number(e.target.value))}
+              >
+                <option value={-1}>All folders</option>
+                {sources.slice(0, count).map(([source], i) => (
+                  <option key={source} value={i}>
+                    {i + 1}. {source}
+                  </option>
+                ))}
+              </select>
+            </label>
+            {range(`Lift (${targetName})`, pull, setPull, ["Filed", "Half", "Lifted"])}
+            {range(`Flap ajar (${targetName})`, ajar, setAjar, ["Shut", "Half", "Ajar"])}
+            {range(`Name reveal (${targetName})`, reveal, setReveal, ["Blank", "Half", "Named"])}
+            {check("Set light", setLight, setSetLight)}
+            {setLight && (
+              <RangeControl
+                label={`Light k (${targetName})`}
+                ariaLabel={`${name} Light k`}
+                value={k}
+                onChange={setK}
+                min={0.72}
+                max={1}
+                step={0.01}
+                format={(n) => n.toFixed(2)}
+              />
+            )}
+            {check("Vermilion target", accent, setAccent)}
+          </>
+        )}
+        <RangeControl
+          label="Name size"
+          ariaLabel={`${name} Name size`}
+          value={labelSize}
+          onChange={setLabelSize}
+          min={10}
+          max={36}
+          step={1}
+          format={(n) => `${n} units`}
+        />
+        <label>
+          Rise per folder{" "}
+          <select
+            aria-label={`${name} rise per folder`}
+            value={rise}
+            onChange={(e) => setRise(Number(e.target.value) as (typeof riseOptions)[number])}
+          >
+            {riseOptions.map((r) => (
+              <option key={r} value={r}>
+                {r === 0 ? "Auto (tab + band)" : `${r} units`}
+              </option>
+            ))}
+          </select>
+        </label>
+        {check("Titles", titles, setTitles)}
+        {check("Staggered tabs", stagger, setStagger)}
+      </div>
+    </div>
+  )
+}
+
 
 function DeskObjectDemo({ name }: { name: string }) {
   // On /c/<name> benches each value lives in the URL (?open=0.5&pose=pinch); see bench-url.tsx.
@@ -97,7 +278,7 @@ function DeskObjectDemo({ name }: { name: string }) {
   const [pose, setPose] = useBenchParam<HandPose>("pose", "point", {
     allowed: handPoses,
   })
-  const [arm, setArm] = useBenchParam("arm", name === "pluma")
+  const [arm, setArm] = useBenchParam("arm", name === "pluma" || name === "mano")
   const [cardSleeve, setCardSleeve] = useBenchParam("card", false)
   const [cuff, setCuff] = useBenchParam<Cuff>("cuff", "none", {
     allowed: ["none", "ink", "accent"],
@@ -110,26 +291,11 @@ function DeskObjectDemo({ name }: { name: string }) {
   const [progress, setProgress] = useBenchParam("highlight", 1, unit)
   const [angle, setAngle] = useBenchParam("angle", 0, { clamp: [-30, 30] })
   const [position, setPosition] = useBenchParam("position", 0, unit)
-  const [titles, setTitles] = useBenchParam("titles", true)
-  const [stagger, setStagger] = useBenchParam("stagger", false)
-  const [reveal, setReveal] = useBenchParam("reveal", 1, unit)
-  const [ajar, setAjar] = useBenchParam("ajar", 0, unit)
-  const [accent, setAccent] = useBenchParam("accent", name !== "cajon")
-  const folders: DrawerFolder[] =
-    name === "cajon"
-      ? sources.slice(0, count).map(([source, title], i) => ({
-          name: source,
-          sublabel: titles ? title : undefined,
-          accent: accent && i === 0,
-          pulled: i === 0 ? pull : 0,
-          open: i === 0 ? ajar : 0,
-          reveal,
-        }))
-      : names.slice(0, count).map((name, i) => ({
-          name,
-          accent: accent && i === 0,
-          pulled: i === 0 ? pull : 0,
-        }))
+  const folders: DrawerFolder[] = names.slice(0, count).map((name, i) => ({
+    name,
+    accent: i === 0,
+    pulled: i === 0 ? pull : 0,
+  }))
   const sleeve = arm
     ? { arm: { frame, tone: cardSleeve ? "card" : "ink" } as const, cuff: cuff === "none" ? undefined : cuff }
     : {}
@@ -141,9 +307,7 @@ function DeskObjectDemo({ name }: { name: string }) {
   const offset = plumaNib({ x: 0, y: 0 }, angle, undefined, 150)
   const grip = { x: nib.x - offset.x, y: nib.y - offset.y }
   const drawerControls =
-    name === "cajon" ||
-    name === "file-cabinet" ||
-    (name === "escritorio" && cabinet)
+    name === "file-cabinet" || (name === "escritorio" && cabinet)
   // Card names prefix the accessible names so several cards on the index stay distinct.
   const range = (
     label: string,
@@ -184,9 +348,7 @@ function DeskObjectDemo({ name }: { name: string }) {
             viewBox={
               name === "escritorio"
                 ? "0 0 820 530"
-                : name === "cajon"
-                  ? "0 -400 500 840"
-                  : name === "file-cabinet"
+                : name === "file-cabinet"
                   ? "0 -260 500 700"
                   : "0 0 500 340"
             }
@@ -196,15 +358,6 @@ function DeskObjectDemo({ name }: { name: string }) {
               height: "auto",
             }}
           >
-            {name === "cajon" && (
-              <Cajon
-                x={40}
-                y={10}
-                folders={folders}
-                open={open}
-                tabLayout={stagger ? "stagger3" : "stair"}
-              />
-            )}
             {name === "file-cabinet" && (
               <FileCabinet
                 x={85}
@@ -319,37 +472,6 @@ function DeskObjectDemo({ name }: { name: string }) {
                 "Half",
                 "Lifted",
               ])}
-          </>
-        )}
-        {name === "cajon" && (
-          <>
-            {range("Name reveal", reveal, setReveal, ["Blank", "Half", "Named"])}
-            {count > 0 &&
-              range("Front flap ajar", ajar, setAjar, ["Shut", "Half", "Ajar"])}
-            <label>
-              <input
-                type="checkbox"
-                checked={titles}
-                onChange={(e) => setTitles(e.target.checked)}
-              />{" "}
-              Titles
-            </label>
-            <label>
-              <input
-                type="checkbox"
-                checked={stagger}
-                onChange={(e) => setStagger(e.target.checked)}
-              />{" "}
-              Staggered tabs
-            </label>
-            <label>
-              <input
-                type="checkbox"
-                checked={accent}
-                onChange={(e) => setAccent(e.target.checked)}
-              />{" "}
-              Vermilion front folder
-            </label>
           </>
         )}
         {name === "escritorio" && (

@@ -265,3 +265,38 @@ test("register and slip typecheck with only their own published dependencies", (
     rmSync(temp, { recursive: true, force: true })
   }
 })
+
+test("prose never ends two paragraphs in a row or right after a gap", async () => {
+  const { registerLayout } = await import("../registry/jbm/ui/register.tsx")
+  for (const h of [300, 420, 520, 640, 800])
+    for (const gapAt of [undefined, 2, 4, 5, 9]) {
+      const l = registerLayout({ kind: "prose", w: 360, h, n: 2, gapAt })
+      const lines = l.cells.filter((c) => c.kind === "prose")
+      const full = lines[0].box.w
+      const short = lines.map((c) => c.box.w < full - 1e-9)
+      for (let i = 1; i < short.length; i++) assert.ok(!(short[i] && short[i - 1]), `h ${h} gap ${gapAt} line ${i}`)
+      if (gapAt !== undefined && gapAt < short.length - 1) assert.ok(!short[gapAt], `line after gap ${gapAt}`)
+    }
+})
+test("mixed pages pack bands at their used height with seams clear of the writing", async () => {
+  const { registerLayout } = await import("../registry/jbm/ui/register.tsx")
+  const { frayReach } = await import("../registry/jbm/ui/paper.tsx")
+  for (const n of [1, 2, 3, 4])
+    for (const h of [480, 700, 900]) {
+      const l = registerLayout({ kind: "mixed", w: 360, h, n })
+      assert.equal(l.seams.length, n - 1)
+      l.seams.forEach((y, i) => {
+        const above = l.bands[i], below = l.bands[i + 1]
+        // Each band's writing stays inside its box; the fray at a seam never reaches it.
+        assert.ok(y - (above.y + above.h) >= frayReach() + 2 - 1e-9, `n ${n} h ${h} seam ${i} above`)
+        assert.ok(below.y - y >= frayReach() + 2 - 1e-9, `n ${n} h ${h} seam ${i} below`)
+      })
+      for (const c of l.cells) {
+        const b = l.bands[c.band]
+        assert.ok(c.box.y >= b.y - 1e-6 && c.box.y + c.box.h <= b.y + b.h + 1e-6, `cell ${c.index} inside its band`)
+      }
+      // Separators are even: bands follow each other at one pitch, leftover at the foot.
+      const seps = l.bands.slice(1).map((b, i) => b.y - (l.bands[i].y + l.bands[i].h))
+      for (const s of seps) assert.ok(Math.abs(s - seps[0]) < 1e-6)
+    }
+})

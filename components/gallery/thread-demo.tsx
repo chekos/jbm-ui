@@ -1,10 +1,11 @@
 "use client"
 
-import { useEffect, useRef, useState, type ReactNode } from "react"
+import { type ReactNode } from "react"
 import { useBenchParam } from "./bench-url"
+import { StageFit } from "./stage-fit"
 import { Hilo, type HiloCurve } from "@/registry/jbm/ui/hilo"
 import { VideoPrint, videoPrintLayout } from "@/registry/jbm/ui/video-print"
-import { Register, registerAnchors, type RegisterSpec } from "@/registry/jbm/ui/register"
+import { Register, registerLayout, type RegisterSpec } from "@/registry/jbm/ui/register"
 import { Cajon, cajonLayout, type DrawerFolder } from "@/registry/jbm/motion/cajon"
 import { ProgressControl, RangeControl } from "./progress-control"
 
@@ -33,53 +34,7 @@ function Toggle({
   )
 }
 
-/** Width available to the print, so the stage-pixel illustration fits a phone card too. */
-function useWidth() {
-  const ref = useRef<HTMLDivElement>(null)
-  const [width, setWidth] = useState(0)
-  useEffect(() => {
-    const el = ref.current
-    if (!el) return
-    const observer = new ResizeObserver(([entry]) =>
-      setWidth(entry.contentRect.width)
-    )
-    observer.observe(el)
-    return () => observer.disconnect()
-  }, [])
-  return [ref, width] as const
-}
-
 const pct = (n: number) => `${Math.round(n * 100)}%`
-
-/** A fixed-size stage in px, scaled down to its container on narrow screens. */
-function Fit({ w, h, children }: { w: number; h: number; children: ReactNode }) {
-  const ref = useRef<HTMLDivElement>(null)
-  const [k, setK] = useState(1)
-  useEffect(() => {
-    const el = ref.current
-    if (!el) return
-    const observer = new ResizeObserver(([entry]) =>
-      setK(Math.min(1, entry.contentRect.width / w))
-    )
-    observer.observe(el)
-    return () => observer.disconnect()
-  }, [w])
-  return (
-    <div ref={ref} style={{ width: "100%", maxWidth: w, height: h * k, margin: "0 auto" }}>
-      <div
-        style={{
-          width: w,
-          height: h,
-          position: "relative",
-          transform: `scale(${k})`,
-          transformOrigin: "0 0",
-        }}
-      >
-        {children}
-      </div>
-    </div>
-  )
-}
 
 // Thread to drawer (the raíces beat): a video print and a sourced page tie their marks to the
 // folders they came from. Every endpoint is read from the pieces' own layouts: videoPrintLayout
@@ -109,31 +64,41 @@ function ThreadToDrawer() {
   const [open, setOpen] = useBenchParam("open", 1, unit)
   const [snap, setSnap] = useBenchParam("snap", false)
   const print = videoPrintLayout({ w: PRINT.w, marks: printMarks }, PRINT)
-  const ticks = registerAnchors(pageSpec).map((p) => ({ x: PAGE.x + p.x, y: PAGE.y + p.y }))
+  // Source lines, top to bottom: each thread leaves from the right end (lead) of its dim source
+  // line, as on the board, so the line itself stays visible.
+  const sources = registerLayout(pageSpec)
+    .cells.filter((c) => c.kind === "source")
+    .map((c) => ({ x: PAGE.x + c.lead.x + 4, y: PAGE.y + c.lead.y }))
   const drawer = cajonLayout({ ...DRAWER, folders: drawerFolders, open })
+  // A tab inside the closed drawer keeps its thread, ending at the drawer's rim, but no knot.
   const tie = (folder: number) => drawer.anchors(folder, 1)[0]
+  const shows = (folder: number) => drawer.folders[folder].visible > 0.5
   const threads = [
-    // Source ticks, top to bottom, to the back folders: each leaves level along its source line.
-    ...ticks.map((from, j) => ({
+    // Source lines to the back folders.
+    ...sources.map((from, j) => ({
       from,
       to: tie(5 - j),
+      folder: 5 - j,
       curve: "s" as const,
       bend: 0.5,
-      ready: true,
+      ready: 1,
     })),
-    // Print marks, left to right, to the front folders: a mark exists once the scrub passes it.
+    // Print marks, left to right, to the front folders. A thread ties on as its tick appears:
+    // it lays out from the tick over the scrub that follows the mark, and leaves the rule
+    // downward in an arc so it never runs along the rule over the next ticks.
     ...print.marks.map((from, j) => ({
       from,
       to: tie(2 - j),
+      folder: 2 - j,
       curve: "arc" as const,
-      bend: -0.08,
-      ready: scrub >= printMarks[j],
+      bend: -0.3,
+      ready: Math.max(0, Math.min(1, (scrub - printMarks[j]) / 0.12)),
     })),
   ]
-  const tied = threads.filter((t) => t.ready).length
+  const tied = threads.filter((t) => t.ready > 0).length
   return (
     <>
-      <Fit w={STAGE.w} h={STAGE.h}>
+      <StageFit w={STAGE.w} h={STAGE.h}>
         <svg
           aria-hidden
           width={STAGE.w}
@@ -164,7 +129,7 @@ function ThreadToDrawer() {
           style={{ position: "absolute", inset: 0, overflow: "visible", pointerEvents: "none" }}
         >
           {threads.map((t, i) =>
-            t.ready ? (
+            t.ready > 0 ? (
               <Hilo
                 key={i}
                 from={t.from}
@@ -172,11 +137,12 @@ function ThreadToDrawer() {
                 curve={t.curve}
                 bend={t.bend}
                 width={2}
-                knots
+                knots={shows(t.folder)}
                 draw={
                   i === 0 && snap
                     ? 1
-                    : Math.max(0, Math.min(1, (lay - i * threadStep) / threadWindow))
+                    : t.ready *
+                      Math.max(0, Math.min(1, (lay - i * threadStep) / threadWindow))
                 }
                 snapAt={i === 0 && snap ? 0 : undefined}
                 breakAt={0.55}
@@ -186,7 +152,7 @@ function ThreadToDrawer() {
             ) : null
           )}
         </svg>
-      </Fit>
+      </StageFit>
       <Controls>
         <ProgressControl
           label="Lay threads"
@@ -230,12 +196,16 @@ function HiloDemo() {
     allowed: ["s", "arc"],
   })
   const [width, setWidth] = useBenchParam("width", 2, { clamp: [1, 6] })
-  const from = { x: 40, y: 90 },
-    to = { x: 460, y: 170 }
+  // An arc bows by bend × the distance: past ±0.3 it would leave the stage.
+  const bendMin = curve === "arc" ? -0.3 : -0.5,
+    bendMax = curve === "arc" ? 0.3 : 1
+  const shownBend = Math.min(bendMax, Math.max(bendMin, bend))
+  const from = { x: 40, y: 150 },
+    to = { x: 460, y: 230 }
   return (
     <>
       <svg
-        viewBox="0 0 500 300"
+        viewBox="0 0 500 440"
         role="img"
         aria-label={`Ink thread, ${snaps && draw > 0.5 ? "snapped" : draw >= 1 || (snaps && draw >= 0.5) ? "tied" : "being laid"}`}
         style={{ width: "100%", maxWidth: 640, height: "auto", display: "block" }}
@@ -244,7 +214,7 @@ function HiloDemo() {
           from={from}
           to={to}
           curve={curve}
-          bend={bend}
+          bend={shownBend}
           draw={draw}
           width={width}
           snapAt={snaps ? 0.5 : undefined}
@@ -291,10 +261,10 @@ function HiloDemo() {
         <RangeControl
           label="Bend"
           ariaLabel="hilo Bend"
-          value={bend}
+          value={shownBend}
           onChange={setBend}
-          min={-0.5}
-          max={1}
+          min={bendMin}
+          max={bendMax}
           step={0.01}
           format={(n) => `${n < 0 ? "−" : ""}${Math.abs(n).toFixed(2)}`}
         />
@@ -331,22 +301,17 @@ function VideoPrintDemo() {
   const [link, setLink] = useBenchParam("link", true)
   const [opened, setOpened] = useBenchParam("opened", 1, unit)
   const [sheet, setSheet] = useBenchParam("sheet", true)
-  const [ref, available] = useWidth()
-  const w = Math.max(220, Math.min(420, available - 24))
+  // One print size, scaled by CSS: the stage reserves the print plus room for the tag from the
+  // first render, whether or not the tag is shown, so nothing below it moves.
+  const PRINT_W = 420
+  const printH = videoPrintLayout({ w: PRINT_W }).h
+  const tagRoom = 36
   return (
     <>
-      <div
-        ref={ref}
-        style={{
-          width: "100%",
-          display: "flex",
-          justifyContent: "center",
-          paddingBottom: link ? 28 : 0,
-        }}
-      >
-        {available > 0 && (
+      <StageFit w={PRINT_W + 24} h={printH + tagRoom + 12}>
+        <div style={{ position: "absolute", left: 12, top: 12 }}>
           <VideoPrint
-            w={w}
+            w={PRINT_W}
             scrub={scrub}
             marks={marks ? [0.12, 0.3, 0.46, 0.62] : []}
             title="Alex Hormozi"
@@ -355,8 +320,8 @@ function VideoPrintDemo() {
             opened={opened}
             sheet={sheet}
           />
-        )}
-      </div>
+        </div>
+      </StageFit>
       <Controls>
         <ProgressControl
           label="Scrub"

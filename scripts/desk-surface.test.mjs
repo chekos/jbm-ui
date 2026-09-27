@@ -169,6 +169,7 @@ test("DeskTop light is OKLab lightness on the cream token: 1 is the token, lower
   assert.ok(!markup.includes(color.accent), "no vermilion on the desk")
 })
 
+const { sansWidth } = await import("../registry/jbm/lib/tokens.ts")
 const labels = { top: "hacer", bottom: "entender", left: "aprender", right: "trabajar" }
 const box = { x: 20, y: 20, w: 760, h: 460 }
 
@@ -234,6 +235,39 @@ test("Ejes focus outlines stay in their quadrant and clear the labels", () => {
     }
 })
 
+test("Ejes: all four focus outlines form one aligned set", () => {
+  for (const quiet of [0, 1])
+    for (const center of [undefined, { x: 330, y: 200 }, { x: 520, y: 300 }]) {
+      const f = ejesLayout({ box, center, h: 1, v: 1, quiet, labels }).focus
+      assert.ok(Math.abs(f.tl.y - f.tr.y) < 1e-9, "top edges")
+      assert.ok(Math.abs(f.tl.y + f.tl.h - (f.tr.y + f.tr.h)) < 1e-9, "edges above the axis")
+      assert.ok(Math.abs(f.bl.y - f.br.y) < 1e-9, "edges below the axis")
+      assert.ok(Math.abs(f.bl.y + f.bl.h - (f.br.y + f.br.h)) < 1e-9, "bottom edges")
+    }
+})
+
+test("Ejes: an off-centre crossing is clamped so labels stay in the box; tiny outlines are dropped", () => {
+  const small = { x: 0, y: 0, w: 580, h: 380 }
+  for (const center of [{ x: 90, y: 300 }, { x: 10, y: 10 }, { x: 570, y: 370 }, { x: 290, y: 190 }])
+    for (const quiet of [0, 1]) {
+      const l = ejesLayout({ box: small, center, h: 1, v: 1, quiet, labels })
+      const width = (side) => sansWidth(labels[side], l.type.size)
+      // Left label ends before the box edge; top/bottom labels end before the vertical axis.
+      assert.ok(l.labels.left.x - width("left") >= small.x - 1e-9)
+      assert.ok(l.labels.top.x + width("top") <= l.center.x - 1e-9)
+      assert.ok(l.labels.bottom.x + width("bottom") <= l.center.x - 1e-9)
+      assert.ok(l.labels.right.x + width("right") <= small.x + small.w + 1e-9)
+      assert.ok(l.labels.top.y - l.type.size >= small.y - 1e-9)
+      assert.ok(l.labels.bottom.y + l.type.size <= small.y + small.h + 1e-9)
+      for (const q of quadrants) {
+        const b = l.focus[q]
+        assert.ok((b.w === 0 && b.h === 0) || (b.w >= 40 && b.h >= 40), q)
+      }
+    }
+  const markup = svg(React.createElement(Ejes, { box: small, h: 1, v: 1, labels, focus: "tl" }))
+  assert.ok(markup.includes('stroke-width="2"'), "desk line weight by default")
+})
+
 test("Ejes is ink by default; vermilion appears only with focusTone accent", () => {
   const base = { box, h: 1, v: 1, labels, focus: ["tl", "br"] }
   for (const focusTone of [undefined, "ink", "fill"])
@@ -280,4 +314,24 @@ test("DeskProp keyboard keys fit its body without overlapping; stroke stays 2 un
   }
   const pressed = svg(React.createElement(DeskProp, { kind: "keyboard", x: 0, y: 0, press: 1, keys: [13] }))
   assert.equal((pressed.match(new RegExp(`fill="${color.bg}"`, "g")) ?? []).length, 1)
+})
+
+test("DeskTop: a top or bottom drawer takes 40% of the height; every fill follows light", () => {
+  const box = { x: 0, y: 0, w: 580, h: 380 }
+  for (const drawer of ["top", "bottom"]) {
+    const l = deskTopLayout({ box, drawer })
+    assert.ok(Math.abs(l.drawer.panel.h + 6 - 0.4 * 380) < 1e-6, drawer)
+    assert.ok(l.surface.h > 0.55 * 380, `${drawer} leaves the surface most of the desk`)
+  }
+  const dim = svg(React.createElement(DeskTop, { box, drawer: "end", edge: 1, light: 0.72 }))
+  assert.ok(!dim.includes(`fill="${color.card}"`), "the handle dims with the desk")
+  assert.ok(dim.includes(`fill="${deskShade(color.card, 0.72)}"`))
+})
+test("DeskProp press reads: the pressed face insets and takes an ink wash", () => {
+  const key = svg(React.createElement(DeskProp, { kind: "keyboard", x: 0, y: 0, press: 1, keys: [13] }))
+  assert.match(key, /data-key="13"><rect x="[-\d.]+" y="[-\d.]+" width="16"/)
+  assert.ok(key.includes('fill-opacity="0.12"'))
+  const cap = svg(React.createElement(DeskProp, { kind: "keycap", x: 0, y: 0, press: 1 }))
+  assert.ok(cap.includes('fill-opacity="0.12"'))
+  assert.ok(!svg(React.createElement(DeskProp, { kind: "keycap", x: 0, y: 0 })).includes("fill-opacity"))
 })

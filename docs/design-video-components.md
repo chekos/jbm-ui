@@ -28,7 +28,7 @@ Install `@jbm/mano` separately to add a hand. Its optional `anchor` is in the Ha
 
 ## Sheets under stress and torn sheets
 
-`@jbm/paper` takes an optional `tension` (0–1) and `tab`. Tension is a quantity on the sheet, not a pose of the hands that pull it: creases grow from each corner in `pull` toward the centre and meet there at 0.8, and past 0.6 a frayed tear opens at `seam` (a y in stage px) from `seamSide`. The tear cuts the sheet itself, so its mouth shows whatever lies underneath. The tab is a pestaña fixed behind the top edge in the sheet's own stock; `reveal` slides it out from behind the sheet, and its label is Geist 800 at 32 stage px by default. With tension 0 and no tab, Paper renders its original markup unchanged. Hands stay separate: compose `Mano` at the pulled corners.
+`@jbm/paper` takes an optional `tension` (0–1) and `tab`. Tension is a quantity on the sheet, not a pose of the hands that pull it: creases grow from each corner in `pull` toward the centre and meet there at 0.8, and past 0.6 a frayed tear opens at `seam` (a y in stage px) from `seamSide`. The tear cuts the sheet itself, writing included, so its mouth shows whatever lies underneath. The tab is a pestaña fixed behind the top edge in the sheet's own stock; `reveal` slides it out from behind the sheet, and its label is Geist 800 at 32 stage px by default. With tension 0 and no tab, Paper renders its original markup unchanged. Hands stay separate: compose `Mano` at the pulled corners.
 
 `@jbm/tear` cuts a `w` × `h` sheet at `seams` into strips. At progress 0 the strips tile the sheet exactly, with no visible seam; each strip then moves to its `pieces[i].to` offset and turn, optionally staggered. Its seam edges are frayed from the same seeded `frayEdge` that Paper's starting tear uses, so `Paper` at tension 1 and `Tear` with the same `seed`, `w`, and seam continue one edge. Writing is laid out once on the whole sheet (a node, or a render prop that receives each strip's `index`, `top`, and `bottom`) and clipped to each strip, so any register content tears along with the paper. Progress is linear; ease it in the scene.
 
@@ -40,7 +40,7 @@ The gallery's Paper and Tear benches write a mixed `Register` on the sheet and t
 
 `@jbm/video-print` composes `Paper` and `PunchedTag` unchanged. The 16:9 frame is a pale sketch (tinted fill, ink outline, head and shoulders), never a solid block. The ink scrub bar advances with `scrub` and leaves a tick at each mark it reaches. `link` hangs a mono URL tag over the bottom edge, meaning the page was opened. `videoPrintLayout(props, at)` returns the mark points on the rule and the tag hole in stage coordinates, so a Hilo can tie on as the tick appears.
 
-The Hilo bench's *Thread to drawer* scene composes these pieces without new components: each prose `Register` source tick (`registerAnchors`) and each `VideoPrint` mark (`videoPrintLayout`) ties to a `Cajon` tab (`cajonLayout(...).anchors`), all in one stage px space. A mark's thread appears only once the scrub passes it.
+The Hilo bench's *Thread to drawer* scene composes these pieces without new components: each prose `Register` source line (from its right end, a `registerLayout` cell's `lead`) and each `VideoPrint` mark (`videoPrintLayout`) ties to a `Cajon` tab (`cajonLayout(...).anchors`), all in one stage px space. A mark's thread ties on as the scrub passes it, laying out from the tick and leaving the rule downward; a thread to a tab inside the closed drawer ends at the rim, without a knot.
 
 ## Verification
 
