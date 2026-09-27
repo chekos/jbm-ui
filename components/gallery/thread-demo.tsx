@@ -1,7 +1,7 @@
 "use client"
 
 import { useId, type ReactNode } from "react"
-import { useBenchParam } from "./bench-url"
+import { BenchToolbarSlot, useBenchParam } from "./bench-url"
 import { useBenchCompact } from "./bench-compact"
 import { StageFit } from "./stage-fit"
 import { Hilo, type HiloCurve } from "@/registry/jbm/ui/hilo"
@@ -498,9 +498,9 @@ function HiloScenes({ sceneSwitch }: { sceneSwitch: boolean }) {
   return (
     <>
       {sceneSwitch && !compact && (
-        <div style={{ justifySelf: "start" }}>
+        <BenchToolbarSlot>
           <HiloSceneSwitch />
-        </div>
+        </BenchToolbarSlot>
       )}
       {scene === "drawer" && !compact ? <ThreadToDrawer /> : <HiloDemo />}
     </>
