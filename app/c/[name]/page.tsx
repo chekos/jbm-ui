@@ -11,28 +11,48 @@ import {
 import { AddCommand } from "@/components/gallery/install"
 import { QaBench } from "@/components/gallery/qa-bench"
 import { ItemApi } from "@/components/gallery/item-api"
-import { getContract } from "@/lib/contracts"
-import { agentAlternates, siteOrigin } from "@/lib/site"
+import { itemAlternateTypes } from "@/lib/agent-catalog"
+import { getContract, getContracts } from "@/lib/contracts"
+import { siteOrigin } from "@/lib/site"
 
 type Props = { params: Promise<{ name: string }> }
 
-// One static QA page per gallery item; anything else is a 404.
+// One static QA page per gallery item. Bundles (ui-bits) prerender a 404 that explains
+// them (./not-found.tsx); any other name is the site 404.
 export const dynamicParams = false
 
+const bundleNames = () =>
+  getContracts()
+    .filter((contract) => contract.entry === "bundle")
+    .map((contract) => contract.name)
+
 export function generateStaticParams() {
-  return getGalleryItems().map(({ name }) => ({ name }))
+  return [
+    ...getGalleryItems().map(({ name }) => name),
+    ...bundleNames(),
+  ].map((name) => ({ name }))
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const item = getGalleryItem((await params).name)
-  if (!item) return {}
+  const { name } = await params
+  const item = getGalleryItem(name)
+  if (!item) {
+    if (!bundleNames().includes(name)) return {}
+    const bundle = getContract(name)
+    return {
+      title: `${bundle.title} (bundle) · jbm-ui`,
+      description: bundle.description,
+      alternates: { types: itemAlternateTypes(name, bundle.title) },
+    }
+  }
   return {
     title: `${item.title} · jbm-ui`,
     description: item.description,
-    // A page's alternates replace the root's, so repeat the agent catalogs here.
+    // A page's alternates replace the root's, so repeat the agent catalogs beside the
+    // item's own Markdown and JSON.
     alternates: {
       canonical: `${siteOrigin()}/c/${item.name}`,
-      ...agentAlternates,
+      types: itemAlternateTypes(item.name, item.title),
     },
   }
 }
@@ -144,6 +164,12 @@ export default async function ItemPage({ params }: Props) {
             )}
             <li>
               <Link href={`/#${item.name}`}>Gallery card</Link>
+            </li>
+            <li>
+              <a href={`/catalog/${item.name}.md`}>Agent Markdown</a>
+            </li>
+            <li>
+              <a href={`/catalog/${item.name}.json`}>Agent JSON</a>
             </li>
           </ul>
         </section>

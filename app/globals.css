@@ -1423,3 +1423,86 @@ details > p {
     order: 3;
   }
 }
+
+/* not found */
+/* Site and /c/<name> 404s reuse the item-page chrome; a bundle lists the items it re-exports. */
+.not-found .item-head {
+  padding-bottom: 32px;
+}
+.not-found .item-description code,
+.not-found-agents code {
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+}
+.not-found-actions {
+  margin: 24px 0 0;
+}
+.not-found-primary {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 9px 14px;
+  border-radius: 6px;
+  background: var(--jbm-ink);
+  color: var(--jbm-bg);
+  font-size: 14px;
+  text-decoration: none;
+}
+.not-found-primary:hover {
+  background: color-mix(in srgb, var(--jbm-ink) 88%, var(--jbm-bg));
+}
+.not-found-agents {
+  padding: 32px 0 8px;
+  border-top: 1px solid var(--jbm-line);
+}
+.not-found-agents h2 {
+  margin: 0 0 8px;
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.6px;
+}
+.not-found-agents p {
+  max-width: 62ch;
+  margin: 12px 0;
+  color: var(--jbm-dim);
+  font-size: 14px;
+  line-height: 1.6;
+}
+.not-found-members {
+  margin: 16px 0 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--jbm-line);
+}
+.not-found-members li {
+  display: grid;
+  grid-template-columns: minmax(9ch, 14ch) minmax(0, 1fr);
+  gap: 4px 20px;
+  align-items: baseline;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--jbm-line);
+  font-size: 14px;
+  line-height: 1.5;
+}
+.not-found-members a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  color: var(--jbm-ink);
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-color: var(--jbm-line);
+  text-underline-offset: 3px;
+}
+.not-found-members a:hover {
+  text-decoration-color: currentColor;
+}
+.not-found-members span {
+  color: var(--jbm-dim);
+  text-wrap: pretty;
+}
+@media (max-width: 760px) {
+  .not-found-members li {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
