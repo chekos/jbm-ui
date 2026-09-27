@@ -30,7 +30,7 @@ test("comparison bars share one scale and never silently misrepresent out-of-ran
   const html = render(ComparisonBars, { items: [{ label: "A", value: 25 }, { label: "B", value: 50 }], max: 100 })
   assert.match(html, /width:25%/)
   assert.match(html, /width:50%/)
-  assert.match(html, /<dt[^>]*>A<\/dt><dd[^>]*>25<\/dd>/)
+  assert.match(html, /<dt[^>]*>A<\/dt><dd[^>]*><span[^>]*>25<\/span>/)
   assert.doesNotThrow(() => render(ComparisonBars, { items: [] }))
   assert.ok(!render(ComparisonBars, { items: [{ label: "Zero", value: 0 }] }).includes("NaN"))
   for (const props of [{ items: [{ label: "A", value: -1 }] }, { items: [{ label: "A", value: Infinity }] }, { items: [{ label: "A", value: 101 }], max: 100 }, { items: [], max: 0 }]) assert.throws(() => render(ComparisonBars, props), RangeError)
