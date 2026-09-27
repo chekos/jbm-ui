@@ -24,7 +24,15 @@ The gallery's Ticket example demonstrates a work order using the existing header
 
 Install `@jbm/mano` separately to add a hand. Its optional `anchor` is in the Hand artwork's 30×29 coordinate system; `{ x: 6, y: 10 }` places the pinch opening at `at`. Rotation occurs around that contact point. Omit `anchor` to preserve the existing placement behavior.
 
+## Sheets under stress and torn sheets
+
+`@jbm/paper` takes an optional `tension` (0–1) and `tab`. Tension is a quantity on the sheet, not a pose of the hands that pull it: creases grow from each corner in `pull` toward the centre and meet there at 0.8, and past 0.6 a frayed tear opens at `seam` (a y in stage px) from `seamSide`. The tear cuts the sheet itself, so its mouth shows whatever lies underneath. The tab is a pestaña fixed behind the top edge in the sheet's own stock; `reveal` slides it out from behind the sheet, and its label is Geist 800 at 32 stage px by default. With tension 0 and no tab, Paper renders its original markup unchanged. Hands stay separate: compose `Mano` at the pulled corners.
+
+`@jbm/tear` cuts a `w` × `h` sheet at `seams` into strips. At progress 0 the strips tile the sheet exactly, with no visible seam; each strip then moves to its `pieces[i].to` offset and turn, optionally staggered. Its seam edges are frayed from the same seeded `frayEdge` that Paper's starting tear uses, so `Paper` at tension 1 and `Tear` with the same `seed`, `w`, and seam continue one edge. Writing is laid out once on the whole sheet (a node, or a render prop that receives each strip's `index`, `top`, and `bottom`) and clipped to each strip, so any register content tears along with the paper. Progress is linear; ease it in the scene.
+
 ## Verification
+
+Run `node --test scripts/paper-tear.test.mjs` for Paper's unchanged default markup, crease and tear thresholds, the tab label, fray bounds and determinism, exact strip tiling, seam filtering, destinations, and the shared edge between Paper and Tear.
 
 Run `node --test scripts/design-video-components.test.mjs` for isolated installation, paper-coordinate and bounded-rendering checks, grapheme behavior, and carry/contact invariants. `pnpm consumer:check` exercises the components through both source copying and real registry installation.
 

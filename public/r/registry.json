@@ -176,7 +176,7 @@
       "name": "paper",
       "type": "registry:ui",
       "title": "Paper",
-      "description": "Paper cut-out primitives: a flat card-stock shape, a slanted Sticker with display type, and a centered Caption.",
+      "description": "Paper cut-out primitives: a card-stock sheet that can crease, start to tear, and carry a real tab, a slanted Sticker with display type, and a centered Caption.",
       "categories": [
         "UI"
       ],
@@ -1209,6 +1209,26 @@
           "path": "registry/jbm/ui/punched-tag.tsx",
           "type": "registry:ui",
           "target": "src/jbm/ui/punched-tag.tsx"
+        }
+      ]
+    },
+    {
+      "name": "tear",
+      "title": "Tear",
+      "description": "A sheet torn into strips along seams: controlled progress moves each strip to its own destination, with frayed, seeded edges at every seam.",
+      "categories": [
+        "UI Bits"
+      ],
+      "type": "registry:ui",
+      "registryDependencies": [
+        "@jbm/tokens",
+        "@jbm/paper"
+      ],
+      "files": [
+        {
+          "path": "registry/jbm/ui/tear.tsx",
+          "type": "registry:ui",
+          "target": "src/jbm/ui/tear.tsx"
         }
       ]
     },

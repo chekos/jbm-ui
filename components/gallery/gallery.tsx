@@ -21,6 +21,7 @@ import { ScrollStackDemo } from "./scroll-stack-demo"
 import { SurfaceDepth } from "./surface-depth"
 import { DesignVideoDemo, designNames } from "./design-video-demo"
 import { DeskDemo, deskNames } from "./desk-demo"
+import { PaperDemo, paperNames } from "./paper-demo"
 import { AddCommand, InstallOnce } from "./install"
 import { CodeBlock } from "./code-block"
 import { color } from "@/registry/jbm/lib/tokens"
@@ -163,6 +164,7 @@ function Preview({ item }: { item: GalleryItem }) {
     <div
       style={
         designNames.includes(name) ||
+        paperNames.includes(name) ||
         name === "scroll-stack" ||
         name === "flip-text" ||
         name === "text-fill" ||
@@ -176,6 +178,8 @@ function Preview({ item }: { item: GalleryItem }) {
     >
       {designNames.includes(name) ? (
         <DesignVideoDemo name={name} />
+      ) : paperNames.includes(name) ? (
+        <PaperDemo name={name} />
       ) : name === "scroll-stack" ? (
         <ScrollStackDemo />
       ) : name === "flip-text" ? (

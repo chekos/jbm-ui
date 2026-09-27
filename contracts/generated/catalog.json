@@ -836,9 +836,11 @@
       "name": "paper",
       "entry": "component",
       "title": "Paper",
-      "description": "Paper cut-out primitives: a flat card-stock shape, a slanted Sticker with display type, and a centered Caption.",
+      "description": "Paper cut-out primitives: a card-stock sheet that can crease, start to tear, and carry a real tab, a slanted Sticker with display type, and a centered Caption.",
       "category": "UI",
-      "capabilities": [],
+      "capabilities": [
+        "controls"
+      ],
       "needsRemotion": false,
       "registryDependencies": [
         "@jbm/tokens"
@@ -855,7 +857,7 @@
         {
           "export": "Paper",
           "kind": "component",
-          "summary": "Flat piece of card stock (border-box, position relative) in cream, vermilion, or ink with an optional 2px edge, the paper drop shadow, and an optional rotation. Pure React; wrap in a motion Pop for entrances.",
+          "summary": "Flat piece of card stock (border-box, position relative) in cream, vermilion, or ink with an optional 2px edge, the paper drop shadow, and an optional rotation. Under `tension` it creases from the pulled corners toward the centre and, above 0.6, starts to tear at a seam; `tab` fixes a pestaña behind the top edge that slides out with its reveal. With neither set it renders exactly the original single div. Pure React and controlled; wrap in a motion Pop for entrances.",
           "props": [
             {
               "name": "tone",
@@ -907,6 +909,48 @@
               "description": "Applies paperShadow; false renders flat."
             },
             {
+              "name": "tension",
+              "type": "number",
+              "required": false,
+              "default": "0",
+              "description": "0–1 stress on the sheet. Creases grow from each pulled corner toward the centre and reach it at 0.8 (four corners make an X); from 0.6 a frayed tear opens at `seam` and runs in to 18% of the width (at most 140px; 72px without `w`) at 1. 0 draws neither and keeps the plain rendering."
+            },
+            {
+              "name": "pull",
+              "type": "PaperCorner[]",
+              "required": false,
+              "default": "allCorners",
+              "description": "Corners being pulled, from \"tl\", \"tr\", \"br\", \"bl\"; each grows one crease. Default all four; [\"tl\", \"br\"] makes a single diagonal crease."
+            },
+            {
+              "name": "seam",
+              "type": "number | null",
+              "required": false,
+              "default": null,
+              "description": "Y of the starting tear in stage px from the top edge; default half of `h` (50% without `h`). Use a Tear seam to continue the same edge. null draws creases only."
+            },
+            {
+              "name": "seamSide",
+              "type": "\"left\" | \"right\"",
+              "required": false,
+              "default": "\"left\"",
+              "description": "\"left\" or \"right\": the edge the tear starts from."
+            },
+            {
+              "name": "seed",
+              "type": "number",
+              "required": false,
+              "default": "1",
+              "description": "Fray pattern of the starting tear. With the same seed, seam, and w as a Tear, the lips follow that Tear's seam."
+            },
+            {
+              "name": "tab",
+              "type": "PaperTab",
+              "required": false,
+              "default": null,
+              "description": "A pestaña fixed behind the top edge: `{ label, reveal = 1, offset = max(radius, 24), size = 32 }`. The label is Geist 800 at `size` stage px in the tone's text colour (ink on paper). `reveal` 0 hides the whole tab behind the sheet; 1 shows it with its base still tucked 14px behind the edge. It shares the sheet's stock, edge, and shadow."
+            },
+            {
               "name": "style",
               "type": "React.CSSProperties",
               "required": false,
@@ -918,7 +962,7 @@
               "type": "React.ReactNode",
               "required": false,
               "default": null,
-              "description": "Content placed on the paper."
+              "description": "Content placed on the paper. Creases and the tear's lips draw above it, like marks in the sheet itself."
             }
           ],
           "passthrough": []
@@ -1010,6 +1054,84 @@
           "passthrough": []
         },
         {
+          "export": "frayEdge",
+          "kind": "function",
+          "summary": "Deterministic torn edge along a horizontal line: small irregular teeth riding a gentle wander. Paper's starting tear and Tear's seams share it, so the same seed, y, width, and amplitude give the same profile.",
+          "params": [
+            {
+              "name": "width",
+              "type": "number",
+              "required": true,
+              "default": null,
+              "description": "Length of the edge in stage px; it runs from x = 0 to x = width."
+            },
+            {
+              "name": "y",
+              "type": "number",
+              "required": true,
+              "default": null,
+              "description": "The line the edge follows, in stage px; also keys the pattern."
+            },
+            {
+              "name": "seed",
+              "type": "number",
+              "required": false,
+              "default": "1",
+              "description": "Pattern seed; default 1."
+            },
+            {
+              "name": "amplitude",
+              "type": "number",
+              "required": false,
+              "default": "FRAY",
+              "description": "Tooth size in stage px; default FRAY."
+            },
+            {
+              "name": "step",
+              "type": "number",
+              "required": false,
+              "default": "12",
+              "description": "Approximate spacing between teeth in stage px; default 12."
+            }
+          ],
+          "returns": "Points `{ x, y }` from x = 0 to x = width, each within frayReach(amplitude) of y. Non-finite inputs are treated as 0."
+        },
+        {
+          "export": "frayReach",
+          "kind": "function",
+          "summary": "How far a frayed edge can stray from its line.",
+          "params": [
+            {
+              "name": "amplitude",
+              "type": "number",
+              "required": false,
+              "default": "FRAY",
+              "description": "Fray amplitude in stage px; default FRAY."
+            }
+          ],
+          "returns": "1.8 × amplitude (0 for a negative amplitude)."
+        },
+        {
+          "export": "paperTension",
+          "kind": "function",
+          "summary": "Maps a tension value to the two quantities Paper draws.",
+          "params": [
+            {
+              "name": "tension",
+              "type": "number",
+              "required": true,
+              "default": null,
+              "description": "0–1; non-finite values count as 0."
+            }
+          ],
+          "returns": "`{ crease, tear }`: crease length as a share of the way to the centre (tension / 0.8, capped at 1) and tear progress ((tension − 0.6) / 0.4, from 0 to 1)."
+        },
+        {
+          "export": "FRAY",
+          "kind": "constant",
+          "summary": "Default fray amplitude, 6 stage px, shared by Paper's starting tear and Tear."
+        },
+        {
           "export": "paperShadow",
           "kind": "constant",
           "summary": "Box-shadow string: the card contact and ambient layers from shadowLayers plus a longer 18px drop, without the inset edge light. Shared by the ui-bits illustrations."
@@ -1048,16 +1170,30 @@
           "export": "PaperTone",
           "kind": "type",
           "summary": "\"paper\" | \"accent\" | \"ink\"."
+        },
+        {
+          "export": "PaperCorner",
+          "kind": "type",
+          "summary": "\"tl\" | \"tr\" | \"br\" | \"bl\": top-left, top-right, bottom-right, bottom-left."
+        },
+        {
+          "export": "PaperTab",
+          "kind": "type",
+          "summary": "`{ label: string; reveal?: number; offset?: number; size?: number }`, the tab prop."
         }
       ],
       "stage": {
         "mode": "fluid",
-        "reason": "Paper takes w×h when given and otherwise fills its container's width with height following children. Sticker is inline and sized by its text: at the default size 72 it is about 72 × 1.05 + 2 × 13 ≈ 102 stage px tall. Rotation does not change layout size, so tilted corners can extend beyond the box."
+        "reason": "Paper takes w×h when given and otherwise fills its container's width with height following children. A tab rises size + 2 × round(size × 0.3) + 2px edge above the top edge at reveal 1 (about 53px at size 32) without changing layout size; the tear cuts into the box and never adds to it. Sticker is inline and sized by its text: at the default size 72 it is about 72 × 1.05 + 2 × 13 ≈ 102 stage px tall. Rotation does not change layout size, so tilted corners can extend beyond the box."
       },
       "examples": [
         {
           "title": "Paper, sticker, and caption",
           "code": "import { Paper, Sticker, Caption } from \"@/jbm/ui/paper\"\n\n<Paper w={200} h={130} rotate={-3} style={{ padding: 20 }}>\n  <Caption size={24}>papel</Caption>\n</Paper>\n<Sticker size={40} rotate={-5}>¿otra vez?</Sticker>\n<Sticker tone=\"ink\" size={28} rotate={2}>catálogo</Sticker>"
+        },
+        {
+          "title": "A sheet pulled from four corners, with a tab",
+          "code": "import { Paper } from \"@/jbm/ui/paper\"\n\n// Drive tension and reveal from your timeline, e.g. interpolate(frame, [0, 60], [0, 1]).\n<Paper\n  w={520}\n  h={760}\n  radius={10}\n  tension={0.9}\n  seam={380}\n  tab={{ label: \"Tutorial\", reveal: 1 }}\n/>"
         },
         {
           "title": "Match a custom illustration to the paper recipe",
@@ -1068,12 +1204,20 @@
         "Compare paper, accent, and ink tones: the paper tone keeps a 2px ink edge, accent and ink edges match their fill, and cream text reads on both.",
         "Check rotated pieces and stickers near the safe-area edge: rotation does not reserve layout space, so tilted corners and the longer drop shadow must not clip.",
         "Stickers never wrap; check the longest word at the chosen size fits the frame in portrait.",
-        "Toggle edge and shadow off and confirm the piece still separates from the cream canvas where it is used."
+        "Toggle edge and shadow off and confirm the piece still separates from the cream canvas where it is used.",
+        "Drag Tension through 0, 0.3, 0.6, 0.8, and 1: creases grow from the pulled corners and meet at the centre at 0.8; the tear opens only past 0.6, its lips join the edge on the border's centreline, and its mouth shows what lies under the sheet rather than a painted fill.",
+        "Try each Pulled corners preset and Tear from the right edge, and the tear on the ink stock.",
+        "Drag Tab reveal from 0 to 1: at 0 the whole tab is hidden behind the sheet; in between the top edge cuts the label rather than drawing over it; at 1 the label is Geist 800 at 32 stage px and the tab base stays tucked behind the edge.",
+        "With tension 0 and no tab the markup equals the original single div; existing scenes depend on it."
       ],
       "docs": [
         {
           "title": "Surface depth guide",
           "url": "https://jbm-ui.bns.studio/docs/surface-depth.md"
+        },
+        {
+          "title": "Paper and filing illustrations guide",
+          "url": "https://jbm-ui.bns.studio/docs/design-video-components.md"
         }
       ]
     },
@@ -6796,6 +6940,318 @@
         "Toggle Ink stock: the hole stays cream with an ink ring and the text stays legible.",
         "Check a long label at narrow width: it wraps inside the tag and the hole keeps its 14px circle.",
         "Compare the shadow and edge with other paper surfaces."
+      ],
+      "docs": [
+        {
+          "title": "Paper and filing illustrations guide",
+          "url": "https://jbm-ui.bns.studio/docs/design-video-components.md"
+        }
+      ]
+    },
+    {
+      "name": "tear",
+      "entry": "component",
+      "title": "Tear",
+      "description": "A sheet torn into strips along seams: controlled progress moves each strip to its own destination, with frayed, seeded edges at every seam.",
+      "category": "UI Bits",
+      "capabilities": [
+        "controls"
+      ],
+      "needsRemotion": false,
+      "registryDependencies": [
+        "@jbm/tokens",
+        "@jbm/paper"
+      ],
+      "installName": "tear",
+      "inRegistry": true,
+      "page": "/c/tear",
+      "registryItem": "/r/tear.json",
+      "sourcePath": "registry/jbm/ui/tear.tsx",
+      "files": [
+        "registry/jbm/ui/tear.tsx"
+      ],
+      "api": [
+        {
+          "export": "Tear",
+          "kind": "component",
+          "summary": "A w × h Paper-style sheet cut at `seams` into strips. At progress 0 the strips tile the sheet exactly and no seam shows; as progress rises each strip translates and turns toward its destination, its frayed seam edges fade in over its first 5% of travel, and the sheet's shadow hands over to per-strip shadows. Writing is laid out once on the whole sheet and clipped to each strip. Pure React, controlled, and deterministic per frame.",
+          "props": [
+            {
+              "name": "w",
+              "type": "number",
+              "required": true,
+              "default": null,
+              "description": "Sheet width in stage px."
+            },
+            {
+              "name": "h",
+              "type": "number",
+              "required": true,
+              "default": null,
+              "description": "Sheet height in stage px."
+            },
+            {
+              "name": "seams",
+              "type": "number[]",
+              "required": true,
+              "default": null,
+              "description": "Seam y positions in stage px from the top; n usable seams make n + 1 strips. Non-finite values, seams closer than frayReach(fray) + 4 to an edge, and seams closer than twice that to the previous seam are dropped (see tearSeams)."
+            },
+            {
+              "name": "progress",
+              "type": "number",
+              "required": true,
+              "default": null,
+              "description": "0 = the whole sheet, 1 = every strip at its destination. Clamped and linear; ease it yourself."
+            },
+            {
+              "name": "pieces",
+              "type": "TearPiece[]",
+              "required": false,
+              "default": "[]",
+              "description": "Destinations top to bottom: `{ to: { x, y, rotate } }`, an offset in stage px from the strip's place in the whole sheet and a turn in degrees about the strip's centre. A missing entry or field stays put."
+            },
+            {
+              "name": "stagger",
+              "type": "number",
+              "required": false,
+              "default": "0",
+              "description": "Delay between strips as a share of progress: strip i starts at i × stagger and all finish at 1. Capped at 0.9 / (strips − 1)."
+            },
+            {
+              "name": "seed",
+              "type": "number",
+              "required": false,
+              "default": "1",
+              "description": "Fray pattern. Paper's starting tear with the same seed, seam y, and w follows the same edge."
+            },
+            {
+              "name": "fray",
+              "type": "number",
+              "required": false,
+              "default": "FRAY",
+              "description": "Fray amplitude in stage px (default FRAY, 6); edges stay within 1.8 × fray of the seam."
+            },
+            {
+              "name": "tone",
+              "type": "PaperTone",
+              "required": false,
+              "default": "\"paper\"",
+              "description": "\"paper\" (card fill, ink edge), \"accent\", or \"ink\", as in Paper."
+            },
+            {
+              "name": "radius",
+              "type": "number",
+              "required": false,
+              "default": "22",
+              "description": "Corner radius of the sheet's four outer corners in stage px; strips keep square corners at seams."
+            },
+            {
+              "name": "edge",
+              "type": "boolean",
+              "required": false,
+              "default": "true",
+              "description": "Draws the 2px outline on straight edges and, once torn, on frayed edges."
+            },
+            {
+              "name": "shadow",
+              "type": "boolean",
+              "required": false,
+              "default": "true",
+              "description": "Paper shadow for the sheet and then each strip."
+            },
+            {
+              "name": "children",
+              "type": "ReactNode | ((piece: TearPieceInfo) => ReactNode)",
+              "required": false,
+              "default": null,
+              "description": "The sheet's writing on the whole w × h sheet, clipped to each strip. A node is repeated in every strip; a function `({ index, top, bottom, progress }) => node` is called per strip (coordinates are the sheet's). Copies after the first strip are aria-hidden."
+            },
+            {
+              "name": "contentStyle",
+              "type": "CSSProperties",
+              "required": false,
+              "default": null,
+              "description": "Styles for the w × h content layer each strip clips, for padding or layout."
+            },
+            {
+              "name": "style",
+              "type": "CSSProperties",
+              "required": false,
+              "default": null,
+              "description": "Inline styles merged onto the w × h root."
+            }
+          ],
+          "passthrough": []
+        },
+        {
+          "export": "tearGeometry",
+          "kind": "function",
+          "summary": "Outlines for every strip in sheet coordinates. Neighbouring strips share the identical frayed polyline, so together they cover the sheet exactly; with an edge the straight sides sit 1px in, on the centreline of Paper's 2px border.",
+          "params": [
+            {
+              "name": "w",
+              "type": "number",
+              "required": true,
+              "default": null,
+              "description": "Sheet width in stage px."
+            },
+            {
+              "name": "h",
+              "type": "number",
+              "required": true,
+              "default": null,
+              "description": "Sheet height in stage px."
+            },
+            {
+              "name": "seams",
+              "type": "number[]",
+              "required": true,
+              "default": null,
+              "description": "Seam y positions; filtered by tearSeams."
+            },
+            {
+              "name": "seed",
+              "type": "number",
+              "required": false,
+              "default": "1",
+              "description": "Fray pattern; default 1."
+            },
+            {
+              "name": "fray",
+              "type": "number",
+              "required": false,
+              "default": "FRAY",
+              "description": "Fray amplitude; default FRAY."
+            },
+            {
+              "name": "radius",
+              "type": "number",
+              "required": false,
+              "default": "22",
+              "description": "Outer corner radius; default 22."
+            },
+            {
+              "name": "edge",
+              "type": "boolean",
+              "required": false,
+              "default": "true",
+              "description": "Insets the straight sides by 1px for a 2px stroke; default true."
+            }
+          ],
+          "returns": "One `{ index, top, bottom, outline, edges, seamAbove, seamBelow, center }` per strip: SVG path data for the closed outline, the straight edges, and each frayed seam (null at the sheet's top or bottom), plus the rotation centre."
+        },
+        {
+          "export": "tearSeams",
+          "kind": "function",
+          "summary": "The seams Tear uses, from the ones you pass.",
+          "params": [
+            {
+              "name": "h",
+              "type": "number",
+              "required": true,
+              "default": null,
+              "description": "Sheet height in stage px."
+            },
+            {
+              "name": "seams",
+              "type": "number[]",
+              "required": true,
+              "default": null,
+              "description": "Candidate seam y positions."
+            },
+            {
+              "name": "fray",
+              "type": "number",
+              "required": false,
+              "default": "FRAY",
+              "description": "Fray amplitude; default FRAY."
+            }
+          ],
+          "returns": "Finite seams, sorted, at least frayReach(fray) + 4 inside the sheet and at least twice that apart, so frayed edges never cross each other or the sheet's edge."
+        },
+        {
+          "export": "tearPieceProgress",
+          "kind": "function",
+          "summary": "One strip's own travel after stagger.",
+          "params": [
+            {
+              "name": "progress",
+              "type": "number",
+              "required": true,
+              "default": null,
+              "description": "0–1 overall progress."
+            },
+            {
+              "name": "index",
+              "type": "number",
+              "required": true,
+              "default": null,
+              "description": "Strip index, top to bottom."
+            },
+            {
+              "name": "count",
+              "type": "number",
+              "required": true,
+              "default": null,
+              "description": "Number of strips."
+            },
+            {
+              "name": "stagger",
+              "type": "number",
+              "required": false,
+              "default": "0",
+              "description": "Share of progress between strip starts; default 0."
+            }
+          ],
+          "returns": "0–1: clamp((progress − index × stagger) / (1 − stagger × (count − 1)))."
+        },
+        {
+          "export": "TearProps",
+          "kind": "type",
+          "summary": "Props of Tear."
+        },
+        {
+          "export": "TearPiece",
+          "kind": "type",
+          "summary": "`{ to?: TearDestination }`, one entry of `pieces`."
+        },
+        {
+          "export": "TearDestination",
+          "kind": "type",
+          "summary": "`{ x?: number; y?: number; rotate?: number }`: offset in stage px and turn in degrees."
+        },
+        {
+          "export": "TearPieceInfo",
+          "kind": "type",
+          "summary": "`{ index, top, bottom, progress }`, what a render-prop child receives per strip."
+        },
+        {
+          "export": "TearGeometry",
+          "kind": "type",
+          "summary": "One strip from tearGeometry."
+        }
+      ],
+      "stage": {
+        "mode": "fluid",
+        "reason": "The root is exactly w × h stage px, the size of the whole sheet; strips move by their destinations beyond it without changing layout, so leave room for the largest offset plus about 20px of shadow. The gallery uses a 520 × 760 sheet with offsets up to 72px on a 760 × 960 stage."
+      },
+      "examples": [
+        {
+          "title": "A long page tearing into four register strips",
+          "code": "import { Tear } from \"@/jbm/ui/tear\"\n\n// progress comes from your timeline, e.g. interpolate(frame, [0, 45], [0, 1]).\n<Tear\n  w={520}\n  h={760}\n  radius={10}\n  seams={[190, 380, 570]}\n  progress={0.6}\n  stagger={0.1}\n  pieces={[\n    { to: { x: -40, y: -70, rotate: -5 } },\n    { to: { x: 36, y: -24, rotate: 3 } },\n    { to: { x: -30, y: 24, rotate: -2 } },\n    { to: { x: 34, y: 72, rotate: 3 } },\n  ]}\n>\n  {({ index, top }) => (\n    <div style={{ position: \"absolute\", left: 40, top: top + 32 }}>strip {index + 1}</div>\n  )}\n</Tear>"
+        },
+        {
+          "title": "Continue a Paper's starting tear",
+          "code": "import { Paper } from \"@/jbm/ui/paper\"\nimport { Tear } from \"@/jbm/ui/tear\"\n\n// The same seed, seam, and width give the same frayed edge in both.\nexport function Page({ torn }: { torn: boolean }) {\n  return torn ? (\n    <Tear w={520} h={760} radius={10} seams={[380]} progress={0.4} pieces={[{ to: { y: -40, rotate: -3 } }, { to: { y: 40, rotate: 4 } }]} />\n  ) : (\n    <Paper w={520} h={760} radius={10} tension={1} seam={380} />\n  )\n}"
+        }
+      ],
+      "qa": [
+        "At Tear 0 the sheet must look whole: no seam line, hairline, or shadow between strips. Compare it with a plain Paper of the same size and radius.",
+        "Drag Tear through 0.02, 0.05, 0.5, and 1: seam edges fade in as the strips part, each strip keeps its frayed edges, and later strips overlap earlier ones.",
+        "At 2× zoom check where a frayed seam meets a straight side: the lines join on one centreline with the same 2px width.",
+        "Step Seams from 1 to 6 and Fray seed from 1 to 9: frayed edges never cross each other or the sheet's edge, and the pattern changes only with the seed.",
+        "Set Stagger to 0 and 0.3: every strip still reaches its destination at progress 1."
       ],
       "docs": [
         {
