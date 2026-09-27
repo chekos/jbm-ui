@@ -21,7 +21,7 @@ type Props = { params: Promise<{ name: string }> }
 
 // One static QA page per gallery item. Bundles (ui-bits) have no QA page: /c/<bundle> renders a
 // noindex page that explains them and links to their members. Any other name is the 404
-// (proxy.ts rewrites it to app/c-missing/[name], which names the missing item).
+// (proxy.ts sends it to app/global-not-found.tsx, which names the missing item).
 export const dynamicParams = false
 
 const bundleNames = () =>

@@ -3,8 +3,8 @@
 import Link from "next/link"
 import { AddCommand } from "./install"
 
-// Branded 404s and the bundle notice. The site-wide 404 (app/not-found.tsx) and the /c/<name> 404
-// (app/c-missing/[name], which proxy.ts serves with a 404 status) share the item-page chrome. A
+// Branded 404s and the bundle notice. The site-wide 404 and the /c/<name> 404 (rendered by
+// app/global-not-found.tsx and app/not-found.tsx) share the item-page chrome. A
 // bundle such as ui-bits has no QA page of its own, so app/c/[name]/page.tsx renders BundlePage
 // (noindex) to explain what it is and link to the items it re-exports.
 
@@ -141,7 +141,7 @@ export type ItemPageRef = { name: string; title: string }
 
 /**
  * /c/<name> 404: names the missing item, then offers the closest item pages, a gallery search for
- * the same words, and the agent index. Server-rendered by app/c-missing/[name]/page.tsx, which
+ * the same words, and the agent index. Server-rendered by app/global-not-found.tsx, which
  * ranks the matches.
  */
 export function ItemNotFound({

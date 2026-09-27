@@ -6,6 +6,13 @@ import { siteOrigin } from "@/lib/site"
 export const itemNames: string[] = routes.items
 export const docGuides: { slug: string; title: string }[] = routes.docs
 
+/**
+ * Request header proxy.ts sets on an unknown /c/<name>: the URI-encoded name (at most 128
+ * characters) that app/global-not-found.tsx names in the 404. The proxy always overwrites it there; a
+ * client that sends it elsewhere only changes the wording of its own 404.
+ */
+export const MISSING_ITEM_HEADER = "x-jbm-missing-item"
+
 function editDistance(a: string, b: string) {
   let previous = Array.from({ length: b.length + 1 }, (_, index) => index)
   for (let i = 1; i <= a.length; i++) {
