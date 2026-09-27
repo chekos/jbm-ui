@@ -150,7 +150,8 @@ export function DeskDemo({ name }: { name: string }) {
       </div>
       <div
         className="composition-options"
-        style={{ display: "flex", flexWrap: "wrap", gap: 16, padding: 16 }}
+        // 24px sides, the other demos' control inset, so slider tracks line up across benches.
+        style={{ display: "flex", flexWrap: "wrap", gap: 16, padding: "16px 24px" }}
       >
         {drawerControls && (
           <>

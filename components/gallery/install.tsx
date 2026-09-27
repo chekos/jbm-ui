@@ -4,6 +4,7 @@ import { useState, useSyncExternalStore } from "react"
 import { registryUrlTemplate, siteOrigin } from "@/lib/site"
 import { CodeLines, CopyButton } from "./code-block"
 import { addCommand } from "./item-meta"
+import { InlineScript } from "./inline-script"
 
 const noop = () => () => {}
 const canonicalOrigin = siteOrigin()
@@ -82,20 +83,6 @@ const prepaintScript = `(function(s){var d=s&&s.previousElementSibling;if(!d||d.
   narrowQuery
 )}).matches;d.setAttribute("data-prepaint","")})(document.currentScript)`
 
-/**
- * Parser-blocking inline script in the server HTML only: a script React creates on the client
- * never runs, so client renders emit an inert text/plain copy (same as the bench's host script).
- */
-function PrepaintScript() {
-  return (
-    <script
-      type={typeof window === "undefined" ? "text/javascript" : "text/plain"}
-      suppressHydrationWarning
-      dangerouslySetInnerHTML={{ __html: prepaintScript }}
-    />
-  )
-}
-
 export function InstallOnce() {
   const { open, hydrated, onToggle } = useInstallOpen()
   const url = registryUrlTemplate(useOrigin())
@@ -147,7 +134,7 @@ export function InstallOnce() {
           </div>
         </div>
       </details>
-      <PrepaintScript />
+      <InlineScript html={prepaintScript} />
     </>
   )
 }

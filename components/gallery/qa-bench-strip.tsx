@@ -7,7 +7,12 @@ import { stage, type Orientation } from "@/registry/jbm/lib/tokens"
 import { fps } from "./timing"
 import { getGalleryItem } from "./item-meta"
 import { Composition } from "./motion-preview"
-import { StripLayout, stageSize, type BenchSafeArea } from "./qa-bench-chrome"
+import {
+  StripLayout,
+  padLast,
+  stageSize,
+  type BenchSafeArea,
+} from "./qa-bench-chrome"
 
 /** Safe-area guides drawn over a stage, never inside the composition, so renders stay clean. */
 export function SafeAreaGuides({
@@ -68,6 +73,8 @@ export function BenchStrip({
       orientationAware={orientationAware}
       durationInFrames={durationInFrames}
       cues={getGalleryItem(name)?.cues}
+      start={getGalleryItem(name)?.start}
+      padTo={padLast(name, durationInFrames - 1)}
       onOpen={onOpen}
       frame={(frame, orientation) => {
         const size = stageSize(orientation)

@@ -7,6 +7,7 @@ import { stage, type Orientation } from "@/registry/jbm/lib/tokens"
 import { ReplayButton } from "@/registry/jbm/ui/replay-button"
 import { CopyBenchLink } from "./bench-url"
 import { getGalleryItem } from "./item-meta"
+import { InlineScript } from "./inline-script"
 
 // Motion bench chrome without Remotion: the toolbar, orientation switch, frame stepper, scene
 // options, and strip grid render both inside MotionBench (qa-bench-motion.tsx, loaded client-only
@@ -35,9 +36,17 @@ export const orientationLabel: Record<Orientation, string> = {
   vertical: "Portrait 9:16",
 }
 
-/** Zero-based frame index, padded to the width of the last index so columns line up. */
+/**
+ * Zero-based frame index, padded to the digits of `last`. The bench passes the last frame of the
+ * item's longest preview timeline (item-meta `frames`), so one item pads the same in every layout,
+ * view, and placeholder: 00–42 on scene-spec, 000–154 on Propagate.
+ */
 export const padFrame = (frame: number, last: number) =>
   String(frame).padStart(String(last).length, "0")
+
+/** Last frame of the item's longest preview timeline, the width frame numbers pad to. */
+export const padLast = (name: string, fallback: number) =>
+  Math.max(0, (getGalleryItem(name)?.frames ?? fallback + 1) - 1)
 
 const seconds = (value: number) => `${(value / fps).toFixed(2)} s`
 
@@ -248,6 +257,7 @@ export function FrameStepper({
   seek,
   replay,
   scrubRef,
+  padTo,
 }: {
   title: string
   durationInFrames: number
@@ -257,11 +267,15 @@ export function FrameStepper({
   seek: (frame: number) => void
   replay: () => void
   scrubRef?: RefObject<HTMLInputElement | null>
+  /** Pad frame numbers to this frame's digits (the item's longest timeline); defaults to last. */
+  padTo?: number
 }) {
   const id = useId()
   const last = Math.max(0, durationInFrames - 1)
   const middle = Math.round(last / 2)
-  const readout = `Frame ${frame} of 0 to ${last}, ${seconds(frame)}`
+  const width = padTo ?? last
+  // Screen readers hear the zero-based frame out of the last one, then the time: "Frame 15 of 45, 0.50 s".
+  const readout = `Frame ${frame} of ${last}, ${seconds(frame)}`
   function stepBy(delta: number, event: KeyboardEvent<HTMLInputElement>) {
     event.preventDefault()
     seek(frame + delta)
@@ -325,7 +339,7 @@ export function FrameStepper({
       </div>
       <output className="bench-readout" htmlFor={`${id}-frame`}>
         <span>
-          {padFrame(frame, last)}/{padFrame(last, last)}
+          {padFrame(frame, width)}/{padFrame(last, width)}
         </span>
         <span>{seconds(frame)}</span>
       </output>
@@ -350,18 +364,20 @@ const stripColumns = 3
 export type StripStep = { label: string; frame: number }
 
 /**
- * The strip's frames: Begin, the item's cues (from its contract, see contracts/schema.ts `cues`),
- * then End. Cues outside this timeline are dropped (the scene-spec hero layout is shorter than the
+ * The strip's frames: frame 0 (captioned by the contract's `start`, "Begin" by default; items
+ * whose elements all enter later say "Empty stage"), the item's cues (from its contract, see
+ * contracts/schema.ts `cues`), then End. Cues outside this timeline are dropped (the scene-spec hero layout is shorter than the
  * default one); an item without cues inside it gets a Middle frame instead.
  */
 export function stripSteps(
   durationInFrames: number,
-  cues: readonly StripStep[] = []
+  cues: readonly StripStep[] = [],
+  start = "Begin"
 ): StripStep[] {
   const last = Math.max(0, durationInFrames - 1)
   const inside = cues.filter((cue) => cue.frame > 0 && cue.frame < last)
   return [
-    { label: "Begin", frame: 0 },
+    { label: start, frame: 0 },
     ...(inside.length
       ? inside
       : [{ label: "Middle", frame: Math.round(last / 2) }]),
@@ -388,6 +404,8 @@ export function StripLayout({
   orientationAware,
   durationInFrames,
   cues,
+  start,
+  padTo,
   onOpen,
   frame,
 }: {
@@ -396,11 +414,14 @@ export function StripLayout({
   durationInFrames: number
   /** The item's contract cues; without them the strip shows Begin, Middle, and End. */
   cues?: readonly StripStep[]
+  /** Caption of the frame-0 cell (the contract's `start`); "Begin" by default. */
+  start?: string
+  /** Pad frame numbers to this frame's digits (the item's longest timeline). */
+  padTo: number
   onOpen: (frame: number, orientation?: Orientation) => void
   frame: (frame: number, orientation: Orientation | undefined) => ReactNode
 }) {
-  const last = Math.max(0, durationInFrames - 1)
-  const steps = stripSteps(durationInFrames, cues)
+  const steps = stripSteps(durationInFrames, cues, start)
   const grid = stripGrid(steps.length)
   const rows: (Orientation | undefined)[] = orientationAware
     ? ["landscape", "vertical"]
@@ -448,7 +469,7 @@ export function StripLayout({
                     >
                       <span className="bench-strip-label">{label}</span>
                       <span className="bench-strip-frame-no">
-                        {padFrame(target, last)}
+                        {padFrame(target, padTo)}
                       </span>
                     </button>
                   </figcaption>
@@ -459,21 +480,6 @@ export function StripLayout({
         )
       })}
     </div>
-  )
-}
-
-/**
- * Renders `html` as a parser-blocking inline script in the server HTML only. A script React
- * creates on the client never runs (and React warns about it), so client renders emit an inert
- * text/plain copy; suppressHydrationWarning covers the type difference.
- */
-function InlineScript({ html }: { html: string }) {
-  return (
-    <script
-      type={typeof window === "undefined" ? "text/javascript" : "text/plain"}
-      suppressHydrationWarning
-      dangerouslySetInnerHTML={{ __html: html }}
-    />
   )
 }
 
@@ -511,11 +517,12 @@ export function BenchSkeleton({
   orientationAware: boolean
 }) {
   // The strip reserves one cell per cue (plus Begin and End), so it matches the loaded strip.
-  const cues = getGalleryItem(name)?.cues
-  // A nominal timeline long enough to hold every cue: the frame count only changes the width of
-  // hidden mono digits, never a row's height (the scrubber flexes), and the Player's length is not
-  // known on the server.
-  const durationInFrames = Math.max(100, (cues?.at(-1)?.frame ?? 0) + 2)
+  const meta = getGalleryItem(name)
+  const cues = meta?.cues
+  // The default timeline's length (the longest one) from the contract, so hidden captions and the
+  // readout hold the loaded bench's digits.
+  const durationInFrames =
+    meta?.frames ?? Math.max(100, (cues?.at(-1)?.frame ?? 0) + 2)
   const last = Math.max(0, durationInFrames - 1)
   const size = stageSize(orientationAware ? defaults.orientation : undefined)
   const options = (slot: View) =>
@@ -557,6 +564,8 @@ export function BenchSkeleton({
         orientationAware={orientationAware}
         durationInFrames={durationInFrames}
         cues={cues}
+        start={meta?.start}
+        padTo={last}
         onOpen={noop}
         frame={() => null}
       />
