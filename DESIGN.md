@@ -166,7 +166,7 @@ Components read `--font-sans` / `--font-mono` when the host sets them (next/font
 - **Body** (400, 18px, 1.7): long-form explanatory copy in Graphite, capped near 550px.
 - **Body small** (400, 14px, 1.6): card descriptions and secondary copy.
 - **Label** (600, 26px stage pixels, 4px tracking, uppercase): the scene kicker that sits top-left of every scene.
-- **Mono label** (400, 11–12px, 2px tracking for uppercase eyebrows): gallery eyebrows, counts, card headings, swatch codes, and numbers with units.
+- **Mono label** (400, 12px, 2px tracking when uppercase): filter and section counts, the result status, card capability tags, swatch codes, and numbers with units.
 
 ### Named Rules
 **The Measured-Things-Are-Mono Rule.** Code, labels, counts, and numbers with units use Geist Mono. Prose and headlines never do.
@@ -175,7 +175,7 @@ Components read `--font-sans` / `--font-mono` when the host sets them (next/font
 
 Scenes are laid out on fixed stages: landscape is 1920×1080 with 120px side padding and content between y 90 and 920; vertical is 1080×1920 with 72px padding and content between y 100 and 1440. Captions live below the safe area. Components declare their height so layout checks can enforce these bounds. A component that must fit both orientations takes a `w` or `row` prop, not a second file. Portrait needs deliberate subject sizing, not a stretched landscape layout.
 
-The gallery is a centred 1440px shell with 56px gutters (20px under 760px). An intro block sits above a toolbar of filters and search, followed by a two-column grid of component cards with 28px gaps that collapses to one column on narrow screens. Each preview renders an 800×500 stage scaled to the card width through a container query, so previews show true proportions at any width.
+The gallery is a centred 1440px shell with 56px gutters (20px under 760px). A one-row header sits above the Install once block and a sticky toolbar of filters, search, result status, and section anchors, followed by a two-column grid of component cards with 28px gaps that collapses to one column on narrow screens. Each preview renders an 800×500 stage scaled to the card width through a container query, so previews show true proportions at any width.
 
 ## Elevation & Depth
 
@@ -199,7 +199,8 @@ Corners are soft and generous on the stage and tight in the gallery chrome. Card
 
 ### Buttons (gallery)
 - **Shape:** gently rounded (6px).
-- **Default:** transparent with a Pencil Rule border, 13px text, and 9px 13px padding.
+- **Default:** transparent with a Pencil Rule border, 14px text, and 9px 13px padding. Filters, empty-state actions, and copy buttons share it.
+- **Hover:** the border darkens to Press Ink.
 - **Active (`aria-pressed`):** filled with Press Ink and cream text.
 - **Focus:** a 2px Stamp Vermilion outline offset 5px, shared by every link, button, input, and summary.
 
@@ -214,11 +215,15 @@ Corners are soft and generous on the stage and tight in the gallery chrome. Card
 - **Internal Padding:** 40px stage pixels.
 
 ### Inputs / Fields
-- **Style:** 240px search field on Card Stock with a Pencil Rule stroke and 6px radius, going full width on narrow screens.
+- **Style:** 240px search field on Card Stock with a Pencil Rule stroke, 6px radius, and 14px text, going full width (and 16px text, so iOS does not zoom) on narrow screens. A mono `/` hint marks the focus shortcut.
 - **Focus:** the shared vermilion outline.
 
 ### Navigation
-- **Style:** a site header with a mono wordmark (26px, 700, -2px tracking, vermilion suffix) and a hairline bottom rule. Category filters are the primary navigation, with mono counts at 65% opacity.
+- **Style:** a one-row site header with a mono wordmark (26px, 700, -2px tracking, vermilion suffix), a one-line purpose, a mono item count, and a hairline bottom rule.
+- **Toolbar:** sticky on Cream Canvas between hairline rules. Category filters are the primary navigation, with 12px mono counts at 65% opacity; a mono result status, a Clear action while filtered, and section anchors sit on the row below. On narrow screens the filters scroll in one row and the anchors hide; on short viewports the toolbar stops sticking.
+
+### Install block
+- **Style:** a two-column block under the header: 22px title and 14px Graphite prose on the left, the `components.json` snippet in a code block on the right with its copy button in the top-right corner. It stacks on narrow screens. Each card repeats only its own `npx shadcn@latest add @jbm/<name>` command, in the same code-row style.
 
 ### Paper (signature)
 The cut-out primitive behind illustrations and UI bits: a flat shape in `paper`, `accent`, or `ink` tone with a 2px edge, `paperShadow`, and an optional rotation. Compose illustrations from Paper and the other primitives rather than drawing new surfaces.

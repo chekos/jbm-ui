@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-09-27T04:31:35.037Z",
+  "generatedAt": "2026-09-27T05:04:25.877Z",
   "title": "Design System: jbm-ui",
   "extensions": {
     "colorMeta": {
@@ -167,7 +167,7 @@
       },
       "mono-label": {
         "displayName": "Mono label",
-        "purpose": "Eyebrows, counts, card headings, codes, numbers with units."
+        "purpose": "Counts, result status, capability tags, codes, numbers with units."
       }
     },
     "shadows": [
@@ -249,8 +249,8 @@
       "kind": "button",
       "refersTo": "gallery-filter",
       "description": "Gallery category filter; ink fill when pressed.",
-      "html": "<div class=\"ds-filters\"><button class=\"ds-filter\" aria-pressed=\"true\">All <span>66</span></button><button class=\"ds-filter\" aria-pressed=\"false\">Motion <span>18</span></button></div>",
-      "css": ".ds-filters { display: flex; gap: 8px; } .ds-filter { border: 1px solid #D5D1C6; border-radius: 6px; padding: 9px 13px; background: transparent; color: #20241F; font-family: Geist, system-ui, sans-serif; font-size: 13px; cursor: pointer; } .ds-filter:hover { border-color: #20241F; } .ds-filter:focus-visible { outline: 2px solid #C63D24; outline-offset: 5px; } .ds-filter[aria-pressed=\"true\"] { background: #20241F; border-color: #20241F; color: #FFF6E8; } .ds-filter span { margin-left: 10px; opacity: 0.65; font-family: 'Geist Mono', ui-monospace, monospace; font-size: 11px; }"
+      "html": "<div class=\"ds-filters\"><button class=\"ds-filter\" aria-pressed=\"true\">All <span>65</span></button><button class=\"ds-filter\" aria-pressed=\"false\">Motion <span>17</span></button></div>",
+      "css": ".ds-filters { display: flex; gap: 8px; } .ds-filter { border: 1px solid #D5D1C6; border-radius: 6px; padding: 9px 13px; background: transparent; color: #20241F; font-family: Geist, system-ui, sans-serif; font-size: 14px; cursor: pointer; } .ds-filter:hover { border-color: #20241F; } .ds-filter:focus-visible { outline: 2px solid #C63D24; outline-offset: 5px; } .ds-filter[aria-pressed=\"true\"] { background: #20241F; border-color: #20241F; color: #FFF6E8; } .ds-filter span { margin-left: 10px; opacity: 0.65; font-family: 'Geist Mono', ui-monospace, monospace; font-size: 12px; }"
     },
     {
       "name": "Search Input",
@@ -258,12 +258,12 @@
       "refersTo": "gallery-search",
       "description": "Gallery search field on card stock.",
       "html": "<input class=\"ds-search\" type=\"search\" placeholder=\"Search components\" aria-label=\"Search components\">",
-      "css": ".ds-search { width: 240px; border: 1px solid #D5D1C6; border-radius: 6px; padding: 9px 13px; background: #FFFCF5; color: #20241F; font-family: Geist, system-ui, sans-serif; font-size: 13px; } .ds-search:focus-visible { outline: 2px solid #C63D24; outline-offset: 5px; }"
+      "css": ".ds-search { width: 240px; border: 1px solid #D5D1C6; border-radius: 6px; padding: 9px 13px; background: #FFFCF5; color: #20241F; font-family: Geist, system-ui, sans-serif; font-size: 14px; } .ds-search:focus-visible { outline: 2px solid #C63D24; outline-offset: 5px; }"
     },
     {
       "name": "Site Header",
       "kind": "nav",
-      "description": "Mono wordmark with vermilion suffix over a hairline rule.",
+      "description": "One-row header: mono wordmark with vermilion suffix, purpose line, and mono item count over a hairline rule.",
       "html": "<header class=\"ds-header\"><a class=\"ds-wordmark\" href=\"#\">jbm<span>-ui</span></a><nav><a href=\"#\">GitHub</a></nav></header>",
       "css": ".ds-header { display: flex; justify-content: space-between; align-items: center; padding: 28px 0; border-bottom: 1px solid #D5D1C6; font-family: Geist, system-ui, sans-serif; font-size: 14px; color: #20241F; } .ds-header a { color: inherit; text-underline-offset: 4px; } .ds-header a:focus-visible { outline: 2px solid #C63D24; outline-offset: 5px; } .ds-wordmark { font-family: 'Geist Mono', ui-monospace, monospace; font-size: 26px; font-weight: 700; letter-spacing: -2px; text-decoration: none; } .ds-wordmark span { color: #C63D24; }"
     },

@@ -454,7 +454,7 @@ export function Gallery() {
                             Timing values are in seconds.
                           </p>
                         )}
-                        <pre>
+                        <pre tabIndex={0}>
                           <code>
                             {item.name === "surface-depth"
                               ? surfaceUsage

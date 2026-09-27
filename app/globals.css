@@ -134,7 +134,8 @@ a {
 button:focus-visible,
 a:focus-visible,
 input:focus-visible,
-summary:focus-visible {
+summary:focus-visible,
+pre:focus-visible {
   outline: 2px solid var(--jbm-accent);
   outline-offset: 5px;
 }
@@ -241,7 +242,11 @@ summary:focus-visible {
   border-radius: 6px;
   padding: 9px 13px;
   background: transparent;
-  font-size: 13px;
+  font-size: 14px;
+}
+.filters button:hover,
+.empty button:hover {
+  border-color: var(--jbm-ink);
 }
 .filters button[aria-pressed="true"] {
   background: var(--jbm-ink);
@@ -252,7 +257,7 @@ summary:focus-visible {
   margin-left: 10px;
   opacity: 0.65;
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 12px;
 }
 .search {
   position: relative;
@@ -265,7 +270,7 @@ summary:focus-visible {
   border-radius: 6px;
   padding: 9px 13px;
   background: var(--jbm-card);
-  font-size: 13px;
+  font-size: 14px;
 }
 .search input:placeholder-shown {
   padding-right: 36px; /* room for the "/" hint */
@@ -392,10 +397,13 @@ summary:focus-visible {
   display: flex;
   gap: 24px;
   font-size: 12px;
-  margin: 17px 0;
+  margin: 16px 0;
 }
 /* WCAG 2.2 target size: 24px-tall hit areas; margins absorb the extra height. */
-.card-links a {
+.card-links a,
+.site-source,
+.card-content > p > a,
+footer a {
   display: inline-flex;
   align-items: center;
   min-height: 24px;
@@ -403,7 +411,7 @@ summary:focus-visible {
 details {
   border-top: 1px solid var(--jbm-line);
   padding-top: 14px;
-  font-size: 13px;
+  font-size: 14px;
 }
 summary {
   font-weight: 500;
@@ -590,7 +598,7 @@ footer {
 .surface-sample span {
   display: block;
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 12px;
   opacity: 0.7;
   margin-bottom: 8px;
 }
@@ -660,16 +668,23 @@ footer {
   margin: 0 0 8px;
   max-width: 62ch;
 }
+.install-once-code {
+  position: relative;
+}
 .install-once pre {
   margin: 0;
   overflow-x: auto;
 }
-.install-once-code .copy-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 12px;
-  margin-top: 12px;
+/* The copy button rides in the code block's top-right corner, clear of the short first lines. */
+.install-once-code .copy-button {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: var(--jbm-bg);
+}
+.install-once-code .copy-status:not(:empty) {
+  display: block;
+  margin-top: 10px;
 }
 .install-once code,
 .card-content code {
@@ -681,7 +696,7 @@ footer {
   padding: 9px 13px;
   background: transparent;
   color: var(--jbm-ink);
-  font-size: 13px;
+  font-size: 14px;
   flex: none;
 }
 .copy-button:hover {

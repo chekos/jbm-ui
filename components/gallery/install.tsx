@@ -105,18 +105,16 @@ export function InstallOnce() {
         </p>
       </div>
       <div className="install-once-code">
-        <pre>
+        <pre tabIndex={0}>
           <code>{`{\n  "registries": {\n    ${entry}\n  }\n}`}</code>
         </pre>
-        <div className="copy-row">
-          <CopyButton
-            text={entry}
-            label="Copy the @jbm registries entry"
-            copied="Copied the @jbm registries entry."
-          >
-            Copy @jbm entry
-          </CopyButton>
-        </div>
+        <CopyButton
+          text={entry}
+          label="Copy the @jbm registries entry"
+          copied="Copied the @jbm registries entry."
+        >
+          Copy @jbm entry
+        </CopyButton>
       </div>
     </section>
   )
