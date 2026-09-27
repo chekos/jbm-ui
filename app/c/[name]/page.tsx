@@ -12,6 +12,7 @@ import {
 import { AddCommand } from "@/components/gallery/install"
 import { CodeBlock } from "@/components/gallery/code-block"
 import { QaBench } from "@/components/gallery/qa-bench"
+import { ItemPager } from "@/components/gallery/item-pager"
 import { ItemApi } from "@/components/gallery/item-api"
 import { BundlePage, type BundleNotice } from "@/components/gallery/not-found"
 import { itemAlternateTypes } from "@/lib/agent-catalog"
@@ -92,8 +93,11 @@ function categorySiblings(name: string, category: string) {
   const members = getGalleryItems().filter((item) => item.category === category)
   const index = members.findIndex((item) => item.name === name)
   if (members.length < 2 || index < 0) return null
-  const at = (offset: number) =>
-    members[(index + offset + members.length) % members.length]
+  const at = (offset: number) => {
+    const { name, title } =
+      members[(index + offset + members.length) % members.length]
+    return { name, title, player: isPlayerPreview(name) }
+  }
   return {
     previous: at(-1),
     next: at(1),
@@ -142,23 +146,14 @@ export default async function ItemPage({ params }: Props) {
           </ol>
         </nav>
         {siblings && (
-          <nav className="item-pager" aria-label={`Items in ${item.category}`}>
-            <Link
-              href={`/c/${siblings.previous.name}`}
-              aria-label={`Previous in ${item.category}: ${siblings.previous.title}`}
-            >
-              <span aria-hidden="true">←</span> {siblings.previous.title}
-            </Link>
-            <span className="item-pager-count">
-              {siblings.position} of {siblings.count}
-            </span>
-            <Link
-              href={`/c/${siblings.next.name}`}
-              aria-label={`Next in ${item.category}: ${siblings.next.title}`}
-            >
-              {siblings.next.title} <span aria-hidden="true">→</span>
-            </Link>
-          </nav>
+          <ItemPager
+            category={item.category}
+            previous={siblings.previous}
+            next={siblings.next}
+            position={siblings.position}
+            count={siblings.count}
+            player={player}
+          />
         )}
       </header>
 
@@ -184,7 +179,10 @@ export default async function ItemPage({ params }: Props) {
         tabIndex={-1}
         aria-label={`${item.title} preview`}
       >
+        {/* Keyed by item: a pager navigation mounts a fresh bench that reads the new URL, and
+            never inherits the previous item's view, frame, or pending address-bar write. */}
         <QaBench
+          key={item.name}
           name={item.name}
           title={item.title}
           player={player}

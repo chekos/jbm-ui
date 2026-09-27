@@ -13,7 +13,8 @@ export function CopyButton({
   children,
   copied,
 }: {
-  text: string
+  /** The text to copy, or a function that returns it when the button is pressed. */
+  text: string | (() => string)
   /** Accessible name; it must contain the visible label (WCAG 2.5.3). */
   label: string
   children: string
@@ -26,7 +27,9 @@ export function CopyButton({
   async function copy() {
     clearTimeout(timer.current)
     try {
-      await navigator.clipboard.writeText(text)
+      await navigator.clipboard.writeText(
+        typeof text === "function" ? text() : text
+      )
       setStatus(copied)
       timer.current = setTimeout(() => setStatus(""), 4000)
     } catch {

@@ -55,6 +55,7 @@ export function QaBench({
     <div className="bench-host" ref={host}>
       {player ? (
         <MotionBench
+          key={name}
           name={name}
           title={title}
           orientationAware={orientationAware}

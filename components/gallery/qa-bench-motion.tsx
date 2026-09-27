@@ -13,7 +13,8 @@ import type { SceneLayout } from "@/registry/jbm/motion/spec"
 import { stage, type Orientation } from "@/registry/jbm/lib/tokens"
 import { ReplayButton } from "@/registry/jbm/ui/replay-button"
 import { fps } from "./timing"
-import { CopyButton } from "./code-block"
+import { usePathname, useSearchParams } from "next/navigation"
+import { CopyBenchLink, stateHref, useMirrorUrl } from "./bench-url"
 import {
   Composition,
   playerChrome,
@@ -64,13 +65,11 @@ const defaults: BenchState = {
   guides: false,
   frame: null,
 }
-const benchKeys = ["view", "orientation", "frame", "layout", "safe", "guides"]
+type Query = { get(key: string): string | null }
 
-// MotionBench is client-only (next/dynamic with ssr: false), so it reads the URL during its first
-// render: the bench mounts in its requested state with no second layout pass.
-function readBenchState(orientationAware: boolean): BenchState {
-  if (typeof window === "undefined") return defaults
-  const query = new URLSearchParams(window.location.search)
+// MotionBench is client-only (next/dynamic with ssr: false), so it reads the query during its
+// first render: the bench mounts in its requested state with no second layout pass.
+export function readBenchState(query: Query, orientationAware: boolean): BenchState {
   const pick = <T extends string>(key: string, allowed: readonly T[]) => {
     const value = query.get(key) as T | null
     return value !== null && allowed.includes(value) ? value : undefined
@@ -96,21 +95,21 @@ function readBenchState(orientationAware: boolean): BenchState {
   }
 }
 
-/** The page URL for a bench state; other query parameters and the hash are kept. */
-function benchHref(state: BenchState, last: number, orientationAware: boolean) {
-  const query = new URLSearchParams(window.location.search)
-  for (const key of benchKeys) query.delete(key)
-  if (state.view !== defaults.view) query.set("view", state.view)
-  if (orientationAware) {
-    if (state.orientation !== defaults.orientation) query.set("orientation", "portrait")
-    if (state.layout !== defaults.layout) query.set("layout", state.layout)
-    if (state.safeArea !== defaults.safeArea) query.set("safe", state.safeArea)
-    if (state.guides) query.set("guides", "1")
+/** The bench keys for a state: defaults and scene options on other benches are removed. */
+function benchParams(
+  state: BenchState,
+  last: number,
+  orientationAware: boolean
+): Record<string, string | null> {
+  const scene = (value: string | null) => (orientationAware ? value : null)
+  return {
+    view: state.view !== defaults.view ? state.view : null,
+    orientation: scene(state.orientation !== defaults.orientation ? "portrait" : null),
+    layout: scene(state.layout !== defaults.layout ? state.layout : null),
+    safe: scene(state.safeArea !== defaults.safeArea ? state.safeArea : null),
+    guides: scene(state.guides ? "1" : null),
+    frame: state.frame !== null && state.frame !== last ? String(state.frame) : null,
   }
-  if (state.frame !== null && state.frame !== last)
-    query.set("frame", String(state.frame))
-  const search = query.toString()
-  return `${window.location.pathname}${search ? `?${search}` : ""}${window.location.hash}`
 }
 
 /**
@@ -129,7 +128,9 @@ export default function MotionBench({
   orientationAware: boolean
 }) {
   const id = useId()
-  const [initial] = useState(() => readBenchState(orientationAware))
+  const pathname = usePathname()
+  const query = useSearchParams()
+  const [initial] = useState(() => readBenchState(query, orientationAware))
   const [layout, setLayout] = useState<SceneLayout>(initial.layout)
   const [safeArea, setSafeArea] = useState<BenchSafeArea>(initial.safeArea)
   const [orientation, setOrientation] = useState<Orientation>(initial.orientation)
@@ -154,26 +155,14 @@ export default function MotionBench({
     if (startFrame !== startLast) seekRef.current(startFrame)
   }, [startFrame, startLast])
 
-  const href = benchHref(
-    { view, orientation, layout, safeArea, guides, frame },
-    last,
-    orientationAware
+  // Built from the router's pathname and query, so the href always names this item.
+  const href = stateHref(
+    pathname,
+    query,
+    benchParams({ view, orientation, layout, safeArea, guides, frame }, last, orientationAware)
   )
-  // Mirror the state into the address bar once it settles: not while the timeline plays, and
-  // debounced while scrubbing (Safari throttles rapid history updates).
-  useEffect(() => {
-    if (charging) return
-    const timer = setTimeout(() => {
-      const current = `${window.location.pathname}${window.location.search}${window.location.hash}`
-      if (current === href) return
-      try {
-        window.history.replaceState(null, "", href)
-      } catch {
-        // History updates can be refused (throttled or sandboxed); the bench still works.
-      }
-    }, 200)
-    return () => clearTimeout(timer)
-  }, [href, charging])
+  // Mirror the state into the address bar once it settles: not while the timeline plays.
+  useMirrorUrl(href, pathname, charging)
 
   const size = orientationAware ? stage[orientation] : { w: 800, h: 500 }
   const seconds = (value: number) => `${(value / fps).toFixed(2)} s`
@@ -217,15 +206,7 @@ export default function MotionBench({
             ))}
           </div>
         )}
-        <div className="bench-link">
-          <CopyButton
-            text={`${window.location.origin}${href}`}
-            label="Copy link to this bench state"
-            copied="Link to this bench state copied"
-          >
-            Copy link
-          </CopyButton>
-        </div>
+        <CopyBenchLink href={href} />
       </div>
 
       {/* The strip shows both orientations, so the switch only applies to the single view. */}
