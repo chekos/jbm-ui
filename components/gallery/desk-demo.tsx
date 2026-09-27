@@ -2,13 +2,15 @@
 
 import { useBenchParam } from "./bench-url"
 import { Cajon } from "@/registry/jbm/motion/cajon"
-import { Hand, type HandPose } from "@/registry/jbm/ui/hand"
+import { Hand, handPoses, type HandPose } from "@/registry/jbm/ui/hand"
 import { Mano } from "@/registry/jbm/motion/mano"
+import { Pluma, plumaNib } from "@/registry/jbm/motion/pluma"
 import { FileCabinet } from "@/registry/jbm/ui/file-cabinet"
 import { Bandeja } from "@/registry/jbm/motion/bandeja"
 import { ToolCaddy } from "@/registry/jbm/motion/tool-caddy"
 import { Escritorio } from "@/registry/jbm/motion/escritorio"
 import { Burbuja } from "@/registry/jbm/motion/burbuja"
+import { color } from "@/registry/jbm/lib/tokens"
 import {
   degrees,
   ProgressControl,
@@ -32,6 +34,18 @@ const names = [
   "texto",
   "archivo",
 ]
+const poseLabels: Record<HandPose, string> = {
+  open: "Open palm",
+  point: "Point",
+  pinch: "Pinch (pen grip)",
+  grip: "Grip",
+  type: "Type",
+  hold: "Hold",
+}
+type Cuff = "none" | "ink" | "accent"
+// The Mano and Pluma previews draw into a 500 × 340 viewBox; the sleeve runs to its edge.
+const frame = { x: 0, y: 0, w: 500, h: 340 }
+const line = { x: 90, y: 262, w: 320 }
 export function DeskDemo({ name }: { name: string }) {
   // On /c/<name> benches each value lives in the URL (?open=0.5&pose=pinch); see bench-url.tsx.
   const unit = { clamp: [0, 1] } as const
@@ -43,8 +57,15 @@ export function DeskDemo({ name }: { name: string }) {
   const [open, setOpen] = useBenchParam("open", 1, unit)
   const [pull, setPull] = useBenchParam("lift", 0, unit)
   const [pose, setPose] = useBenchParam<HandPose>("pose", "point", {
-    allowed: ["open", "point", "pinch"],
+    allowed: handPoses,
   })
+  const [arm, setArm] = useBenchParam("arm", name === "pluma")
+  const [cardSleeve, setCardSleeve] = useBenchParam("card", false)
+  const [cuff, setCuff] = useBenchParam<Cuff>("cuff", "none", {
+    allowed: ["none", "ink", "accent"],
+  })
+  const [write, setWrite] = useBenchParam("write", 0.6, unit)
+  const [showHand, setShowHand] = useBenchParam("hand", true)
   const [wood, setWood] = useBenchParam("wood", false)
   const [right, setRight] = useBenchParam("right", false)
   const [cabinet, setCabinet] = useBenchParam("cabinet", false)
@@ -54,6 +75,13 @@ export function DeskDemo({ name }: { name: string }) {
   const folders = names
     .slice(0, count)
     .map((name, i) => ({ name, accent: i === 0, pulled: i === 0 ? pull : 0 }))
+  const sleeve = arm
+    ? { arm: { frame, tone: cardSleeve ? "card" : "ink" } as const, cuff: cuff === "none" ? undefined : cuff }
+    : {}
+  // Pluma: solve the grip point from where the nib should be, so the ink ends under the nib.
+  const nib = { x: line.x + line.w * write, y: line.y }
+  const offset = plumaNib({ x: 0, y: 0 }, angle, undefined, 150)
+  const grip = { x: nib.x - offset.x, y: nib.y - offset.y }
   const drawerControls =
     name === "cajon" ||
     name === "file-cabinet" ||
@@ -133,13 +161,56 @@ export function DeskDemo({ name }: { name: string }) {
                 open={open}
               />
             )}
+            {((name === "mano" && arm) || name === "pluma") && (
+              // The stage edge the sleeve leaves through, so it never reads as a cut-off stump.
+              <rect
+                x={1}
+                y={1}
+                width={frame.w - 2}
+                height={frame.h - 2}
+                fill="none"
+                stroke={color.line}
+                strokeWidth={2}
+              />
+            )}
             {name === "mano" && (
               <Mano
                 at={{ x: 145 + position * 100, y: 35 }}
                 pose={pose}
                 size={155}
                 angle={angle}
+                {...sleeve}
               />
+            )}
+            {name === "pluma" && (
+              <>
+                <line
+                  x1={line.x}
+                  y1={line.y}
+                  x2={line.x + line.w}
+                  y2={line.y}
+                  stroke={color.line}
+                  strokeWidth={2}
+                />
+                {write > 0 && (
+                  <line
+                    x1={line.x}
+                    y1={line.y}
+                    x2={nib.x}
+                    y2={nib.y}
+                    stroke={color.ink}
+                    strokeWidth={4}
+                    strokeLinecap="round"
+                  />
+                )}
+                <Pluma
+                  at={grip}
+                  angle={angle}
+                  size={150}
+                  hand={showHand}
+                  {...(showHand ? sleeve : {})}
+                />
+              </>
             )}
             {name === "bandeja" && (
               <Bandeja x={70} y={160} w={360} layers={count} />
@@ -215,19 +286,71 @@ export function DeskDemo({ name }: { name: string }) {
               value={pose}
               onChange={(e) => setPose(e.target.value as HandPose)}
             >
-              <option value="open">Open palm</option>
-              <option value="point">Point</option>
-              <option value="pinch">Pinch</option>
+              {handPoses.map((p) => (
+                <option key={p} value={p}>
+                  {poseLabels[p]}
+                </option>
+              ))}
             </select>
           </label>
         )}
-        {name === "mano" && (
+        {name === "pluma" && (
           <>
-            {range("Position", position, setPosition, [
-              "Left",
-              "Center",
-              "Right",
-            ])}
+            {range("Write", write, setWrite, ["Start", "Half", "End"])}
+            <label>
+              <input
+                type="checkbox"
+                checked={showHand}
+                onChange={(e) => setShowHand(e.target.checked)}
+              />{" "}
+              Hand
+            </label>
+          </>
+        )}
+        {(name === "mano" || (name === "pluma" && showHand)) && (
+          <>
+            <label>
+              <input
+                type="checkbox"
+                checked={arm}
+                onChange={(e) => setArm(e.target.checked)}
+              />{" "}
+              Arm
+            </label>
+            {arm && (
+              <>
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={cardSleeve}
+                    onChange={(e) => setCardSleeve(e.target.checked)}
+                  />{" "}
+                  Card sleeve
+                </label>
+                <label>
+                  Cuff{" "}
+                  <select
+                    aria-label={`${name} cuff`}
+                    value={cuff}
+                    onChange={(e) => setCuff(e.target.value as Cuff)}
+                  >
+                    <option value="none">None</option>
+                    <option value="ink">Ink</option>
+                    <option value="accent">Accent (yours)</option>
+                  </select>
+                </label>
+              </>
+            )}
+          </>
+        )}
+        {(name === "mano" || name === "pluma") && (
+          <>
+            {name === "mano" &&
+              range("Position", position, setPosition, [
+                "Left",
+                "Center",
+                "Right",
+              ])}
             <RangeControl
               label="Rotation"
               ariaLabel={`${name} Rotation`}

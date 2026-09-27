@@ -1013,12 +1013,13 @@
     {
       "name": "mano",
       "title": "Mano",
-      "description": "Position and rotate the independent Hand illustration with controlled coordinates.",
+      "description": "Position and rotate the independent Hand illustration with controlled coordinates, optionally on a sleeve from the frame edge.",
       "categories": [
         "UI Bits"
       ],
       "type": "registry:component",
       "registryDependencies": [
+        "@jbm/tokens",
         "@jbm/hand",
         "@jbm/scene-geometry"
       ],
@@ -1027,6 +1028,27 @@
           "path": "registry/jbm/motion/mano.tsx",
           "type": "registry:component",
           "target": "src/jbm/motion/mano.tsx"
+        }
+      ]
+    },
+    {
+      "name": "pluma",
+      "title": "Pluma",
+      "description": "A pen held in the Hand's pinch, with a helper that reports the nib point.",
+      "categories": [
+        "UI Bits"
+      ],
+      "type": "registry:component",
+      "registryDependencies": [
+        "@jbm/tokens",
+        "@jbm/scene-geometry",
+        "@jbm/mano"
+      ],
+      "files": [
+        {
+          "path": "registry/jbm/motion/pluma.tsx",
+          "type": "registry:component",
+          "target": "src/jbm/motion/pluma.tsx"
         }
       ]
     },
@@ -1115,7 +1137,7 @@
     {
       "name": "hand",
       "title": "Hand",
-      "description": "Static line-art hand in open-palm, pointing, or pinching pose, independent of placement and props.",
+      "description": "Static line-art hand in open-palm, pointing, pinching, gripping, typing, or holding pose, independent of placement and props.",
       "categories": [
         "UI Bits"
       ],
