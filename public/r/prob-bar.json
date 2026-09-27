@@ -19,5 +19,8 @@
       "target": "src/jbm/motion/prob-bar.tsx"
     }
   ],
+  "categories": [
+    "Motion"
+  ],
   "type": "registry:component"
 }

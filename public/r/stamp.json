@@ -15,5 +15,8 @@
       "target": "src/jbm/ui/stamp.tsx"
     }
   ],
+  "categories": [
+    "UI Bits"
+  ],
   "type": "registry:ui"
 }

@@ -62,7 +62,8 @@ const galleryOrder: RegistryItem[] = [
   ...registryItems.slice(1).filter((item) => item.name !== "ui-bits"),
 ]
 
-function needsRemotion(name: string, seen = new Set<string>()): boolean {
+/** True when the item, or anything it installs, depends on Remotion. */
+export function needsRemotion(name: string, seen = new Set<string>()): boolean {
   if (seen.has(name)) return false
   seen.add(name)
   const item = byName.get(name)
@@ -71,6 +72,18 @@ function needsRemotion(name: string, seen = new Set<string>()): boolean {
   return (item.registryDependencies ?? []).some((dependency) =>
     needsRemotion(dependency.replace(/^@jbm\//, ""), seen)
   )
+}
+
+export function registryDependencies(name: string): string[] {
+  return byName.get(name)?.registryDependencies ?? []
+}
+
+export function addCommand(name: string) {
+  return `npx shadcn@latest add @jbm/${name}`
+}
+
+export function isRegistryItem(name: string) {
+  return byName.has(name)
 }
 
 /** Video-primitive demos that render their own inputs rather than a fixed example. */
@@ -86,8 +99,9 @@ export const isPlayerPreview = (name: string) => playerNames.includes(name)
 export const supportsOrientation = (name: string) =>
   orientationNames.includes(name)
 
-function capabilities(item: RegistryItem): Capability[] {
-  const { name } = item
+/** What an item's gallery preview lets you inspect. Empty means a still preview. */
+export function capabilities(name: string): Capability[] {
+  const item = byName.get(name)
   const player = isPlayerPreview(name)
   const tags: Capability[] = []
   if (
@@ -103,7 +117,7 @@ function capabilities(item: RegistryItem): Capability[] {
   if ((player && name !== "scene") || name === "replay-button")
     tags.push("replay")
   if (supportsOrientation(name)) tags.push("portrait")
-  if (player || item.dependencies?.includes("remotion")) tags.push("remotion")
+  if (player || item?.dependencies?.includes("remotion")) tags.push("remotion")
   return tags
 }
 
@@ -123,7 +137,7 @@ export function getGalleryItems(): GalleryItemMeta[] {
       title: item.title ?? item.name,
       description: item.description ?? "",
       category: category(item.name),
-      capabilities: capabilities(item),
+      capabilities: capabilities(item.name),
       needsRemotion: needsRemotion(item.name),
       registryDependencies: item.registryDependencies ?? [],
       snippet: snippetFor(item.name),

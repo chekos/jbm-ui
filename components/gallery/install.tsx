@@ -1,37 +1,10 @@
 "use client"
 
 import { useEffect, useRef, useState, useSyncExternalStore } from "react"
-import registry from "@/registry.json"
+import { registryUrlTemplate, siteOrigin } from "@/lib/site"
+import { addCommand } from "./item-meta"
 
-type RegistryItem = {
-  name: string
-  dependencies?: string[]
-  registryDependencies?: string[]
-}
-
-const items = new Map<string, RegistryItem>(
-  (registry.items as RegistryItem[]).map((item) => [item.name, item])
-)
-
-/** True when the item, or anything it installs, depends on Remotion. */
-export function needsRemotion(name: string, seen = new Set<string>()): boolean {
-  if (seen.has(name)) return false
-  seen.add(name)
-  const item = items.get(name)
-  if (!item) return false
-  if (item.dependencies?.includes("remotion")) return true
-  return (item.registryDependencies ?? []).some((dependency) =>
-    needsRemotion(dependency.replace(/^@jbm\//, ""), seen)
-  )
-}
-
-export function registryDependencies(name: string): string[] {
-  return items.get(name)?.registryDependencies ?? []
-}
-
-export function addCommand(name: string) {
-  return `npx shadcn@latest add @jbm/${name}`
-}
+export { addCommand, needsRemotion, registryDependencies } from "./item-meta"
 
 function CopyButton({
   text,
@@ -75,18 +48,20 @@ function CopyButton({
 }
 
 const noop = () => () => {}
+const canonicalOrigin = siteOrigin()
 
+// The server renders the canonical origin; after hydration a preview deploy or
+// local dev server swaps in its own origin so the copied entry works there.
 function useOrigin() {
   return useSyncExternalStore(
     noop,
     () => window.location.origin,
-    () => ""
+    () => canonicalOrigin
   )
 }
 
 export function InstallOnce() {
-  const origin = useOrigin()
-  const url = `${origin || "https://<this-site>"}/r/{name}.json`
+  const url = registryUrlTemplate(useOrigin())
   const entry = `"@jbm": "${url}"`
   return (
     <section className="install-once" aria-labelledby="install-once-heading">

@@ -12,5 +12,8 @@
       "target": "src/jbm/lib/geometry.ts"
     }
   ],
+  "categories": [
+    "Foundations"
+  ],
   "type": "registry:lib"
 }

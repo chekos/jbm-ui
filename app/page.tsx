@@ -20,8 +20,12 @@ export default function Page() {
       </header>
       <Gallery />
       <footer>
-        Made for tacosdedatos. Built to be used again.
-        <a href="/r/registry.json">Registry index (JSON) ↗</a>
+        <p>Made for tacosdedatos. Built to be used again.</p>
+        <nav aria-label="Machine-readable catalogs">
+          For agents: <a href="/llms.txt">llms.txt</a> ·{" "}
+          <a href="/catalog.json">catalog.json</a> ·{" "}
+          <a href="/r/registry.json">registry.json</a>
+        </nav>
       </footer>
     </main>
   )

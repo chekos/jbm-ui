@@ -14,5 +14,8 @@
       "target": "src/jbm/motion/tool-caddy.tsx"
     }
   ],
+  "categories": [
+    "UI Bits"
+  ],
   "type": "registry:component"
 }

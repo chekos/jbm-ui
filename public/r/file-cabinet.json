@@ -16,5 +16,8 @@
       "target": "src/jbm/ui/file-cabinet.tsx"
     }
   ],
+  "categories": [
+    "UI Bits"
+  ],
   "type": "registry:component"
 }

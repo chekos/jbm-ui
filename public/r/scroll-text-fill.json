@@ -15,5 +15,8 @@
       "target": "src/jbm/ui/scroll-text-fill.tsx"
     }
   ],
+  "categories": [
+    "Motion"
+  ],
   "type": "registry:ui"
 }

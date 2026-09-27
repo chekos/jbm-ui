@@ -15,5 +15,8 @@
       "target": "src/jbm/ui/frontmatter.tsx"
     }
   ],
+  "categories": [
+    "UI"
+  ],
   "type": "registry:ui"
 }

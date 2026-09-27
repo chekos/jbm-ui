@@ -17,5 +17,8 @@
       "target": "src/jbm/motion/pop.tsx"
     }
   ],
+  "categories": [
+    "Motion"
+  ],
   "type": "registry:component"
 }

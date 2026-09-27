@@ -20,5 +20,8 @@
       "target": "src/jbm/motion/rebuild-screens.tsx"
     }
   ],
+  "categories": [
+    "Motion"
+  ],
   "type": "registry:component"
 }

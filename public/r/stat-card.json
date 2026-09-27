@@ -15,5 +15,8 @@
       "target": "src/jbm/ui/stat-card.tsx"
     }
   ],
+  "categories": [
+    "UI"
+  ],
   "type": "registry:ui"
 }

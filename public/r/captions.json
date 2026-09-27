@@ -18,5 +18,8 @@
       "target": "src/jbm/motion/captions.tsx"
     }
   ],
+  "categories": [
+    "Motion"
+  ],
   "type": "registry:component"
 }

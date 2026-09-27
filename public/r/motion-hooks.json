@@ -14,5 +14,8 @@
       "target": "src/jbm/motion/hooks.ts"
     }
   ],
+  "categories": [
+    "Foundations"
+  ],
   "type": "registry:hook"
 }

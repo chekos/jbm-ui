@@ -16,5 +16,8 @@
       "target": "src/jbm/motion/cajon.tsx"
     }
   ],
+  "categories": [
+    "UI Bits"
+  ],
   "type": "registry:component"
 }
