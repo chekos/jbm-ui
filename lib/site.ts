@@ -14,6 +14,14 @@ export function siteOrigin(): string {
   return origin.replace(/\/+$/, "")
 }
 
+/**
+ * GitHub URL for a repository file, for human-facing "Source ↗" links only. Agent-facing outputs
+ * (catalog, llms*, per-item Markdown and JSON, schemas) never carry repository URLs.
+ */
+export function repoSourceUrl(path: string): string {
+  return `https://github.com/chekos/jbm-ui/blob/main/${path}`
+}
+
 /** shadcn registry URL template for the @jbm namespace. */
 export function registryUrlTemplate(origin = siteOrigin()): string {
   return `${origin}/r/{name}.json`

@@ -19,8 +19,27 @@ function useOrigin() {
 }
 
 // Install once is a disclosure: open on wide screens, closed on phones where it
-// would otherwise push the catalog ~750px down. The reader's own toggle wins.
+// would otherwise push the catalog ~750px down. The reader's own toggle wins and is
+// remembered across visits (a returning reader who collapsed it once has installed).
 const narrowQuery = "(max-width: 760px)"
+const storageKey = "jbm:install-once"
+
+// Storage can throw (private windows, blocked site data); the default then applies.
+function readStored(): boolean | null {
+  try {
+    const value = window.localStorage.getItem(storageKey)
+    return value === "open" ? true : value === "closed" ? false : null
+  } catch {
+    return null
+  }
+}
+function writeStored(open: boolean) {
+  try {
+    window.localStorage.setItem(storageKey, open ? "open" : "closed")
+  } catch {
+    // Not remembered; this visit still honours the toggle.
+  }
+}
 function subscribeNarrow(onChange: () => void) {
   const list = window.matchMedia(narrowQuery)
   list.addEventListener("change", onChange)
@@ -38,12 +57,21 @@ function useInstallOpen() {
     () => true,
     () => false
   )
+  const stored = useSyncExternalStore(noop, readStored, () => null)
   const [toggled, setToggled] = useState<boolean | null>(null)
-  return { open: toggled ?? !narrow, hydrated, setToggled }
+  const open = toggled ?? stored ?? !narrow
+  // Only the reader's own toggles count: React changing the `open` prop also fires
+  // `toggle`, but then the element already matches the computed state.
+  const onToggle = (next: boolean) => {
+    if (next === open) return
+    setToggled(next)
+    writeStored(next)
+  }
+  return { open, hydrated, onToggle }
 }
 
 export function InstallOnce() {
-  const { open, hydrated, setToggled } = useInstallOpen()
+  const { open, hydrated, onToggle } = useInstallOpen()
   const url = registryUrlTemplate(useOrigin())
   const entry = `"@jbm": "${url}"`
   return (
@@ -51,7 +79,7 @@ export function InstallOnce() {
       className="install-once"
       open={open}
       data-hydrated={hydrated || undefined}
-      onToggle={(event) => setToggled(event.currentTarget.open)}
+      onToggle={(event) => onToggle(event.currentTarget.open)}
     >
       <summary>
         <h2>Install once</h2>

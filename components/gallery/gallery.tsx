@@ -28,8 +28,19 @@ import { categories, type Category } from "./categories"
 import {
   categorySlug,
   getGalleryItems,
+  type Capability,
   type GalleryItemMeta,
 } from "./item-meta"
+import { repoSourceUrl } from "@/lib/site"
+
+/** Card tag wording for readers; the ids stay in data attributes and search. */
+const capabilityLabel: Record<Capability, string> = {
+  controls: "adjustable",
+  scroll: "scroll-driven",
+  replay: "replayable",
+  portrait: "landscape + vertical",
+  player: "video player",
+}
 
 // One source of truth for cards, /c/<name> pages, llms.txt, and catalog.json.
 const galleryItems = getGalleryItems()
@@ -55,8 +66,9 @@ const groups = categories.filter(
 const slug = categorySlug
 const plural = (count: number) => (count === 1 ? "item" : "items")
 
-// Search covers names, copy, category, capability tags ("player", "replay", "controls"), and
-// "remotion" for items that need the remotion package; every whitespace-separated term must match.
+// Search covers names, copy, category, capability ids ("player", "replay", "controls") and their
+// card labels ("adjustable"), and "remotion" for items that need the remotion package; every
+// whitespace-separated term must match.
 const searchText = new Map(
   galleryItems.map((item) => [
     item.name,
@@ -66,6 +78,7 @@ const searchText = new Map(
       item.description,
       item.category,
       ...item.capabilities,
+      ...item.capabilities.map((tag) => capabilityLabel[tag]),
       item.needsRemotion ? "remotion" : "",
     ]
       .join(" ")
@@ -177,7 +190,11 @@ function ComponentCard({ item }: { item: GalleryItem }) {
   const tags = item.capabilities
   const dependencies = item.registryDependencies
   return (
-    <article id={name} className="component-card">
+    <article
+      id={name}
+      className="component-card"
+      data-capabilities={tags.join(" ") || undefined}
+    >
       <Preview item={item} />
       <div className="card-content">
         <div className="card-heading">
@@ -188,13 +205,13 @@ function ComponentCard({ item }: { item: GalleryItem }) {
             <p className="card-tags">
               <span className="sr-only">Preview: </span>
               {tags.map((tag, i) => (
-                <span key={tag}>
+                <span key={tag} data-capability={tag}>
                   {i > 0 && (
                     <span className="card-tag-separator" aria-hidden="true">
                       ·
                     </span>
                   )}
-                  {tag}
+                  {capabilityLabel[tag]}
                   {i < tags.length - 1 && <span className="sr-only">, </span>}
                 </span>
               ))}
@@ -235,8 +252,16 @@ function ComponentCard({ item }: { item: GalleryItem }) {
             {documentation ? (
               <a href="/docs/surface-depth.md">Design note</a>
             ) : (
-              <a href={`/r/${name}.json`}>Registry JSON (source) ↗</a>
+              <a href={`/r/${name}.json`}>Registry JSON ↗</a>
             )}
+            <a
+              href={repoSourceUrl(item.sourcePath)}
+              target="_blank"
+              rel="noopener"
+            >
+              Source<span className="sr-only"> of {item.title} on GitHub</span>{" "}
+              ↗
+            </a>
           </div>
         </details>
       </div>
@@ -253,6 +278,8 @@ export function Gallery() {
   // On narrow screens (CSS only) search collapses to an icon button; a query
   // keeps it open. Wider screens always show the field and hide the button.
   const [searchOpen, setSearchOpen] = useState(false)
+  // True right after Clear, until the next filter or query change.
+  const [cleared, setCleared] = useState(false)
   const searchShown = searchOpen || query !== ""
   const searchInput = useRef<HTMLInputElement>(null)
   const searchToggle = useRef<HTMLButtonElement>(null)
@@ -272,6 +299,7 @@ export function Gallery() {
 
   // When the toolbar is stuck, a new result set starts at its top instead of mid-scroll.
   function update(nextFilter: Category, nextQuery: string) {
+    setCleared(false)
     writeUrl(nextFilter, nextQuery)
     requestAnimationFrame(() => {
       const top = results.current?.getBoundingClientRect().top ?? 0
@@ -281,7 +309,18 @@ export function Gallery() {
   }
   const setFilter = (value: Category) => update(value, query)
   const setQuery = (value: string) => update(filter, value)
-  const clear = () => update("All", "")
+  // Both Clear buttons unmount once nothing is filtered, so focus would fall to <body>
+  // (WCAG 2.4.3). Hand it to search: the mobile toggle where the field is collapsed, the
+  // field on wider screens. The status region announces the reset.
+  function clear() {
+    update("All", "")
+    setCleared(true)
+    requestAnimationFrame(() => {
+      const toggle = searchToggle.current
+      if (toggle?.checkVisibility()) toggle.focus()
+      else searchInput.current?.focus()
+    })
+  }
 
   function openSearch() {
     setSearchOpen(true)
@@ -369,9 +408,18 @@ export function Gallery() {
     filter !== "All"
       ? galleryItems.filter((item) => matches(item, "All", query)).length
       : 0
-  const summary = `${items.length} ${filter === "All" ? "" : filter + " "}${plural(items.length)}${
-    query ? ` matching “${query}”` : active ? "" : " in the collection"
-  }`
+  const where = filter === "All" ? "the collection" : filter
+  const summary =
+    items.length === 0
+      ? // Announced for screen readers; the empty state below shows the same words.
+        `No “${query}” in ${where}. ${
+          everywhere > 0
+            ? `${everywhere} ${plural(everywhere)} match in other categories.`
+            : ""
+        }`.trim()
+      : `${cleared ? "Filters cleared. " : ""}${items.length} ${filter === "All" ? "" : filter + " "}${plural(items.length)}${
+          query ? ` matching “${query}”` : active ? "" : " in the collection"
+        }`
   // Chip counts follow the query: how many matches each category holds right now.
   const count = (value: Category) =>
     galleryItems.filter((item) => matches(item, value, query)).length
@@ -453,7 +501,14 @@ export function Gallery() {
         </div>
       </div>
       <div className="toolbar-status" ref={status}>
-        <p className="result-count" role="status">
+        {/* One visible message: while nothing matches, the empty state says it and this
+            live region only announces it. */}
+        <p
+          className={
+            items.length === 0 ? "result-count sr-only" : "result-count"
+          }
+          role="status"
+        >
           {summary}
         </p>
         {/* The empty state carries its own Clear; never show two. */}
@@ -509,7 +564,7 @@ export function Gallery() {
         {items.length === 0 && (
           <div className="empty">
             <h2>
-              No “{query}” in {filter === "All" ? "the collection" : filter}.
+              No “{query}” in {where}.
             </h2>
             <p>
               {everywhere > 0
