@@ -945,6 +945,30 @@ details > p {
 .breadcrumb [aria-current="page"] {
   color: var(--jbm-ink);
 }
+/* Previous / next item in the same category (wrapping), with the position in mono between. */
+.item-pager {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  margin-left: auto;
+  color: var(--jbm-dim);
+}
+.item-pager a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 24px;
+  color: var(--jbm-dim);
+}
+.item-pager a:hover {
+  color: var(--jbm-ink);
+}
+.item-pager-count {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
 .item-head {
   padding: 40px 0 24px;
 }
@@ -1025,6 +1049,8 @@ details > p {
   --bench-foot: 16px;
   --bench-bar-h: 44px; /* one row: 36px steps beside the 44px replay target */
   --bench-gap: 12px;
+  /* One stage column for every item, so stages share a right edge across a QA pass. */
+  --bench-col-max: 1000px;
   --bench-h: max(
     240px,
     calc(
@@ -1035,17 +1061,48 @@ details > p {
   --bench-w: min(100%, calc(var(--bench-h) * var(--stage-ratio, 1.6)));
   display: grid;
   gap: var(--bench-gap);
+  max-width: var(--bench-col-max);
   font-size: 14px;
 }
-/* Bar layout: the frame stepper runs under the stage at the stage's width. */
+/* Bar layout: the view toolbar above the stage, the frame stepper under it across the column. */
 .bench[data-layout="bar"] {
+  --bench-above: calc(var(--bench-gap) + 36px);
   --bench-below: calc(var(--bench-gap) + var(--bench-bar-h));
 }
 .bench-stage,
 .bench-preview,
-.bench-loading,
-.bench-frames {
+.bench-loading {
   width: var(--bench-w);
+}
+.bench-stage[hidden] {
+  display: none;
+}
+/* Bar layout: toolbar, stage or strip, and stepper share the stage's edges, so nothing moves when
+   the view changes. */
+.bench-frames,
+.bench-toolbar,
+.bench-strip {
+  width: var(--bench-w);
+  min-width: min(100%, 320px);
+}
+.bench-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+  min-height: 36px;
+}
+.bench-link {
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: center;
+  gap: 10px;
+  margin-left: auto;
+}
+.bench-link .copy-button {
+  min-height: 36px;
+  padding: 6px 12px;
 }
 .bench-preview,
 .bench-loading,
@@ -1072,14 +1129,22 @@ details > p {
 /* Rail layout (orientation-aware stages). Narrow screens stack the orientation switch, the stage,
    the stepper, then the scene options. */
 .bench[data-layout="rail"] {
-  --bench-above: calc(var(--bench-gap) + 36px);
+  --bench-above: calc(2 * (var(--bench-gap) + 36px));
   --bench-below: calc(var(--bench-gap) + var(--bench-bar-h));
+  max-width: calc(var(--bench-col-max) + 304px);
+}
+.bench[data-layout="rail"][data-view="strip"] {
+  --bench-above: calc(var(--bench-gap) + 36px);
+  --bench-below: 0px;
 }
 .bench[data-layout="rail"] .bench-stage {
   justify-self: center;
 }
-.bench[data-layout="rail"] .bench-frames {
+.bench[data-layout="rail"] .bench-frames,
+.bench[data-layout="rail"] .bench-toolbar,
+.bench[data-layout="rail"] .bench-strip {
   width: 100%;
+  min-width: 0;
 }
 /* Wide screens: the stage is centred in its own column and the switch, stepper, and options sit
    in a right-hand rail beside it. The stage column keeps one height in both orientations, so
@@ -1088,9 +1153,10 @@ details > p {
   .bench[data-layout="rail"] {
     --bench-above: 0px;
     --bench-below: 0px;
-    grid-template-columns: minmax(0, 1fr) 272px;
-    grid-template-rows: auto auto auto minmax(0, 1fr);
+    grid-template-columns: minmax(0, var(--bench-col-max)) 272px;
+    grid-template-rows: auto auto auto auto minmax(0, 1fr);
     grid-template-areas:
+      "stage tools"
       "stage orient"
       "stage frames"
       "stage options"
@@ -1100,10 +1166,21 @@ details > p {
     align-items: start;
     min-height: var(--bench-h);
   }
+  .bench[data-layout="rail"][data-view="strip"] {
+    grid-template-rows: auto auto minmax(0, 1fr);
+    grid-template-areas:
+      "stage tools"
+      "stage options"
+      "stage .";
+  }
+  .bench[data-layout="rail"] .bench-toolbar {
+    grid-area: tools;
+  }
   .bench[data-layout="rail"] .bench-orient {
     grid-area: orient;
   }
-  .bench[data-layout="rail"] .bench-stage {
+  .bench[data-layout="rail"] .bench-stage,
+  .bench[data-layout="rail"] .bench-strip {
     grid-area: stage;
   }
   .bench[data-layout="rail"] .bench-frames,
@@ -1221,9 +1298,10 @@ details > p {
   inset: 0;
   pointer-events: none;
 }
+/* Graphite, not a warm accent: the composition's own vermilion stays the only stamp. */
 .bench-guides-area {
   position: absolute;
-  outline: 2px dashed var(--jbm-accent2);
+  outline: 2px dashed var(--jbm-dim);
   outline-offset: -1px;
 }
 .bench-guides-area span {
@@ -1233,7 +1311,8 @@ details > p {
   padding: 1px 6px;
   border-radius: 4px;
   background: var(--jbm-bg);
-  color: var(--jbm-accent2);
+  color: var(--jbm-dim);
+  white-space: nowrap;
   font-family: var(--font-mono);
   font-size: 12px;
   font-variant-numeric: tabular-nums;
@@ -1247,13 +1326,113 @@ details > p {
 .bench-scrub {
   display: flex;
   flex: 1 1 200px;
-  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
   min-width: 160px;
 }
 .bench-scrub input {
   width: 100%;
   height: 24px;
   margin: 0;
+}
+/* Keyboard hint under the scrubber; the full sentence is its aria-describedby text. */
+.bench-keys {
+  margin: 0;
+  overflow: hidden;
+  color: var(--jbm-dim);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 14px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+/* Strip view: Begin / Middle / End side by side; orientation-aware items add a portrait row whose
+   height is what the landscape row leaves of the bench height. */
+.bench-strip {
+  --strip-gap: 12px;
+  --strip-cap: 30px; /* caption row: 24px target plus the 6px gap above it */
+  container-type: inline-size;
+  display: grid;
+  gap: 16px;
+}
+.bench-strip-row {
+  --cell-w: calc((100cqw - 2 * var(--strip-gap)) / 3);
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, var(--cell-w)));
+  gap: var(--strip-gap);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.bench-strip-row[data-orientation="vertical"] {
+  --portrait-h: max(
+    180px,
+    calc(
+      var(--bench-h) - var(--cell-w) * 0.5625 - 2 * var(--strip-cap) - 16px
+    )
+  );
+  grid-template-columns: repeat(
+    3,
+    minmax(0, min(var(--cell-w), calc(var(--portrait-h) * 0.5625)))
+  );
+}
+.bench-strip-cell {
+  position: relative;
+  display: grid;
+  gap: 6px;
+  margin: 0;
+}
+.bench-strip-frame {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--jbm-line);
+  border-radius: 8px;
+  background: var(--jbm-bg);
+}
+/* Strip frames are too small for the guide label; the scene options name the safe area. */
+.bench-strip-frame .bench-guides-area span {
+  display: none;
+}
+.bench-strip-cell figcaption button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  min-height: 24px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--jbm-ink);
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+}
+/* The whole cell is the target: the caption button stretches over its frame. */
+.bench-strip-cell figcaption button::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 8px;
+}
+.bench-strip-cell figcaption button:focus-visible {
+  outline: none;
+}
+.bench-strip-cell figcaption button:focus-visible::after {
+  outline: 2px solid var(--jbm-accent);
+  outline-offset: 4px;
+}
+.bench-strip-cell:hover .bench-strip-frame,
+.bench-strip-cell:focus-within .bench-strip-frame {
+  border-color: var(--jbm-ink);
+}
+.bench-strip-frame-no {
+  color: var(--jbm-dim);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
 }
 .bench-scrub input:focus-visible {
   outline: 2px solid var(--jbm-accent);
@@ -1605,7 +1784,20 @@ details > p {
   /* Phones (78px bar): steps, readout, and replay on one row, the scrubber full width under
      them, all in thumb reach directly below the stage. */
   .bench {
-    --bench-bar-h: 78px;
+    --bench-bar-h: 94px;
+  }
+  .item-pager {
+    flex-basis: 100%;
+    justify-content: space-between;
+    margin-left: 0;
+  }
+  /* Phones stack the strip: one frame per row, portrait frames at a readable width. */
+  .bench-strip-row,
+  .bench-strip-row[data-orientation="vertical"] {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .bench-strip-row[data-orientation="vertical"] .bench-strip-cell {
+    width: min(100%, 220px);
   }
   .bench-frames {
     gap: 10px 8px;

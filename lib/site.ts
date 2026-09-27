@@ -26,3 +26,12 @@ export const agentAlternates = {
     "application/json": "/catalog.json",
   },
 }
+
+/**
+ * Human-facing GitHub link to a file in the public source repository. Pages for people may link
+ * here ("Source ↗"); agent-facing outputs (catalog, llms*.txt, per-item Markdown/JSON, schemas,
+ * registry JSON) must not, and scripts/agent-catalog.test.mjs enforces that.
+ */
+export function repoSourceUrl(path: string): string {
+  return `https://github.com/chekos/jbm-ui/blob/main/${path}`
+}
