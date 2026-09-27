@@ -162,7 +162,7 @@
       "registryDependencies": [
         "@jbm/tokens"
       ],
-      "snippet": "import { Paper, Sticker, Caption } from \"@/jbm/ui/paper\"\n\n<Paper w={200} h={130} rotate={-3} style={{ padding: 20 }}>\n  <Caption size={24}>papel</Caption>\n</Paper>\n<Sticker size={40} rotate={-5}>¿otra vez?</Sticker>\n<Sticker tone=\"ink\" size={28} rotate={2}>catálogo</Sticker>",
+      "snippet": "import { Paper } from \"@/jbm/ui/paper\"\n\n// Drive tension and reveal from your timeline, e.g. interpolate(frame, [0, 60], [0, 1]).\n<Paper\n  w={520}\n  h={760}\n  radius={10}\n  tension={0.9}\n  seam={380}\n  tab={{ label: \"Tutorial\", reveal: 1 }}\n/>",
       "installName": "paper",
       "sourcePath": "registry/jbm/ui/paper.tsx",
       "inRegistry": true

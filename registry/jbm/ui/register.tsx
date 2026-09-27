@@ -1,5 +1,5 @@
 import { useId, type CSSProperties, type ReactNode } from "react"
-import { Paper, frayReach } from "./paper"
+import { Paper, frayReach, paperFill, type PaperTone } from "./paper"
 import { color, font } from "../lib/tokens"
 import { unit, type Box, type Pt } from "../lib/geometry"
 
@@ -88,17 +88,28 @@ const mixedBands: readonly RegisterBand[] = [
   { kind: "prose", n: 3 },
 ]
 /** Natural row pitch in scale units: rows never grow past it. */
-const rowMax = { mono: 56, plain: 64, grid: 96 } as const
-/** A band's default share of a mixed page, from how tall its writing naturally runs (one mono step = 1). */
+const rowMax = { mono: 56, plain: 72, grid: 96 } as const
+/**
+ * A band's default share of a mixed page, from how tall its writing naturally runs (one mono step =
+ * 1): rows weigh their natural pitch, so on a page long enough every band gets its full row pitch
+ * and no list or table is squeezed beside roomier steps.
+ */
 const natural = (kind: Exclude<RegisterKind, "mixed">, n: number) =>
   kind === "mono"
     ? n
     : kind === "plain"
-      ? Math.ceil(n / 2) * 1.1
+      ? (Math.ceil(n / 2) * rowMax.plain) / rowMax.mono
       : kind === "grid"
-        ? Math.ceil(n / Math.min(3, Math.ceil(n / 4))) * 1.4
-        : 2.6 + n * 0.2
+        ? (Math.ceil(n / Math.min(3, Math.max(1, Math.ceil(n / 4)))) * rowMax.grid) / rowMax.mono
+        : 2.6 + n * 0.3
 const endWidths = [0.45, 0.62, 0.38, 0.54]
+/**
+ * Source tick pitch in scale units: roomy enough that a ring drawn around each tick (a thread's
+ * anchor) clears the next one.
+ */
+const SOURCE_PITCH = 14
+/** Extra separator height on a mixed page, so Paper's starting notch at a seam clears the writing. */
+const NOTCH_ROOM = 8
 const count = (n: number | undefined, fallback: number, min: number, max: number) =>
   Math.max(min, Math.min(max, Math.round(Number.isFinite(n) ? (n as number) : fallback)))
 
@@ -133,13 +144,13 @@ function band(kind: Exclude<RegisterKind, "mixed">, n: number, box: Box, u: numb
     w = box.w
   if (kind === "prose") {
     const src = n
-    const srcH = src * 9 * u
+    const srcH = src * SOURCE_PITCH * u
     const spacer = src > 0 ? 10 * u : 0
     const lines = Math.max(2, Math.floor((box.h - (gapAt === undefined ? 0 : gapPx) - srcH - spacer) / (12 * u)))
     const weights = [
       ...Array(lines).fill(12),
       ...(src > 0 ? [10] : []),
-      ...Array(src).fill(9),
+      ...Array(src).fill(SOURCE_PITCH),
     ]
     const { slots, gap } = stack(weights, box.y, box.h, gapAt, gapPx, reflow, 1.25 * u)
     let paragraph = 0
@@ -180,6 +191,7 @@ function band(kind: Exclude<RegisterKind, "mixed">, n: number, box: Box, u: numb
     }
     return { cells, rows: slots.map((s) => ({ x, y: s.y, w, h: s.h })), gap }
   }
+  if (n <= 0) return { cells, rows: [] as Box[], gap: gapAt === undefined ? null : { y: box.y, h: gapPx * reflow } }
   const cols = kind === "mono" ? 1 : kind === "plain" ? 2 : Math.min(3, Math.ceil(n / 4))
   const rowCount = Math.ceil(n / cols)
   const gutter = 16 * u
@@ -212,7 +224,8 @@ function band(kind: Exclude<RegisterKind, "mixed">, n: number, box: Box, u: numb
       })
     } else if (kind === "plain") {
       const bh = Math.max(1, Math.min(6 * u, ch * 0.11))
-      const fs = Math.min(9 * u, ch * 0.17)
+      // Numerals set at 12 × scale (15 px on the board's 460 px page), so they read as numbers.
+      const fs = Math.min(12 * u, ch * 0.18)
       const ih = Math.max(0.75, Math.min(3 * u, ch * 0.07))
       const marks: RegisterMark[] = [
         { type: "bar", x: cx, y: cy + ch * 0.06, w: cw * 0.8, h: bh, tone: "ink" },
@@ -276,7 +289,7 @@ export function registerLayout(spec: RegisterSpec): RegisterLayout {
     const n =
       kind === "prose"
         ? count(spec.sources ?? spec.n, defaults.prose, 0, 16)
-        : count(spec.n, defaults[kind], 1, kind === "grid" ? 12 : 24)
+        : count(spec.n, defaults[kind], 0, kind === "grid" ? 12 : 24)
     const gapAt = spec.gapAt === undefined ? undefined : Math.max(0, Math.round(spec.gapAt))
     const l = band(kind, n, inner, u, gapAt, gapPx, reflow)
     push(l.cells, 0)
@@ -284,7 +297,7 @@ export function registerLayout(spec: RegisterSpec): RegisterLayout {
     out.bands = [inner]
     if (l.gap) out.gap = { x: inner.x, y: l.gap.y, w: inner.w, h: l.gap.h }
   } else {
-    const list = (spec.bands ?? mixedBands.slice(0, count(spec.n, 4, 1, 4))).slice(0, 8)
+    const list = (spec.bands ?? mixedBands.slice(0, count(spec.n, 4, 0, 4))).slice(0, 8)
     const counts = list.map((b) =>
       b.kind === "prose"
         ? count(spec.sources ?? b.n, 3, 0, 16)
@@ -308,9 +321,10 @@ export function registerLayout(spec: RegisterSpec): RegisterLayout {
       return { box, used: Math.min(box.h, bottom - box.y) }
     })
     // Second pass: stack the bands at the heights they use, with even separators wide enough that
-    // a Tear's fray at a seam stays clear of the writing on both sides; leftover height collects at
+    // a Tear's fray at a seam, or Paper's starting notch, stays clear of the writing on both sides
+    // (NOTCH_ROOM); leftover height collects at
     // the foot of the page. When the bands need more than the page, they share what is left.
-    const sep = Math.max(2 * (frayReach() + 2), slots.length > 1 ? slots[1].h : 0)
+    const sep = Math.max(2 * (frayReach() + 2) + NOTCH_ROOM, slots.length > 1 ? slots[1].h : 0)
     const open = bandGap === undefined ? 0 : gapPx * reflow
     const used = first.reduce((a, f) => a + f.used, 0)
     // Sized for the fully open gap, so reflowing moves the writing and never resizes a mark.
@@ -347,12 +361,18 @@ export const registerSeams = (spec: RegisterSpec): number[] => registerLayout(sp
 /** The open gap's box in sheet px (where a slip lands or lifted from), or null without gapAt. */
 export const registerGap = (spec: RegisterSpec): Box | null => registerLayout(spec).gap
 
-const toneFill = (tone: RegisterTone) => (tone === "accent" ? color.accent : tone === "dim" ? color.dim : color.ink)
+/** Writing colours on a stock: ink, dim, and the vermilion accent, plus the stock's own fill. */
+type Inks = { ink: string; dim: string; accent: string; stock: string }
+const inksFor = (stock: PaperTone): Inks =>
+  stock === "paper"
+    ? { ink: color.ink, dim: color.dim, accent: color.accent, stock: paperFill(stock) }
+    : // On ink or vermilion stock the writing is card-coloured, its muted marks cream at 62%.
+      { ink: color.card, dim: color.dimOnDark, accent: stock === "ink" ? color.accent : color.ink, stock: paperFill(stock) }
 
-function Mark({ m, accent }: { m: RegisterMark; accent: boolean }) {
+function Mark({ m, accent, inks }: { m: RegisterMark; accent: boolean; inks: Inks }) {
   switch (m.type) {
     case "bar":
-      return <rect x={m.x} y={m.y} width={Math.max(0, m.w)} height={m.h} rx={m.r ?? m.h / 2} fill={toneFill(accent && m.tone === "ink" ? "accent" : m.tone)} />
+      return <rect x={m.x} y={m.y} width={Math.max(0, m.w)} height={m.h} rx={m.r ?? m.h / 2} fill={inks[accent && m.tone === "ink" ? "accent" : m.tone]} />
     case "box":
       return (
         <rect
@@ -362,18 +382,18 @@ function Mark({ m, accent }: { m: RegisterMark; accent: boolean }) {
           height={Math.max(0, m.h - m.stroke)}
           rx={m.r}
           fill="none"
-          stroke={color.ink}
+          stroke={inks.ink}
           strokeWidth={m.stroke}
         />
       )
     case "rule":
-      return <line x1={m.x1} y1={m.y1} x2={m.x2} y2={m.y2} stroke={color.ink} strokeWidth={m.stroke} />
+      return <line x1={m.x1} y1={m.y1} x2={m.x2} y2={m.y2} stroke={inks.ink} strokeWidth={m.stroke} />
     case "chevron":
       return (
         <path
           d={`M${m.x} ${m.y - m.size}L${m.x + m.size * 1.4} ${m.y}L${m.x} ${m.y + m.size}`}
           fill="none"
-          stroke={color.ink}
+          stroke={inks.ink}
           strokeWidth={m.stroke}
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -381,7 +401,7 @@ function Mark({ m, accent }: { m: RegisterMark; accent: boolean }) {
       )
     case "num":
       return (
-        <text x={m.x} y={m.y} fontFamily={font.mono} fontSize={m.size} fontWeight={700} fill={color.ink}>
+        <text x={m.x} y={m.y} fontFamily={font.mono} fontSize={m.size} fontWeight={700} fill={inks.ink}>
           {m.text}
         </text>
       )
@@ -391,13 +411,16 @@ function Mark({ m, accent }: { m: RegisterMark; accent: boolean }) {
 export type RegisterInkProps = RegisterSpec & {
   /** Writing drawn so far, 0–1, cell by cell in reading order; each cell inks left to right. */
   reveal?: number
+  /** The stock the writing sits on (Paper's tone): ink writing on paper, card-coloured on ink or vermilion. Result boxes and tables are filled with the stock. */
+  tone?: PaperTone
   /** Cell indices (reading order) whose lead mark is vermilion. */
   accent?: readonly number[]
 }
 /** The writing alone, as an SVG <g> in sheet px. Render inside an <svg>; the sheet is the caller's. */
-export function RegisterInk({ reveal = 1, accent = [], ...spec }: RegisterInkProps) {
+export function RegisterInk({ reveal = 1, accent = [], tone = "paper", ...spec }: RegisterInkProps) {
   const clip = `jbm-register-${useId().replace(/[^a-zA-Z0-9_-]/g, "")}`
   const layout = registerLayout(spec)
+  const inks = inksFor(tone)
   const total = layout.cells.length
   const shown = unit(reveal) * total
   return (
@@ -406,7 +429,14 @@ export function RegisterInk({ reveal = 1, accent = [], ...spec }: RegisterInkPro
         const f = Math.max(0, Math.min(1, shown - cell.index))
         if (f <= 0) return null
         const hot = accent.includes(cell.index)
-        const marks = cell.marks.map((m, i) => <Mark key={i} m={m} accent={hot && i === (cell.kind === "mono" ? 1 : 0)} />)
+        // Boxes (result boxes, tables) are filled with the stock first, so what lies under the
+        // writing, such as Paper's creases, never shows inside them.
+        const marks = [
+          ...cell.marks.flatMap((m, i) =>
+            m.type === "box" ? [<rect key={`f${i}`} x={m.x} y={m.y} width={Math.max(0, m.w)} height={Math.max(0, m.h)} rx={m.r} fill={inks.stock} />] : []
+          ),
+          ...cell.marks.map((m, i) => <Mark key={i} m={m} inks={inks} accent={hot && i === (cell.kind === "mono" ? 1 : 0)} />),
+        ]
         if (f >= 1) return <g key={cell.index}>{marks}</g>
         const pad = layout.scale * 2
         return (
@@ -436,7 +466,7 @@ const EDGE = 2
 export function Register({ rotate = 0, label, children, style, ...ink }: RegisterProps) {
   const u = ink.scale ?? Math.max(0.4, Math.min(4, ink.w / 360))
   return (
-    <Paper w={ink.w} h={ink.h} radius={Math.max(4, 6 * u)} rotate={rotate} style={{ flexShrink: 0, ...style }}>
+    <Paper w={ink.w} h={ink.h} tone={ink.tone} radius={Math.max(4, 6 * u)} rotate={rotate} style={{ flexShrink: 0, ...style }}>
       <svg
         width={ink.w}
         height={ink.h}

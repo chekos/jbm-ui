@@ -886,7 +886,7 @@
         {
           "export": "Paper",
           "kind": "component",
-          "summary": "Flat piece of card stock (border-box, position relative) in cream, vermilion, or ink with an optional 2px edge, the paper drop shadow, and an optional rotation. Under `tension` each pulled corner fans a few short, soft creases into the sheet (under its writing, never meeting in the middle) and, from 0.6, a frayed notch tears open at a seam; `tab` fixes a pestaña behind the top edge that slides out with its reveal. With neither set it renders exactly the original single div. Pure React and controlled; wrap in a motion Pop for entrances.",
+          "summary": "Flat piece of card stock (border-box, position relative) in cream, vermilion, or ink with an optional 2px edge, the paper drop shadow, and an optional rotation. Under `tension` each pulled corner sends a few short, soft creases into the sheet (under its writing, spreading apart, never meeting or converging) and, from 0.6, a frayed notch tears into the sheet at a seam; `tab` fixes a pestaña behind the top edge that slides out with its reveal. With neither set it renders exactly the original single div. Pure React and controlled; wrap in a motion Pop for entrances.",
           "props": [
             {
               "name": "tone",
@@ -942,7 +942,7 @@
               "type": "number",
               "required": false,
               "default": "0",
-              "description": "0–1 stress on the sheet. Each pulled corner fans two or three short creases inward (deterministic in `seed`: one near the diagonal, one or two turned 10–20° and shorter); they fade from the corner, grow to full length at 0.8, and the longest stops two thirds of the way to the centre (a third of the diagonal), so creases from different corners never meet. From 0.6 a frayed notch opens at `seam`: square-root eased, it is already half its depth with a 10px mouth at 0.7, and at 1 runs in 24% of the width (at most 160px; 96px without `w`) with a 20px mouth. 0 draws neither and keeps the plain rendering."
+              "description": "0–1 stress on the sheet. Each pulled corner sends two or three short creases inward (deterministic in `seed`: one near the diagonal, one or two turned 9–15° to either side and shorter). They radiate from a point just beyond the corner, so each starts at its own place on the edges and they spread apart: no two share an end or converge into a V. They fade from the edge, grow to full length at 0.8, and the longest is at most 22% of the diagonal, so creases from different corners never meet. From 0.6 a notch tears into the sheet at `seam`: square-root eased, it is already half its depth with a 17px mouth at 0.7, and at 1 runs in 24% of the width (at most 160px; 96px without `w`) with a 24px mouth. It is a frayed wedge, widest at the edge, narrowing fast past the margin and running out as a single 2px crack; inside the mouth a thin band of the house rule tone is the upper lip's shadow, so it reads as a hole cut into the sheet. 0 draws neither and keeps the plain rendering."
             },
             {
               "name": "pull",
@@ -970,7 +970,7 @@
               "type": "number",
               "required": false,
               "default": "1",
-              "description": "Fray pattern of the starting tear, and the crease fans' lengths and angles. With the same seed, seam, and w as a Tear, the midline between the lips follows that Tear's seam; each lip adds small fibres so the notch reads frayed even where the seam runs smooth."
+              "description": "Fray pattern of the starting tear, and the creases' lengths and angles. With the same seed, seam, and w as a Tear, the midline between the lips follows that Tear's seam; each lip adds small fibres so the two sides are not a smooth mirror."
             },
             {
               "name": "tab",
@@ -991,7 +991,7 @@
               "type": "React.ReactNode",
               "required": false,
               "default": null,
-              "description": "Content placed on the paper. Creases are folds in the stock and lie under it, so the writing is never crossed out; the tear's lips draw above it, and the tear's mouth cuts through it, so writing across the seam never covers the hole."
+              "description": "Content placed on the paper. Creases are folds in the stock and lie under it, so the writing is never crossed out (draw result boxes filled with the stock, as RegisterInk does, and no crease shows through them); the tear's lips and its shadow band draw above it, and the tear's mouth cuts through it, so writing across the seam never covers the hole."
             }
           ],
           "passthrough": []
@@ -1085,7 +1085,7 @@
         {
           "export": "frayEdge",
           "kind": "function",
-          "summary": "Deterministic torn edge along a horizontal line: small irregular teeth riding a gentle wander. Paper's starting tear and Tear's seams share it, so the same seed, y, width, and amplitude give the same profile.",
+          "summary": "Deterministic torn edge along a horizontal line: fine, irregular grain at uneven spacing on a slow wander, with the odd fibre sticking out further, like torn paper rather than pinking shears. Paper's starting tear and Tear's seams share it, so the same seed, y, width, and amplitude give the same profile.",
           "params": [
             {
               "name": "width",
@@ -1120,10 +1120,10 @@
               "type": "number",
               "required": false,
               "default": "12",
-              "description": "Approximate spacing between teeth in stage px; default 12."
+              "description": "Spacing scale in stage px; points fall 0.25–0.8 × step apart (about half a step on average). Default 12."
             }
           ],
-          "returns": "Points `{ x, y }` from x = 0 to x = width, each within frayReach(amplitude) of y. Non-finite inputs are treated as 0."
+          "returns": "Points `{ x, y }` from x = 0 to x = width, x strictly increasing, each within frayReach(amplitude) of y and most within one amplitude. Non-finite inputs are treated as 0."
         },
         {
           "export": "frayReach",
@@ -1217,12 +1217,12 @@
       },
       "examples": [
         {
-          "title": "Paper, sticker, and caption",
-          "code": "import { Paper, Sticker, Caption } from \"@/jbm/ui/paper\"\n\n<Paper w={200} h={130} rotate={-3} style={{ padding: 20 }}>\n  <Caption size={24}>papel</Caption>\n</Paper>\n<Sticker size={40} rotate={-5}>¿otra vez?</Sticker>\n<Sticker tone=\"ink\" size={28} rotate={2}>catálogo</Sticker>"
-        },
-        {
           "title": "A sheet pulled from four corners, with a tab",
           "code": "import { Paper } from \"@/jbm/ui/paper\"\n\n// Drive tension and reveal from your timeline, e.g. interpolate(frame, [0, 60], [0, 1]).\n<Paper\n  w={520}\n  h={760}\n  radius={10}\n  tension={0.9}\n  seam={380}\n  tab={{ label: \"Tutorial\", reveal: 1 }}\n/>"
+        },
+        {
+          "title": "Paper, sticker, and caption",
+          "code": "import { Paper, Sticker, Caption } from \"@/jbm/ui/paper\"\n\n<Paper w={200} h={130} rotate={-3} style={{ padding: 20 }}>\n  <Caption size={24}>papel</Caption>\n</Paper>\n<Sticker size={40} rotate={-5}>¿otra vez?</Sticker>\n<Sticker tone=\"ink\" size={28} rotate={2}>catálogo</Sticker>"
         },
         {
           "title": "Match a custom illustration to the paper recipe",
@@ -1234,8 +1234,9 @@
         "Check rotated pieces and stickers near the safe-area edge: rotation does not reserve layout space, so tilted corners and the longer drop shadow must not clip.",
         "Stickers never wrap; check the longest word at the chosen size fits the frame in portrait.",
         "Toggle edge and shadow off and confirm the piece still separates from the cream canvas where it is used.",
-        "Drag Tension through 0, 0.4, 0.7, and 1: short creases fan in from each pulled corner, fade toward their tips, and lie under the writing; at no tension do they meet or read as an X or a crossed-out page. The tear opens only past 0.6 and at 0.7 is already a clearly visible frayed notch at the seam, its lips are a 2px edge on the sheet's side of the cut, and its mouth shows what lies under the sheet rather than a painted fill. The mouth cuts the sheet's writing too: with a ruled line or an ink band across the seam (bench: Tear through the writing), the tear stays open through it.",
-        "Try each Pulled corners preset and Tear from the right edge, and the tear on the ink stock.",
+        "Drag Tension through 0, 0.4, 0.7, and 1: short creases (under a quarter of the diagonal) come in from each pulled corner, each starting at its own place on the edges and spreading apart, fade toward their tips, and lie under the writing; none shows inside a result box, and at no tension do two meet, converge into a V, or read as an X or a crossed-out page. The tear opens only past 0.6 and at 0.7 is already a clearly visible notch cut into the sheet at the seam: a frayed wedge narrowing into a 2px crack, never a shape sticking out of the edge. Its lips are a 2px edge on the sheet's side of the cut, a thin shadow band sits under the upper lip, and the rest of the mouth shows what lies under the sheet rather than a painted fill; over the writing it stays inside the band gap. The mouth cuts the sheet's writing too: with Tear through the writing the notch runs through a table's ruled body and stays open through the rules.",
+        "Try each Pulled corners preset and Tear from the right edge, and the tear on the ink stock: there the writing is card-coloured and stays visible.",
+        "The bench shows only the sheet, its tension, and its tab; Sticker and Caption appear in the Usage examples.",
         "Drag Tab reveal from 0 to 1: at 0 the whole tab is hidden behind the sheet; in between the top edge cuts the label rather than drawing over it; at 1 the label is Geist 800 at 32 stage px and the tab base stays tucked behind the edge.",
         "With tension 0 and no tab the markup equals the original single div; existing scenes depend on it."
       ],
@@ -8484,7 +8485,7 @@
         {
           "export": "Tear",
           "kind": "component",
-          "summary": "A w × h Paper-style sheet cut at `seams` into strips. At progress 0 the strips tile the sheet exactly and no seam shows; as progress rises each strip translates and turns toward its destination, its frayed seam edges fade in over its first 5% of travel, and the sheet's shadow hands over to per-strip shadows. Writing is laid out once on the whole sheet and clipped to each strip. Pure React, controlled, and deterministic per frame.",
+          "summary": "A w × h Paper-style sheet cut at `seams` into strips. At progress 0 the strips tile the sheet exactly and no seam shows; as progress rises each strip parts from its neighbours and then drifts and turns toward its destination (tearMotion), its frayed seam edges fade in over its first 5% of travel, and the sheet's shadow hands over to per-strip shadows. A seam that has not opened yet shows no line and no shadow, even while other strips move. Writing is laid out once on the whole sheet and clipped to each strip. Strips travel past the w × h root: reserve tearBounds. Pure React, controlled, and deterministic per frame.",
           "props": [
             {
               "name": "w",
@@ -8512,14 +8513,14 @@
               "type": "number",
               "required": true,
               "default": null,
-              "description": "0 = the whole sheet, 1 = every strip at its destination. Clamped and linear; ease it yourself."
+              "description": "0 = the whole sheet, 1 = every strip at its destination. Clamped and not eased; ease it yourself."
             },
             {
               "name": "pieces",
               "type": "TearPiece[]",
               "required": false,
               "default": "[]",
-              "description": "Destinations top to bottom: `{ to: { x, y, rotate } }`, an offset in stage px from the strip's place in the whole sheet and a turn in degrees about the strip's centre. A missing entry or field stays put."
+              "description": "Destinations top to bottom: `{ to: { x, y, rotate } }`, an offset in stage px from the strip's place in the whole sheet and a turn in degrees about the strip's centre. A missing entry or field stays put. `y` follows the strip's progress and `x` and `rotate` its square (tearMotion). With a stagger, give every strip but the last a y at or above the one below it (the last may move down), so no strip slides back into its neighbour."
             },
             {
               "name": "stagger",
@@ -8652,6 +8653,78 @@
           "returns": "One `{ index, top, bottom, outline, edges, seamAbove, seamBelow, center }` per strip: SVG path data for the closed outline, the straight edges, and each frayed seam (null at the sheet's top or bottom), plus the rotation centre."
         },
         {
+          "export": "tearMotion",
+          "kind": "function",
+          "summary": "Where a strip is at its own progress: it parts along the seam first and drifts and turns as it travels, so the two torn edges of a seam separate as parallel copies and never cross while close.",
+          "params": [
+            {
+              "name": "to",
+              "type": "TearDestination",
+              "required": false,
+              "default": "{}",
+              "description": "The strip's destination `{ x?, y?, rotate? }`."
+            },
+            {
+              "name": "progress",
+              "type": "number",
+              "required": true,
+              "default": null,
+              "description": "The strip's own 0–1 progress (tearPieceProgress); clamped."
+            }
+          ],
+          "returns": "`{ x, y, rotate }`: to.x × p², to.y × p, to.rotate × p²."
+        },
+        {
+          "export": "tearBounds",
+          "kind": "function",
+          "summary": "The box every strip, and with `shadow` its shadow, stays inside at every progress, in the sheet's px (origin at its top-left, so x and y can be negative). Tear's root is only w × h; reserve this box around it.",
+          "params": [
+            {
+              "name": "w",
+              "type": "number",
+              "required": true,
+              "default": null,
+              "description": "Sheet width in stage px, as passed to Tear."
+            },
+            {
+              "name": "h",
+              "type": "number",
+              "required": true,
+              "default": null,
+              "description": "Sheet height in stage px."
+            },
+            {
+              "name": "seams",
+              "type": "number[]",
+              "required": true,
+              "default": null,
+              "description": "Seam y positions; filtered by tearSeams."
+            },
+            {
+              "name": "pieces",
+              "type": "TearPiece[]",
+              "required": false,
+              "default": "[]",
+              "description": "The strips' destinations, as passed to Tear."
+            },
+            {
+              "name": "fray",
+              "type": "number",
+              "required": false,
+              "default": "FRAY",
+              "description": "Fray amplitude; default FRAY."
+            },
+            {
+              "name": "shadow",
+              "type": "boolean",
+              "required": false,
+              "default": "true",
+              "description": "Includes the shadows' room (default true): 16px at the sides, 8px above, and 34px below."
+            }
+          ],
+          "returns": "`{ x, y, w, h }` in stage px."
+        },
+        {
           "export": "tearSeams",
           "kind": "function",
           "summary": "The seams Tear uses, from the ones you pass.",
@@ -8744,7 +8817,7 @@
       ],
       "stage": {
         "mode": "fluid",
-        "reason": "The root is exactly w × h stage px, the size of the whole sheet; strips move by their destinations beyond it without changing layout, so leave room for the largest offset plus about 20px of shadow. The gallery uses a 520 × 760 sheet with offsets up to 72px on a 760 × 960 stage."
+        "reason": "The root is exactly w × h stage px, the size of the whole sheet; strips move by their destinations beyond it without changing layout. tearBounds(props) returns the box, relative to the root, that every strip and its shadow stays inside at any progress; give the stage at least that. The gallery sizes its stage as the union of tearBounds over every seam count it offers (a 520 × 760 sheet on a stage about 640 × 1000), so no strip or shadow is ever clipped."
       },
       "examples": [
         {
@@ -8759,8 +8832,9 @@
       "qa": [
         "At Tear 0 the sheet must look whole: no seam line, hairline, or shadow between strips. Compare it with a plain Paper of the same size and radius.",
         "Drag Tear through 0.02, 0.05, 0.5, and 1: seam edges fade in as the strips part, each strip keeps its frayed edges, and later strips overlap earlier ones.",
-        "At 2× zoom check where a frayed seam meets a straight side: the lines join on one centreline with the same 2px width.",
-        "Step Seams from 1 to 6 and Fray seed from 1 to 9: frayed edges never cross each other or the sheet's edge, and the pattern changes only with the seed.",
+        "At 8× zoom check where a frayed seam meets a straight side: the lines join on one centreline with the same 2px width, and each seam side is one clean frayed edge of irregular grain, not a regular zig-zag or two offset rows of teeth.",
+        "Drag Tear through 0.03 and 0.1 with Stagger 0.1 and 0.3: the parting strips' torn edges run as parallel copies and never cross, and the seams that have not opened yet show no line or shadow; the sheet's straight sides stay unbroken there.",
+        "Step Seams from 1 to 4 and Fray seed from 1 to 9: seams run only through clear rows of the page (a fray reach from every bar, header, numeral, and chevron, 8px from every box edge and table rule), so no torn edge cuts a table header or a bar into a black zig-zag or grazes a rule, frayed edges never cross each other or the sheet's edge, the pattern changes only with the seed, and every strip and shadow stays inside the stage.",
         "Set Stagger to 0 and 0.3: every strip still reaches its destination at progress 1."
       ],
       "docs": [
@@ -8926,7 +9000,7 @@
               "type": "number",
               "required": false,
               "default": null,
-              "description": "Steps (mono, 1–24, default 7), list groups (plain, 1–24, default 10), tables (grid, 1–12, default 7; one column up to 4, then two, then three), source ticks (prose, 0–16, default 8), or bands (mixed, 1–4 of mono, plain, grid, prose; default 4). Rounded and clamped. More items tighten the packing; the sheet never grows."
+              "description": "Steps (mono, 0–24, default 7), list groups (plain, 0–24, default 10), tables (grid, 0–12, default 7; one column up to 4, then two, then three), source ticks (prose, 0–16, default 8), or bands (mixed, 0–4 of mono, plain, grid, prose; default 4). 0 draws a blank sheet (prose keeps its lines). Rounded and clamped. More items tighten the packing; the sheet never grows. List numerals set at 12 × scale; source ticks sit 14 × scale apart."
             },
             {
               "name": "w",
@@ -8954,7 +9028,7 @@
               "type": "readonly RegisterBand[]",
               "required": false,
               "default": null,
-              "description": "Mixed only: the stacked registers, top to bottom, each `{ kind, n?, weight? }` (weight sets its share of the page before row pitches are capped; each band then sits at the height its writing actually uses, bands follow each other with even separators at least 2 × (frayReach() + 2) px tall so a Tear at a seam never frays into the writing, and any leftover height collects at the foot of the page; at most 8 bands). Overrides n."
+              "description": "Mixed only: the stacked registers, top to bottom, each `{ kind, n?, weight? }` (weight sets its share of the page before row pitches are capped; each band then sits at the height its writing actually uses, bands follow each other with even separators at least 2 × (frayReach() + 2) + 8 px tall so a Tear's fray or Paper's starting notch at a seam never reaches the writing, and any leftover height collects at the foot of the page; at most 8 bands). Overrides n. Give a mixed page about the board's proportions (460 × 1000): a squatter sheet compresses every band."
             },
             {
               "name": "gapAt",
@@ -8997,6 +9071,13 @@
               "required": false,
               "default": null,
               "description": "Writing drawn so far, 0–1: cells ink in reading order, each one left to right; 0 is a blank sheet. The sheet itself is always there."
+            },
+            {
+              "name": "tone",
+              "type": "PaperTone",
+              "required": false,
+              "default": null,
+              "description": "The stock the writing sits on (Paper's tone, default paper): ink writing on paper; on ink or vermilion stock the writing is card-coloured and dim marks cream at 62%. Result boxes and tables are filled with the stock, so whatever lies under the writing (Paper's creases) never shows through them."
             },
             {
               "name": "accent",
@@ -9053,7 +9134,7 @@
               "type": "number",
               "required": false,
               "default": null,
-              "description": "Steps (mono, 1–24, default 7), list groups (plain, 1–24, default 10), tables (grid, 1–12, default 7; one column up to 4, then two, then three), source ticks (prose, 0–16, default 8), or bands (mixed, 1–4 of mono, plain, grid, prose; default 4). Rounded and clamped. More items tighten the packing; the sheet never grows."
+              "description": "Steps (mono, 0–24, default 7), list groups (plain, 0–24, default 10), tables (grid, 0–12, default 7; one column up to 4, then two, then three), source ticks (prose, 0–16, default 8), or bands (mixed, 0–4 of mono, plain, grid, prose; default 4). 0 draws a blank sheet (prose keeps its lines). Rounded and clamped. More items tighten the packing; the sheet never grows. List numerals set at 12 × scale; source ticks sit 14 × scale apart."
             },
             {
               "name": "w",
@@ -9081,7 +9162,7 @@
               "type": "readonly RegisterBand[]",
               "required": false,
               "default": null,
-              "description": "Mixed only: the stacked registers, top to bottom, each `{ kind, n?, weight? }` (weight sets its share of the page before row pitches are capped; each band then sits at the height its writing actually uses, bands follow each other with even separators at least 2 × (frayReach() + 2) px tall so a Tear at a seam never frays into the writing, and any leftover height collects at the foot of the page; at most 8 bands). Overrides n."
+              "description": "Mixed only: the stacked registers, top to bottom, each `{ kind, n?, weight? }` (weight sets its share of the page before row pitches are capped; each band then sits at the height its writing actually uses, bands follow each other with even separators at least 2 × (frayReach() + 2) + 8 px tall so a Tear's fray or Paper's starting notch at a seam never reaches the writing, and any leftover height collects at the foot of the page; at most 8 bands). Overrides n. Give a mixed page about the board's proportions (460 × 1000): a squatter sheet compresses every band."
             },
             {
               "name": "gapAt",
@@ -9124,6 +9205,13 @@
               "required": false,
               "default": "1",
               "description": "Writing drawn so far, 0–1: cells ink in reading order, each one left to right; 0 is a blank sheet. The sheet itself is always there."
+            },
+            {
+              "name": "tone",
+              "type": "PaperTone",
+              "required": false,
+              "default": "\"paper\"",
+              "description": "The stock the writing sits on (Paper's tone, default paper): ink writing on paper; on ink or vermilion stock the writing is card-coloured and dim marks cream at 62%. Result boxes and tables are filled with the stock, so whatever lies under the writing (Paper's creases) never shows through them."
             },
             {
               "name": "accent",
@@ -9251,7 +9339,7 @@
           "width": 300,
           "height": 380
         },
-        "basis": "Exactly w × h stage px (the gallery uses 300 × 380, and 300 × 440 for mixed); n, reveal, gap, and reflow never change the box. Rotation and the paper shadow draw outside it. On a 1920 × 1080 stage the board's quadrant sheets are about 440 × 280 and the long mixed page about 460 × 1000."
+        "basis": "Exactly w × h stage px (the gallery uses 300 × 380, and 300 × 700 for mixed, near the board's long-page proportions); n, reveal, gap, and reflow never change the box. Rotation and the paper shadow draw outside it. On a 1920 × 1080 stage the board's quadrant sheets are about 440 × 280 and the long mixed page about 460 × 1000."
       },
       "examples": [
         {
@@ -9269,10 +9357,11 @@
       ],
       "qa": [
         "Switch Kind through all five: each reads as one register at a glance (steps with result boxes, numbered lists, ruled tables, a justified block with source ticks, a stacked page) and no mark forms a legible word.",
-        "Step Count from 1 to its maximum for every kind: marks pack tighter inside the same sheet, nothing crosses the pad or the sheet edge, and grid switches to two columns above 4 tables.",
+        "Step Count from 0 to its maximum for every kind: 0 is a blank sheet (no steps, lists, tables, or bands; prose keeps its lines), marks pack tighter inside the same sheet, nothing crosses the pad or the sheet edge, and grid switches to two columns above 4 tables.",
+        "Mixed: every band keeps readable proportions (list numerals at 12 × scale, tables with open rows, not squeezed), and the seams sit in the even gaps between bands.",
         "Drag Reveal 0 → 1: a blank sheet, then cells ink in reading order, each left to right; no mark appears early or pops.",
         "Turn on Gap and drag Reflow 1 → 0 → 1: rows below the gap slide while every mark keeps its size; at 0 the writing is evenly spaced again.",
-        "Show seams, anchors, gap: seams sit between mixed bands, anchor circles sit on the source ticks, and the gap box is empty.",
+        "Show seams, anchors, gap: seams sit between mixed bands, anchor rings sit on the source ticks without touching each other or the sheet edge, and the gap box is empty.",
         "Accent first mark: only that lead mark turns vermilion.",
         "Check 2× zoom: chevrons, result-box corners, and table rules are crisp and consistent; outlines never exceed the prompt bar's weight."
       ],
@@ -9332,7 +9421,7 @@
               "type": "boolean",
               "required": false,
               "default": null,
-              "description": "Masking tape across the top edge with torn ends (default true). Its right third is a flap that peels up about its fold as lift goes 0 → 0.4 and sticks again on landing."
+              "description": "Masking tape across the top edge with torn ends (default true). Its right third is a flap that peels up as lift goes 0 → 0.4 and sticks again on landing; it stays hinged along its whole fold (it foreshortens as its free end rises), so no notch opens at the hinge."
             },
             {
               "name": "dashed",
@@ -9480,10 +9569,10 @@
         }
       ],
       "qa": [
-        "Drag Lift 0 → 0.4 → 1: the tape flap peels up about its fold (a wedge opens under it, no gap along the fold's top), then the slip rises, tilts, and its shadow deepens; back to 0 it lies flat and the flap sticks down continuously.",
+        "Drag Lift 0 → 0.4 → 1: the tape flap peels up while staying hinged along its whole fold (no notch or wedge at the hinge), then the slip rises, tilts, and its shadow deepens; back to 0 it lies flat and the flap sticks down continuously.",
         "Drag Carry 0 → 1 with Lift at Held: the slip leaves the Tutorial's gap, arcs over, and settles in the Explicación's gap; the source closes to evenly spaced steps while the destination opens exactly one slip-height of room, and no writing passes under the landed slip.",
         "Toggle Tape, Dashed outline, and Hand independently: each changes only its own object; the dashed outline is ink.",
-        "With Hand on, check the pinch stays on the slip's bottom edge at every Carry and Lift value, including the extremes.",
+        "With Hand on, check the pinch stays on the slip's bottom edge while the slip is lifted or carried, and that the hand lets go (opens and draws back from the edge) once it lies flat: at Taped + Flat and at Landed + Flat.",
         "Check 2× zoom: torn tape teeth, the fold, and the outline corners join cleanly with even stroke widths."
       ],
       "docs": [
