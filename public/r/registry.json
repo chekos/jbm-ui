@@ -1096,7 +1096,7 @@
       "title": "Escritorio",
       "description": "An empty desk with separate finish and optional file cabinet.",
       "categories": [
-        "Layout"
+        "UI Bits"
       ],
       "type": "registry:component",
       "registryDependencies": [

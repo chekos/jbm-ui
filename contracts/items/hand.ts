@@ -15,9 +15,18 @@ export default {
       summary:
         "Card-filled, ink-outlined hand drawn in a 30×29 viewBox. The pose swaps the silhouette only; it owns no position, rotation, folder, pen, or timeline (use Mano from @jbm/mano for placement inside an SVG, Pluma from @jbm/pluma for a held pen). Other SVG attributes pass through to the root <svg>.",
       props: {
-        pose: "Silhouette: `open` (open palm, fingers together), `point` (index finger extended), `pinch` (index bent over the thumb; also the pen grip Pluma uses, so there is no pen pose), `grip` (front-view fist: four finger capsules with knuckle bumps on top and the curled fingertips in a row beneath, the thumb lying across under them; lay the knuckles over a sheet or tab edge), `type` (the hand from above on a keyboard: all four fingers curved together in smooth arcs up and to the left, tips down on the keys, the index curling furthest and the middle tallest, the thumb low and pointing left toward the space bar; use it upright, fingertips on the keys), or `hold` (the side-view mug grip turned so the wrist is at the bottom: four stacked fingers with their curled tips on the palm, the thumb's back continuing the back of the hand and opening from the index in a V; rotate it about -75° to put the fingers through a handle on the left). Also sets the accessible label, e.g. \"Hand: point\".",
-        halo: "Knock the hand out of what it overlaps: a card ring half the outline wide just outside the contour, so ink art passing behind the hand (a pen barrel, a thread) never fuses with its outline. Default false.",
+        pose: "Silhouette: `open` (open palm, fingers together), `point` (index finger extended), `pinch` (index bent over the thumb; also the pen grip Pluma uses, so there is no pen pose), `grip` (front-view fist: four fingers with knuckle bumps on top and the curled fingertips in a scalloped row beneath, the thumb lying across under them; lay the knuckles over a sheet or tab edge), `type` (the hand from above on a keyboard: all four fingers arch over together in concentric curves up and to the left, the index and middle tips pointing left and down onto the keys, the middle tallest, the thumb low and pointing left toward the space bar; use it upright, fingertips on the keys), or `hold` (the side-view mug grip turned so the wrist is at the bottom: four stacked fingers with the same scalloped fingertip row, the thumb opening from the index in a V with a round web; rotate it about -75° to put the fingers through a handle on the left). Every pose is one closed outline plus open dividers that start on it, in one stroke width; no finger is a closed shape laid over another. Also sets the accessible label, e.g. \"Hand: point\".",
+        halo: "Knock the hand out of what it overlaps: a card ring half the outline wide just outside the contour, so ink art passing behind the hand (a pen barrel, a thread) never fuses with its outline. The ring paints over everything under the hand, writing included; to cut only the art behind the hand, mask that art with handOutline instead (Pluma does). Default false.",
       },
+    },
+    {
+      export: "handOutline",
+      kind: "function",
+      summary:
+        "A pose's closed outline in the Hand's 30×29 viewBox, for composites that cut art drawn behind the hand (a mask or clip path) instead of painting a halo over whatever else is under it. Place it with the same transforms as the Hand (Mano's translate, rotate, and anchor, then a scale of size / 30).",
+      params: { pose: "Hand pose; defaults to point, like Hand." },
+      returns:
+        "{ d, transform, strokeWidth }: the outline path, the transform that places it in the viewBox, and the outline's stroke width in path units. Stroke the path at twice that width to cover the outline plus a gap half the outline wide.",
     },
     {
       export: "handPoses",

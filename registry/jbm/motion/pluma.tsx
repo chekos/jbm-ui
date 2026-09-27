@@ -1,4 +1,6 @@
+import { useId } from "react"
 import { Mano } from "./mano"
+import { handOutline } from "../ui/hand"
 import { type Pt } from "../lib/geometry"
 import { color } from "../lib/tokens"
 export type PlumaProps = {
@@ -26,8 +28,6 @@ const NIB = { x: -1.35, y: 21.91 }
 const TAIL = 17 // viewBox units from the grip to the barrel's end
 const WIDTH = 2.6
 const CONE = 3.6
-const RING = 0.8
-const OUTLINE = 1.234
 const rotate = (p: Pt, deg: number): Pt => {
   const r = (deg * Math.PI) / 180
   return {
@@ -69,58 +69,57 @@ export function Pluma({
   const dir = (Math.atan2(nib.y, nib.x) * 180) / Math.PI
   const w = WIDTH * s
   const cone = CONE * s
-  const ring = RING * s
   const tail = TAIL * s
   const coneBase = len - cone
-  const barrelEnd = coneBase - ring
   // The hand follows the pen: turn it by the offset's departure from the natural slant.
   const natural = defaultNib(size)
   let follow = dir - (Math.atan2(natural.y, natural.x) * 180) / Math.PI
   while (follow > 180) follow -= 360
   while (follow < -180) follow += 360
-  // A thin card halo (half the outline, outside the fill) keeps the pen's edge separate from
-  // the hand's contours wherever the barrel runs alongside them.
-  const halo = {
-    stroke: color.card,
-    strokeWidth: f(OUTLINE * s),
-    strokeLinejoin: "round" as const,
-    paintOrder: "stroke" as const,
-  }
+  const handAngle = f(angle + follow)
+  // The pen passes behind the hand: a mask cuts it along the hand's silhouette plus a gap half the
+  // outline wide, so the two ink edges stay apart. Nothing is painted over the page, so writing
+  // under the nib stays whole.
+  const maskId = `pluma-${useId().replace(/[^\w-]/g, "")}`
+  const outline = handOutline("pinch")
+  const reach = (tail + len + size) * 2
   return (
     <g>
-      <g
-        transform={`translate(${f(at.x)} ${f(at.y)}) rotate(${f(angle + dir)})`}
-        data-pluma-nib={`${f(len)}`}
-      >
-        {/* barrel: tail cap through to the ring */}
-        <path
-          d={`M${f(barrelEnd)} ${f(-w / 2)} H${f(-tail + w / 2)} A${f(w / 2)} ${f(w / 2)} 0 0 0 ${f(-tail + w / 2)} ${f(w / 2)} H${f(barrelEnd)} Z`}
-          fill={color.ink}
-          {...halo}
-        />
-        {/* a card ring between the barrel and the cone */}
-        <rect
-          x={f(barrelEnd)}
-          y={f(-w / 2)}
-          width={f(ring)}
-          height={f(w)}
-          fill={color.card}
-        />
-        {/* cone to the nib point */}
-        <path
-          d={`M${f(coneBase)} ${f(-w / 2)} L${f(len)} 0 L${f(coneBase)} ${f(w / 2)} Z`}
-          fill={color.ink}
-          {...halo}
-        />
+      {hand && (
+        <mask id={maskId} maskUnits="userSpaceOnUse" x={f(at.x - reach)} y={f(at.y - reach)} width={f(2 * reach)} height={f(2 * reach)}>
+          <rect x={f(at.x - reach)} y={f(at.y - reach)} width={f(2 * reach)} height={f(2 * reach)} fill="#fff" />
+          <g
+            transform={`translate(${f(at.x)} ${f(at.y)}) rotate(${handAngle}) translate(${f(-GRIP.x * s)} ${f(-GRIP.y * s)}) scale(${f(s)}) ${outline.transform}`}
+          >
+            <path
+              d={outline.d}
+              fill="#000"
+              stroke="#000"
+              strokeWidth={outline.strokeWidth * 2}
+              strokeLinejoin="round"
+            />
+          </g>
+        </mask>
+      )}
+      <g mask={hand ? `url(#${maskId})` : undefined}>
+        <g
+          transform={`translate(${f(at.x)} ${f(at.y)}) rotate(${f(angle + dir)})`}
+          data-pluma-nib={`${f(len)}`}
+        >
+          {/* one silhouette: round tail cap, barrel, and a cone tapering straight on to the nib */}
+          <path
+            d={`M${f(coneBase)} ${f(-w / 2)} H${f(-tail + w / 2)} A${f(w / 2)} ${f(w / 2)} 0 0 0 ${f(-tail + w / 2)} ${f(w / 2)} H${f(coneBase)} L${f(len)} 0 Z`}
+            fill={color.ink}
+          />
+        </g>
       </g>
       {hand && (
         <Mano
           at={at}
           pose="pinch"
           size={size}
-          angle={f(angle + follow)}
+          angle={handAngle}
           anchor={GRIP}
-          halo
         />
       )}
     </g>

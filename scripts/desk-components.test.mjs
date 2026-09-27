@@ -216,12 +216,12 @@ const drawMarkup = (props) =>
   renderToStaticMarkup(
     React.createElement("svg", null, React.createElement(Cajon, props))
   )
-test("every tab and a band of back panel stay visible for one to eight folders", () => {
+test("every tab and a band of back panel stay visible for one to six folders", () => {
   for (const w of [300, 420, 900])
     for (const labelSize of [13, 24, 36])
       for (const tabLayout of ["stair", "stagger3"])
         for (const sub of [false, true])
-          for (let n = 1; n <= 8; n++) {
+          for (let n = 1; n <= 6; n++) {
             const folders = sources.slice(0, n).map((name) => ({
               name,
               sublabel: sub ? "Administrative Behavior" : undefined,
@@ -253,6 +253,56 @@ test("every tab and a band of back panel stay visible for one to eight folders",
               assert.ok(f.w >= 0.6 * l.folders[0].w - 1e-9, "narrowing stays slight")
             })
           }
+})
+test("crowded drawers pack within six folders' rise: names whole, struck sublabels dropped", () => {
+  const twelve = [...sources, "Smith 1776", "Babbage 1832", "Fayol 1916", "Follett 1924"]
+  for (const labelSize of [13, 24])
+    for (const sub of [false, true]) {
+      const folders = (n) =>
+        twelve.slice(0, n).map((name) => ({ name, sublabel: sub ? "Administrative Behavior" : undefined }))
+      const six = cajonLayout({ labelSize, folders: folders(6) })
+      const rise = (l) => l.folders[0].y - l.folders.at(-1).y
+      six.folders.forEach((f) => assert.equal(f.sublabel.visible, true))
+      for (const n of [7, 8, 12]) {
+        const l = cajonLayout({ labelSize, folders: folders(n) })
+        assert.ok(Math.abs(rise(l) - rise(six)) < 1e-9, `n=${n}: the stack keeps six folders' height`)
+        l.folders.forEach((f, i) => {
+          if (i === 0) return assert.equal(f.sublabel.visible, true)
+          // Each name sits above the next folder forward, so no tab edge crosses it.
+          assert.ok(f.label.y + 0.25 * l.labelSize <= l.folders[i - 1].y + 1e-9, `n=${n} i=${i} name whole`)
+          const clear = f.sublabel.y + 0.35 * l.labelSize * 0.8 <= l.folders[i - 1].y + 1e-9
+          if (!clear) assert.equal(f.sublabel.visible, false, `n=${n} i=${i}: struck sublabel is hidden`)
+        })
+        if (sub) {
+          const markup = drawMarkup({ labelSize, folders: folders(n) })
+          assert.equal(
+            (markup.match(/Administrative Behavior/g) ?? []).length,
+            l.folders.filter((f) => f.sublabel.visible).length
+          )
+        }
+      }
+    }
+})
+test("an ajar flap drops straight: never wider than its folder, lifted or not", () => {
+  for (const labelSize of [13, 24])
+    for (const pulled of [0, 0.5, 1]) {
+      const folders = [{ name: "Anthropic 2024", open: 1, pulled }, { name: "Procida 2017", open: 1 }]
+      const l = cajonLayout({ labelSize, folders })
+      for (const f of l.folders) assert.equal(f.opening.lean, 0)
+      const markup = drawMarkup({ labelSize, folders })
+      const f = l.folders[0]
+      // The flap runs from its fixed bottom-left corner up to the dropped top edge and across.
+      const at = markup.indexOf(`d="M${f.x} ${f.y + f.h}L`)
+      assert.ok(at > 0, "flap drawn")
+      const [, x0, x1] = /L([-\d.]+) [-\d.]+H([-\d.]+)/.exec(markup.slice(at))
+      assert.ok(+x0 >= f.x - 1e-9 && +x1 <= f.x + f.w + 1e-9, "flap inside the folder's width")
+    }
+})
+test("an empty open drawer is a box of drawer shades, not an ink block", () => {
+  const markup = drawMarkup({ folders: [], open: 1 })
+  for (const k of [0.5, 0.58, 0.68, 0.78]) assert.ok(markup.includes(`fill="${drawerLight(k)}"`), `plane ${k}`)
+  // The only ink fill in an empty drawer is the handle.
+  assert.equal((markup.match(/fill="#20241F"/g) ?? []).length, 1)
 })
 test("names are drawn whole: the tab widens, then the name compresses", () => {
   const long = "Training Within Industry 1940s and beyond"

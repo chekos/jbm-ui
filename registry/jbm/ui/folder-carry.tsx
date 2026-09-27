@@ -26,7 +26,19 @@ export const folderGrip = (g: FolderGeometry): Pt => ({
   x: g.tabX + g.tabWidth / 2,
   y: g.y + ((g.tabHeight ?? 27) * 10) / 27,
 })
-export const tableFolderGeometry = (at: Pt, width: number): FolderGeometry => {
+/**
+ * Mano placement that holds a folder by its tab from above: the pinch pose turned so the wrist is
+ * up and left, the pocket between index and thumb (Hand viewBox 6.4, 12.1) on the grip point, so
+ * the tab's top edge runs through the pinch and its stepped silhouette stays in view. Spread it into
+ * a Mano at pointOn(path, progress); add up to ±15° to `angle` for a tilt that still reads as a
+ * pinch (further round, the hand reads as pointing).
+ */
+export const folderCarryHand = {
+  pose: "pinch",
+  angle: 155,
+  anchor: { x: 6.4, y: 12.1 },
+} as const
+export const tableFolderGeometry =(at: Pt, width: number): FolderGeometry => {
   const k = width / 260
   return {
     x: at.x + 25 * k,
