@@ -6555,6 +6555,608 @@
       ]
     },
     {
+      "name": "desk-top",
+      "entry": "component",
+      "title": "DeskTop",
+      "description": "A cream desk seen from above, with light, a tilt-revealed front edge, and an optional drawer region.",
+      "category": "Layout",
+      "capabilities": [
+        "controls"
+      ],
+      "needsRemotion": false,
+      "registryDependencies": [
+        "@jbm/tokens",
+        "@jbm/scene-geometry"
+      ],
+      "installName": "desk-top",
+      "inRegistry": true,
+      "page": "/c/desk-top",
+      "registryItem": "/r/desk-top.json",
+      "sourcePath": "registry/jbm/ui/desk-top.tsx",
+      "files": [
+        "registry/jbm/ui/desk-top.tsx"
+      ],
+      "api": [
+        {
+          "export": "DeskTop",
+          "kind": "component",
+          "summary": "SVG <g> of a top-down desk: an empty cream surface with an ink edge that sheets, axes, and props lie on, an optional drawer region at one edge, and a front edge band the camera tilt reveals. It owns no sheets, axes, hands, or drawer contents; compose Ejes, DeskProp, Paper, or Cajon on top. Controlled; no internal timer. Render inside an <svg>.",
+          "props": [
+            {
+              "name": "box",
+              "type": "Box",
+              "required": true,
+              "default": null,
+              "description": "Desk footprint { x, y, w, h } in the parent SVG's user units, including the front edge band and any drawer region. Tilt and the drawer never change it."
+            },
+            {
+              "name": "light",
+              "type": "number",
+              "required": false,
+              "default": "1",
+              "description": "Light on the whole desk, 0–1: multiplies the cream's OKLab lightness (1 full cream, 0.72 the visual language's deepest folder). Every fill follows it; the ink stroke does not. Clamped."
+            },
+            {
+              "name": "edge",
+              "type": "number",
+              "required": false,
+              "default": "0",
+              "description": "Camera tilt, 0–1: reveals the front edge band along the bottom, up to 22 units tall at 1, taken out of the surface's depth. 0 is straight down. Clamped."
+            },
+            {
+              "name": "drawer",
+              "type": "DeskTopDrawerSide",
+              "required": false,
+              "default": null,
+              "description": "Edge that holds an empty drawer region (start left, end right, top, bottom), separated from the surface by a 6-unit seam and drawn as a panel with a recessed opening. Omit for no drawer."
+            },
+            {
+              "name": "drawerSize",
+              "type": "number",
+              "required": false,
+              "default": null,
+              "description": "Drawer region depth across its edge in parent units, seam included. Defaults to 40% of box.w; kept between 42 and 80% of the plan."
+            }
+          ],
+          "passthrough": []
+        },
+        {
+          "export": "deskTopLayout",
+          "kind": "function",
+          "summary": "Desk geometry for composites: where the flat surface is, where its centre is (Ejes cross there by default), and the drawer region's panel and opening.",
+          "params": [
+            {
+              "name": "box",
+              "type": "Box",
+              "required": true,
+              "default": null,
+              "description": "Desk footprint { x, y, w, h } in the parent SVG's user units, including the front edge band and any drawer region. Tilt and the drawer never change it."
+            },
+            {
+              "name": "light",
+              "type": "number",
+              "required": false,
+              "default": "1",
+              "description": "Light on the whole desk, 0–1: multiplies the cream's OKLab lightness (1 full cream, 0.72 the visual language's deepest folder). Every fill follows it; the ink stroke does not. Clamped."
+            },
+            {
+              "name": "edge",
+              "type": "number",
+              "required": false,
+              "default": "0",
+              "description": "Camera tilt, 0–1: reveals the front edge band along the bottom, up to 22 units tall at 1, taken out of the surface's depth. 0 is straight down. Clamped."
+            },
+            {
+              "name": "drawer",
+              "type": "DeskTopDrawerSide",
+              "required": false,
+              "default": null,
+              "description": "Edge that holds an empty drawer region (start left, end right, top, bottom), separated from the surface by a 6-unit seam and drawn as a panel with a recessed opening. Omit for no drawer."
+            },
+            {
+              "name": "drawerSize",
+              "type": "number",
+              "required": false,
+              "default": null,
+              "description": "Drawer region depth across its edge in parent units, seam included. Defaults to 40% of box.w; kept between 42 and 80% of the plan."
+            }
+          ],
+          "returns": "{ box, surface, center, drawer, front, fill }: surface is the flat top Box; center its centre; drawer is { panel, well } or null; front is the edge band Box (h 0 when flat); fill holds the surface, front, panel, and well colours after light. All in parent SVG units."
+        },
+        {
+          "export": "deskShade",
+          "kind": "function",
+          "summary": "Scales a #rrggbb token colour's OKLab lightness by k (clamped 0–1), keeping its hue: the visual language's depth-as-light rule.",
+          "params": [
+            {
+              "name": "hex",
+              "type": "string",
+              "required": true,
+              "default": null,
+              "description": "A #rrggbb colour, normally a jbm token such as color.bg."
+            },
+            {
+              "name": "k",
+              "type": "number",
+              "required": true,
+              "default": null,
+              "description": "Lightness multiplier, 0–1."
+            }
+          ],
+          "returns": "The shaded colour as #rrggbb."
+        },
+        {
+          "export": "DESK_EDGE",
+          "kind": "constant",
+          "summary": "Front edge band height at full tilt (edge 1), in parent units: 22."
+        }
+      ],
+      "stage": {
+        "mode": "declared",
+        "landscape": {
+          "width": 1680,
+          "height": 830
+        },
+        "vertical": {
+          "width": 936,
+          "height": 1340
+        },
+        "basis": "The desk fills its box exactly (parent SVG units = stage pixels in a 1920 × 1080 or 1080 × 1920 composition). The numbers are the safe area the act 2 layout gives it: landscape 1920 − 2 × 120 by 920 − 90, vertical 1080 − 2 × 72 by 1440 − 100. Tilt and the drawer region stay inside the box."
+      },
+      "examples": [
+        {
+          "title": "Desk with the drawer kept in frame on the right",
+          "code": "import { DeskTop } from \"@/jbm/ui/desk-top\"\n\n<svg viewBox=\"0 0 1920 1080\">\n  <DeskTop box={{ x: 120, y: 90, w: 1680, h: 830 }} drawer=\"end\" drawerSize={520} />\n</svg>"
+        },
+        {
+          "title": "Axes on the surface, tilting to show the desk edge",
+          "code": "import { DeskTop, deskTopLayout } from \"@/jbm/ui/desk-top\"\nimport { Ejes } from \"@/jbm/ui/ejes\" // install @jbm/ejes separately\n\nconst desk = { box: { x: 120, y: 90, w: 1680, h: 830 }, edge: 1 }\nconst { surface } = deskTopLayout(desk)\n<svg viewBox=\"0 0 1920 1080\">\n  <DeskTop {...desk} />\n  <Ejes box={surface} h={1} v={1} quiet\n    labels={{ top: \"hacer\", bottom: \"entender\", left: \"aprender\", right: \"trabajar\" }} />\n</svg>"
+        }
+      ],
+      "qa": [
+        "Drag Edge from Flat to Tilted: the front band grows from the bottom inside the box, the surface loses the same depth, and their shared edge stays one line with square corners where they meet.",
+        "Step Drawer through none, start, end, top, and bottom: the box never moves; the panel sits on the chosen edge with a 6-unit seam; its opening is darker than the surface.",
+        "With a start, end, or bottom drawer and Edge above half, a small pull shows on the band under the drawer; a top drawer shows none.",
+        "Drag Light from 1 to 0.6: every fill darkens together and keeps its hue; the ink edge does not change.",
+        "At 2× zoom check the rounded corners, the seam, and that no contour doubles or steps."
+      ],
+      "docs": [
+        {
+          "title": "Desk illustrations guide",
+          "url": "https://jbm-ui.bns.studio/docs/desk-components.md"
+        }
+      ]
+    },
+    {
+      "name": "ejes",
+      "entry": "component",
+      "title": "Ejes",
+      "description": "Two ink axes that split an area into four named quadrants, with quiet labels and a focus quadrant.",
+      "category": "UI Bits",
+      "capabilities": [
+        "controls"
+      ],
+      "needsRemotion": false,
+      "registryDependencies": [
+        "@jbm/tokens",
+        "@jbm/scene-geometry"
+      ],
+      "installName": "ejes",
+      "inRegistry": true,
+      "page": "/c/ejes",
+      "registryItem": "/r/ejes.json",
+      "sourcePath": "registry/jbm/ui/ejes.tsx",
+      "files": [
+        "registry/jbm/ui/ejes.tsx"
+      ],
+      "api": [
+        {
+          "export": "Ejes",
+          "kind": "component",
+          "summary": "SVG <g> of two crossing ink axes with a name on each side: top and bottom flank the horizontal axis at its left end, left and right flank the vertical axis at its top end. Each axis draws by its own progress; labels arrive with their axis and can shrink to quiet. One or more quadrants can be called out by a rounded outline or light fill. Vermilion appears only with focusTone accent. Controlled; no internal timer. Render inside an <svg>, usually over DeskTop.",
+          "props": [
+            {
+              "name": "box",
+              "type": "Box",
+              "required": true,
+              "default": null,
+              "description": "Area the axes span { x, y, w, h }, in the parent SVG's user units; usually DeskTop's surface."
+            },
+            {
+              "name": "center",
+              "type": "Pt",
+              "required": false,
+              "default": null,
+              "description": "Where the axes cross. Defaults to the centre of box; clamped inside it."
+            },
+            {
+              "name": "h",
+              "type": "number",
+              "required": true,
+              "default": null,
+              "description": "Horizontal axis draw progress, 0–1. Clamped."
+            },
+            {
+              "name": "v",
+              "type": "number",
+              "required": true,
+              "default": null,
+              "description": "Vertical axis draw progress, 0–1. Clamped."
+            },
+            {
+              "name": "labels",
+              "type": "EjesLabels",
+              "required": true,
+              "default": null,
+              "description": "Half-plane names { top, bottom, left, right }. An empty string hides that label."
+            },
+            {
+              "name": "quiet",
+              "type": "boolean | number",
+              "required": false,
+              "default": "false",
+              "description": "Label size: false or 0 is full (36 units, weight 650), true or 1 is quiet (22 units, weight 500) at the same axis ends; numbers between interpolate the size so the shrink can be animated."
+            },
+            {
+              "name": "reveal",
+              "type": "Partial<Record<EjesSide, number>>",
+              "required": false,
+              "default": null,
+              "description": "Per-label opacity, 0–1, keyed top, bottom, left, right. A label left out fades in over 60 units as its axis's drawing tip passes it."
+            },
+            {
+              "name": "origin",
+              "type": "\"center\" | \"start\"",
+              "required": false,
+              "default": "\"center\"",
+              "description": "Axes grow out from the crossing (center, default) or from the left and top edges (start)."
+            },
+            {
+              "name": "focus",
+              "type": "Quadrant | readonly Quadrant[]",
+              "required": false,
+              "default": null,
+              "description": "Quadrant or quadrants to call out: tl, tr, bl, br, or an array (all four together for the \"cuatro\" beat). Omit for none."
+            },
+            {
+              "name": "focusTone",
+              "type": "EjesFocusTone",
+              "required": false,
+              "default": "\"ink\"",
+              "description": "ink (default): ink outline. fill: light ink wash, no outline. accent: vermilion outline, opt-in for the one deliberate stamp (the board's @advina answer quadrant); never the default."
+            },
+            {
+              "name": "focusProgress",
+              "type": "number",
+              "required": false,
+              "default": "1",
+              "description": "Focus draw progress, 0–1 (default 1): outlines draw around their perimeter, fills fade in. Clamped."
+            },
+            {
+              "name": "focusInset",
+              "type": "number",
+              "required": false,
+              "default": "16",
+              "description": "Gap between a focus outline and the box edges and axes, in parent units (default 16). The side against a label also clears that label."
+            },
+            {
+              "name": "weight",
+              "type": "number",
+              "required": false,
+              "default": "3",
+              "description": "Axis and outline stroke width in parent units (default 3)."
+            }
+          ],
+          "passthrough": []
+        },
+        {
+          "export": "ejesLayout",
+          "kind": "function",
+          "summary": "Axis, label, and quadrant geometry, for placing a sheet in each quadrant or a hand at an axis end.",
+          "params": [
+            {
+              "name": "center",
+              "type": "Pt",
+              "required": false,
+              "default": null,
+              "description": "Where the axes cross. Defaults to the centre of box; clamped inside it."
+            },
+            {
+              "name": "h",
+              "type": "number",
+              "required": true,
+              "default": null,
+              "description": "Horizontal axis draw progress, 0–1. Clamped."
+            },
+            {
+              "name": "box",
+              "type": "Box",
+              "required": true,
+              "default": null,
+              "description": "Area the axes span { x, y, w, h }, in the parent SVG's user units; usually DeskTop's surface."
+            },
+            {
+              "name": "v",
+              "type": "number",
+              "required": true,
+              "default": null,
+              "description": "Vertical axis draw progress, 0–1. Clamped."
+            },
+            {
+              "name": "quiet",
+              "type": "boolean | number",
+              "required": false,
+              "default": "false",
+              "description": "Label size: false or 0 is full (36 units, weight 650), true or 1 is quiet (22 units, weight 500) at the same axis ends; numbers between interpolate the size so the shrink can be animated."
+            },
+            {
+              "name": "reveal",
+              "type": "Partial<Record<EjesSide, number>>",
+              "required": false,
+              "default": "{}",
+              "description": "Per-label opacity, 0–1, keyed top, bottom, left, right. A label left out fades in over 60 units as its axis's drawing tip passes it."
+            },
+            {
+              "name": "origin",
+              "type": "\"center\" | \"start\"",
+              "required": false,
+              "default": "\"center\"",
+              "description": "Axes grow out from the crossing (center, default) or from the left and top edges (start)."
+            },
+            {
+              "name": "focusInset",
+              "type": "number",
+              "required": false,
+              "default": "16",
+              "description": "Gap between a focus outline and the box edges and axes, in parent units (default 16). The side against a label also clears that label."
+            },
+            {
+              "name": "labels",
+              "type": "Partial<EjesLabels>",
+              "required": false,
+              "default": null,
+              "description": "Optional; when given, an empty label frees its strip so focus outlines can reach the axis."
+            }
+          ],
+          "returns": "{ box, center, horizontal: { x1, x2, y }, vertical: { x, y1, y2 }, type: { size, quiet }, labels: { top|bottom|left|right: { x, y, anchor, baseline, opacity } }, quadrants: { tl|tr|bl|br: Box }, focus: { tl|tr|bl|br: Box } }, in parent SVG units."
+        },
+        {
+          "export": "quadrants",
+          "kind": "constant",
+          "summary": "[\"tl\", \"tr\", \"bl\", \"br\"]: the four quadrant keys in spoken order of the board's readers."
+        },
+        {
+          "export": "EJES_TYPE",
+          "kind": "constant",
+          "summary": "Label sizes in parent units: { full: 36, quiet: 22 }."
+        }
+      ],
+      "stage": {
+        "mode": "declared",
+        "landscape": {
+          "width": 1680,
+          "height": 830
+        },
+        "vertical": {
+          "width": 936,
+          "height": 1340
+        },
+        "basis": "The axes span their box exactly (parent SVG units = stage pixels); labels and focus outlines stay inside it. The numbers are the act 2 desk surface at the safe area: landscape 1920 − 2 × 120 by 920 − 90, vertical 1080 − 2 × 72 by 1440 − 100."
+      },
+      "examples": [
+        {
+          "title": "Four places on the desk, labels quiet, answer quadrant outlined",
+          "code": "import { Ejes } from \"@/jbm/ui/ejes\"\n\n<svg viewBox=\"0 0 1920 1080\">\n  <Ejes box={{ x: 120, y: 90, w: 1680, h: 830 }} h={1} v={1} quiet\n    labels={{ top: \"hacer\", bottom: \"entender\", left: \"aprender\", right: \"trabajar\" }}\n    focus=\"tl\" />\n</svg>"
+        },
+        {
+          "title": "Draw the axes on a timeline (Remotion)",
+          "code": "import { useCurrentFrame, interpolate } from \"remotion\"\nimport { Ejes } from \"@/jbm/ui/ejes\"\n\nfunction Brujula() {\n  const frame = useCurrentFrame()\n  const h = interpolate(frame, [120, 168], [0, 1], { extrapolateLeft: \"clamp\", extrapolateRight: \"clamp\" })\n  const v = interpolate(frame, [204, 240], [0, 1], { extrapolateLeft: \"clamp\", extrapolateRight: \"clamp\" })\n  return (\n    <svg viewBox=\"0 0 1920 1080\">\n      <Ejes box={{ x: 120, y: 90, w: 1680, h: 830 }} h={h} v={v}\n        labels={{ top: \"hacer\", bottom: \"entender\", left: \"aprender\", right: \"trabajar\" }} />\n    </svg>\n  )\n}"
+        },
+        {
+          "title": "The one vermilion answer quadrant (opt-in)",
+          "code": "import { Ejes } from \"@/jbm/ui/ejes\"\n\n<svg viewBox=\"0 0 1920 1080\">\n  <Ejes box={{ x: 120, y: 90, w: 1680, h: 830 }} h={1} v={1} quiet\n    labels={{ top: \"hacer\", bottom: \"entender\", left: \"aprender\", right: \"trabajar\" }}\n    focus=\"tr\" focusTone=\"accent\" focusProgress={0.6} />\n</svg>"
+        }
+      ],
+      "qa": [
+        "Drag Horizontal and Vertical independently from Hidden to Drawn in both Grow from modes: each axis grows only by its own control, and each label fades in as the line reaches it, not before.",
+        "Drag Quiet from Full to Quiet: labels shrink toward the axis ends without moving off them; at Quiet they are small but readable.",
+        "Step Focus through each quadrant and All four with every Tone: outlines never cross a label or an axis; Light fill has no outline; only Accent outline is vermilion.",
+        "Drag Outline: the rounded outline draws around its perimeter; at 0 nothing shows.",
+        "Check a narrow screen: the labels stay inside the box and stay legible at quiet size."
+      ],
+      "docs": [
+        {
+          "title": "Desk illustrations guide",
+          "url": "https://jbm-ui.bns.studio/docs/desk-components.md"
+        }
+      ]
+    },
+    {
+      "name": "desk-prop",
+      "entry": "component",
+      "title": "DeskProp",
+      "description": "A free-standing keycap, keyboard, or mug to place on a desk.",
+      "category": "UI Bits",
+      "capabilities": [
+        "controls"
+      ],
+      "needsRemotion": false,
+      "registryDependencies": [
+        "@jbm/tokens",
+        "@jbm/scene-geometry"
+      ],
+      "installName": "desk-prop",
+      "inRegistry": true,
+      "page": "/c/desk-prop",
+      "registryItem": "/r/desk-prop.json",
+      "sourcePath": "registry/jbm/ui/desk-prop.tsx",
+      "files": [
+        "registry/jbm/ui/desk-prop.tsx"
+      ],
+      "api": [
+        {
+          "export": "DeskProp",
+          "kind": "component",
+          "summary": "SVG <g> of one small desk object in the library's card fill and 2-unit ink line, placed by its centre with scale and rotation. It owns no hand: compose Mano at deskPropLayout's contact point. Controlled; no internal timer. Render inside an <svg>.",
+          "props": [
+            {
+              "name": "kind",
+              "type": "DeskPropKind",
+              "required": true,
+              "default": null,
+              "description": "keycap (a single key, 56 × 56), keyboard (four rows of nine keys, the last with a space bar, 270 × 130), or mug (side view with a handle ring, 90 × 78)."
+            },
+            {
+              "name": "x",
+              "type": "number",
+              "required": true,
+              "default": null,
+              "description": "Centre of the footprint, in the parent SVG's user units."
+            },
+            {
+              "name": "y",
+              "type": "number",
+              "required": true,
+              "default": null,
+              "description": "Centre of the footprint, in parent SVG units."
+            },
+            {
+              "name": "scale",
+              "type": "number",
+              "required": false,
+              "default": "1",
+              "description": "Uniform size multiplier (default 1). The ink stroke stays 2 parent units at any scale."
+            },
+            {
+              "name": "rotate",
+              "type": "number",
+              "required": false,
+              "default": "0",
+              "description": "Rotation in degrees around the centre (default 0)."
+            },
+            {
+              "name": "press",
+              "type": "number",
+              "required": false,
+              "default": "0",
+              "description": "Key travel, 0–1: the keycap's top sinks and centres; on a keyboard, the keys listed in keys do. The mug ignores it. Clamped."
+            },
+            {
+              "name": "keys",
+              "type": "readonly number[]",
+              "required": false,
+              "default": "[]",
+              "description": "Keyboard only: indices of the keys press applies to, row by row from the top left (0–26 the three full rows, 27–31 the bottom row, 29 the space bar)."
+            }
+          ],
+          "passthrough": []
+        },
+        {
+          "export": "deskPropLayout",
+          "kind": "function",
+          "summary": "Placement and contact points after scale and rotation, so a fingertip lands on the keycap or a key and a grip lands on the mug's handle.",
+          "params": [
+            {
+              "name": "kind",
+              "type": "DeskPropKind",
+              "required": true,
+              "default": null,
+              "description": "keycap (a single key, 56 × 56), keyboard (four rows of nine keys, the last with a space bar, 270 × 130), or mug (side view with a handle ring, 90 × 78)."
+            },
+            {
+              "name": "x",
+              "type": "number",
+              "required": true,
+              "default": null,
+              "description": "Centre of the footprint, in the parent SVG's user units."
+            },
+            {
+              "name": "y",
+              "type": "number",
+              "required": true,
+              "default": null,
+              "description": "Centre of the footprint, in parent SVG units."
+            },
+            {
+              "name": "scale",
+              "type": "number",
+              "required": false,
+              "default": "1",
+              "description": "Uniform size multiplier (default 1). The ink stroke stays 2 parent units at any scale."
+            },
+            {
+              "name": "rotate",
+              "type": "number",
+              "required": false,
+              "default": "0",
+              "description": "Rotation in degrees around the centre (default 0)."
+            },
+            {
+              "name": "press",
+              "type": "number",
+              "required": false,
+              "default": "0",
+              "description": "Key travel, 0–1: the keycap's top sinks and centres; on a keyboard, the keys listed in keys do. The mug ignores it. Clamped."
+            },
+            {
+              "name": "keys",
+              "type": "readonly number[]",
+              "required": false,
+              "default": null,
+              "description": "Keyboard only: indices of the keys press applies to, row by row from the top left (0–26 the three full rows, 27–31 the bottom row, 29 the space bar)."
+            }
+          ],
+          "returns": "{ kind, center, size, corners, contact, keys, transform }: size is the scaled footprint; corners the four footprint corners; contact the keycap top, the home-row middle key (index 13), or the handle ring; keys every keyboard key centre (empty otherwise); transform the SVG transform the prop uses. Parent SVG units."
+        },
+        {
+          "export": "deskPropSize",
+          "kind": "constant",
+          "summary": "Footprint of each kind at scale 1, in parent units: keycap 56 × 56, keyboard 270 × 130, mug 90 × 78."
+        },
+        {
+          "export": "deskPropKeys",
+          "kind": "constant",
+          "summary": "The keyboard's 32 key rectangles in local units (centre origin): three rows of nine 22-unit keys on a 28-unit pitch, then two keys, a 134-unit space bar, and two keys."
+        }
+      ],
+      "stage": {
+        "mode": "declared",
+        "landscape": {
+          "width": 270,
+          "height": 130
+        },
+        "vertical": {
+          "width": 270,
+          "height": 130
+        },
+        "basis": "Parent SVG units for the largest kind, a keyboard at scale 1 (270 × 130). A keycap is 56 × 56 and a mug 90 × 78; everything multiplies by scale, and rotation can widen the axis-aligned bounds to the rotated corners (deskPropLayout(...).corners). On a 1920 × 1080 desk the Doorways board draws them larger: about scale 1.5 for the keyboard and 2 to 2.4 for the keycap and mug."
+      },
+      "examples": [
+        {
+          "title": "Keyboard, keycap, and mug on a desk",
+          "code": "import { DeskProp } from \"@/jbm/ui/desk-prop\"\n\n<svg viewBox=\"0 0 600 240\">\n  <DeskProp kind=\"keycap\" x={70} y={120} />\n  <DeskProp kind=\"keyboard\" x={290} y={120} rotate={-4} />\n  <DeskProp kind=\"mug\" x={520} y={120} />\n</svg>"
+        },
+        {
+          "title": "A pointing finger presses the keycap",
+          "code": "import { DeskProp, deskPropLayout } from \"@/jbm/ui/desk-prop\"\nimport { Mano } from \"@/jbm/motion/mano\" // install @jbm/mano separately\n\nconst key = { kind: \"keycap\", x: 200, y: 180, scale: 1.5, press: 0.6 } as const\nconst tip = deskPropLayout(key).contact\n<svg viewBox=\"0 0 400 300\">\n  <DeskProp {...key} />\n  <Mano at={tip} pose=\"point\" size={120} angle={180} anchor={{ x: 9.5, y: 1.6 }} />\n</svg>"
+        }
+      ],
+      "qa": [
+        "Switch Prop through keycap, keyboard, and mug: each reads as its noun alone, in card fill with the same 2-unit ink line as Hand and Folder.",
+        "Drag Scale from 0.5× to 2×: proportions hold and the stroke stays 2 units, not thinner or thicker.",
+        "Drag Rotation: each prop turns about its centre and stays inside the preview.",
+        "Drag Press on the keycap and the keyboard: the keycap top sinks toward its centre; on the keyboard only the home-row middle key moves.",
+        "Enlarge the mug: the handle ring meets the body without a gap or a doubled edge.",
+        "The Mano anchor in the second example is an estimate of the fingertip; verify it visually."
+      ],
+      "docs": [
+        {
+          "title": "Desk illustrations guide",
+          "url": "https://jbm-ui.bns.studio/docs/desk-components.md"
+        }
+      ]
+    },
+    {
       "name": "burbuja",
       "entry": "component",
       "title": "Burbuja",

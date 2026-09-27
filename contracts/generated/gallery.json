@@ -1039,6 +1039,60 @@
       "inRegistry": true
     },
     {
+      "name": "desk-top",
+      "title": "DeskTop",
+      "description": "A cream desk seen from above, with light, a tilt-revealed front edge, and an optional drawer region.",
+      "category": "Layout",
+      "capabilities": [
+        "controls"
+      ],
+      "needsRemotion": false,
+      "registryDependencies": [
+        "@jbm/tokens",
+        "@jbm/scene-geometry"
+      ],
+      "snippet": "import { DeskTop } from \"@/jbm/ui/desk-top\"\n\n<svg viewBox=\"0 0 1920 1080\">\n  <DeskTop box={{ x: 120, y: 90, w: 1680, h: 830 }} drawer=\"end\" drawerSize={520} />\n</svg>",
+      "installName": "desk-top",
+      "sourcePath": "registry/jbm/ui/desk-top.tsx",
+      "inRegistry": true
+    },
+    {
+      "name": "ejes",
+      "title": "Ejes",
+      "description": "Two ink axes that split an area into four named quadrants, with quiet labels and a focus quadrant.",
+      "category": "UI Bits",
+      "capabilities": [
+        "controls"
+      ],
+      "needsRemotion": false,
+      "registryDependencies": [
+        "@jbm/tokens",
+        "@jbm/scene-geometry"
+      ],
+      "snippet": "import { Ejes } from \"@/jbm/ui/ejes\"\n\n<svg viewBox=\"0 0 1920 1080\">\n  <Ejes box={{ x: 120, y: 90, w: 1680, h: 830 }} h={1} v={1} quiet\n    labels={{ top: \"hacer\", bottom: \"entender\", left: \"aprender\", right: \"trabajar\" }}\n    focus=\"tl\" />\n</svg>",
+      "installName": "ejes",
+      "sourcePath": "registry/jbm/ui/ejes.tsx",
+      "inRegistry": true
+    },
+    {
+      "name": "desk-prop",
+      "title": "DeskProp",
+      "description": "A free-standing keycap, keyboard, or mug to place on a desk.",
+      "category": "UI Bits",
+      "capabilities": [
+        "controls"
+      ],
+      "needsRemotion": false,
+      "registryDependencies": [
+        "@jbm/tokens",
+        "@jbm/scene-geometry"
+      ],
+      "snippet": "import { DeskProp } from \"@/jbm/ui/desk-prop\"\n\n<svg viewBox=\"0 0 600 240\">\n  <DeskProp kind=\"keycap\" x={70} y={120} />\n  <DeskProp kind=\"keyboard\" x={290} y={120} rotate={-4} />\n  <DeskProp kind=\"mug\" x={520} y={120} />\n</svg>",
+      "installName": "desk-prop",
+      "sourcePath": "registry/jbm/ui/desk-prop.tsx",
+      "inRegistry": true
+    },
+    {
       "name": "burbuja",
       "title": "Burbuja",
       "description": "Chat bubble whose selected words sweep to vermilion with a controlled 0–1 highlight.",

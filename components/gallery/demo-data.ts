@@ -1,6 +1,9 @@
 // Server-safe preview routing (no React, no Remotion): which demo component renders an item.
 // Usage snippets, categories, and capabilities live in the agent contracts (contracts/items).
 
+/** Top-down desk pieces (DeskTop, Ejes, DeskProp), previewed by DeskSurfaceDemo via DeskDemo. */
+export const deskSurfaceNames = ["desk-top", "ejes", "desk-prop"]
+
 /** Paper cut-out pieces from the Design videos, previewed by DesignVideoDemo. */
 export const designNames = [
   "paper-tape",
@@ -42,6 +45,7 @@ export const urlStateNames = [
   "clock",
   "ticket",
   "text-fill",
+  ...deskSurfaceNames,
 ]
 
 /** Desk illustration pieces, previewed by DeskDemo. */
@@ -55,4 +59,5 @@ export const deskNames = [
   "tool-caddy",
   "escritorio",
   "burbuja",
+  ...deskSurfaceNames,
 ]
