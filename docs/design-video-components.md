@@ -18,9 +18,11 @@ The gallery's Ticket example demonstrates a work order using the existing header
 
 ## Folder contents and transport
 
+`Folder` has three tones: `accent` (vermilion), `ink`, and `card` (plain cream with ink text). Accent and ink print their label on the front panel, as before; the card tone prints it on the tab by default (`labelOn` chooses either placement for any tone). A tab label is never truncated: the tab widens to fit it, up to the body width, then the label compresses. An optional `sublabel` prints on the front panel and leans with it as the folder opens, using the exported `frontPlane` transform.
+
 `Folder` accepts optional SVG children in its 260×220 space, between the back and front panels. Existing calls retain the original sheet. `@jbm/folder-contents` composes this slot with rigid nested folders and documents. `open`, per-entry `reveal`, per-entry `documentReveal`, and group `lift` are independent controls. Empty entries and an empty sheet label produce an empty folder. More entries tighten packing instead of changing the folder's size. Hidden geometry is complete and clipped at the container bottom.
 
-`@jbm/folder-carry` exports `tableFolderGeometry`, `folderGrip`, and `carriedFolderGeometry`. A transport path should begin and end at the corresponding `folderGrip` points. A drawer can supply its own `x`, `y`, `w`, `h`, `tabX`, and `tabWidth`. Optional tab dimensions interpolate too, avoiding an endpoint shape change when carrying between scales.
+`@jbm/folder-carry` exports `tableFolderGeometry`, `folderGrip`, and `carriedFolderGeometry`. A transport path should begin and end at the corresponding `folderGrip` points. A drawer can supply its own `x`, `y`, `w`, `h`, `tabX`, and `tabWidth`. Optional tab dimensions interpolate too, avoiding an endpoint shape change when carrying between scales. `fill` sets the carried folder's color (vermilion by default; pass `color.card` for a plain cream folder or `color.ink`), and the label switches to ink on cream fills unless `labelColor` says otherwise.
 
 Install `@jbm/mano` separately to add a hand. Its optional `anchor` is in the Hand artwork's 30×29 coordinate system; `{ x: 6, y: 10 }` places the pinch opening at `at`. Rotation occurs around that contact point. Omit `anchor` to preserve the existing placement behavior.
 

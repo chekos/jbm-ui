@@ -21,6 +21,8 @@ export default {
         progress: "Carry progress from 0 (at `from`) to 1 (at `to`), by arc length along `path`. Clamped.",
         label:
           "Folder name (first 16 characters); also labels the group as \"Carrying …\" for assistive technology. Shown on the tab at 0 and on the front panel at 1, crossfading between.",
+        fill: "Folder fill passed to FolderOutline: a palette token such as color.accent (default, vermilion), color.ink, or color.card for a plain cream folder.",
+        labelColor: "Label color. Defaults to color.ink on color.card or color.bg fills and color.bg (cream) on anything else.",
       },
     },
     {
@@ -72,11 +74,16 @@ export default {
       code: 'import { FolderCarry, folderGrip, tableFolderGeometry } from "@/jbm/ui/folder-carry"\n\nconst from = tableFolderGeometry({ x: 5, y: 65 }, 100)\nconst to = tableFolderGeometry({ x: 225, y: 60 }, 190)\nconst path = [folderGrip(from), { x: 200, y: 45 }, folderGrip(to)]\n\n<svg viewBox="0 0 450 270" width="100%">\n  <FolderCarry from={from} to={to} path={path} progress={0.5} label="proyecto" />\n</svg>',
     },
     {
+      title: "Carry a plain cream folder",
+      code: 'import { FolderCarry, folderGrip, tableFolderGeometry } from "@/jbm/ui/folder-carry"\nimport { color } from "@/jbm/lib/tokens"\n\nconst from = tableFolderGeometry({ x: 5, y: 65 }, 100)\nconst to = tableFolderGeometry({ x: 225, y: 60 }, 190)\nconst path = [folderGrip(from), { x: 200, y: 45 }, folderGrip(to)]\n\n<svg viewBox="0 0 450 270" width="100%">\n  <FolderCarry from={from} to={to} path={path} progress={0.5} label="Doorways" fill={color.card} />\n</svg>',
+    },
+    {
       title: "Put a hand on the grip",
       code: 'import { FolderCarry, folderGrip, tableFolderGeometry } from "@/jbm/ui/folder-carry"\nimport { pointOn } from "@/jbm/lib/geometry"\nimport { Mano } from "@/jbm/motion/mano" // install @jbm/mano separately\n\nconst from = tableFolderGeometry({ x: 5, y: 65 }, 100)\nconst to = tableFolderGeometry({ x: 225, y: 60 }, 190)\nconst path = [folderGrip(from), { x: 200, y: 45 }, folderGrip(to)]\nconst progress = 0.4\n\n<svg viewBox="0 0 450 270" width="100%">\n  <FolderCarry from={from} to={to} path={path} progress={progress} label="proyecto" />\n  <Mano at={pointOn(path, progress)} pose="pinch" size={70} anchor={{ x: 6, y: 10 }} />\n</svg>',
     },
   ],
   qa: [
+    "Set Folder fill to card and ink: the carried folder keeps that fill at every progress, with an ink label on cream and a cream label on ink; vermilion appears only with the accent fill.",
     "Drag Carry progress to 0, 0.5, and 1: the folder matches its resting geometry exactly at both ends, and the label moves from tab to front panel without both copies fully visible mid-way.",
     "Toggle Show hand and sweep progress: the pinch stays on the tab's grip throughout; adjust Hand angle and confirm the contact point does not drift.",
     "Check the scale change reads as smooth growth with no jump in tab shape at the endpoints.",

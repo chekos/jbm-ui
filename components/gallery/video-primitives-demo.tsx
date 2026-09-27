@@ -6,7 +6,7 @@ import { useBenchParam } from "./bench-url"
 import { Ticket } from "@/registry/jbm/ui/ticket"
 import { ChatBubble } from "@/registry/jbm/ui/chat-bubble"
 import { Document } from "@/registry/jbm/ui/document"
-import { Folder } from "@/registry/jbm/ui/folder"
+import { Folder, type FolderTone } from "@/registry/jbm/ui/folder"
 import { ScoreScale } from "@/registry/jbm/ui/score-scale"
 import { ComparisonBars } from "@/registry/jbm/ui/comparison-bars"
 import { Clock } from "@/registry/jbm/ui/clock"
@@ -56,11 +56,23 @@ function TicketDemo() {
 }
 function FolderDemo() {
   const [open, setOpen] = useBenchParam("open", 0.5, { clamp: [0, 1] })
+  const [tone, setTone] = useBenchParam<FolderTone>("tone", "accent", {
+    allowed: ["accent", "ink", "card"],
+  })
+  const [place, setPlace] = useBenchParam<"auto" | "front" | "tab">(
+    "label",
+    "auto",
+    { allowed: ["auto", "front", "tab"] }
+  )
+  const [sublabel, setSublabel] = useBenchParam("sublabel", false)
   return (
     <div style={{ display: "grid", gap: 20 }}>
       <Folder
         open={open}
-        label="Ideas"
+        tone={tone}
+        label={tone === "card" ? "Doorways" : "Ideas"}
+        labelOn={place === "auto" ? undefined : place}
+        sublabel={sublabel ? "rigor · ir a la fuente" : undefined}
         style={{ margin: "auto", width: 250 }}
       />
       <ProgressControl
@@ -69,6 +81,40 @@ function FolderDemo() {
         onChange={setOpen}
         presets={["Closed", "Half", "Open"]}
       />
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 16, fontSize: 13 }}>
+        <label>
+          Tone{" "}
+          <select
+            aria-label="Folder tone"
+            value={tone}
+            onChange={(e) => setTone(e.target.value as FolderTone)}
+          >
+            <option value="accent">Vermilion</option>
+            <option value="ink">Ink</option>
+            <option value="card">Card</option>
+          </select>
+        </label>
+        <label>
+          Label on{" "}
+          <select
+            aria-label="Folder label placement"
+            value={place}
+            onChange={(e) => setPlace(e.target.value as typeof place)}
+          >
+            <option value="auto">Tone default</option>
+            <option value="front">Front panel</option>
+            <option value="tab">Tab</option>
+          </select>
+        </label>
+        <label>
+          <input
+            type="checkbox"
+            checked={sublabel}
+            onChange={(e) => setSublabel(e.target.checked)}
+          />{" "}
+          Sublabel
+        </label>
+      </div>
     </div>
   )
 }

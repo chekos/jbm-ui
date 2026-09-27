@@ -16,10 +16,10 @@ export default {
         "Fills Folder's children slot with a front sheet and nested folders, each with an optional document. Every part is a rigid object that translates into view; nothing stretches. Pure React: `open`, per-entry `reveal` and `documentReveal`, and `lift` are independent 0–1 controls with no internal timer. Other SVG props pass through to the Folder svg.",
       props: {
         label:
-          "Mono label on the outer folder's front panel; also names the image for assistive technology. Truncated after 16 characters.",
+          "Mono label for the outer folder; also names the image for assistive technology. On the front panel (accent and ink) it truncates after 16 characters; on the tab (card tone default, or labelOn \"tab\") it is drawn whole.",
         open:
           "Outer folder opening from 0 (closed, contents hidden) to 1 (contents shown). Clamped. Defaults to 1 here, unlike Folder's 0; every reveal is multiplied by it.",
-        tone: "Outer folder fill: vermilion accent or ink.",
+        tone: "Outer folder fill: vermilion accent, ink, or plain cream card.",
         entries:
           "Nested folders, back to front. Their tabs pack between y 24 and 72 of the folder space, so more entries overlap more tightly instead of growing the folder. Empty by default.",
         sheet:

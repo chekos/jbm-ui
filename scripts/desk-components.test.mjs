@@ -198,3 +198,127 @@ test("cabinet and closed drawer fit between the legs and share the floor", () =>
     }
   }
 })
+
+const { drawerLight, backLight, Cajon } = await import("../registry/jbm/motion/cajon.tsx")
+const { fileCabinetLayout } = await import("../registry/jbm/ui/file-cabinet.tsx")
+const sources = [
+  "Anthropic 2024",
+  "Procida 2017",
+  "Grove 1983",
+  "Mintzberg 1979",
+  "Simon 1947",
+  "Training Within Industry 1940s",
+  "Taylor 1911",
+  "Doorways 2025",
+]
+const drawMarkup = (props) =>
+  renderToStaticMarkup(
+    React.createElement("svg", null, React.createElement(Cajon, props))
+  )
+test("every tab and a band of back panel stay visible for one to eight folders", () => {
+  for (const w of [300, 420, 900])
+    for (const labelSize of [13, 24, 36])
+      for (const tabLayout of ["stair", "stagger3"])
+        for (const sub of [false, true])
+          for (let n = 1; n <= 8; n++) {
+            const folders = sources.slice(0, n).map((name) => ({
+              name,
+              sublabel: sub ? "Administrative Behavior" : undefined,
+            }))
+            const l = cajonLayout({ w, labelSize, tabLayout, folders })
+            l.folders.forEach((f, i) => {
+              assert.ok(
+                f.tabX >= f.x - 1e-9 && f.tabX + f.tabWidth <= f.x + f.w + 1e-9,
+                "tab inside its folder"
+              )
+              if (sub)
+                assert.ok(
+                  f.sublabel.y + 0.3 * l.labelSize * 0.8 <= f.flap + 1e-9,
+                  "sublabel sits on the band above the flap"
+                )
+              if (i === 0) {
+                assert.ok(
+                  f.y + f.tabHeight + l.band <= l.front + 32 + 1e-9,
+                  "the front folder's tab and band clear the drawer front"
+                )
+                return
+              }
+              const front = l.folders[i - 1]
+              assert.ok(
+                front.y - f.y >= f.tabHeight + l.band - 1e-9,
+                `n=${n} i=${i}: tab and band clear the next folder forward`
+              )
+              assert.ok(f.w <= front.w && f.h <= front.h, "back folders are never larger")
+              assert.ok(f.w >= 0.6 * l.folders[0].w - 1e-9, "narrowing stays slight")
+            })
+          }
+})
+test("names are drawn whole: the tab widens, then the name compresses", () => {
+  const long = "Training Within Industry 1940s and beyond"
+  const markup = drawMarkup({ w: 300, folders: [{ name: long }] })
+  assert.ok(markup.includes(long))
+  assert.ok(!markup.includes("…"))
+  const f = cajonLayout({ w: 300, folders: [{ name: long }] }).folders[0]
+  assert.ok(f.tabWidth <= f.w && f.label.scale < 1 && f.label.scale > 0)
+  assert.equal(
+    cajonLayout({ folders: [{ name: "Grove 1983" }] }).folders[0].label.scale,
+    1
+  )
+})
+test("light ramps with depth from the palette tokens, and a lifted folder regains it", () => {
+  assert.equal(drawerLight(1), "#FFFCF5")
+  assert.equal(drawerLight(0), "#20241F")
+  assert.equal(drawerLight(NaN), drawerLight(1))
+  const l = cajonLayout({ folders: sources.slice(0, 6).map((name) => ({ name })) })
+  assert.equal(l.folders[0].light, 1)
+  assert.ok(Math.abs(l.folders[5].light - backLight) < 1e-9)
+  for (let i = 1; i < 6; i++) assert.ok(l.folders[i].light < l.folders[i - 1].light)
+  const lifted = cajonLayout({
+    folders: [{ name: "a" }, { name: "b", k: 0.72, pulled: 1 }],
+  })
+  assert.equal(lifted.folders[1].light, 1)
+  const markup = drawMarkup({
+    folders: [{ name: "a", open: 1 }, { name: "b", accent: true }],
+  })
+  assert.equal((markup.match(/#C63D24/g) ?? []).length, 1, "vermilion only on the accent folder")
+})
+test("anchors spread n thread ends along the tab from the name's first letter", () => {
+  const l = cajonLayout({ folders: [{ name: "Procida 2017" }, { name: "Taylor 1911" }] })
+  assert.deepEqual(l.anchors(0, 0), [])
+  assert.deepEqual(l.anchors(9, 3), [])
+  for (const i of [0, 1])
+    for (const n of [1, 2, 4, 7]) {
+      const f = l.folders[i],
+        pts = l.anchors(i, n)
+      assert.equal(pts.length, n)
+      assert.equal(pts[0].x, f.label.x)
+      for (const p of pts) {
+        assert.ok(p.x >= f.tabX && p.x <= f.tabX + f.tabWidth - f.tabSlope)
+        assert.ok(p.y > f.y && p.y < f.y + f.tabHeight)
+      }
+      for (let j = 1; j < n; j++) assert.ok(pts[j].x > pts[j - 1].x)
+    }
+})
+test("reveal inks the name in by grapheme and renders deterministically", () => {
+  const draw = (reveal) =>
+    drawMarkup({
+      folders: [{ name: "Simon 1947", sublabel: "Administrative Behavior", reveal }],
+    })
+  assert.ok(!draw(0).includes("Simon") && !draw(0).includes("Admin"))
+  assert.ok(draw(1).includes(">Simon 1947<") && draw(1).includes(">Administrative Behavior<"))
+  assert.ok(draw(0.5).includes("Simo") && !draw(0.5).includes("Simon 1947"))
+  assert.equal(draw(0.37), draw(0.37))
+  assert.ok(!draw(NaN).includes("NaN"))
+})
+test("a cabinet keeps its packed drawer: staggered tabs within the 48-unit rise", () => {
+  for (const n of [1, 6, 12]) {
+    const folders = Array.from({ length: n }, () => ({ name: "folder" }))
+    const { drawer } = fileCabinetLayout({ folders })
+    assert.equal(drawer.tabLayout, "stagger3")
+    const l = cajonLayout(drawer)
+    const spacing = 48 / Math.max(5, n - 1)
+    l.folders.forEach((f, i) =>
+      assert.ok(Math.abs(f.y - (l.front + 32 - 62 - i * spacing)) < 1e-9)
+    )
+  }
+})
