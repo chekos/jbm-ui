@@ -5,23 +5,27 @@ import { Paper, paperInk, type PaperTone } from "./paper"
 export function PunchedTag({
   children,
   tone = "paper",
+  scale = 1,
   style,
 }: {
   children: ReactNode
   tone?: PaperTone
+  /** Size multiplier for the tag's own geometry: hole, ring, radii, gap, padding, and type. Default 1. */
+  scale?: number
   style?: CSSProperties
 }) {
+  const k = Number.isFinite(scale) && scale > 0 ? scale : 1
   return (
     <Paper
       tone={tone}
-      radius={12}
+      radius={12 * k}
       style={{
         display: "flex",
-        gap: 18,
+        gap: 18 * k,
         alignItems: "center",
-        borderTopLeftRadius: 36,
-        borderBottomLeftRadius: 36,
-        padding: "16px 24px 16px 16px",
+        borderTopLeftRadius: 36 * k,
+        borderBottomLeftRadius: 36 * k,
+        padding: `${16 * k}px ${24 * k}px ${16 * k}px ${16 * k}px`,
         maxWidth: "100%",
         ...style,
       }}
@@ -29,18 +33,18 @@ export function PunchedTag({
       <span
         aria-hidden
         style={{
-          flex: "0 0 14px",
-          height: 14,
+          flex: `0 0 ${14 * k}px`,
+          height: 14 * k,
           borderRadius: "50%",
           background: color.bg,
-          border: `2px solid ${color.ink}`,
+          border: `${Math.max(1, 2 * k)}px solid ${color.ink}`,
         }}
       />
       <span
         style={{
           fontFamily: font.sans,
           fontWeight: 800,
-          fontSize: 28,
+          fontSize: 28 * k,
           color: paperInk(tone),
           overflowWrap: "anywhere",
           minWidth: 0,

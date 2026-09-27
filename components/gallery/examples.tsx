@@ -8,7 +8,6 @@ import { Card } from "@/registry/jbm/ui/card"
 import { Chip } from "@/registry/jbm/ui/chip"
 import { Label } from "@/registry/jbm/ui/label"
 import { StatCard } from "@/registry/jbm/ui/stat-card"
-import { Paper, Sticker, Caption } from "@/registry/jbm/ui/paper"
 import {
   Piece,
   UiButton,
@@ -108,19 +107,6 @@ export const examples = {
     </div>
   ),
   brand: <Brand tagline="Ideas, datos y código." size={64} />,
-  paper: (
-    <div style={{ display: "flex", alignItems: "center", gap: 28 }}>
-      <Paper w={200} h={130} rotate={-3} style={{ padding: 20 }}>
-        <Caption size={24}>papel</Caption>
-      </Paper>
-      <Sticker size={40} rotate={-5}>
-        ¿otra vez?
-      </Sticker>
-      <Sticker tone="ink" size={28} rotate={2}>
-        catálogo
-      </Sticker>
-    </div>
-  ),
   "ui-button": <UiButton w={360} h={110} tone="accent" />,
   "ui-input": <UiInput w={420} h={120} />,
   "ui-card": <UiCard w={360} h={280} />,

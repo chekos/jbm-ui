@@ -7,7 +7,7 @@
       "name": "tokens",
       "type": "registry:lib",
       "title": "Tokens",
-      "description": "Cream, ink, and vermilion palette, Geist font stacks, radii, surface shadows and borders, stage safe areas, and a CSS variables string.",
+      "description": "Cream, ink, and vermilion palette, Geist font stacks and tab-name metrics, radii, surface shadows and borders, stage safe areas, and a CSS variables string.",
       "categories": [
         "Foundations"
       ],
@@ -176,7 +176,7 @@
       "name": "paper",
       "type": "registry:ui",
       "title": "Paper",
-      "description": "Paper cut-out primitives: a flat card-stock shape, a slanted Sticker with display type, and a centered Caption.",
+      "description": "Paper cut-out primitives: a card-stock sheet that can crease, start to tear, and carry a real tab, a slanted Sticker with display type, and a centered Caption.",
       "categories": [
         "UI"
       ],
@@ -992,7 +992,7 @@
     {
       "name": "cajon",
       "title": "Cajon",
-      "description": "A fixed-size filing drawer with complete folders packed front to back.",
+      "description": "A fixed-size filing drawer whose complete folders fan front to back, darker with depth.",
       "categories": [
         "UI Bits"
       ],
@@ -1019,6 +1019,7 @@
       ],
       "type": "registry:component",
       "registryDependencies": [
+        "@jbm/tokens",
         "@jbm/hand",
         "@jbm/scene-geometry"
       ],
@@ -1027,6 +1028,27 @@
           "path": "registry/jbm/motion/mano.tsx",
           "type": "registry:component",
           "target": "src/jbm/motion/mano.tsx"
+        }
+      ]
+    },
+    {
+      "name": "pluma",
+      "title": "Pluma",
+      "description": "A pen held in the Hand's pinch, with a helper that reports the nib point.",
+      "categories": [
+        "UI Bits"
+      ],
+      "type": "registry:component",
+      "registryDependencies": [
+        "@jbm/tokens",
+        "@jbm/scene-geometry",
+        "@jbm/mano"
+      ],
+      "files": [
+        {
+          "path": "registry/jbm/motion/pluma.tsx",
+          "type": "registry:component",
+          "target": "src/jbm/motion/pluma.tsx"
         }
       ]
     },
@@ -1092,6 +1114,66 @@
       ]
     },
     {
+      "name": "desk-top",
+      "title": "DeskTop",
+      "description": "A cream desk seen from above, with light, a tilt-revealed front edge, and an optional drawer region.",
+      "categories": [
+        "Layout"
+      ],
+      "type": "registry:component",
+      "registryDependencies": [
+        "@jbm/tokens",
+        "@jbm/scene-geometry"
+      ],
+      "files": [
+        {
+          "path": "registry/jbm/ui/desk-top.tsx",
+          "type": "registry:component",
+          "target": "src/jbm/ui/desk-top.tsx"
+        }
+      ]
+    },
+    {
+      "name": "ejes",
+      "title": "Ejes",
+      "description": "Two ink axes that split an area into four named quadrants, with quiet labels and a focus quadrant.",
+      "categories": [
+        "UI Bits"
+      ],
+      "type": "registry:component",
+      "registryDependencies": [
+        "@jbm/tokens",
+        "@jbm/scene-geometry"
+      ],
+      "files": [
+        {
+          "path": "registry/jbm/ui/ejes.tsx",
+          "type": "registry:component",
+          "target": "src/jbm/ui/ejes.tsx"
+        }
+      ]
+    },
+    {
+      "name": "desk-prop",
+      "title": "DeskProp",
+      "description": "A free-standing keycap, keyboard, or mug to place on a desk.",
+      "categories": [
+        "UI Bits"
+      ],
+      "type": "registry:component",
+      "registryDependencies": [
+        "@jbm/tokens",
+        "@jbm/scene-geometry"
+      ],
+      "files": [
+        {
+          "path": "registry/jbm/ui/desk-prop.tsx",
+          "type": "registry:component",
+          "target": "src/jbm/ui/desk-prop.tsx"
+        }
+      ]
+    },
+    {
       "name": "burbuja",
       "title": "Burbuja",
       "description": "Chat bubble whose selected words sweep to vermilion with a controlled 0–1 highlight.",
@@ -1115,7 +1197,7 @@
     {
       "name": "hand",
       "title": "Hand",
-      "description": "Static line-art hand in open-palm, pointing, or pinching pose, independent of placement and props.",
+      "description": "Static line-art hand in open-palm, pointing, pinching, gripping, typing, or holding pose, independent of placement and props.",
       "categories": [
         "UI Bits"
       ],
@@ -1213,6 +1295,68 @@
       ]
     },
     {
+      "name": "video-print",
+      "title": "VideoPrint",
+      "description": "A printed video still on a Paper sheet: a pale 16:9 line sketch, an ink scrub rule with anchor ticks, title and date, and an optional punched link tag.",
+      "categories": [
+        "UI Bits"
+      ],
+      "type": "registry:ui",
+      "registryDependencies": [
+        "@jbm/tokens",
+        "@jbm/scene-geometry",
+        "@jbm/paper",
+        "@jbm/punched-tag"
+      ],
+      "files": [
+        {
+          "path": "registry/jbm/ui/video-print.tsx",
+          "type": "registry:ui",
+          "target": "src/jbm/ui/video-print.tsx"
+        }
+      ]
+    },
+    {
+      "name": "hilo",
+      "title": "Hilo",
+      "description": "An ink thread tied between two points that lays out, sags, and snaps into frayed ends with an optional vermilion notch.",
+      "categories": [
+        "UI Bits"
+      ],
+      "type": "registry:ui",
+      "registryDependencies": [
+        "@jbm/tokens",
+        "@jbm/scene-geometry"
+      ],
+      "files": [
+        {
+          "path": "registry/jbm/ui/hilo.tsx",
+          "type": "registry:ui",
+          "target": "src/jbm/ui/hilo.tsx"
+        }
+      ]
+    },
+    {
+      "name": "tear",
+      "title": "Tear",
+      "description": "A sheet torn into strips along seams: controlled progress moves each strip to its own destination, with frayed, seeded edges at every seam.",
+      "categories": [
+        "UI Bits"
+      ],
+      "type": "registry:ui",
+      "registryDependencies": [
+        "@jbm/tokens",
+        "@jbm/paper"
+      ],
+      "files": [
+        {
+          "path": "registry/jbm/ui/tear.tsx",
+          "type": "registry:ui",
+          "target": "src/jbm/ui/tear.tsx"
+        }
+      ]
+    },
+    {
       "name": "paper-line",
       "title": "PaperLine",
       "description": "Line of text with controlled grapheme reveal, ink lift, strike-through, and dotted underline.",
@@ -1229,6 +1373,49 @@
           "path": "registry/jbm/ui/paper-line.tsx",
           "type": "registry:ui",
           "target": "src/jbm/ui/paper-line.tsx"
+        }
+      ]
+    },
+    {
+      "name": "register",
+      "title": "Register",
+      "description": "Paper sheet of drawn writing whose shape says who reads it: steps, lists, tables, sourced prose, or a mixed page.",
+      "categories": [
+        "UI Bits"
+      ],
+      "type": "registry:ui",
+      "registryDependencies": [
+        "@jbm/tokens",
+        "@jbm/scene-geometry",
+        "@jbm/paper"
+      ],
+      "files": [
+        {
+          "path": "registry/jbm/ui/register.tsx",
+          "type": "registry:ui",
+          "target": "src/jbm/ui/register.tsx"
+        }
+      ]
+    },
+    {
+      "name": "slip",
+      "title": "Slip",
+      "description": "Taped paper slip of out-of-register writing that peels, lifts, and travels while registers reflow around it.",
+      "categories": [
+        "UI Bits"
+      ],
+      "type": "registry:ui",
+      "registryDependencies": [
+        "@jbm/tokens",
+        "@jbm/scene-geometry",
+        "@jbm/paper",
+        "@jbm/register"
+      ],
+      "files": [
+        {
+          "path": "registry/jbm/ui/slip.tsx",
+          "type": "registry:ui",
+          "target": "src/jbm/ui/slip.tsx"
         }
       ]
     },

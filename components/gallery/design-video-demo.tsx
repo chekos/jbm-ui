@@ -38,7 +38,9 @@ function Angle({
   onChange,
   from,
   span,
+  ariaLabel,
 }: {
+  ariaLabel?: string
   label: string
   value: number
   onChange: (n: number) => void
@@ -50,6 +52,7 @@ function Angle({
   return (
     <RangeControl
       label={label}
+      ariaLabel={ariaLabel}
       value={value}
       onChange={onChange}
       min={0}
@@ -63,7 +66,9 @@ function Toggle({
   label,
   value,
   onChange,
+  ariaLabel,
 }: {
+  ariaLabel?: string
   label: string
   value: boolean
   onChange: (v: boolean) => void
@@ -74,6 +79,7 @@ function Toggle({
     >
       <input
         type="checkbox"
+        aria-label={ariaLabel}
         checked={value}
         onChange={(e) => onChange(e.target.checked)}
       />
@@ -115,6 +121,11 @@ export function DesignVideoDemo({ name }: { name: string }) {
   const [flag, setFlag] = useBenchParam(key("flag"), false)
   const [other, setOther] = useBenchParam(key("other"), true)
   const [count, setCount] = useBenchParam(key("count"), 3, { clamp: [0, 8] })
+  const [fill, setFill] = useBenchParam<"accent" | "ink" | "card">(
+    "fill",
+    "accent",
+    { allowed: ["accent", "ink", "card"] }
+  )
   let art: ReactNode, controls: ReactNode
   if (name === "paper-tape") {
     art = (
@@ -246,6 +257,7 @@ export function DesignVideoDemo({ name }: { name: string }) {
           path={path}
           progress={progress}
           label="proyecto"
+          fill={color[fill]}
         />
         {other && (
           <Mano
@@ -260,9 +272,21 @@ export function DesignVideoDemo({ name }: { name: string }) {
     )
     controls = (
       <>
-        <Range label="Carry progress" value={progress} onChange={setProgress} presets={["Start", "Midway", "Arrived"]} />
-        <Angle label="Hand angle" value={secondary} onChange={setSecondary} from={-30} span={60} />
-        <Toggle label="Show hand" value={other} onChange={setOther} />
+        <Range label="Carry progress" ariaLabel="folder-carry Carry progress" value={progress} onChange={setProgress} presets={["Start", "Midway", "Arrived"]} />
+        <Angle label="Hand angle" ariaLabel="folder-carry Hand angle" value={secondary} onChange={setSecondary} from={-30} span={60} />
+        <Toggle label="Show hand" ariaLabel="folder-carry Show hand" value={other} onChange={setOther} />
+        <label style={{ display: "flex", gap: 8, alignItems: "center", fontSize: 12 }}>
+          Folder fill
+          <select
+            aria-label="folder-carry Folder fill"
+            value={fill}
+            onChange={(e) => setFill(e.target.value as typeof fill)}
+          >
+            <option value="accent">Vermilion</option>
+            <option value="ink">Ink</option>
+            <option value="card">Card</option>
+          </select>
+        </label>
       </>
     )
   } else if (name === "frontmatter") {

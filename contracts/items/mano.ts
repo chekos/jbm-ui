@@ -15,10 +15,11 @@ export default {
         "SVG <g> that places the Hand illustration at a point, scales it, and rotates it about that point. Hand owns the artwork and pose; callers own movement (e.g. pointOn and pathTilt along a path). No internal timer. Render inside an <svg>.",
       props: {
         at: "Point in the parent SVG's user units: the Hand box's top-left corner, or where the anchor point sits when anchor is set. Rotation pivots here.",
-        pose: "Hand pose: open palm, point, or pinch.",
+        pose: "Hand pose: open, point, pinch, grip, type, or hold (see Hand).",
         size: "Hand width in parent SVG units. Without anchor the box is size × 44/30 tall (264 at 180) with the 30×29 art centred vertically; with anchor it is size × 29/30 tall.",
         angle: "Rotation in degrees about at; positive is clockwise.",
         anchor: "Local point in the Hand's 30×29 viewBox held at `at`, including during rotation.",
+        halo: "Pass Hand's card knock-out ring through, for ink art drawn behind the hand. Default false.",
       },
     },
   ],
@@ -44,7 +45,7 @@ export default {
     },
   ],
   qa: [
-    "Switch pose between open, point, and pinch at the same at: the hand stays in its box and does not jump unexpectedly.",
+    "Switch pose through all six at the same at: the hand stays in its box and does not jump unexpectedly.",
     "Drag Rotation from −30 to 30: the hand pivots about at (or the anchor point), not its centre.",
     "Drag Position: the hand translates without resizing or clipping at the viewBox edges.",
     "Anchor coordinates are in the 30×29 viewBox but each pose applies its own internal transform, so the fingertip lands at a different local point per pose; check the anchor visually for each pose you use.",

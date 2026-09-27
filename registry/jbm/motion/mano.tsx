@@ -8,6 +8,8 @@ export type ManoProps = {
   angle?: number
   /** Local point in the Hand's 30×29 viewBox held at `at`, including during rotation. */
   anchor?: Pt
+  /** Card knock-out ring around the hand's contour, for ink art passing behind it (see Hand). */
+  halo?: boolean
 }
 /** Placement wrapper; Hand owns the artwork and pose, callers own movement. */
 export function Mano({
@@ -16,6 +18,7 @@ export function Mano({
   size = 180,
   angle = 0,
   anchor,
+  halo,
 }: ManoProps) {
   return (
     <g transform={`translate(${at.x} ${at.y}) rotate(${angle})`}>
@@ -28,6 +31,7 @@ export function Mano({
       >
         <Hand
           pose={pose}
+          halo={halo}
           width={size}
           height={(size * (anchor ? 29 : 44)) / 30}
           style={{ height: (size * (anchor ? 29 : 44)) / 30 }}

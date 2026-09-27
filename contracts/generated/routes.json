@@ -51,16 +51,25 @@
     "scene-geometry",
     "cajon",
     "mano",
+    "pluma",
     "bandeja",
     "tool-caddy",
     "escritorio",
+    "desk-top",
+    "ejes",
+    "desk-prop",
     "burbuja",
     "hand",
     "file-cabinet",
     "paper-clip",
     "clipped-note",
     "punched-tag",
+    "video-print",
+    "hilo",
+    "tear",
     "paper-line",
+    "register",
+    "slip",
     "stamp",
     "tape-marker",
     "paper-tape",
@@ -92,6 +101,10 @@
     {
       "slug": "visual-primitives",
       "title": "Visual primitives from Design"
+    },
+    {
+      "slug": "writing-registers",
+      "title": "Writing registers"
     }
   ]
 }

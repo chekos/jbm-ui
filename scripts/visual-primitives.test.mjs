@@ -83,3 +83,24 @@ test("paper clears the folder fold throughout its curved pickup without clipping
     }
   }
 })
+
+test("card folder prints its whole label on a widened tab and keeps legacy tones unchanged", () => {
+  const legacy = render(Folder, { label: "Notes", open: 0 })
+  assert.match(legacy, /matrix\(1 0 0 1 46 180\)/)
+  assert.match(legacy, /fill="#C63D24"/)
+  const card = render(Folder, { tone: "card", label: "Training Within Industry 1940s", sublabel: "Job Instruction" })
+  assert.match(card, /fill="#FFFCF5"/)
+  assert.ok(card.includes(">Training Within Industry 1940s<"), "tab labels are never truncated")
+  assert.ok(!card.includes("…"))
+  assert.ok(card.includes(">Job Instruction<"))
+  // The tab widens to fit the label, up to the body width.
+  const tab = (html) => Number(html.match(/V55H[\d.]+L([\d.]+) 72H230/)[1])
+  assert.equal(tab(card), 230)
+  const short = tab(render(Folder, { tone: "card", label: "Doorways" }))
+  assert.ok(short >= 108 && short < 230)
+  assert.equal(tab(render(Folder, { tone: "card" })), 108)
+  // Card labels are ink on cream.
+  assert.ok(!/<text[^>]*fill="#FFF6E8"/.test(card))
+  assert.ok(render(Folder, { tone: "card", label: "A", labelOn: "front" }).includes("matrix(1 0 0 1 46 180)"))
+  assert.ok(!render(Folder, { label: "Notes", labelOn: "tab" }).includes("matrix("))
+})

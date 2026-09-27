@@ -21,6 +21,9 @@ import { ScrollStackDemo } from "./scroll-stack-demo"
 import { SurfaceDepth } from "./surface-depth"
 import { DesignVideoDemo, designNames } from "./design-video-demo"
 import { DeskDemo, deskNames } from "./desk-demo"
+import { RegisterDemo, registerNames } from "./register-demo"
+import { PaperDemo, paperNames } from "./paper-demo"
+import { ThreadDemo, threadNames } from "./thread-demo"
 import { AddCommand, InstallOnce } from "./install"
 import { CodeBlock } from "./code-block"
 import { color } from "@/registry/jbm/lib/tokens"
@@ -163,6 +166,8 @@ function Preview({ item }: { item: GalleryItem }) {
     <div
       style={
         designNames.includes(name) ||
+        paperNames.includes(name) ||
+        threadNames.includes(name) ||
         name === "scroll-stack" ||
         name === "flip-text" ||
         name === "text-fill" ||
@@ -176,6 +181,8 @@ function Preview({ item }: { item: GalleryItem }) {
     >
       {designNames.includes(name) ? (
         <DesignVideoDemo name={name} />
+      ) : paperNames.includes(name) ? (
+        <PaperDemo name={name} />
       ) : name === "scroll-stack" ? (
         <ScrollStackDemo />
       ) : name === "flip-text" ? (
@@ -206,6 +213,10 @@ function Preview({ item }: { item: GalleryItem }) {
         </div>
       ) : deskNames.includes(name) ? (
         <DeskDemo name={name} />
+      ) : registerNames.includes(name) ? (
+        <RegisterDemo name={name} />
+      ) : threadNames.includes(name) ? (
+        <ThreadDemo name={name} />
       ) : name in examples ? (
         <Canvas>{examples[name as keyof typeof examples]}</Canvas>
       ) : (

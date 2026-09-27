@@ -1,8 +1,30 @@
 import type { SVGProps } from "react"
 import { color } from "../lib/tokens"
-export type HandPose = "open" | "point" | "pinch"
-export type HandProps = SVGProps<SVGSVGElement> & { pose?: HandPose }
+/** Every pose, in gallery order. `pinch` doubles as the pen grip (Pluma); there is no pen pose. */
+export const handPoses = ["open", "point", "pinch", "grip", "type", "hold"] as const
+export type HandPose = (typeof handPoses)[number]
+export type HandProps = SVGProps<SVGSVGElement> & {
+  pose?: HandPose
+  /**
+   * Knock the hand out of whatever it overlaps: a card ring, half the outline wide, just
+   * outside the contour. Use it when ink art (a pen barrel, a thread) passes behind the hand, so
+   * the two outlines stay separable instead of fusing into one dark mass.
+   */
+  halo?: boolean
+}
 // Based on the issue #50 cursor reference; open-palm joins share coordinates and stroke widths.
+// grip, type, and hold (issue #136) trace the owner-requested generated references (Paper, page
+// "hands") in the open palm's construction: same transform, 2.57 outline, wrist cut, and 6.4-wide
+// round capsule fingers. grip is a front-view fist: four finger capsules with knuckle bumps on top
+// and curled fingertips in a row below, the thumb lying across under them, pointing in. type is the
+// hand from above on a keyboard: the four fingers are concentric curved bands around one centre,
+// so neighbours share a side exactly; each rises straight from the palm and arcs up-left, the index
+// curling furthest and the middle tallest, and the thumb lies low, pointing left toward the space
+// bar. hold is the side-view mug grip turned so the wrist sits at the bottom: four stacked fingers
+// with their curled tips on the palm and the thumb's back continuing the back of the hand, opening
+// from the index in a V.
+// In every pose, including point and pinch, dividers start on the outline's valley points and use
+// the outline's stroke width.
 const poses = {
   open: [
     {
@@ -48,26 +70,26 @@ const poses = {
       strokeLinejoin: "round",
     },
     {
-      d: "m39.38 39.61-0.11-2.37",
+      d: "M39.02 37.29 L39.3 39.64",
       fill: "none",
       stroke: "#141515",
-      strokeWidth: "0.8229",
+      strokeWidth: "1.234",
       strokeLinecap: "round",
       strokeLinejoin: "round",
     },
     {
-      d: "m43.08 40.06-0.1-2.33",
+      d: "M42.97 37.84 L43.01 40.17",
       fill: "none",
       stroke: "#141515",
-      strokeWidth: "0.8229",
+      strokeWidth: "1.234",
       strokeLinecap: "round",
       strokeLinejoin: "round",
     },
     {
-      d: "m46.49 41.19-0.05-2.16",
+      d: "M46.63 39.1 L46.66 41.26",
       fill: "none",
       stroke: "#141515",
-      strokeWidth: "0.7116",
+      strokeWidth: "1.234",
       strokeLinecap: "round",
       strokeLinejoin: "round",
     },
@@ -82,26 +104,152 @@ const poses = {
       strokeLinejoin: "round",
     },
     {
-      d: "m66.93 39.67-0.71-3",
+      d: "M66.15 36.94 L67.11 39.57",
       fill: "none",
       stroke: "#141515",
-      strokeWidth: "0.8229",
+      strokeWidth: "1.234",
       strokeLinecap: "round",
       strokeLinejoin: "round",
     },
     {
-      d: "m70.67 40.25-0.29-2.34",
+      d: "M70.42 38.01 L70.82 40.32",
       fill: "none",
       stroke: "#141515",
-      strokeWidth: "0.8229",
+      strokeWidth: "1.234",
       strokeLinecap: "round",
       strokeLinejoin: "round",
     },
     {
-      d: "m73.87 41.43 0.2-1.41",
+      d: "M74.1 40.06 L74.15 41.47",
       fill: "none",
       stroke: "#141515",
-      strokeWidth: "0.7116",
+      strokeWidth: "1.234",
+      strokeLinecap: "round",
+      strokeLinejoin: "round",
+    },
+  ],
+  grip: [
+    {
+      d: "M54 32.6 C54 28.4 47.6 28.4 47.6 32.6 L47.6 30.2 C47.6 26 41.2 26 41.2 30.2 L41.2 28.8 C41.2 24.6 34.8 24.6 34.8 28.8 L34.8 31 C34.8 26.8 28.4 26.8 28.4 31 L28.4 38.3 A3.2 3.2 0 0 0 30 41.07 L30.9 45.5 L30.4 45.5 A3.2 3.2 0 0 0 27.2 48.7 C27.2 52.4 30.5 55.4 32.9 57.6 C33.6 58.4 34.5 59 35.3 59.4 L36.8 64.8 L54.1 60.1 C53.9 59 53.5 56.9 53.5 56 C53.5 53.8 55.5 50.2 55.5 45.2 C55.5 43.3 54 42 52.4 41.07 A3.2 3.2 0 0 0 54 38.3 Z",
+      fill: "#FFFFFF",
+      stroke: "#111212",
+      strokeWidth: "2.57",
+      strokeLinecap: "round",
+      strokeLinejoin: "round",
+    },
+    {
+      d: "M30 41.07 A3.2 3.2 0 0 0 34.8 38.3 A3.2 3.2 0 0 0 41.2 38.3 A3.2 3.2 0 0 0 47.6 38.3 A3.2 3.2 0 0 0 52.4 41.07",
+      fill: "none",
+      stroke: "#111212",
+      strokeWidth: "2.57",
+      strokeLinecap: "round",
+      strokeLinejoin: "round",
+    },
+    {
+      d: "M34.8 31 L34.8 38.3",
+      fill: "none",
+      stroke: "#111212",
+      strokeWidth: "2.57",
+      strokeLinecap: "round",
+      strokeLinejoin: "round",
+    },
+    {
+      d: "M41.2 30.2 L41.2 38.3",
+      fill: "none",
+      stroke: "#111212",
+      strokeWidth: "2.57",
+      strokeLinecap: "round",
+      strokeLinejoin: "round",
+    },
+    {
+      d: "M47.6 32.6 L47.6 38.3",
+      fill: "none",
+      stroke: "#111212",
+      strokeWidth: "2.57",
+      strokeLinecap: "round",
+      strokeLinejoin: "round",
+    },
+    {
+      d: "M30.9 45.5 L38.4 45.5 A3.2 3.2 0 0 1 38.4 51.9 L34.2 51.9",
+      fill: "none",
+      stroke: "#111212",
+      strokeWidth: "2.57",
+      strokeLinecap: "round",
+      strokeLinejoin: "round",
+    },
+  ],
+  type: [
+    {
+      d: "M55.5 45.2 C55.5 39.2 53.6 37.45 53.25 32.46 L53.18 31.46 A31.4 31.4 0 0 0 52.57 27.13 A3.2 3.2 0 0 0 46.31 28.46 A25 25 0 0 0 44.87 23.89 A3.2 3.2 0 0 0 38.98 26.39 A18.6 18.6 0 0 0 34.78 20.27 A3.2 3.2 0 0 0 30.33 24.88 A12.2 12.2 0 0 0 27.95 23.09 A3.2 3.2 0 0 0 24.75 28.63 A5.8 5.8 0 0 1 27.64 33.25 L28.37 43.7 L24 41.93 A3.2 3.2 0 0 0 21.6 47.87 C24.38 48.99 29.4 53.6 32.9 57.6 C33.6 58.4 34.5 59 35.3 59.4 L36.8 64.8 L54.1 60.1 C53.9 59 53.5 56.9 53.5 56 C53.5 53.8 55.5 50.2 55.5 45.2 Z",
+      fill: "#FFFFFF",
+      stroke: "#111212",
+      strokeWidth: "2.57",
+      strokeLinecap: "round",
+      strokeLinejoin: "round",
+    },
+    {
+      d: "M30.33 24.88 A12.2 12.2 0 0 1 34.02 32.8 L34.41 38.29",
+      fill: "none",
+      stroke: "#111212",
+      strokeWidth: "2.57",
+      strokeLinecap: "round",
+      strokeLinejoin: "round",
+    },
+    {
+      d: "M38.98 26.39 A18.6 18.6 0 0 1 40.41 32.36 L40.79 37.84",
+      fill: "none",
+      stroke: "#111212",
+      strokeWidth: "2.57",
+      strokeLinecap: "round",
+      strokeLinejoin: "round",
+    },
+    {
+      d: "M46.31 28.46 A25 25 0 0 1 46.79 31.91 L47.18 37.4",
+      fill: "none",
+      stroke: "#111212",
+      strokeWidth: "2.57",
+      strokeLinecap: "round",
+      strokeLinejoin: "round",
+    },
+  ],
+  hold: [
+    {
+      d: "M54.33 35.07 L51.97 26.38 A3.2 3.2 0 0 0 45.79 28.05 A3.2 3.2 0 0 0 39.62 29.73 L39.79 30.38 A3.2 3.2 0 0 0 33.62 32.05 L34.54 35.43 A3.2 3.2 0 0 0 28.36 37.11 L29.67 41.94 A3.2 3.2 0 0 0 31.17 43.88 C30.04 47.01 35.67 55.86 36.8 64.8 L54.1 60.1 C53.31 56.25 61.29 46.99 61.58 44.5 L63.46 28.79 A3.2 3.2 0 0 0 57.29 27.27 L54.33 35.07 Z",
+      fill: "#FFFFFF",
+      stroke: "#111212",
+      strokeWidth: "2.57",
+      strokeLinecap: "round",
+      strokeLinejoin: "round",
+    },
+    {
+      d: "M54.33 35.07 A3.2 3.2 0 0 1 48.15 36.74",
+      fill: "none",
+      stroke: "#111212",
+      strokeWidth: "2.57",
+      strokeLinecap: "round",
+      strokeLinejoin: "round",
+    },
+    {
+      d: "M45.79 28.05 L48.37 37.55 A3.2 3.2 0 0 1 42.2 39.23",
+      fill: "none",
+      stroke: "#111212",
+      strokeWidth: "2.57",
+      strokeLinecap: "round",
+      strokeLinejoin: "round",
+    },
+    {
+      d: "M39.79 30.38 L42.29 39.55 A3.2 3.2 0 0 1 36.11 41.23",
+      fill: "none",
+      stroke: "#111212",
+      strokeWidth: "2.57",
+      strokeLinecap: "round",
+      strokeLinejoin: "round",
+    },
+    {
+      d: "M34.54 35.43 L35.85 40.26 A3.2 3.2 0 0 1 31.17 43.88",
+      fill: "none",
+      stroke: "#111212",
+      strokeWidth: "2.57",
       strokeLinecap: "round",
       strokeLinejoin: "round",
     },
@@ -111,8 +259,11 @@ const transforms = {
   open: "translate(4 1) scale(0.48) translate(-19 -13)",
   point: "translate(-26 -27)",
   pinch: "translate(-53 -27)",
+  grip: "translate(4 1) scale(0.48) translate(-19 -13)",
+  type: "translate(4 1) scale(0.48) translate(-19 -13)",
+  hold: "translate(4 1) scale(0.48) translate(-19 -13)",
 } as const
-export function Hand({ pose = "point", style, ...props }: HandProps) {
+export function Hand({ pose = "point", halo = false, style, ...props }: HandProps) {
   return (
     <svg
       viewBox="0 0 30 29"
@@ -124,6 +275,15 @@ export function Hand({ pose = "point", style, ...props }: HandProps) {
       style={{ display: "block", maxWidth: "100%", height: "auto", ...style }}
     >
       <g transform={transforms[pose]}>
+        {halo && (
+          <path
+            d={poses[pose][0].d}
+            fill={color.card}
+            stroke={color.card}
+            strokeWidth={Number(poses[pose][0].strokeWidth) * 2}
+            strokeLinejoin="round"
+          />
+        )}
         {poses[pose].map((path, i) => (
           <path
             {...path}

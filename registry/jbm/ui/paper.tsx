@@ -1,5 +1,5 @@
 import * as React from "react";
-import { color, font, shadowLayers } from "../lib/tokens";
+import { color, font, sansWidth, shadowLayers } from "../lib/tokens";
 
 /**
  * Paper cut-out primitives. A `Paper` is a flat shape that reads as a piece of card stock laid on the
@@ -8,6 +8,19 @@ import { color, font, shadowLayers } from "../lib/tokens";
  * Pure React; wrap in a motion `Pop` for entrances.
  */
 export type PaperTone = "paper" | "accent" | "ink";
+/** A sheet corner: top-left, top-right, bottom-right, bottom-left. */
+export type PaperCorner = "tl" | "tr" | "br" | "bl";
+/** A pestaña fixed behind the sheet's top edge; `reveal` slides it out from behind the sheet. */
+export type PaperTab = {
+  /** The tab's name, set in Geist 800. */
+  label: string;
+  /** 0 = hidden behind the sheet, 1 = fully out. Default 1. */
+  reveal?: number;
+  /** Distance from the sheet's left edge to the tab, in stage px. Default max(radius, 24). */
+  offset?: number;
+  /** Label size in stage px. Default 32 (the minimum for a 1080 stage). */
+  size?: number;
+};
 
 export const paperShadow = [
   ...shadowLayers.card.contact,
@@ -18,6 +31,115 @@ export const paperShadow = [
 export const paperFill = (tone: PaperTone) => (tone === "accent" ? color.accent : tone === "ink" ? color.ink : color.card);
 export const paperInk = (tone: PaperTone) => (tone === "paper" ? color.ink : color.bg);
 
+const unit = (n: number | undefined, fallback = 0) => (typeof n === "number" && Number.isFinite(n) ? Math.min(1, Math.max(0, n)) : fallback);
+const round = (n: number) => Math.round(n * 100) / 100;
+const fine = (n: number) => Math.round(n * 10000) / 10000;
+
+/** Default fray amplitude (stage px) shared by Paper's starting tear and Tear's seams. */
+export const FRAY = 6;
+/** Farthest a frayed edge strays from its seam line: 1.8 × amplitude. */
+export const frayReach = (amplitude = FRAY) => 1.8 * Math.max(0, amplitude);
+
+function hash(a: number, b: number, c: number) {
+  let h = Math.imul(a | 0, 0x9e3779b1) ^ Math.imul((b | 0) + 0x7f4a7c15, 0x85ebca6b) ^ Math.imul((c | 0) + 0x165667b1, 0xc2b2ae35);
+  h ^= h >>> 15;
+  h = Math.imul(h, 0x2c1b3c6d);
+  h ^= h >>> 12;
+  h = Math.imul(h, 0x297a2d39);
+  h ^= h >>> 15;
+  return (h >>> 0) / 4294967296;
+}
+
+/**
+ * A deterministic torn edge along the horizontal line `y`, from x = 0 to x = width: small irregular
+ * teeth about `step` px apart riding a gentle wander. The same seed, y, width, and amplitude always
+ * return the same points, so Paper's starting tear and Tear's seam at that y share one profile.
+ * Every point stays within frayReach(amplitude) of y; the first and last points sit on x = 0 and x = width.
+ */
+export function frayEdge({
+  width,
+  y,
+  seed = 1,
+  amplitude = FRAY,
+  step = 12,
+}: {
+  width: number;
+  y: number;
+  seed?: number;
+  amplitude?: number;
+  step?: number;
+}): { x: number; y: number }[] {
+  const w = Number.isFinite(width) ? Math.max(0, width) : 0;
+  const amp = Number.isFinite(amplitude) ? Math.max(0, amplitude) : 0;
+  const n = Math.max(2, Math.round(w / Math.max(4, step)));
+  const dx = w / n;
+  const line = Number.isFinite(y) ? y : 0;
+  const key = Math.round(line);
+  const phase = hash(seed, key, -1) * Math.PI * 2;
+  const points: { x: number; y: number }[] = [];
+  for (let k = 0; k <= n; k++) {
+    const jitter = k === 0 || k === n ? 0 : (hash(seed, key, 2 * k) - 0.5) * 0.6 * dx;
+    const tooth = (k % 2 ? 0.4 : -0.4) + (hash(seed, key, 2 * k + 1) - 0.5) * 1.2;
+    const wander = 0.8 * Math.sin(phase + (k * dx) / 38) * (0.6 + 0.4 * Math.sin(phase * 0.7 + (k * dx) / 91));
+    points.push({ x: round(k * dx + jitter), y: round(line + amp * (tooth + wander)) });
+  }
+  return points;
+}
+
+/**
+ * Tension geometry: crease growth (0–1 of each crease's full length, reached at 0.8) and how far the
+ * starting tear has run (0 until 0.6, then a square-root ease, so the notch is already half its
+ * depth at 0.7 and whole at 1).
+ */
+export function paperTension(tension: number) {
+  const t = unit(tension);
+  return { crease: Math.min(1, t / 0.8), tear: Math.sqrt(Math.max(0, (t - 0.6) / 0.4)) };
+}
+
+const allCorners: PaperCorner[] = ["tl", "tr", "br", "bl"];
+const cornerAt: Record<PaperCorner, [number, number]> = { tl: [0, 0], tr: [1, 0], br: [1, 1], bl: [0, 1] };
+
+/** Longest crease, as a share of the way from its corner to the centre: two opposite ones never meet. */
+const CREASE_REACH = 0.66;
+/** Where every crease begins, as a share of the way from its corner to the centre. */
+const CREASE_START = 0.025;
+
+/**
+ * The short fold lines one pulled corner fans into the sheet, in fractions of the crease box
+ * (0–1 on each axis), each starting just inside the corner. Two or three per corner, deterministic in `seed`: one along the
+ * diagonal and one or two turned 10–20° to either side, shorter. `aspect` is the box's height over
+ * its width, so the fan angles are true on a sized sheet. Each crease is at most CREASE_REACH of the
+ * way to the centre, and `crease` (0–1) grows them from the corner.
+ */
+function creaseFan(corner: PaperCorner, crease: number, seed = 1, aspect = 1) {
+  const [x, y] = cornerAt[corner];
+  const ci = allCorners.indexOf(corner);
+  const a = Number.isFinite(aspect) && aspect > 0 ? aspect : 1;
+  // The corner-to-centre vector in a square-pixel frame (width 1, height aspect).
+  const vx = 0.5 - x;
+  const vy = (0.5 - y) * a;
+  const count = hash(seed, ci, 90) < 0.5 ? 2 : 3;
+  const side = hash(seed, ci, 91) < 0.5 ? -1 : 1;
+  const g = unit(crease);
+  const rays = [
+    { turn: (hash(seed, ci, 92) - 0.5) * 6, reach: CREASE_REACH - 0.08 * hash(seed, ci, 93), delay: 0 },
+    { turn: side * (10 + 8 * hash(seed, ci, 94)), reach: 0.34 + 0.14 * hash(seed, ci, 95), delay: 0.15 },
+    { turn: -side * (12 + 8 * hash(seed, ci, 96)), reach: 0.24 + 0.12 * hash(seed, ci, 97), delay: 0.3 },
+  ].slice(0, count);
+  return rays
+    .map((r) => {
+      const grow = Math.min(1, Math.max(0, (g - r.delay) / (1 - r.delay)));
+      const rad = (r.turn * Math.PI) / 180;
+      // A fold starts just inside the corner, clear of the edge stroke, and grows inward.
+      const k = r.reach * grow;
+      const rx = vx * Math.cos(rad) - vy * Math.sin(rad);
+      const ry = (vx * Math.sin(rad) + vy * Math.cos(rad)) / a;
+      const at = (f: number) => [fine(x + rx * f), fine(y + ry * f)] as [number, number];
+      return { from: at(CREASE_START), to: at(k), grow: k > CREASE_START ? grow : 0 };
+    })
+    .filter((r) => r.grow > 0);
+}
+
 export function Paper({
   tone = "paper",
   w,
@@ -26,6 +148,12 @@ export function Paper({
   rotate = 0,
   edge = true,
   shadow = true,
+  tension = 0,
+  pull = allCorners,
+  seam,
+  seamSide = "left",
+  seed = 1,
+  tab,
   style,
   children,
 }: {
@@ -36,25 +164,268 @@ export function Paper({
   rotate?: number;
   edge?: boolean;
   shadow?: boolean;
+  /** 0–1: short creases fan in from the pulled corners (full at 0.8, never meeting); from 0.6 a frayed notch tears at the seam. */
+  tension?: number;
+  /** Corners being pulled; each fans two or three short creases inward. Default all four. */
+  pull?: PaperCorner[];
+  /** Where the starting tear opens: y in stage px from the top edge. Default half the height; null for no tear. */
+  seam?: number | null;
+  /** The edge the tear starts from. */
+  seamSide?: "left" | "right";
+  /** Fray pattern of the starting tear and of the crease fans; use the same seed as Tear to continue the same edge. */
+  seed?: number;
+  /** A real pestaña fixed behind the top edge. */
+  tab?: PaperTab;
   style?: React.CSSProperties;
   children?: React.ReactNode;
 }) {
+  const uid = `pc${React.useId().replace(/[^a-zA-Z0-9_-]/g, "")}`;
+  const stress = paperTension(tension);
+  const edgeColor = tone === "paper" ? color.ink : paperFill(tone);
+  if (!(stress.crease > 0) && !tab) {
+    return (
+      <div
+        style={{
+          width: w,
+          height: h,
+          background: paperFill(tone),
+          border: edge ? `2px solid ${edgeColor}` : "none",
+          borderRadius: radius,
+          boxShadow: shadow ? paperShadow : "none",
+          boxSizing: "border-box",
+          transform: rotate ? `rotate(${rotate}deg)` : undefined,
+          position: "relative",
+          ...style,
+        }}
+      >
+        {children}
+      </div>
+    );
+  }
+
+  // Layered sheet: the root keeps the size, transform, and shadow (a box-shadow never paints inside
+  // its box, so the tear shows what lies under the sheet); the fill and edge sit on a layer behind the
+  // children with the creases just above it, the tab behind that, and the tear lips on an overlay
+  // above the writing.
+  const inset = edge ? -2 : 0;
+  const seamPx = seam === null ? null : typeof seam === "number" && Number.isFinite(seam) ? seam : typeof h === "number" ? h / 2 : undefined;
+  const seamCss = seamPx === undefined ? "50%" : `${round(seamPx ?? 0)}px`;
+  const tearOn = seam !== null && stress.tear > 0;
+  const depthMax = typeof w === "number" && w > 0 ? Math.min(w * 0.24, 160) : 96;
+  const depth = depthMax * stress.tear;
+  // Half the mouth at the edge: the notch is 20px open at tension 1 and already 10px at 0.7, wide
+  // enough that both frayed lips read as a torn notch, narrow enough to stay inside a band gap.
+  const gap = 10 * stress.tear;
+  const left = seamSide !== "right";
+  let lips: { upper: [number, number][]; lower: [number, number][] } | null = null;
+  let clipPath: string | undefined;
+  if (tearOn && depth > 0.5) {
+    const width = typeof w === "number" && w > 0 ? w : depthMax * 2;
+    const base = seamPx ?? -1;
+    // Distance from the torn edge, ascending. On the right edge of a sized sheet the profile is the
+    // right end of the same seam, so Tear continues it exactly.
+    const mirror = !left && typeof w === "number" && w > 0;
+    const raw = frayEdge({ width, y: base, seed }).map((p) => ({ d: mirror ? width - p.x : p.x, dy: p.y - base }));
+    if (mirror) raw.reverse();
+    const along = raw.filter((p) => p.d < depth);
+    const next = raw.find((p) => p.d >= depth);
+    const last = along[along.length - 1];
+    const tipDy = next && last && next.d !== last.d ? last.dy + ((next.dy - last.dy) * (depth - last.d)) / (next.d - last.d) : (last?.dy ?? 0);
+    const spine = [...along, { d: depth, dy: tipDy }];
+    // The lips stay nearly parallel, each carrying the seam's fray like Tear's parted strips, and
+    // close only toward the tip.
+    const open = (d: number) => gap * (1 - (d / depth) ** 3);
+    // Fibres: each lip pulls back from the seam by a small alternating amount at every tooth, so
+    // the notch reads frayed even where the seam's own profile runs smooth. The midline between
+    // the lips stays exactly on the seam, so Tear continues the same edge.
+    const key = Math.round(base);
+    const fibre = (i: number) =>
+      i === 0 || i === spine.length - 1 ? 0 : FRAY * Math.min(1, 2 * stress.tear) * (i % 2 ? 0.6 : 0.1) * (0.7 + 0.6 * hash(seed, key, 500 + i));
+    lips = {
+      upper: spine.map((p, i) => [round(p.d), round(p.dy - open(p.d) - fibre(i))]),
+      lower: spine.map((p, i) => [round(p.d), round(p.dy + open(p.d) + fibre(i))]),
+    };
+    // The mouth is cut from the whole sheet (fill, writing, and overlay), in the root's own box.
+    // The rest of the clip reaches far past the box so the shadow and tab are never clipped.
+    const at = ([d, dy]: [number, number]) => `${left ? `${d}px` : `calc(100% - ${d}px)`} calc(${seamCss} + ${dy}px)`;
+    const y0 = (lip: [number, number][]) => `calc(${seamCss} + ${lip[0][1]}px)`;
+    const M = 4000;
+    const far = [`-${M}px -${M}px`, `calc(100% + ${M}px) -${M}px`];
+    clipPath = left
+      ? `polygon(${[
+          ...far,
+          `calc(100% + ${M}px) calc(100% + ${M}px)`,
+          `-${M}px calc(100% + ${M}px)`,
+          `-${M}px ${y0(lips.lower)}`,
+          ...lips.lower.map(at),
+          ...lips.upper.slice(0, -1).reverse().map(at),
+          `-${M}px ${y0(lips.upper)}`,
+        ].join(", ")})`
+      : `polygon(${[
+          ...far,
+          `calc(100% + ${M}px) ${y0(lips.upper)}`,
+          ...lips.upper.map(at),
+          ...lips.lower.slice(0, -1).reverse().map(at),
+          `calc(100% + ${M}px) ${y0(lips.lower)}`,
+          `calc(100% + ${M}px) calc(100% + ${M}px)`,
+          `-${M}px calc(100% + ${M}px)`,
+        ].join(", ")})`;
+  }
+  const creaseInk = paperInk(tone);
+  const cornerInset = Math.round(Math.max(0, radius) * (1 - Math.SQRT1_2)) + (edge ? 2 : 0);
+  const box = (n: number | undefined) => (typeof n === "number" && n > 2 * cornerInset ? n - 2 * cornerInset : undefined);
+  const bw = box(w);
+  const bh = box(h);
+  const creases =
+    stress.crease > 0
+      ? allCorners.filter((c) => pull.includes(c)).flatMap((c) => creaseFan(c, stress.crease, seed, bw && bh ? bh / bw : 1))
+      : [];
+  const pct = (n: number) => `${round(n * 100)}%`;
+  // On a sized sheet a label too long for the width between the left edge and the top-right
+  // radius sets smaller, so the whole name fits; without a width the row ends it in an ellipsis.
+  const wantSize = tab ? Math.max(1, tab.size ?? 32) : 0;
+  const tabRoom = typeof w === "number" && w > 0 ? w - Math.max(radius, 0) : Infinity;
+  // Tab width is linear in its size: label (em) + 2 × 0.55 em padding + the edges.
+  const labelEm = tab ? sansWidth(tab.label, 1) : 0;
+  const edges = edge ? 4 : 0;
+  const tabSize =
+    tab && wantSize * (labelEm + 1.1) + edges > tabRoom
+      ? Math.max(1, Math.floor(((tabRoom - edges - 2) / (labelEm + 1.12)) * 10) / 10)
+      : wantSize;
+  const tabRadius = Math.min(12, Math.max(0, radius), tabSize * 0.4);
+  const tuck = 14;
   return (
     <div
       style={{
         width: w,
         height: h,
-        background: paperFill(tone),
-        border: edge ? `2px solid ${tone === "paper" ? color.ink : paperFill(tone)}` : "none",
+        border: edge ? "2px solid transparent" : "none",
         borderRadius: radius,
         boxShadow: shadow ? paperShadow : "none",
         boxSizing: "border-box",
         transform: rotate ? `rotate(${rotate}deg)` : undefined,
         position: "relative",
+        isolation: "isolate",
+        clipPath,
         ...style,
       }}
     >
+      {tab && (
+        // A row from the sheet's left edge to its top-right corner radius: the spacer gives way
+        // first, so a long tab slides left to stay on the sheet; one wider than the row ends in an
+        // ellipsis rather than overhanging the edge.
+        <div
+          style={{
+            position: "absolute",
+            left: inset,
+            right: Math.max(radius, 0) + inset,
+            bottom: `calc(100% + ${-inset - tuck}px)`,
+            zIndex: -2,
+            display: "flex",
+            alignItems: "flex-end",
+          }}
+        >
+          <div style={{ flex: `0 1 ${tab.offset ?? Math.max(radius, 24)}px`, minWidth: 0 }} />
+          <div
+            style={{
+              flex: "none",
+              maxWidth: "100%",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              transform: `translateY(${round((1 - unit(tab.reveal, 1)) * 100)}%)`,
+              padding: `${Math.round(tabSize * 0.3)}px ${Math.round(tabSize * 0.55)}px ${Math.round(tabSize * 0.3) + tuck}px`,
+              background: paperFill(tone),
+              border: edge ? `2px solid ${edgeColor}` : "none",
+              borderRadius: `${tabRadius}px ${tabRadius}px 0 0`,
+              boxShadow: shadow ? paperShadow : "none",
+              boxSizing: "border-box",
+              fontFamily: font.sans,
+              fontWeight: 800,
+              fontSize: tabSize,
+              letterSpacing: -tabSize * 0.01,
+              lineHeight: 1,
+              color: paperInk(tone),
+              whiteSpace: "nowrap",
+            }}
+          >
+            {tab.label}
+          </div>
+        </div>
+      )}
+      <div
+        aria-hidden
+        style={{
+          position: "absolute",
+          inset,
+          zIndex: -1,
+          background: paperFill(tone),
+          border: edge ? `2px solid ${edgeColor}` : "none",
+          borderRadius: radius,
+          boxSizing: "border-box",
+        }}
+      />
+      {creases.length > 0 && (
+        // Creases are folds in the stock, not marks on it: they sit between the fill and the
+        // writing, so ink and filled boxes lie over them and the page never reads as crossed out.
+        // Each starts where its corner's diagonal meets the rounded contour and fades to nothing.
+        <svg
+          aria-hidden
+          style={{
+            position: "absolute",
+            left: inset + cornerInset,
+            top: inset + cornerInset,
+            width: `calc(100% - ${2 * (inset + cornerInset)}px)`,
+            height: `calc(100% - ${2 * (inset + cornerInset)}px)`,
+            zIndex: -1,
+            overflow: "visible",
+            pointerEvents: "none",
+          }}
+        >
+          <defs>
+            {creases.map((c, i) => (
+              <linearGradient key={i} id={`${uid}c${i}`} gradientUnits="userSpaceOnUse" x1={pct(c.from[0])} y1={pct(c.from[1])} x2={pct(c.to[0])} y2={pct(c.to[1])}>
+                <stop offset="0" stopColor={creaseInk} stopOpacity={0.3} />
+                <stop offset="1" stopColor={creaseInk} stopOpacity={0} />
+              </linearGradient>
+            ))}
+          </defs>
+          {creases.map((c, i) => (
+            <line
+              key={i}
+              x1={pct(c.from[0])}
+              y1={pct(c.from[1])}
+              x2={pct(c.to[0])}
+              y2={pct(c.to[1])}
+              stroke={`url(#${uid}c${i})`}
+              strokeWidth={2}
+              strokeLinecap="round"
+            />
+          ))}
+        </svg>
+      )}
       {children}
+      {lips && edge && (
+        <div aria-hidden style={{ position: "absolute", inset, pointerEvents: "none" }}>
+          <svg
+            width={1}
+            height={1}
+            style={{ position: "absolute", left: left ? 0 : "100%", top: seamCss, overflow: "visible" }}
+          >
+            {[lips.upper, lips.lower].map((lip, i) => (
+              <polyline
+                key={i}
+                points={lip.map(([d, dy], j) => `${round((left ? 1 : -1) * (j === 0 ? Math.max(d, 1) : d))},${dy}`).join(" ")}
+                fill="none"
+                stroke={edgeColor}
+                // The mouth clip keeps the half on the sheet: a 2px edge, like the border.
+                strokeWidth={4}
+                strokeLinejoin="round"
+                strokeLinecap="round"
+              />
+            ))}
+          </svg>
+        </div>
+      )}
     </div>
   );
 }

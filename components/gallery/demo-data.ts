@@ -1,6 +1,9 @@
 // Server-safe preview routing (no React, no Remotion): which demo component renders an item.
 // Usage snippets, categories, and capabilities live in the agent contracts (contracts/items).
 
+/** Top-down desk pieces (DeskTop, Ejes, DeskProp), previewed by DeskSurfaceDemo via DeskDemo. */
+export const deskSurfaceNames = ["desk-top", "ejes", "desk-prop"]
+
 /** Paper cut-out pieces from the Design videos, previewed by DesignVideoDemo. */
 export const designNames = [
   "paper-tape",
@@ -33,6 +36,7 @@ export const urlStateNames = [
   "file-cabinet",
   "hand",
   "mano",
+  "pluma",
   "bandeja",
   "escritorio",
   "burbuja",
@@ -41,7 +45,17 @@ export const urlStateNames = [
   "clock",
   "ticket",
   "text-fill",
+  ...deskSurfaceNames,
+  "register",
+  "slip",
+  "paper",
+  "tear",
+  "hilo",
+  "video-print",
 ]
+
+/** Sheets under stress, previewed by PaperDemo: Paper (tension, tab) and Tear. */
+export const paperNames = ["paper", "tear"]
 
 /** Desk illustration pieces, previewed by DeskDemo. */
 export const deskNames = [
@@ -49,8 +63,15 @@ export const deskNames = [
   "file-cabinet",
   "hand",
   "mano",
+  "pluma",
   "bandeja",
   "tool-caddy",
   "escritorio",
   "burbuja",
+  ...deskSurfaceNames,
 ]
+
+/** Drawn writing registers and the slip, previewed by RegisterDemo. */
+export const registerNames = ["register", "slip"]
+/** Thread and video print pieces from the Doorways film, previewed by ThreadDemo. */
+export const threadNames = ["hilo", "video-print"]

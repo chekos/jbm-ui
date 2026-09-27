@@ -13,14 +13,18 @@ export default {
       export: "FolderCarry",
       kind: "component",
       summary:
-        "SVG group (render inside an <svg>) drawing the shared folder silhouette at `carriedFolderGeometry(from, to, path, progress)`, with a fold line and the label fading from the tab to the front panel. Pure React with no timer: drive `progress` from a slider or video timeline, and place a hand at `pointOn(path, progress)`.",
+        "SVG group (render inside an <svg>) drawing the shared folder silhouette at `carriedFolderGeometry(from, to, path, progress)`, with a fold line and its name printed in one place for the whole carry: the tab on light fills, the front panel on vermilion and ink. Pure React with no timer: drive `progress` from a slider or video timeline, and place a hand at `pointOn(path, progress)`.",
       props: {
         from: "Resting geometry at progress 0, in the parent SVG's units (see tableFolderGeometry).",
         to: "Resting geometry at progress 1; may be a different scale or a drawer's own geometry.",
         path: "Grip points in the parent SVG's units; start at folderGrip(from) and end at folderGrip(to) so the endpoints do not jump.",
         progress: "Carry progress from 0 (at `from`) to 1 (at `to`), by arc length along `path`. Clamped.",
         label:
-          "Folder name (first 16 characters); also labels the group as \"Carrying …\" for assistive technology. Shown on the tab at 0 and on the front panel at 1, crossfading between.",
+          "Folder name; also labels the group as \"Carrying …\" for assistive technology. Printed once, fully opaque, where `labelOn` says. On the tab it follows Cajon's rule: drawn whole in Geist 800, compressed when the tab is short, never cut. On the front panel it follows Folder's fitLine rule.",
+        fill: "Folder fill passed to FolderOutline: a palette token such as color.accent (default, vermilion), color.ink, or color.card, or a drawer shade from drawerLight(k) for a folder lifted out of a Cajon.",
+        labelOn: '"tab" or "front": where the name prints for the whole carry, never both. Defaults to Folder\'s rule: "tab" on light fills (OKLab lightness above 0.6: the card and every drawerLight shade, as in a Cajon), "front" on vermilion and ink, where the name stays clear of the hand holding the tab. On the tab a pinch at folderGrip covers part of the name while carrying; pass "front" when the name must read in transit, and render the resting Folder with the same placement.',
+        labelColor: "Label color. Defaults to Cajon's rule for any fill: color.ink or color.card, whichever has the higher WCAG contrast with it; every palette fill and drawer shade clears 4.5:1 (card on vermilion 5.0:1).",
+        labelSize: "Tab name size in the parent SVG's units. Defaults to 13/27 of the tab height, Cajon's ratio, so a folder carried out of a drawer keeps the drawer's tab type at the handoff.",
       },
     },
     {
@@ -58,7 +62,7 @@ export default {
       export: "FolderGeometry",
       kind: "type",
       summary:
-        "Folder silhouette box: `x`, `y` (top of the tab), `w`, `h`, `tabX`, `tabWidth`, and optional `tabHeight` (27) and `tabSlope` (17), all in SVG units.",
+        "Folder silhouette box: `x`, `y` (top of the tab), `w`, `h`, `tabX`, `tabWidth`, and optional `tabHeight` (27), `tabSlope` (17), and `flap` (absolute y of the front flap's top edge; defaults to 40/27 of the tab height below `y`), all in SVG units. A cajonLayout() folder is a FolderGeometry, flap included, so the fold line matches the drawer's.",
     },
   ],
   stage: {
@@ -72,14 +76,20 @@ export default {
       code: 'import { FolderCarry, folderGrip, tableFolderGeometry } from "@/jbm/ui/folder-carry"\n\nconst from = tableFolderGeometry({ x: 5, y: 65 }, 100)\nconst to = tableFolderGeometry({ x: 225, y: 60 }, 190)\nconst path = [folderGrip(from), { x: 200, y: 45 }, folderGrip(to)]\n\n<svg viewBox="0 0 450 270" width="100%">\n  <FolderCarry from={from} to={to} path={path} progress={0.5} label="proyecto" />\n</svg>',
     },
     {
+      title: "Carry a plain cream folder",
+      code: 'import { FolderCarry, folderGrip, tableFolderGeometry } from "@/jbm/ui/folder-carry"\nimport { color } from "@/jbm/lib/tokens"\n\nconst from = tableFolderGeometry({ x: 5, y: 65 }, 100)\nconst to = tableFolderGeometry({ x: 225, y: 60 }, 190)\nconst path = [folderGrip(from), { x: 200, y: 45 }, folderGrip(to)]\n\n<svg viewBox="0 0 450 270" width="100%">\n  <FolderCarry from={from} to={to} path={path} progress={0.5} label="Doorways" fill={color.card} />\n</svg>',
+    },
+    {
       title: "Put a hand on the grip",
       code: 'import { FolderCarry, folderGrip, tableFolderGeometry } from "@/jbm/ui/folder-carry"\nimport { pointOn } from "@/jbm/lib/geometry"\nimport { Mano } from "@/jbm/motion/mano" // install @jbm/mano separately\n\nconst from = tableFolderGeometry({ x: 5, y: 65 }, 100)\nconst to = tableFolderGeometry({ x: 225, y: 60 }, 190)\nconst path = [folderGrip(from), { x: 200, y: 45 }, folderGrip(to)]\nconst progress = 0.4\n\n<svg viewBox="0 0 450 270" width="100%">\n  <FolderCarry from={from} to={to} path={path} progress={progress} label="proyecto" />\n  <Mano at={pointOn(path, progress)} pose="pinch" size={70} anchor={{ x: 6, y: 10 }} />\n</svg>',
     },
   ],
   qa: [
-    "Drag Carry progress to 0, 0.5, and 1: the folder matches its resting geometry exactly at both ends, and the label moves from tab to front panel without both copies fully visible mid-way.",
+    "Set Folder fill to card and ink: the carried folder keeps that fill at every progress, with an ink label on card and a card label on ink and vermilion; vermilion appears only with the accent fill.",
+    "Drag Carry progress to 0, 0.5, and 1 for each fill: the folder matches its resting geometry exactly at both ends, and the name prints once, fully opaque (never faded or pale), on the front for vermilion and ink and on the tab for card.",
     "Toggle Show hand and sweep progress: the pinch stays on the tab's grip throughout; adjust Hand angle and confirm the contact point does not drift.",
     "Check the scale change reads as smooth growth with no jump in tab shape at the endpoints.",
+    "Carry a folder out of a Cajon with fill drawerLight(0.8) and the drawer's folder as `from`: at progress 0 the tab name is ink, whole, the same size as the drawer's names, and the fold line sits on the drawer's flap line.",
     "Check narrow screens: the demo SVG scales to 100% width without clipping either resting place.",
   ],
   docs: [

@@ -1,20 +1,27 @@
 "use client"
 
 import { useBenchParam } from "./bench-url"
-import { Cajon } from "@/registry/jbm/motion/cajon"
-import { Hand, type HandPose } from "@/registry/jbm/ui/hand"
+import { Cajon, cajonLayout, type DrawerFolder } from "@/registry/jbm/motion/cajon"
+import { Hand, handPoses, type HandPose } from "@/registry/jbm/ui/hand"
 import { Mano } from "@/registry/jbm/motion/mano"
+import { Pluma, plumaNib } from "@/registry/jbm/motion/pluma"
 import { FileCabinet } from "@/registry/jbm/ui/file-cabinet"
 import { Bandeja } from "@/registry/jbm/motion/bandeja"
 import { ToolCaddy } from "@/registry/jbm/motion/tool-caddy"
 import { Escritorio } from "@/registry/jbm/motion/escritorio"
 import { Burbuja } from "@/registry/jbm/motion/burbuja"
+import { PaperLine } from "@/registry/jbm/ui/paper-line"
+import { color } from "@/registry/jbm/lib/tokens"
 import {
   degrees,
   ProgressControl,
   RangeControl,
+  StepperControl,
   type Presets,
 } from "./progress-control"
+
+import { deskSurfaceNames } from "./demo-data"
+import { DeskSurfaceDemo } from "./desk-surface-demo"
 
 export { deskNames } from "./demo-data"
 
@@ -32,32 +39,264 @@ const names = [
   "texto",
   "archivo",
 ]
+const poseLabels: Record<HandPose, string> = {
+  open: "Open palm",
+  point: "Point",
+  pinch: "Pinch (pen grip)",
+  grip: "Grip",
+  type: "Type",
+  hold: "Hold",
+}
+const line = { x: 40, y: 262, w: 270 }
+/**
+ * Pluma writes a PaperLine: mono glyphs advance exactly 0.6 em, so the nib's x follows `write`
+ * along the text and the line's `reveal` shows every grapheme the nib has reached.
+ */
+const written = "trabajo bien hecho"
+const writtenSize = 24
+const writtenGlyphs = Array.from(
+  new Intl.Segmenter(undefined, { granularity: "grapheme" }).segment(written)
+).length
+const writtenAdvance = writtenSize * 0.6
+/** Cajon previews sources by age, front (newest) to back (oldest), each with a title. */
+const sources: readonly (readonly [string, string])[] = [
+  ["Anthropic 2024", "Building effective agents"],
+  ["Procida 2017", "Diátaxis"],
+  ["Grove 1983", "High Output Management"],
+  ["Mintzberg 1979", "Structuring of Organizations"],
+  ["Simon 1947", "Administrative Behavior"],
+  ["Training Within Industry 1940s", "Job Instruction"],
+  ["Taylor 1911", "Principles of Scientific Management"],
+  ["Gilbreth 1909", "Bricklaying System"],
+  ["Smith 1776", "The Wealth of Nations"],
+  ["Babbage 1832", "On the Economy of Machinery"],
+  ["Fayol 1916", "Administration industrielle"],
+  ["Follett 1924", "Creative Experience"],
+]
 export function DeskDemo({ name }: { name: string }) {
+  // Top-down pieces keep their own controls; the rest share the ones below.
+  return deskSurfaceNames.includes(name) ? (
+    <DeskSurfaceDemo name={name} />
+  ) : name === "cajon" ? (
+    <CajonDemo />
+  ) : (
+    <DeskObjectDemo name={name} />
+  )
+}
+
+const riseOptions = [0, 24, 36, 46, 60] as const
+/**
+ * The drawer bench: every DrawerFolder value can be aimed at one folder (or all), and the
+ * viewBox fits the drawer's own bounds, so few folders fill the preview instead of floating.
+ */
+function CajonDemo() {
+  const name = "cajon"
+  const unit = { clamp: [0, 1] } as const
+  const [count, setCount] = useBenchParam("count", 3, { clamp: [0, 12] })
+  const [open, setOpen] = useBenchParam("open", 1, unit)
+  // -1 aims the folder controls at every folder.
+  const [target, setTarget] = useBenchParam("target", 0, { clamp: [-1, 11] })
+  const [pull, setPull] = useBenchParam("lift", 0, unit)
+  const [ajar, setAjar] = useBenchParam("ajar", 0, unit)
+  const [reveal, setReveal] = useBenchParam("reveal", 1, unit)
+  const [setLight, setSetLight] = useBenchParam("setk", false)
+  const [k, setK] = useBenchParam("k", 0.86, { clamp: [0.72, 1] })
+  const [labelSize, setLabelSize] = useBenchParam("size", 13, { clamp: [10, 36] })
+  const [rise, setRise] = useBenchParam("rise", 0, { allowed: riseOptions })
+  const [titles, setTitles] = useBenchParam("titles", true)
+  const [stagger, setStagger] = useBenchParam("stagger", false)
+  const [accent, setAccent] = useBenchParam("accent", false)
+  const aimed = (i: number) => target === -1 || i === target
+  const folders: DrawerFolder[] = sources.slice(0, count).map(([source, title], i) => ({
+    name: source,
+    sublabel: titles ? title : undefined,
+    accent: accent && aimed(i),
+    pulled: aimed(i) ? pull : 0,
+    open: aimed(i) ? ajar : 0,
+    reveal: aimed(i) ? reveal : 1,
+    k: setLight && aimed(i) ? k : undefined,
+  }))
+  const props = {
+    x: 40,
+    y: 10,
+    folders,
+    open,
+    labelSize,
+    depthSpacing: rise === 0 ? undefined : rise,
+    tabLayout: stagger ? ("stagger3" as const) : ("stair" as const),
+  }
+  // Fit the drawer fully open, with room for a lift or an ajar flap once one is in use, so the
+  // preview does not rescale while a slider moves.
+  const extent = cajonLayout({
+    ...props,
+    open: 1,
+    folders: folders.map((f) => ({
+      ...f,
+      pulled: (f.pulled ?? 0) > 0 ? 1 : 0,
+      open: (f.open ?? 0) > 0 ? 1 : 0,
+    })),
+  })
+  const top = Math.min(extent.y, ...extent.folders.map((f) => f.y)) - 14
+  const bottom = extent.frontTop + extent.frontHeight + 14
+  const targetName = target === -1 ? "all folders" : (sources[target]?.[0] ?? "")
+  const range = (label: string, value: number, set: (n: number) => void, presets: Presets) => (
+    <ProgressControl
+      label={label}
+      ariaLabel={`${name} ${label}`}
+      value={value}
+      onChange={set}
+      presets={presets}
+    />
+  )
+  const check = (label: string, value: boolean, set: (v: boolean) => void) => (
+    <label>
+      <input
+        type="checkbox"
+        aria-label={`${name} ${label}`}
+        checked={value}
+        onChange={(e) => set(e.target.checked)}
+      />{" "}
+      {label}
+    </label>
+  )
+  return (
+    <div style={{ width: "100%" }}>
+      <div
+        style={{
+          minHeight: 300,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: 24,
+        }}
+      >
+        <svg
+          viewBox={`0 ${+top.toFixed(1)} 500 ${+(bottom - top).toFixed(1)}`}
+          style={{ width: "100%", maxWidth: 460, height: "auto" }}
+        >
+          <Cajon {...props} />
+        </svg>
+      </div>
+      <div
+        className="composition-options"
+        style={{ display: "flex", flexWrap: "wrap", gap: 16, padding: "16px 24px" }}
+      >
+        <StepperControl
+          label="Folders"
+          value={count}
+          onChange={(n) => {
+            setCount(n)
+            if (target >= n) setTarget(n > 0 ? n - 1 : 0)
+          }}
+          min={0}
+          max={12}
+          noun="folders"
+          format={(n) => `${n} ${n === 1 ? "folder" : "folders"}`}
+        />
+        {range("Open", open, setOpen, ["Closed", "Half", "Open"])}
+        {count > 0 && (
+          <>
+            <label>
+              Target{" "}
+              <select
+                aria-label={`${name} target folder`}
+                value={target}
+                onChange={(e) => setTarget(Number(e.target.value))}
+              >
+                <option value={-1}>All folders</option>
+                {sources.slice(0, count).map(([source], i) => (
+                  <option key={source} value={i}>
+                    {i + 1}. {source}
+                  </option>
+                ))}
+              </select>
+            </label>
+            {range(`Lift (${targetName})`, pull, setPull, ["Filed", "Half", "Lifted"])}
+            {range(`Flap ajar (${targetName})`, ajar, setAjar, ["Shut", "Half", "Ajar"])}
+            {range(`Name reveal (${targetName})`, reveal, setReveal, ["Blank", "Half", "Named"])}
+            {check("Set light", setLight, setSetLight)}
+            {setLight && (
+              <RangeControl
+                label={`Light k (${targetName})`}
+                ariaLabel={`${name} Light k`}
+                value={k}
+                onChange={setK}
+                min={0.72}
+                max={1}
+                step={0.01}
+                format={(n) => n.toFixed(2)}
+              />
+            )}
+            {check("Vermilion target", accent, setAccent)}
+          </>
+        )}
+        <RangeControl
+          label="Name size"
+          ariaLabel={`${name} Name size`}
+          value={labelSize}
+          onChange={setLabelSize}
+          min={10}
+          max={36}
+          step={1}
+          format={(n) => `${n} units`}
+        />
+        <label>
+          Rise per folder{" "}
+          <select
+            aria-label={`${name} rise per folder`}
+            value={rise}
+            onChange={(e) => setRise(Number(e.target.value) as (typeof riseOptions)[number])}
+          >
+            {riseOptions.map((r) => (
+              <option key={r} value={r}>
+                {r === 0 ? "Auto (tab + band)" : `${r} units`}
+              </option>
+            ))}
+          </select>
+        </label>
+        {check("Titles", titles, setTitles)}
+        {check("Staggered tabs", stagger, setStagger)}
+      </div>
+    </div>
+  )
+}
+
+
+function DeskObjectDemo({ name }: { name: string }) {
   // On /c/<name> benches each value lives in the URL (?open=0.5&pose=pinch); see bench-url.tsx.
   const unit = { clamp: [0, 1] } as const
   const [count, setCount] = useBenchParam(
     "count",
     3,
-    name === "bandeja" ? { clamp: [0, 12] } : { allowed: [0, 1, 3, 6, 12] }
+    name === "bandeja" ? { clamp: [0, 12] } : { allowed: [0, 1, 3, 6, 8, 12] }
   )
   const [open, setOpen] = useBenchParam("open", 1, unit)
   const [pull, setPull] = useBenchParam("lift", 0, unit)
   const [pose, setPose] = useBenchParam<HandPose>("pose", "point", {
-    allowed: ["open", "point", "pinch"],
+    allowed: handPoses,
   })
+  const [write, setWrite] = useBenchParam("write", 0.6, unit)
+  const [showHand, setShowHand] = useBenchParam("hand", true)
   const [wood, setWood] = useBenchParam("wood", false)
   const [right, setRight] = useBenchParam("right", false)
   const [cabinet, setCabinet] = useBenchParam("cabinet", false)
   const [progress, setProgress] = useBenchParam("highlight", 1, unit)
   const [angle, setAngle] = useBenchParam("angle", 0, { clamp: [-30, 30] })
   const [position, setPosition] = useBenchParam("position", 0, unit)
-  const folders = names
-    .slice(0, count)
-    .map((name, i) => ({ name, accent: i === 0, pulled: i === 0 ? pull : 0 }))
+  const folders: DrawerFolder[] = names.slice(0, count).map((name, i) => ({
+    name,
+    accent: i === 0,
+    pulled: i === 0 ? pull : 0,
+  }))
+  // Pluma: solve the grip point from where the nib should be, so the ink ends under the nib.
+  const nib = {
+    x: line.x + writtenAdvance * writtenGlyphs * write,
+    y: line.y - 6,
+  }
+  const offset = plumaNib({ x: 0, y: 0 }, angle, undefined, 150)
+  const grip = { x: nib.x - offset.x, y: nib.y - offset.y }
   const drawerControls =
-    name === "cajon" ||
-    name === "file-cabinet" ||
-    (name === "escritorio" && cabinet)
+    name === "file-cabinet" || (name === "escritorio" && cabinet)
   // Card names prefix the accessible names so several cards on the index stay distinct.
   const range = (
     label: string,
@@ -98,7 +337,7 @@ export function DeskDemo({ name }: { name: string }) {
             viewBox={
               name === "escritorio"
                 ? "0 0 820 530"
-                : name === "cajon" || name === "file-cabinet"
+                : name === "file-cabinet"
                   ? "0 -260 500 700"
                   : "0 0 500 340"
             }
@@ -108,9 +347,6 @@ export function DeskDemo({ name }: { name: string }) {
               height: "auto",
             }}
           >
-            {name === "cajon" && (
-              <Cajon x={40} y={10} folders={folders} open={open} />
-            )}
             {name === "file-cabinet" && (
               <FileCabinet
                 x={85}
@@ -141,6 +377,42 @@ export function DeskDemo({ name }: { name: string }) {
                 angle={angle}
               />
             )}
+            {name === "pluma" && (
+              <>
+                <line
+                  x1={line.x}
+                  y1={line.y}
+                  x2={line.x + line.w}
+                  y2={line.y}
+                  stroke={color.line}
+                  strokeWidth={2}
+                />
+                <foreignObject
+                  x={line.x}
+                  y={line.y - writtenSize * 1.4}
+                  width={line.w}
+                  height={writtenSize * 1.4 + 4}
+                >
+                  <PaperLine
+                    text={written}
+                    reveal={write}
+                    mono
+                    style={{
+                      display: "block",
+                      fontSize: writtenSize,
+                      fontWeight: 600,
+                      whiteSpace: "nowrap",
+                    }}
+                  />
+                </foreignObject>
+                <Pluma
+                  at={grip}
+                  angle={angle}
+                  size={150}
+                  hand={showHand}
+                />
+              </>
+            )}
             {name === "bandeja" && (
               <Bandeja x={70} y={160} w={360} layers={count} />
             )}
@@ -162,7 +434,7 @@ export function DeskDemo({ name }: { name: string }) {
                 value={count}
                 onChange={(e) => setCount(Number(e.target.value))}
               >
-                {[0, 1, 3, 6, 12].map((n) => (
+                {[0, 1, 3, 6, 8, 12].map((n) => (
                   <option key={n}>{n}</option>
                 ))}
               </select>
@@ -215,19 +487,35 @@ export function DeskDemo({ name }: { name: string }) {
               value={pose}
               onChange={(e) => setPose(e.target.value as HandPose)}
             >
-              <option value="open">Open palm</option>
-              <option value="point">Point</option>
-              <option value="pinch">Pinch</option>
+              {handPoses.map((p) => (
+                <option key={p} value={p}>
+                  {poseLabels[p]}
+                </option>
+              ))}
             </select>
           </label>
         )}
-        {name === "mano" && (
+        {name === "pluma" && (
           <>
-            {range("Position", position, setPosition, [
-              "Left",
-              "Center",
-              "Right",
-            ])}
+            {range("Write", write, setWrite, ["Start", "Half", "End"])}
+            <label>
+              <input
+                type="checkbox"
+                checked={showHand}
+                onChange={(e) => setShowHand(e.target.checked)}
+              />{" "}
+              Hand
+            </label>
+          </>
+        )}
+        {(name === "mano" || name === "pluma") && (
+          <>
+            {name === "mano" &&
+              range("Position", position, setPosition, [
+                "Left",
+                "Center",
+                "Right",
+              ])}
             <RangeControl
               label="Rotation"
               ariaLabel={`${name} Rotation`}

@@ -4,7 +4,7 @@
     {
       "name": "tokens",
       "title": "Tokens",
-      "description": "Cream, ink, and vermilion palette, Geist font stacks, radii, surface shadows and borders, stage safe areas, and a CSS variables string.",
+      "description": "Cream, ink, and vermilion palette, Geist font stacks and tab-name metrics, radii, surface shadows and borders, stage safe areas, and a CSS variables string.",
       "category": "Foundations",
       "capabilities": [],
       "needsRemotion": false,
@@ -153,9 +153,11 @@
     {
       "name": "paper",
       "title": "Paper",
-      "description": "Paper cut-out primitives: a flat card-stock shape, a slanted Sticker with display type, and a centered Caption.",
+      "description": "Paper cut-out primitives: a card-stock sheet that can crease, start to tear, and carry a real tab, a slanted Sticker with display type, and a centered Caption.",
       "category": "UI",
-      "capabilities": [],
+      "capabilities": [
+        "controls"
+      ],
       "needsRemotion": false,
       "registryDependencies": [
         "@jbm/tokens"
@@ -931,7 +933,7 @@
     {
       "name": "cajon",
       "title": "Cajon",
-      "description": "A fixed-size filing drawer with complete folders packed front to back.",
+      "description": "A fixed-size filing drawer whose complete folders fan front to back, darker with depth.",
       "category": "UI Bits",
       "capabilities": [
         "controls"
@@ -942,7 +944,7 @@
         "@jbm/scene-geometry",
         "@jbm/folder"
       ],
-      "snippet": "import { Cajon } from \"@/jbm/motion/cajon\"\n\n<svg viewBox=\"0 -260 500 700\">\n  <Cajon x={40} y={10} open={1} folders={[\n    { name: \"análisis\", accent: true, pulled: 0.5 },\n    { name: \"diseño\" },\n    { name: \"pruebas\" },\n  ]} />\n</svg>",
+      "snippet": "import { Cajon } from \"@/jbm/motion/cajon\"\n\n<svg viewBox=\"0 -300 500 740\">\n  <Cajon x={40} y={10} open={1} folders={[\n    { name: \"Grove 1983\", sublabel: \"High Output Management\" },\n    { name: \"Mintzberg 1979\", sublabel: \"Structuring of Organizations\" },\n    { name: \"Simon 1947\", sublabel: \"Administrative Behavior\" },\n    { name: \"Training Within Industry 1940s\", sublabel: \"Job Instruction\", reveal: 0.5 },\n    { name: \"Taylor 1911\", sublabel: \"Principles of Scientific Management\" },\n  ]} />\n</svg>",
       "installName": "cajon",
       "sourcePath": "registry/jbm/motion/cajon.tsx",
       "inRegistry": true
@@ -957,12 +959,32 @@
       ],
       "needsRemotion": false,
       "registryDependencies": [
+        "@jbm/tokens",
         "@jbm/hand",
         "@jbm/scene-geometry"
       ],
       "snippet": "import { Mano } from \"@/jbm/motion/mano\"\n\n<svg viewBox=\"0 0 500 340\">\n  <Mano at={{ x: 160, y: 30 }} pose=\"point\" size={155} angle={12} />\n</svg>",
       "installName": "mano",
       "sourcePath": "registry/jbm/motion/mano.tsx",
+      "inRegistry": true
+    },
+    {
+      "name": "pluma",
+      "title": "Pluma",
+      "description": "A pen held in the Hand's pinch, with a helper that reports the nib point.",
+      "category": "UI Bits",
+      "capabilities": [
+        "controls"
+      ],
+      "needsRemotion": false,
+      "registryDependencies": [
+        "@jbm/tokens",
+        "@jbm/scene-geometry",
+        "@jbm/mano"
+      ],
+      "snippet": "import { Pluma, plumaNib } from \"@/jbm/motion/pluma\"\n\nconst line = { x: 120, y: 200, w: 360 }\nconst progress = 0.4 // from a slider or useProgress\nconst nib = { x: line.x + line.w * progress, y: line.y }\n// Solve the grip point from the nib you want: at = nib − offset.\nconst o = plumaNib({ x: 0, y: 0 })\nconst at = { x: nib.x - o.x, y: nib.y - o.y }\n<svg viewBox=\"0 0 600 340\">\n  <line x1={line.x} y1={line.y} x2={nib.x} y2={nib.y} stroke=\"#20241F\" strokeWidth={3} />\n  <Pluma at={at} />\n</svg>",
+      "installName": "pluma",
+      "sourcePath": "registry/jbm/motion/pluma.tsx",
       "inRegistry": true
     },
     {
@@ -1019,6 +1041,60 @@
       "inRegistry": true
     },
     {
+      "name": "desk-top",
+      "title": "DeskTop",
+      "description": "A cream desk seen from above, with light, a tilt-revealed front edge, and an optional drawer region.",
+      "category": "Layout",
+      "capabilities": [
+        "controls"
+      ],
+      "needsRemotion": false,
+      "registryDependencies": [
+        "@jbm/tokens",
+        "@jbm/scene-geometry"
+      ],
+      "snippet": "import { DeskTop } from \"@/jbm/ui/desk-top\"\n\n<svg viewBox=\"0 0 1920 1080\">\n  <DeskTop box={{ x: 120, y: 90, w: 1680, h: 830 }} drawer=\"end\" drawerSize={520} />\n</svg>",
+      "installName": "desk-top",
+      "sourcePath": "registry/jbm/ui/desk-top.tsx",
+      "inRegistry": true
+    },
+    {
+      "name": "ejes",
+      "title": "Ejes",
+      "description": "Two ink axes that split an area into four named quadrants, with quiet labels and a focus quadrant.",
+      "category": "UI Bits",
+      "capabilities": [
+        "controls"
+      ],
+      "needsRemotion": false,
+      "registryDependencies": [
+        "@jbm/tokens",
+        "@jbm/scene-geometry"
+      ],
+      "snippet": "import { Ejes } from \"@/jbm/ui/ejes\"\n\n<svg viewBox=\"0 0 1920 1080\">\n  <Ejes box={{ x: 120, y: 90, w: 1680, h: 830 }} h={1} v={1} quiet\n    labels={{ top: \"hacer\", bottom: \"entender\", left: \"aprender\", right: \"trabajar\" }}\n    focus=\"tl\" />\n</svg>",
+      "installName": "ejes",
+      "sourcePath": "registry/jbm/ui/ejes.tsx",
+      "inRegistry": true
+    },
+    {
+      "name": "desk-prop",
+      "title": "DeskProp",
+      "description": "A free-standing keycap, keyboard, or mug to place on a desk.",
+      "category": "UI Bits",
+      "capabilities": [
+        "controls"
+      ],
+      "needsRemotion": false,
+      "registryDependencies": [
+        "@jbm/tokens",
+        "@jbm/scene-geometry"
+      ],
+      "snippet": "import { DeskProp } from \"@/jbm/ui/desk-prop\"\n\n<svg viewBox=\"0 0 600 240\">\n  <DeskProp kind=\"keycap\" x={70} y={120} />\n  <DeskProp kind=\"keyboard\" x={290} y={120} rotate={-4} />\n  <DeskProp kind=\"mug\" x={520} y={120} />\n</svg>",
+      "installName": "desk-prop",
+      "sourcePath": "registry/jbm/ui/desk-prop.tsx",
+      "inRegistry": true
+    },
+    {
       "name": "burbuja",
       "title": "Burbuja",
       "description": "Chat bubble whose selected words sweep to vermilion with a controlled 0–1 highlight.",
@@ -1040,7 +1116,7 @@
     {
       "name": "hand",
       "title": "Hand",
-      "description": "Static line-art hand in open-palm, pointing, or pinching pose, independent of placement and props.",
+      "description": "Static line-art hand in open-palm, pointing, pinching, gripping, typing, or holding pose, independent of placement and props.",
       "category": "UI Bits",
       "capabilities": [
         "controls"
@@ -1126,6 +1202,62 @@
       "inRegistry": true
     },
     {
+      "name": "video-print",
+      "title": "VideoPrint",
+      "description": "A printed video still on a Paper sheet: a pale 16:9 line sketch, an ink scrub rule with anchor ticks, title and date, and an optional punched link tag.",
+      "category": "UI Bits",
+      "capabilities": [
+        "controls"
+      ],
+      "needsRemotion": false,
+      "registryDependencies": [
+        "@jbm/tokens",
+        "@jbm/scene-geometry",
+        "@jbm/paper",
+        "@jbm/punched-tag"
+      ],
+      "snippet": "import { VideoPrint } from \"@/jbm/ui/video-print\"\n\n<VideoPrint\n  scrub={1}\n  title=\"Alex Hormozi\"\n  date=\"YouTube · 4 nov 2025\"\n  link=\"youtube.com/watch?v=mr4Pw66_498\"\n/>",
+      "installName": "video-print",
+      "sourcePath": "registry/jbm/ui/video-print.tsx",
+      "inRegistry": true
+    },
+    {
+      "name": "hilo",
+      "title": "Hilo",
+      "description": "An ink thread tied between two points that lays out, sags, and snaps into frayed ends with an optional vermilion notch.",
+      "category": "UI Bits",
+      "capabilities": [
+        "controls"
+      ],
+      "needsRemotion": false,
+      "registryDependencies": [
+        "@jbm/tokens",
+        "@jbm/scene-geometry"
+      ],
+      "snippet": "import { Hilo } from \"@/jbm/ui/hilo\"\n\ndeclare const progress: number\n// Draw it over the stage, in the same units as your sheet and drawer.\n<svg viewBox=\"0 0 1920 1080\" style={{ position: \"absolute\", inset: 0 }}>\n  <Hilo from={{ x: 520, y: 402 }} to={{ x: 1340, y: 236 }} curve=\"s\" bend={0.5} draw={progress} />\n</svg>",
+      "installName": "hilo",
+      "sourcePath": "registry/jbm/ui/hilo.tsx",
+      "inRegistry": true
+    },
+    {
+      "name": "tear",
+      "title": "Tear",
+      "description": "A sheet torn into strips along seams: controlled progress moves each strip to its own destination, with frayed, seeded edges at every seam.",
+      "category": "UI Bits",
+      "capabilities": [
+        "controls"
+      ],
+      "needsRemotion": false,
+      "registryDependencies": [
+        "@jbm/tokens",
+        "@jbm/paper"
+      ],
+      "snippet": "import { Tear } from \"@/jbm/ui/tear\"\n\n// progress comes from your timeline, e.g. interpolate(frame, [0, 45], [0, 1]).\n<Tear\n  w={520}\n  h={760}\n  radius={10}\n  seams={[190, 380, 570]}\n  progress={0.6}\n  stagger={0.1}\n  pieces={[\n    { to: { x: -40, y: -70, rotate: -5 } },\n    { to: { x: 36, y: -24, rotate: 3 } },\n    { to: { x: -30, y: 24, rotate: -2 } },\n    { to: { x: 34, y: 72, rotate: 3 } },\n  ]}\n>\n  {({ index, top }) => (\n    <div style={{ position: \"absolute\", left: 40, top: top + 32 }}>strip {index + 1}</div>\n  )}\n</Tear>",
+      "installName": "tear",
+      "sourcePath": "registry/jbm/ui/tear.tsx",
+      "inRegistry": true
+    },
+    {
       "name": "paper-line",
       "title": "PaperLine",
       "description": "Line of text with controlled grapheme reveal, ink lift, strike-through, and dotted underline.",
@@ -1141,6 +1273,45 @@
       "snippet": "import { PaperLine } from \"@/jbm/ui/paper-line\"\n\n<PaperLine text=\"Una idea clara.\" reveal={0.7} lift={0} strike={0} />",
       "installName": "paper-line",
       "sourcePath": "registry/jbm/ui/paper-line.tsx",
+      "inRegistry": true
+    },
+    {
+      "name": "register",
+      "title": "Register",
+      "description": "Paper sheet of drawn writing whose shape says who reads it: steps, lists, tables, sourced prose, or a mixed page.",
+      "category": "UI Bits",
+      "capabilities": [
+        "controls"
+      ],
+      "needsRemotion": false,
+      "registryDependencies": [
+        "@jbm/tokens",
+        "@jbm/scene-geometry",
+        "@jbm/paper"
+      ],
+      "snippet": "import { Register } from \"@/jbm/ui/register\"\n\n<div style={{ display: \"flex\", gap: 24 }}>\n  <Register kind=\"mono\" n={7} w={300} h={380} />\n  <Register kind=\"plain\" n={10} w={300} h={380} />\n  <Register kind=\"grid\" n={7} w={300} h={380} />\n  <Register kind=\"prose\" sources={8} w={300} h={380} />\n</div>",
+      "installName": "register",
+      "sourcePath": "registry/jbm/ui/register.tsx",
+      "inRegistry": true
+    },
+    {
+      "name": "slip",
+      "title": "Slip",
+      "description": "Taped paper slip of out-of-register writing that peels, lifts, and travels while registers reflow around it.",
+      "category": "UI Bits",
+      "capabilities": [
+        "controls"
+      ],
+      "needsRemotion": false,
+      "registryDependencies": [
+        "@jbm/tokens",
+        "@jbm/scene-geometry",
+        "@jbm/paper",
+        "@jbm/register"
+      ],
+      "snippet": "import { Slip } from \"@/jbm/ui/slip\"\n\n<Slip kind=\"prose\" w={240} h={72} dashed />",
+      "installName": "slip",
+      "sourcePath": "registry/jbm/ui/slip.tsx",
       "inRegistry": true
     },
     {
