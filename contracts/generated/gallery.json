@@ -1058,8 +1058,9 @@
     {
       "name": "desk-top",
       "title": "DeskTop",
-      "description": "A cream desk seen from above, with light, a tilt-revealed front edge, and an optional drawer region.",
-      "category": "Layout",
+      "description": "A cream desk seen from above, with light, a tilt-revealed front edge, and an optional pulled-out drawer.",
+      "category": "UI Bits",
+      "family": "Desk objects",
       "capabilities": [
         "controls"
       ],
@@ -1077,8 +1078,7 @@
       "name": "ejes",
       "title": "Ejes",
       "description": "Two ink axes that split an area into four named quadrants, with quiet labels and a focus quadrant.",
-      "category": "UI Bits",
-      "family": "Desk objects",
+      "category": "UI",
       "capabilities": [
         "controls"
       ],

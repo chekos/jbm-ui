@@ -12,7 +12,7 @@ const layoutProps = {
   origin:
     "Axes grow out from the crossing (center, default) or from the left and top edges (start).",
   focusInset:
-    "Gap between a focus outline and the box edges and axes, in parent units (default 16). Outlines clear the labels as one aligned set: both top quadrants give up the strip for the left/right labels, both give up the strip above the horizontal axis for the top label, and both bottom quadrants the strip below it for the bottom label. An outline under 40 units on a side is not drawn.",
+    "Gap between a focus outline and the box edges and axes, in parent units (default 16). The four outlines are one size and hug the crossing, symmetric about both axes: as tall as the shorter row allows once the labels are cleared (the strip for the left/right labels at the top, the strips either side of the horizontal axis for the top and bottom labels) and as wide as the narrower column. An outline under 40 units on a side is not drawn.",
 }
 
 export default {
@@ -21,8 +21,7 @@ export default {
   title: "Ejes",
   description:
     "Two ink axes that split an area into four named quadrants, with quiet labels and a focus quadrant.",
-  category: "UI Bits",
-  family: "Desk objects",
+  category: "UI",
   capabilities: ["controls"],
   api: [
     {
@@ -36,7 +35,7 @@ export default {
         focus:
           "Quadrant or quadrants to call out: tl, tr, bl, br, or an array (all four together for the \"cuatro\" beat). Omit for none.",
         focusTone:
-          "ink (default): ink outline. fill: light ink wash, no outline. accent: vermilion outline, opt-in for the one deliberate stamp (the board's @advina answer quadrant); never the default.",
+          "ink (default): ink outline. fill: light ink wash, no outline. accent: a vermilion outline on the first focused quadrant only (any others stay ink), opt-in for the one deliberate stamp (the board's @advina answer quadrant); never the default.",
         focusProgress:
           "Focus draw progress, 0–1 (default 1): outlines draw around their perimeter, fills fade in. Clamped.",
         weight: "Axis and outline stroke width in parent units (default 2, the desk's line weight).",
@@ -89,7 +88,7 @@ export default {
   qa: [
     "Drag Horizontal and Vertical independently from Hidden to Drawn in both Grow from modes: each axis grows only by its own control, and each label fades in as the line reaches it, not before.",
     "Drag Quiet from Full to Quiet: labels shrink toward the axis ends without moving off them; at Quiet they are small but readable.",
-    "Step Focus through each quadrant and All four with every Tone: outlines never cross a label or an axis, and all four line up as one set (shared top, shared edges either side of the horizontal axis); Light fill has no outline; only Accent outline is vermilion.",
+    "Step Focus through each quadrant and All four with every Tone: outlines never cross a label or an axis, and all four are the same size, mirrored about both axes; Light fill has no outline; with Accent only one quadrant (the first) is vermilion, the rest ink.",
     "Drag Outline: the rounded outline draws around its perimeter; at 0 nothing shows.",
     "Check a narrow screen: the labels stay inside the box and stay legible at quiet size.",
     "Pass a center near a corner (e.g. { x: 90, y: 300 } in a 580 × 380 box): the crossing moves only as far as its labels allow, no label leaves the box or crosses an axis, and focus outlines too small to read are not drawn.",

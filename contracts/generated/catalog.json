@@ -6740,8 +6740,9 @@
       "name": "desk-top",
       "entry": "component",
       "title": "DeskTop",
-      "description": "A cream desk seen from above, with light, a tilt-revealed front edge, and an optional drawer region.",
-      "category": "Layout",
+      "description": "A cream desk seen from above, with light, a tilt-revealed front edge, and an optional pulled-out drawer.",
+      "category": "UI Bits",
+      "family": "Desk objects",
       "capabilities": [
         "controls"
       ],
@@ -6762,7 +6763,7 @@
         {
           "export": "DeskTop",
           "kind": "component",
-          "summary": "SVG <g> of a top-down desk: an empty cream surface with an ink edge that sheets, axes, and props lie on, an optional drawer region at one edge, and a front edge band the camera tilt reveals. It owns no sheets, axes, hands, or drawer contents; compose Ejes, DeskProp, Paper, or Cajon on top. Controlled; no internal timer. Render inside an <svg>.",
+          "summary": "SVG <g> of a top-down desk: an empty cream surface with an ink edge that sheets, axes, and props lie on, an optional open drawer pulled out at one edge, and a front edge band the camera tilt reveals. It owns no sheets, axes, hands, or drawer contents; compose Ejes, DeskProp, Paper, or Cajon on top. Controlled; no internal timer. Render inside an <svg>.",
           "props": [
             {
               "name": "box",
@@ -6776,28 +6777,28 @@
               "type": "number",
               "required": false,
               "default": "1",
-              "description": "Light on the whole desk, 0–1: multiplies the cream's OKLab lightness (1 full cream, 0.72 the visual language's deepest folder). Every fill follows it, the drawer pull included; the ink stroke does not. Clamped."
+              "description": "Light on the whole desk, 0–1 (1 full cream): every fill mixes in OKLab toward the palette's line token, reaching it at 0.72 (the visual language's deepest folder), then toward ink (deskLight). The drawer pull follows it; the ink stroke does not. Clamped."
             },
             {
               "name": "edge",
               "type": "number",
               "required": false,
               "default": "0",
-              "description": "Camera tilt, 0–1: reveals the front edge band along the bottom, up to 22 units tall at 1, taken out of the surface's depth. 0 is straight down. Clamped."
+              "description": "Camera tilt, 0–1: reveals a front band up to 22 units tall at 1, taken out of the surface's depth: the desk's front edge under the desk top, and a side drawer's own near face under it. 0 is straight down. Clamped."
             },
             {
               "name": "drawer",
               "type": "DeskTopDrawerSide",
               "required": false,
               "default": null,
-              "description": "Edge that holds an empty drawer region (start left, end right, top, bottom), separated from the surface by a 6-unit seam and drawn as a panel with a recessed opening. The plan under both is one slab in the front band's shade, so the seam reads as a groove in one desk rather than a gap. Omit for no drawer."
+              "description": "Edge that holds an open drawer (start left, end right, top, bottom). The drawer box is pulled out past the desk top's edge, which is the one seam line, and is narrower than the desk along it; its outer wall is its front, thicker than the other walls and carrying the pull (the same label-plate pull as Cajon). Its opening is darker than the desk and runs on under the desk top. Omit for no drawer."
             },
             {
               "name": "drawerSize",
               "type": "number",
               "required": false,
               "default": null,
-              "description": "Drawer region depth across its edge in parent units, seam included: along the width for start and end, along the height for top and bottom. Defaults to 40% of that dimension; kept between 42 and 80% of the plan."
+              "description": "Drawer region depth across its edge in parent units, the 6-unit seam included: along the width for start and end, along the height for top and bottom. Defaults to 40% of that dimension; kept between 44 and 80% of the plan."
             }
           ],
           "passthrough": []
@@ -6805,7 +6806,7 @@
         {
           "export": "deskTopLayout",
           "kind": "function",
-          "summary": "Desk geometry for composites: where the flat surface is, where its centre is (Ejes cross there by default), and the drawer region's panel and opening.",
+          "summary": "Desk geometry for composites: where the flat surface is, where its centre is (Ejes cross there by default), and the drawer's region, box, opening, front, and pull.",
           "params": [
             {
               "name": "box",
@@ -6819,36 +6820,58 @@
               "type": "number",
               "required": false,
               "default": "1",
-              "description": "Light on the whole desk, 0–1: multiplies the cream's OKLab lightness (1 full cream, 0.72 the visual language's deepest folder). Every fill follows it, the drawer pull included; the ink stroke does not. Clamped."
+              "description": "Light on the whole desk, 0–1 (1 full cream): every fill mixes in OKLab toward the palette's line token, reaching it at 0.72 (the visual language's deepest folder), then toward ink (deskLight). The drawer pull follows it; the ink stroke does not. Clamped."
             },
             {
               "name": "edge",
               "type": "number",
               "required": false,
               "default": "0",
-              "description": "Camera tilt, 0–1: reveals the front edge band along the bottom, up to 22 units tall at 1, taken out of the surface's depth. 0 is straight down. Clamped."
+              "description": "Camera tilt, 0–1: reveals a front band up to 22 units tall at 1, taken out of the surface's depth: the desk's front edge under the desk top, and a side drawer's own near face under it. 0 is straight down. Clamped."
             },
             {
               "name": "drawer",
               "type": "DeskTopDrawerSide",
               "required": false,
               "default": null,
-              "description": "Edge that holds an empty drawer region (start left, end right, top, bottom), separated from the surface by a 6-unit seam and drawn as a panel with a recessed opening. The plan under both is one slab in the front band's shade, so the seam reads as a groove in one desk rather than a gap. Omit for no drawer."
+              "description": "Edge that holds an open drawer (start left, end right, top, bottom). The drawer box is pulled out past the desk top's edge, which is the one seam line, and is narrower than the desk along it; its outer wall is its front, thicker than the other walls and carrying the pull (the same label-plate pull as Cajon). Its opening is darker than the desk and runs on under the desk top. Omit for no drawer."
             },
             {
               "name": "drawerSize",
               "type": "number",
               "required": false,
               "default": null,
-              "description": "Drawer region depth across its edge in parent units, seam included: along the width for start and end, along the height for top and bottom. Defaults to 40% of that dimension; kept between 42 and 80% of the plan."
+              "description": "Drawer region depth across its edge in parent units, the 6-unit seam included: along the width for start and end, along the height for top and bottom. Defaults to 40% of that dimension; kept between 44 and 80% of the plan."
             }
           ],
-          "returns": "{ box, surface, center, drawer, front, fill }: surface is the flat top Box; center its centre; drawer is { panel, well } or null; front is the edge band Box (h 0 when flat); fill holds the surface, front, panel, and well colours after light. All in parent SVG units."
+          "returns": "{ box, surface, center, drawer, front, plan, slab, drawn, fill }: surface is the flat top Box; center its centre; drawer is { panel, body, well, front, pull } or null (panel the whole region, body the pulled-out box inside it, well its opening, front its thicker outer wall, pull the plate on it); front is the edge band Box (h 0 when flat); plan the surface, seam, and drawer region above the band; slab the desk top as drawn, out to the seam line; drawn is drawing geometry for DeskTop itself; fill holds the surface, handle, front, panel, and well colours after light. All in parent SVG units."
+        },
+        {
+          "export": "deskLight",
+          "kind": "function",
+          "summary": "A #rrggbb token colour under light k, kept on the palette: mixed in OKLab toward the line token as k falls from 1 to 0.72, then from line toward ink. DeskTop's fills use it.",
+          "params": [
+            {
+              "name": "hex",
+              "type": "string",
+              "required": true,
+              "default": null,
+              "description": "A #rrggbb colour, normally a jbm token such as color.bg or color.card."
+            },
+            {
+              "name": "k",
+              "type": "number",
+              "required": true,
+              "default": null,
+              "description": "Light, 0–1 (clamped): 1 returns the colour, 0.72 the line token, 0 ink."
+            }
+          ],
+          "returns": "The lit colour as #rrggbb."
         },
         {
           "export": "deskShade",
           "kind": "function",
-          "summary": "Scales a #rrggbb token colour's OKLab lightness by k (clamped 0–1), keeping its hue: the visual language's depth-as-light rule.",
+          "summary": "Scales a #rrggbb colour's OKLab lightness by k (clamped 0–1), keeping its chroma. Kept for compatibility; DeskTop now lights its fills with deskLight, which stays on the palette.",
           "params": [
             {
               "name": "hex",
@@ -6896,11 +6919,11 @@
         }
       ],
       "qa": [
-        "Drag Edge from Flat to Tilted: the front band grows from the bottom inside the box, the surface loses the same depth, and their shared edge stays one line with square corners where they meet.",
-        "Step Drawer through none, start, end, top, and bottom: the box never moves; the panel sits on the chosen edge with a 6-unit groove (never a bright gap); its opening is darker than the surface; a top or bottom drawer takes 40% of the height, not of the width.",
-        "With a start, end, or bottom drawer and Edge above half, a small pull shows on the band under the drawer; a top drawer shows none.",
-        "Drag Light from 1 to 0.72: every fill, the drawer pull included, darkens together and keeps its hue; the ink edge does not change.",
-        "At 2× zoom check the rounded corners, the seam, and that no contour doubles or steps."
+        "At index size the default (Tilted, drawer end) reads as a desk with a drawer pulled out, not a tablet: a plain cream top with its front edge, and a narrower drawer box with a pull on its outer front.",
+        "Drag Edge from Flat to Tilted: the front band grows from the bottom inside the box, the surface loses the same depth, their shared edge stays one line with square corners where they meet, and a side drawer shows its own near face.",
+        "Step Drawer through none, start, end, top, and bottom: the box never moves; the drawer box sits on the chosen edge, narrower than the desk, meeting it at one seam line (never a double line); its opening is darker than the desk and open toward the seam; every drawer has exactly one pull, on its outer front; a top or bottom drawer takes 40% of the height, not of the width.",
+        "Drag Light from 1 to 0.72: every fill, the drawer pull included, darkens together toward the line token (never taupe); the ink edge does not change.",
+        "At 8× zoom check the rounded corners, the seam where the drawer meets the desk and the band, and that no contour doubles, steps, or leaves a stub."
       ],
       "docs": [
         {
@@ -6914,8 +6937,7 @@
       "entry": "component",
       "title": "Ejes",
       "description": "Two ink axes that split an area into four named quadrants, with quiet labels and a focus quadrant.",
-      "category": "UI Bits",
-      "family": "Desk objects",
+      "category": "UI",
       "capabilities": [
         "controls"
       ],
@@ -7006,7 +7028,7 @@
               "type": "EjesFocusTone",
               "required": false,
               "default": "\"ink\"",
-              "description": "ink (default): ink outline. fill: light ink wash, no outline. accent: vermilion outline, opt-in for the one deliberate stamp (the board's @advina answer quadrant); never the default."
+              "description": "ink (default): ink outline. fill: light ink wash, no outline. accent: a vermilion outline on the first focused quadrant only (any others stay ink), opt-in for the one deliberate stamp (the board's @advina answer quadrant); never the default."
             },
             {
               "name": "focusProgress",
@@ -7020,7 +7042,7 @@
               "type": "number",
               "required": false,
               "default": "16",
-              "description": "Gap between a focus outline and the box edges and axes, in parent units (default 16). Outlines clear the labels as one aligned set: both top quadrants give up the strip for the left/right labels, both give up the strip above the horizontal axis for the top label, and both bottom quadrants the strip below it for the bottom label. An outline under 40 units on a side is not drawn."
+              "description": "Gap between a focus outline and the box edges and axes, in parent units (default 16). The four outlines are one size and hug the crossing, symmetric about both axes: as tall as the shorter row allows once the labels are cleared (the strip for the left/right labels at the top, the strips either side of the horizontal axis for the top and bottom labels) and as wide as the narrower column. An outline under 40 units on a side is not drawn."
             },
             {
               "name": "weight",
@@ -7091,7 +7113,7 @@
               "type": "number",
               "required": false,
               "default": "16",
-              "description": "Gap between a focus outline and the box edges and axes, in parent units (default 16). Outlines clear the labels as one aligned set: both top quadrants give up the strip for the left/right labels, both give up the strip above the horizontal axis for the top label, and both bottom quadrants the strip below it for the bottom label. An outline under 40 units on a side is not drawn."
+              "description": "Gap between a focus outline and the box edges and axes, in parent units (default 16). The four outlines are one size and hug the crossing, symmetric about both axes: as tall as the shorter row allows once the labels are cleared (the strip for the left/right labels at the top, the strips either side of the horizontal axis for the top and bottom labels) and as wide as the narrower column. An outline under 40 units on a side is not drawn."
             },
             {
               "name": "labels",
@@ -7143,7 +7165,7 @@
       "qa": [
         "Drag Horizontal and Vertical independently from Hidden to Drawn in both Grow from modes: each axis grows only by its own control, and each label fades in as the line reaches it, not before.",
         "Drag Quiet from Full to Quiet: labels shrink toward the axis ends without moving off them; at Quiet they are small but readable.",
-        "Step Focus through each quadrant and All four with every Tone: outlines never cross a label or an axis, and all four line up as one set (shared top, shared edges either side of the horizontal axis); Light fill has no outline; only Accent outline is vermilion.",
+        "Step Focus through each quadrant and All four with every Tone: outlines never cross a label or an axis, and all four are the same size, mirrored about both axes; Light fill has no outline; with Accent only one quadrant (the first) is vermilion, the rest ink.",
         "Drag Outline: the rounded outline draws around its perimeter; at 0 nothing shows.",
         "Check a narrow screen: the labels stay inside the box and stay legible at quiet size.",
         "Pass a center near a corner (e.g. { x: 90, y: 300 } in a 580 × 380 box): the crossing moves only as far as its labels allow, no label leaves the box or crosses an axis, and focus outlines too small to read are not drawn."
@@ -7189,7 +7211,7 @@
               "type": "DeskPropKind",
               "required": true,
               "default": null,
-              "description": "keycap (a single key, 56 × 56), keyboard (four rows of nine keys, the last with a space bar, 270 × 130), or mug (side view with a handle ring, 90 × 78)."
+              "description": "keycap (a single key, 56 × 56), keyboard (four rows of nine keys, the last with a space bar, 270 × 130), or mug (from above like the others: a round body with its rim and the handle's end to the right, 90 × 78)."
             },
             {
               "name": "x",
@@ -7210,7 +7232,14 @@
               "type": "number",
               "required": false,
               "default": "1",
-              "description": "Uniform size multiplier (default 1). The ink stroke stays 2 parent units at any scale."
+              "description": "Uniform size multiplier (default 1). The ink stroke stays weight parent units at any scale."
+            },
+            {
+              "name": "weight",
+              "type": "number",
+              "required": false,
+              "default": "2",
+              "description": "Ink stroke width in parent units (default 2, the desk's line weight), kept at any scale. A preview that frames one prop in its own viewBox passes a weight that keeps the on-screen line the same as its neighbours'."
             },
             {
               "name": "rotate",
@@ -7224,7 +7253,7 @@
               "type": "number",
               "required": false,
               "default": "0",
-              "description": "Key travel, 0–1: the keycap's dished top sinks, centres, and shrinks 4 units a side; on a keyboard, the keys listed in keys inset 3 units a side. A pressed face takes a light ink wash (0.12 at 1) so the pressed key reads at normal size. The mug ignores it. Clamped."
+              "description": "Key travel, 0–1: the keycap's dished top sinks, centres, and shrinks 4 units a side; on a keyboard, the keys listed in keys inset 3 units a side. A pressed face takes an ink wash (0.28 at 1, the depth of the visual language's 0.72 light) so the press shows at small sizes. The mug ignores it. Clamped."
             },
             {
               "name": "keys",
@@ -7246,7 +7275,7 @@
               "type": "DeskPropKind",
               "required": true,
               "default": null,
-              "description": "keycap (a single key, 56 × 56), keyboard (four rows of nine keys, the last with a space bar, 270 × 130), or mug (side view with a handle ring, 90 × 78)."
+              "description": "keycap (a single key, 56 × 56), keyboard (four rows of nine keys, the last with a space bar, 270 × 130), or mug (from above like the others: a round body with its rim and the handle's end to the right, 90 × 78)."
             },
             {
               "name": "x",
@@ -7267,7 +7296,14 @@
               "type": "number",
               "required": false,
               "default": "1",
-              "description": "Uniform size multiplier (default 1). The ink stroke stays 2 parent units at any scale."
+              "description": "Uniform size multiplier (default 1). The ink stroke stays weight parent units at any scale."
+            },
+            {
+              "name": "weight",
+              "type": "number",
+              "required": false,
+              "default": null,
+              "description": "Ink stroke width in parent units (default 2, the desk's line weight), kept at any scale. A preview that frames one prop in its own viewBox passes a weight that keeps the on-screen line the same as its neighbours'."
             },
             {
               "name": "rotate",
@@ -7281,7 +7317,7 @@
               "type": "number",
               "required": false,
               "default": "0",
-              "description": "Key travel, 0–1: the keycap's dished top sinks, centres, and shrinks 4 units a side; on a keyboard, the keys listed in keys inset 3 units a side. A pressed face takes a light ink wash (0.12 at 1) so the pressed key reads at normal size. The mug ignores it. Clamped."
+              "description": "Key travel, 0–1: the keycap's dished top sinks, centres, and shrinks 4 units a side; on a keyboard, the keys listed in keys inset 3 units a side. A pressed face takes an ink wash (0.28 at 1, the depth of the visual language's 0.72 light) so the press shows at small sizes. The mug ignores it. Clamped."
             },
             {
               "name": "keys",
@@ -7291,7 +7327,7 @@
               "description": "Keyboard only: indices of the keys press applies to, row by row from the top left (0–26 the three full rows, 27–31 the bottom row, 29 the space bar)."
             }
           ],
-          "returns": "{ kind, center, size, corners, contact, keys, transform }: size is the scaled footprint; corners the four footprint corners; contact the keycap top, the home-row middle key (index 13), or the handle ring; keys every keyboard key centre (empty otherwise); transform the SVG transform the prop uses. Parent SVG units."
+          "returns": "{ kind, center, size, corners, contact, keys, transform }: size is the scaled footprint; corners the four footprint corners; contact the keycap top, the home-row middle key (index 13), or the middle of the mug handle's visible end; keys every keyboard key centre (empty otherwise); transform the SVG transform the prop uses. Parent SVG units."
         },
         {
           "export": "deskPropSize",
@@ -7327,11 +7363,11 @@
         }
       ],
       "qa": [
-        "Switch Prop through keycap, keyboard, and mug: each reads as its noun alone, in card fill with the same 2-unit ink line as Hand and Folder.",
-        "Drag Scale from 0.5× to 2×: proportions hold and the stroke stays 2 units, not thinner or thicker.",
+        "Switch Prop through All three, keycap, keyboard, and mug: each reads as its noun alone, all three seen from above, in card fill with the same on-screen ink line (2 px at the preview's full width) as each other.",
+        "Drag Scale from 0.5× to 2×: proportions hold and the on-screen stroke stays the same, not thinner or thicker.",
         "Drag Rotation: each prop turns about its centre and stays inside the preview.",
-        "Drag Press on the keycap and the keyboard: the keycap top sinks toward its centre; on the keyboard only the home-row middle key moves.",
-        "Enlarge the mug: the handle ring meets the body without a gap or a doubled edge.",
+        "Drag Press on the keycap and the keyboard to Down: the keycap top visibly sinks and darkens; on the keyboard only the home-row middle key insets and darkens, visible at index size.",
+        "Enlarge the mug at 30°: the handle's end meets the round body without a gap, stub, or doubled edge, and the rim ring is even.",
         "The Mano anchor in the second example is an estimate of the fingertip; verify it visually."
       ],
       "docs": [
