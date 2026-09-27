@@ -97,7 +97,7 @@ export function getCatalog() {
         "The preview is a timeline that replays on request; it never autoplays.",
       portrait: "The preview compares landscape and vertical stages.",
       player:
-        "The preview renders in a Remotion Player (needsRemotion is the separate dependency flag).",
+        "The preview renders in a Remotion Player; needsRemotion is the separate dependency flag, and searching the gallery for \"remotion\" matches it.",
     },
     fields: {
       api: "Exports with props or params; type, required, and default are extracted from source, descriptions are authored.",
