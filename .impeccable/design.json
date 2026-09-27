@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-09-27T15:22:17.004Z",
+  "generatedAt": "2026-09-27T16:42:42.630Z",
   "title": "Design System: jbm-ui",
   "extensions": {
     "colorMeta": {
@@ -168,6 +168,18 @@
       "mono-label": {
         "displayName": "Mono label",
         "purpose": "Counts, result status, tag lines, the QA frame readout, codes, numbers with units."
+      },
+      "field-phone": {
+        "displayName": "Field phone",
+        "purpose": "Search field text under 760px; 16px so iOS Safari does not zoom on focus. Named exception outside the ramp."
+      },
+      "demo-fluid": {
+        "displayName": "Demo fluid",
+        "purpose": "Sample sentence in the Text fill, Scroll text fill, and Flip text previews; clamp(24px, 3vw, 40px). Demo content, never gallery chrome."
+      },
+      "demo-fluid-large": {
+        "displayName": "Demo fluid large",
+        "purpose": "Larger sample sentence in the same previews; clamp(32px, 4vw, 56px). Demo content, never gallery chrome."
       }
     },
     "shadows": [
@@ -302,7 +314,7 @@
       "name": "Bench Strip View",
       "kind": "custom",
       "refersTo": "bench-strip",
-      "description": "Single / Strip toggle and Copy link above motion benches. Strip shows Begin, Middle, End as exact-frame thumbnails in 10px-radius Pencil Rule frames with 14px ink captions and mono frame numbers; each caption button opens that frame in Single view. Bench state (view, orientation, frame, layout, safe, guides) lives in the URL; controlled illustrations keep their control values there too, with the same Copy link. Orientation-aware strips at 1024px+ stack the landscape frames in a column beside full-height portrait frames, with the scene options in a row beside the toolbar. On phones landscape cells stack and the portrait cells share a row, under the toolbar and options. Until the Player loads, a same-size placeholder (empty frames, invisible controls) holds the requested view.",
+      "description": "Single / Strip toggle and Copy link above motion benches. Strip shows Begin, each contract cue, and End (Begin, Middle, End when an item has no cues) as exact-frame thumbnails in rows of three at one fixed size for every item (up to four cues wrap to a second row that still fits the first viewport) in 10px-radius Pencil Rule frames with 14px ink captions naming what happens (\"Bug appears\", ellipsis when long; the button carries the full text) and mono frame numbers; each caption button opens that frame in Single view. Bench state (view, orientation, frame, layout, safe, guides) lives in the URL; controlled illustrations keep their control values there too, with the same Copy link; on load unreadable values are dropped, out-of-range numbers clamp to their bound and defaults are removed via replaceState. Orientation-aware strips at 1024px+ stack the landscape frames in a column beside full-height portrait frames, with the scene options in a row beside the toolbar. On phones strips with more than three cells run two per row; landscape cells stack and the portrait cells share a row, under the toolbar and options. Until the Player loads, a same-size placeholder (empty frames, invisible controls) holds the requested view.",
       "html": "<div class=\"ds-strip\"><figure><div class=\"ds-strip-frame\">0</div><figcaption><button type=\"button\" aria-label=\"Begin, frame 0, open in single view\"><span>Begin</span><span>00</span></button></figcaption></figure><figure><div class=\"ds-strip-frame\">848</div><figcaption><button type=\"button\"><span>Middle</span><span>26</span></button></figcaption></figure><figure><div class=\"ds-strip-frame\">1024</div><figcaption><button type=\"button\"><span>End</span><span>51</span></button></figcaption></figure></div>",
       "css": ".ds-strip { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; max-width: 720px; font-family: Geist, system-ui, sans-serif; } .ds-strip figure { position: relative; margin: 0; } .ds-strip-frame { display: grid; place-items: center; aspect-ratio: 8 / 5; border: 1px solid #D5D1C6; border-radius: 10px; background: #FFF6E8; color: #C63D24; font-size: 36px; font-weight: 700; } .ds-strip button { display: flex; justify-content: space-between; width: 100%; min-height: 24px; padding: 0; border: 0; background: none; color: #20241F; font: inherit; font-size: 14px; cursor: pointer; } .ds-strip button::after { content: \"\"; position: absolute; inset: 0; border-radius: 10px; } .ds-strip button:focus-visible::after { outline: 2px solid #C63D24; outline-offset: 2px; } .ds-strip button span:last-child { color: #65675F; font-family: 'Geist Mono', ui-monospace, monospace; font-size: 12px; } @media (max-width: 759px) { .ds-strip { grid-template-columns: 1fr; } }"
     },
@@ -310,7 +322,7 @@
       "name": "Progress Control",
       "kind": "custom",
       "refersTo": "progress-control",
-      "description": "Shared 0–1 preview slider: label and mono percentage readout, ink-accent range, and three joined presets named for the component states. The matching preset is pressed (aria-pressed); aria-valuetext reads as a percentage.",
+      "description": "Shared 0–1 preview slider: label and mono percentage readout, ink-accent range, and three joined presets named for the component states. The matching preset is pressed (aria-pressed); aria-valuetext reads as a percentage. Small whole-number counts (Nested folders, 0–8) use the stepper sibling: the same label and mono readout (\"3 folders\"), then a joined − / + pair in the preset style with 36×28px targets named \"Fewer folders\" / \"More folders\"; a polite output announces each change, and at a bound the button turns Graphite with aria-disabled but keeps focus.",
       "html": "<div class=\"ds-progress\"><div class=\"ds-progress-head\"><label for=\"ds-p\">Folder opening</label><output>50%</output></div><div class=\"ds-progress-row\"><input id=\"ds-p\" type=\"range\" min=\"0\" max=\"1\" step=\"0.01\" value=\"0.5\" aria-valuetext=\"50%\"><div role=\"group\" aria-label=\"Folder opening presets\"><button type=\"button\" aria-pressed=\"false\">Closed</button><button type=\"button\" aria-pressed=\"true\">Half</button><button type=\"button\" aria-pressed=\"false\">Open</button></div></div></div>",
       "css": ".ds-progress { max-width: 360px; font-family: Geist, system-ui, sans-serif; font-size: 14px; color: #20241F; } .ds-progress-head { display: flex; justify-content: space-between; margin-bottom: 6px; } .ds-progress-head output { color: #65675F; font-family: 'Geist Mono', ui-monospace, monospace; font-size: 12px; font-variant-numeric: tabular-nums; } .ds-progress-row { display: flex; align-items: center; gap: 12px; } .ds-progress-row input { flex: 1; min-width: 0; accent-color: #20241F; } .ds-progress-row div { display: inline-flex; } .ds-progress-row button { min-height: 32px; padding: 4px 10px; border: 1px solid #D5D1C6; background: transparent; color: #20241F; font: inherit; font-size: 14px; cursor: pointer; } .ds-progress-row button + button { margin-left: -1px; } .ds-progress-row button:first-child { border-radius: 6px 0 0 6px; } .ds-progress-row button:last-child { border-radius: 0 6px 6px 0; } .ds-progress-row button[aria-pressed=\"true\"] { position: relative; background: #20241F; border-color: #20241F; color: #FFF6E8; } .ds-progress-row button:focus-visible, .ds-progress-row input:focus-visible { position: relative; z-index: 1; outline: 2px solid #C63D24; outline-offset: 2px; }"
     },
