@@ -5704,13 +5704,14 @@
       "name": "mano",
       "entry": "component",
       "title": "Mano",
-      "description": "Position and rotate the independent Hand illustration with controlled coordinates.",
+      "description": "Position and rotate the independent Hand illustration with controlled coordinates, optionally on a sleeve from the frame edge.",
       "category": "UI Bits",
       "capabilities": [
         "controls"
       ],
       "needsRemotion": false,
       "registryDependencies": [
+        "@jbm/tokens",
         "@jbm/hand",
         "@jbm/scene-geometry"
       ],
@@ -5726,7 +5727,7 @@
         {
           "export": "Mano",
           "kind": "component",
-          "summary": "SVG <g> that places the Hand illustration at a point, scales it, and rotates it about that point. Hand owns the artwork and pose; callers own movement (e.g. pointOn and pathTilt along a path). No internal timer. Render inside an <svg>.",
+          "summary": "SVG group that places the Hand illustration at a point, scales it, and rotates it about that point, with an optional sleeve so the hand never floats unattached. Hand owns the artwork and pose; callers own movement (e.g. pointOn and pathTilt along a path). No internal timer. Render inside an <svg>.",
           "props": [
             {
               "name": "at",
@@ -5740,7 +5741,7 @@
               "type": "HandPose",
               "required": false,
               "default": "\"point\"",
-              "description": "Hand pose: open palm, point, or pinch."
+              "description": "Hand pose: open, point, pinch, grip, type, or hold (see Hand)."
             },
             {
               "name": "size",
@@ -5762,9 +5763,80 @@
               "required": false,
               "default": null,
               "description": "Local point in the Hand's 30×29 viewBox held at `at`, including during rotation."
+            },
+            {
+              "name": "arm",
+              "type": "boolean | ManoArm",
+              "required": false,
+              "default": null,
+              "description": "Sleeve from the frame edge to the wrist, drawn behind the hand. `true` for defaults, or `{ from, width, frame, tone }`: `from` is \"edge\" (default: straight out of the wrist along the forearm axis until it leaves `frame`, or 8 × size without one) or a point in parent units the sleeve bends toward; `width` defaults to 1.15 × the wrist; `tone` is solid `ink` (default) or `card` with an ink outline."
+            },
+            {
+              "name": "cuff",
+              "type": "\"ink\" | \"accent\"",
+              "required": false,
+              "default": null,
+              "description": "Band at the sleeve's wrist end, 0.45 × the sleeve width long: `ink`, or `accent` (vermilion) to mark the viewer's own hand. Ignored without `arm`. On an ink sleeve an ink cuff shows as a card seam."
             }
           ],
           "passthrough": []
+        },
+        {
+          "export": "manoArm",
+          "kind": "function",
+          "summary": "The sleeve and cuff geometry Mano draws, in parent units. Pure: use it to test a staging or to place something on the arm.",
+          "params": [
+            {
+              "name": "at",
+              "type": "Pt",
+              "required": true,
+              "default": null,
+              "description": "As Mano's at."
+            },
+            {
+              "name": "pose",
+              "type": "HandPose",
+              "required": false,
+              "default": "\"point\"",
+              "description": "As Mano's pose; picks the wrist edge."
+            },
+            {
+              "name": "size",
+              "type": "number",
+              "required": false,
+              "default": "180",
+              "description": "As Mano's size."
+            },
+            {
+              "name": "angle",
+              "type": "number",
+              "required": false,
+              "default": "0",
+              "description": "As Mano's angle."
+            },
+            {
+              "name": "anchor",
+              "type": "Pt",
+              "required": false,
+              "default": null,
+              "description": "As Mano's anchor."
+            },
+            {
+              "name": "arm",
+              "type": "boolean | ManoArm",
+              "required": false,
+              "default": "true",
+              "description": "As Mano's arm; defaults to true here."
+            },
+            {
+              "name": "cuff",
+              "type": "\"ink\" | \"accent\"",
+              "required": false,
+              "default": null,
+              "description": "As Mano's cuff; null band when unset."
+            }
+          ],
+          "returns": "{ wrist, axis, sleeve, cuff, stroke }: the wrist edge (thumb side first), the unit vector into the sleeve, the sleeve's four corners (wrist end, then far end), the cuff band's four corners or null, and the outline width."
         }
       ],
       "omit": {
@@ -5781,7 +5853,7 @@
           "width": 180,
           "height": 264
         },
-        "basis": "Parent SVG user units at size 180 without anchor: a 180 × 264 box (size × 44/30) from at, with the 180 × 174 hand centred in it (about 45 units of empty space above and below). With anchor the box is size × 29/30 tall and offset so the anchor lands on at. angle rotates the box about at."
+        "basis": "The sleeve (arm) extends past this box to the frame edge and is clipped by the SVG viewport. Parent SVG user units at size 180 without anchor: a 180 × 264 box (size × 44/30) from at, with the 180 × 174 hand centred in it (about 45 units of empty space above and below). With anchor the box is size × 29/30 tall and offset so the anchor lands on at. angle rotates the box about at."
       },
       "examples": [
         {
@@ -5789,12 +5861,18 @@
           "code": "import { Mano } from \"@/jbm/motion/mano\"\n\n<svg viewBox=\"0 0 500 340\">\n  <Mano at={{ x: 160, y: 30 }} pose=\"point\" size={155} angle={12} />\n</svg>"
         },
         {
+          "title": "Your hand: sleeve from the frame edge, vermilion cuff",
+          "code": "import { Mano } from \"@/jbm/motion/mano\"\n\nconst frame = { x: 0, y: 0, w: 1920, h: 1080 }\n<svg viewBox=\"0 0 1920 1080\">\n  <Mano at={{ x: 1300, y: 520 }} pose=\"pinch\" size={220} angle={-24}\n    arm={{ frame }} cuff=\"accent\" />\n</svg>"
+        },
+        {
           "title": "Follow a path with its travel tilt",
           "code": "import { Mano, pointOn, pathTilt } from \"@/jbm/motion/mano\"\n\nconst path = [{ x: 40, y: 200 }, { x: 240, y: 60 }, { x: 440, y: 160 }]\nconst progress = 0.4 // from a slider or useProgress\n<svg viewBox=\"0 0 500 340\">\n  <Mano at={pointOn(path, progress)} angle={pathTilt(path, progress)}\n    pose=\"pinch\" size={120} anchor={{ x: 15, y: 14 }} />\n</svg>"
         }
       ],
       "qa": [
-        "Switch pose between open, point, and pinch at the same at: the hand stays in its box and does not jump unexpectedly.",
+        "Turn Arm on for every pose and rotation: the sleeve meets the wrist edge exactly, runs out along the forearm, and leaves the frame; no hand floats or clips mid-palm.",
+        "Switch Cuff between none, ink, and accent: only accent is vermilion; the band stays at the wrist through rotation and pose changes.",
+        "Switch pose through all six at the same at: the hand stays in its box and does not jump unexpectedly.",
         "Drag Rotation from −30 to 30: the hand pivots about at (or the anchor point), not its centre.",
         "Drag Position: the hand translates without resizing or clipping at the viewBox edges.",
         "Anchor coordinates are in the 30×29 viewBox but each pose applies its own internal transform, so the fingertip lands at a different local point per pose; check the anchor visually for each pose you use."
@@ -5804,6 +5882,159 @@
           "title": "Paper and filing illustrations guide",
           "url": "https://jbm-ui.bns.studio/docs/design-video-components.md"
         },
+        {
+          "title": "Desk illustrations guide",
+          "url": "https://jbm-ui.bns.studio/docs/desk-components.md"
+        }
+      ]
+    },
+    {
+      "name": "pluma",
+      "entry": "component",
+      "title": "Pluma",
+      "description": "A pen held in the Hand's pinch, with a helper that reports the nib point.",
+      "category": "UI Bits",
+      "capabilities": [
+        "controls"
+      ],
+      "needsRemotion": false,
+      "registryDependencies": [
+        "@jbm/tokens",
+        "@jbm/scene-geometry",
+        "@jbm/mano"
+      ],
+      "installName": "pluma",
+      "inRegistry": true,
+      "page": "/c/pluma",
+      "registryItem": "/r/pluma.json",
+      "sourcePath": "registry/jbm/motion/pluma.tsx",
+      "files": [
+        "registry/jbm/motion/pluma.tsx"
+      ],
+      "api": [
+        {
+          "export": "Pluma",
+          "kind": "component",
+          "summary": "SVG group: an ink pen (round-ended barrel, card ring, pointed cone) held in the Hand's pinch pose through Mano. The pen is drawn behind the hand: the nib leaves past the thumb tip and the barrel shows above the knuckles. Rotation, grip point, and nib are props; no internal timer. Render inside an <svg>.",
+          "props": [
+            {
+              "name": "at",
+              "type": "Pt",
+              "required": true,
+              "default": null,
+              "description": "Grip point in parent SVG units: where the pinch holds the pen. The hand and pen rotate about it."
+            },
+            {
+              "name": "angle",
+              "type": "number",
+              "required": false,
+              "default": "0",
+              "description": "Rotation in degrees about at for hand and pen together; positive is clockwise."
+            },
+            {
+              "name": "nibOffset",
+              "type": "Pt",
+              "required": false,
+              "default": null,
+              "description": "Nib position relative to at in parent units, before rotation. The pen runs from the nib through at and 17/30 × size past it. Defaults to the pinch's writing slant, (−7.75, 9.81) × size/30: at size 180, (−46.5, 58.9)."
+            },
+            {
+              "name": "size",
+              "type": "number",
+              "required": false,
+              "default": "180",
+              "description": "Hand width in parent units, as in Mano; the pen scales with it."
+            },
+            {
+              "name": "hand",
+              "type": "boolean",
+              "required": false,
+              "default": "true",
+              "description": "Draw the pinching Hand. Set false for the pen alone, e.g. released on the desk."
+            },
+            {
+              "name": "arm",
+              "type": "boolean | ManoArm",
+              "required": false,
+              "default": null,
+              "description": "Sleeve from the frame edge, passed to Mano (true or { from, width, frame, tone })."
+            },
+            {
+              "name": "cuff",
+              "type": "\"ink\" | \"accent\"",
+              "required": false,
+              "default": null,
+              "description": "Cuff on the sleeve, passed to Mano: `ink` or `accent` (vermilion, the viewer's hand)."
+            }
+          ],
+          "passthrough": []
+        },
+        {
+          "export": "plumaNib",
+          "kind": "function",
+          "summary": "Where the nib is for a Pluma drawn with the same at, angle, nibOffset, and size, so ink and pen share one point: drive a PaperLine's reveal, or a thread's start, from it.",
+          "params": [
+            {
+              "name": "at",
+              "type": "Pt",
+              "required": true,
+              "default": null,
+              "description": "The Pluma's grip point."
+            },
+            {
+              "name": "angle",
+              "type": "number",
+              "required": false,
+              "default": "0",
+              "description": "The Pluma's rotation in degrees."
+            },
+            {
+              "name": "nibOffset",
+              "type": "Pt",
+              "required": false,
+              "default": null,
+              "description": "The Pluma's nibOffset, if set."
+            },
+            {
+              "name": "size",
+              "type": "number",
+              "required": false,
+              "default": "180",
+              "description": "The Pluma's hand width."
+            }
+          ],
+          "returns": "The nib point { x, y } in parent units."
+        }
+      ],
+      "stage": {
+        "mode": "declared",
+        "landscape": {
+          "width": 188,
+          "height": 186
+        },
+        "vertical": {
+          "width": 188,
+          "height": 186
+        },
+        "basis": "Parent SVG units at size 180, angle 0: the pinching hand fills the 180 × 174 box anchored on the grip point (6.4, 12.1 in the Hand viewBox, so at is 38.4 right of and 72.6 below its top-left corner). The nib reaches 8 left of the box and the barrel end about 12 above it, so the drawing spans about 188 × 186. arm adds a sleeve to the frame edge."
+      },
+      "examples": [
+        {
+          "title": "Write a line: the reveal follows the nib",
+          "code": "import { Pluma, plumaNib } from \"@/jbm/motion/pluma\"\n\nconst line = { x: 120, y: 200, w: 360 }\nconst progress = 0.4 // from a slider or useProgress\nconst nib = { x: line.x + line.w * progress, y: line.y }\n// Solve the grip point from the nib you want: at = nib − offset.\nconst o = plumaNib({ x: 0, y: 0 })\nconst at = { x: nib.x - o.x, y: nib.y - o.y }\n<svg viewBox=\"0 0 600 340\">\n  <line x1={line.x} y1={line.y} x2={nib.x} y2={nib.y} stroke=\"#20241F\" strokeWidth={3} />\n  <Pluma at={at} />\n</svg>"
+        },
+        {
+          "title": "Your hand writing, then the pen released",
+          "code": "import { Pluma } from \"@/jbm/motion/pluma\"\n\nconst frame = { x: 0, y: 0, w: 1920, h: 1080 }\n<svg viewBox=\"0 0 1920 1080\">\n  <Pluma at={{ x: 900, y: 460 }} size={260} angle={-10} arm={{ frame }} cuff=\"accent\" />\n  <Pluma at={{ x: 1400, y: 820 }} size={260} angle={-80} hand={false} />\n</svg>"
+        }
+      ],
+      "qa": [
+        "Rotate from −40° to 40° with the nib marker on: plumaNib lands on the drawn nib tip at every angle and size.",
+        "Enlarge the pinch: the pen passes between the index pad and the thumb, behind the hand; the nib and ring show past the thumb tip and the barrel above the knuckles.",
+        "Turn Hand off: the pen alone keeps its length, ring, and nib; a stranger names it \"pen\".",
+        "Arm and cuff: the sleeve attaches at the wrist; only cuff accent is vermilion."
+      ],
+      "docs": [
         {
           "title": "Desk illustrations guide",
           "url": "https://jbm-ui.bns.studio/docs/desk-components.md"
@@ -6305,7 +6536,7 @@
       "name": "hand",
       "entry": "component",
       "title": "Hand",
-      "description": "Static line-art hand in open-palm, pointing, or pinching pose, independent of placement and props.",
+      "description": "Static line-art hand in open-palm, pointing, pinching, gripping, typing, or holding pose, independent of placement and props.",
       "category": "UI Bits",
       "capabilities": [
         "controls"
@@ -6326,19 +6557,29 @@
         {
           "export": "Hand",
           "kind": "component",
-          "summary": "Card-filled, ink-outlined hand drawn in a 30×29 viewBox. The pose swaps the silhouette only; it owns no position, rotation, folder, or timeline (use Mano from @jbm/mano for placement inside an SVG). Other SVG attributes pass through to the root <svg>.",
+          "summary": "Card-filled, ink-outlined hand drawn in a 30×29 viewBox. The pose swaps the silhouette only; it owns no position, rotation, folder, pen, or timeline (use Mano from @jbm/mano for placement inside an SVG, Pluma from @jbm/pluma for a held pen). Other SVG attributes pass through to the root <svg>.",
           "props": [
             {
               "name": "pose",
               "type": "HandPose",
               "required": false,
               "default": "\"point\"",
-              "description": "Silhouette: `open` (open palm, fingers together), `point` (index finger extended), or `pinch`. Also sets the accessible label, e.g. \"Hand: point\"."
+              "description": "Silhouette: `open` (open palm, fingers together), `point` (index finger extended), `pinch` (index bent over the thumb; also the pen grip Pluma uses, so there is no pen pose), `grip` (all four fingers curled, as on a sheet or tab edge), `type` (four fingers down with the thumb tucked, resting on keys), or `hold` (side-on fist around a mug handle or object). Also sets the accessible label, e.g. \"Hand: point\"."
             }
           ],
           "passthrough": [
             "SVGProps<SVGSVGElement>"
           ]
+        },
+        {
+          "export": "handPoses",
+          "kind": "constant",
+          "summary": "Every pose name in gallery order: open, point, pinch, grip, type, hold. HandPose is its element type."
+        },
+        {
+          "export": "handWrist",
+          "kind": "constant",
+          "summary": "Per pose, the straight wrist edge in the 30×29 viewBox as two points, thumb side first. The forearm leaves along its normal; Mano attaches its sleeve here."
         }
       ],
       "stage": {
@@ -6351,7 +6592,7 @@
           "width": 180,
           "height": 174
         },
-        "basis": "The 30×29 viewBox renders at width 180; height is auto from the aspect ratio (180 × 29/30 = 174). Pass `width` (the gallery uses 155) or style.width to scale; maxWidth is 100% of the container."
+        "basis": "The 30×29 viewBox renders at width 180; height is auto from the aspect ratio (180 × 29/30 = 174). Pass `width` (the gallery uses 155) or style.width to scale; maxWidth is 100% of the container. Every pose shares the box and the wrist sits at its lower edge."
       },
       "examples": [
         {
@@ -6359,13 +6600,18 @@
           "code": "import { Hand } from \"@/jbm/ui/hand\"\n\n<Hand pose=\"pinch\" width={160} />"
         },
         {
+          "title": "The four reader poses",
+          "code": "import { Hand } from \"@/jbm/ui/hand\"\n\n<Hand pose=\"point\" width={120} />\n<Hand pose=\"type\" width={120} />\n<Hand pose=\"grip\" width={120} />\n<Hand pose=\"hold\" width={120} />"
+        },
+        {
           "title": "Place and rotate inside an SVG",
           "code": "import { Hand } from \"@/jbm/ui/hand\"\nimport { Mano } from \"@/jbm/motion/mano\" // install @jbm/mano separately\n\n<Hand pose=\"open\" width={120} />\n<svg viewBox=\"0 0 500 340\">\n  <Mano at={{ x: 160, y: 30 }} pose=\"point\" angle={12} />\n</svg>"
         }
       ],
       "qa": [
-        "Switch Pose through open, point, and pinch: each silhouette is centered in the same box and keeps simple geometric line art.",
-        "Enlarge the open palm and inspect the finger joins: outer contour and interior dividers meet on the same centerline with the same stroke width.",
+        "Switch Pose through all six: each silhouette sits in the same box with the wrist at the bottom and keeps simple geometric line art and the same outline weight.",
+        "Enlarge the open palm, type, and grip poses and inspect the finger joins: outer contour and interior dividers meet on the same centerline with the same stroke width.",
+        "Name each pose in one noun at gallery size: grip reads as a closed hand, type as fingers down, hold as a fist.",
         "Check the card fill and ink stroke read on cream, and the aria-label follows the pose.",
         "Scale with width at narrow screens: the 30:29 aspect ratio holds."
       ],

@@ -4,7 +4,9 @@ These components are controlled React illustrations. Their gallery previews use 
 
 ## Reuse and composition
 
-- `Hand` is static artwork with `open`, `point`, and `pinch` poses. `Mano` adds placement and rotation; neither owns a folder or a timeline.
+- `Hand` is static artwork with six poses: `open`, `point`, `pinch`, `grip`, `type`, and `hold`. `Mano` adds placement and rotation; neither owns a folder, a pen, or a timeline.
+- `pinch` is also the pen grip. `Pluma` draws a pen held in it and exports `plumaNib`, the nib point for the same props, so writing (a `PaperLine` reveal, a thread's start) follows the pen. There is no separate pen pose.
+- `Mano`'s `arm` draws a sleeve from the frame edge (or a given point) to the wrist, so a hand never floats unattached. `cuff="accent"` marks the viewer's own hand in vermilion; `cuff="ink"` is the neutral band.
 - `Cajon` is the drawer. `FileCabinet` supplies its enclosure. `Escritorio` is an empty desk with an optional `FileCabinet`.
 - `Bandeja` is a paper tray. `ToolCaddy` is an empty divided organizer. Neither adds a loading/cost line or labels unrelated to the object.
 - `Burbuja` composes `ChatBubble` and `TextFill`. Selected word indices receive a controlled highlight; ordinary HTML handles wrapping. It has no folder or connector.
@@ -21,10 +23,14 @@ The closed cabinet sits between the inner leg edges, below the apron, and on the
 
 The open palm keeps its four fingers together with a relaxed thumb. Poses change the silhouette; placement and rotation remain separate transforms.
 
+The newer poses reuse the original family instead of new anatomy: `grip` is the pointing hand with the index curled into a fourth knuckle (a closed hand holding an edge), `type` is the open palm with shorter fingers and the thumb tucked under, and `hold` is a side-on fist whose stacked fingers wrap a mug handle. Every pose keeps the wrist at the bottom of the 30×29 box and the same outline weight; `handWrist` records each wrist edge.
+
+The sleeve is attached geometry, not a second object: its wrist end lies on the pose's wrist edge and it runs along that edge's normal, so it follows every pose and rotation. Pass the stage as `arm.frame` so the sleeve ends exactly at the frame edge; without it the sleeve runs 8 × the hand size and the SVG viewport clips it. A `from` point bends the sleeve toward that point; keep it behind the wrist. The pen is drawn behind the hand: the nib leaves past the thumb tip and the barrel shows above the knuckles.
+
 At finger joins, the outer contour and interior dividers must meet on the same centerline with the same stroke width. Inspect these intersections enlarged: rounded caps alone do not fix misaligned paths or a sudden change in thickness.
 
 ## Visual review
 
 Compare artwork against the issue reference and the existing Folder, Document, ChatBubble, and TextFill before accepting it. Use the library's simple geometric line art: solid fills, a clear outline, minimal interior detail. Anatomical rendering, wrinkles, and decorative scene furniture do not fit this system.
 
-Inspect closed, intermediate, and open drawer states; full-range folder lifts; counts 0, 1, 6, and 12; every hand pose; both desk finishes and cabinet sides; and highlight progress 0–1. Verify desktop and narrow layouts and keyboard controls. Test object completeness, occlusion, and independent controls, not just whether a frame renders.
+Inspect closed, intermediate, and open drawer states; full-range folder lifts; counts 0, 1, 6, and 12; every hand pose, with and without an arm, at several rotations; the pen nib against `plumaNib`; both desk finishes and cabinet sides; and highlight progress 0–1. Verify desktop and narrow layouts and keyboard controls. Test object completeness, occlusion, and independent controls, not just whether a frame renders.
