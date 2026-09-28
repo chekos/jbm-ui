@@ -1013,7 +1013,7 @@
     {
       "name": "hand",
       "title": "Hand",
-      "description": "Static line-art hand in open-palm, pointing, pinching, gripping, typing, or holding pose, independent of placement and props.",
+      "description": "Static line-art hand in open-palm, pointing, pinching, gripping, typing, holding, or writing pose, independent of placement and props.",
       "categories": [
         "UI Bits"
       ],
@@ -1053,7 +1053,7 @@
     {
       "name": "pluma",
       "title": "Pluma",
-      "description": "A pen held in the Hand's pinch, with a helper that reports the nib point.",
+      "description": "A pen held in the Hand's pinch or tripod writing grip, with helpers that report the nib and grip points.",
       "categories": [
         "UI Bits"
       ],

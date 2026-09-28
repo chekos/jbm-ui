@@ -6,7 +6,14 @@ import { Cajon, cajonLayout, type DrawerFolder } from "@/registry/jbm/motion/caj
 import { Hand, handPoses, type HandPose } from "@/registry/jbm/ui/hand"
 import { Mano } from "@/registry/jbm/motion/mano"
 import { DeskProp } from "@/registry/jbm/ui/desk-prop"
-import { Pluma, plumaCaretGap, plumaNib } from "@/registry/jbm/motion/pluma"
+import {
+  Pluma,
+  plumaCaretGap,
+  plumaGrip,
+  plumaNib,
+  plumaPoses,
+  type PlumaPose,
+} from "@/registry/jbm/motion/pluma"
 import { FileCabinet } from "@/registry/jbm/ui/file-cabinet"
 import { Bandeja } from "@/registry/jbm/motion/bandeja"
 import { ToolCaddy } from "@/registry/jbm/motion/tool-caddy"
@@ -44,10 +51,15 @@ const names = [
 const poseLabels: Record<HandPose, string> = {
   open: "Open palm",
   point: "Point",
-  pinch: "Pinch (pen grip)",
+  pinch: "Pinch",
   grip: "Grip",
   type: "Type",
   hold: "Hold",
+  write: "Write (pen grip)",
+}
+const plumaPoseLabels: Record<PlumaPose, string> = {
+  pinch: "Pinch",
+  write: "Write (tripod)",
 }
 /**
  * Hold in context: a side-view mug behind a Hand drawn 180 wide, scaled so its body fills the
@@ -57,7 +69,16 @@ const poseLabels: Record<HandPose, string> = {
  * fit the handle.
  */
 const heldMug = { kind: "mug-side", x: 157, y: 98, scale: 1.6 } as const
-const line = { x: 40, y: 262, w: 270 }
+/**
+ * Write in context: Pluma's pen in a Hand drawn 180 wide, its grip where the bare Hand's box puts it
+ * (plumaGrip), so the hand stays in the same place; the viewBox runs from just left of the nib to
+ * just past the tail.
+ */
+const penGrip = plumaGrip("write", 180)
+const heldPen = { x: -22, w: 224 }
+const pinchLine = { x: 40, y: 262, w: 270 }
+/** The write grip hangs its hand below the nib, so its line sits higher to keep the wrist on stage. */
+const writeLine = { ...pinchLine, y: 190 }
 /**
  * Pluma writes a PaperLine: mono glyphs advance exactly 0.6 em, so the nib's x follows `write`
  * along the text and the line's `reveal` shows every grapheme the nib has reached.
@@ -306,17 +327,25 @@ function DeskObjectDemo({ name }: { name: string }) {
   )
   const [open, setOpen] = useBenchParam("open", 1, unit)
   const [pull, setPull] = useBenchParam("lift", 0, unit)
-  const [pose, setPose] = useBenchParam<HandPose>("pose", "point", {
-    allowed: handPoses,
-  })
+  // Pluma's pose is its grip (pinch or write); Hand and Mano take every pose.
+  const [pose, setPose] = useBenchParam<HandPose>(
+    "pose",
+    name === "pluma" ? "pinch" : "point",
+    { allowed: name === "pluma" ? plumaPoses : handPoses }
+  )
+  const penPose: PlumaPose = pose === "write" ? "write" : "pinch"
+  const line = penPose === "write" ? writeLine : pinchLine
   const [write, setWrite] = useBenchParam("write", 0.6, unit)
   const [showHand, setShowHand] = useBenchParam("hand", true)
   const [mug, setMug] = useBenchParam("mug", true)
+  const [pen, setPen] = useBenchParam("pen", true)
   const [wood, setWood] = useBenchParam("wood", false)
   const [right, setRight] = useBenchParam("right", false)
   const [cabinet, setCabinet] = useBenchParam("cabinet", false)
   const [progress, setProgress] = useBenchParam("highlight", 1, unit)
-  const [angle, setAngle] = useBenchParam("angle", 0, { clamp: [-30, 30] })
+  // Pluma reaches the film's writing tilts (−20° and −45°); Mano keeps ±30°.
+  const angleMin = name === "pluma" ? -50 : -30
+  const [angle, setAngle] = useBenchParam("angle", 0, { clamp: [angleMin, 30] })
   const [position, setPosition] = useBenchParam("position", 0.5, unit)
   const folders: DrawerFolder[] = names.slice(0, count).map((name, i) => ({
     name,
@@ -330,11 +359,11 @@ function DeskObjectDemo({ name }: { name: string }) {
     x:
       line.x +
       writtenAdvance * writtenGlyphs * write +
-      plumaCaretGap(angle, 16, undefined, 150) +
+      plumaCaretGap(angle, 16, undefined, 150, penPose) +
       2,
     y: line.y - 6,
   }
-  const offset = plumaNib({ x: 0, y: 0 }, angle, undefined, 150)
+  const offset = plumaNib({ x: 0, y: 0 }, angle, undefined, 150, penPose)
   const grip = { x: nib.x - offset.x, y: nib.y - offset.y }
   const drawerControls =
     name === "file-cabinet" || (name === "escritorio" && cabinet)
@@ -384,6 +413,25 @@ function DeskObjectDemo({ name }: { name: string }) {
             >
               <DeskProp {...heldMug} />
               <Hand pose="hold" width={180} height={174} style={{ height: 174 }} aria-hidden="true" />
+            </svg>
+          </div>
+        ) : name === "hand" && pose === "write" && pen ? (
+          // The held pen: Pluma draws the Hand in its write pose with the grip at the same place as
+          // the bare Hand's box (grip point × 6 at size 180), so the hand keeps its size; the viewBox
+          // widens for the nib on the left and the tail on the right.
+          <div style={{ width: "100%", containerType: "inline-size", display: "flex", justifyContent: "center" }}>
+            <svg
+              viewBox={`${heldPen.x} 0 ${heldPen.w} 174`}
+              role="img"
+              aria-label="Hand: write, holding a pen"
+              style={{
+                display: "block",
+                height: `calc(min(${compact ? 220 : 360}px, 100cqw) * 174 / 155)`,
+                width: `min(100%, ${Math.round(((compact ? 220 : 360) * heldPen.w) / 180)}px)`,
+                flex: "none",
+              }}
+            >
+              <Pluma at={penGrip} size={180} pose="write" />
             </svg>
           </div>
         ) : name === "hand" ? (
@@ -484,6 +532,7 @@ function DeskObjectDemo({ name }: { name: string }) {
                   angle={angle}
                   size={150}
                   hand={showHand}
+                  pose={penPose}
                 />
               </>
             )}
@@ -570,6 +619,16 @@ function DeskObjectDemo({ name }: { name: string }) {
             </select>
           </label>
         )}
+        {name === "hand" && pose === "write" && (
+          <label>
+            <input
+              type="checkbox"
+              checked={pen}
+              onChange={(e) => setPen(e.target.checked)}
+            />{" "}
+            Pen (write is drawn for a pen)
+          </label>
+        )}
         {name === "hand" && pose === "hold" && (
           <label>
             <input
@@ -582,15 +641,32 @@ function DeskObjectDemo({ name }: { name: string }) {
         )}
         {name === "pluma" && (
           <>
-            {range("Write", write, setWrite, ["Start", "Half", "End"])}
             <label>
-              <input
-                type="checkbox"
-                checked={showHand}
-                onChange={(e) => setShowHand(e.target.checked)}
-              />{" "}
-              Hand
+              Grip{" "}
+              <select
+                aria-label={`${name} grip`}
+                value={penPose}
+                onChange={(e) => setPose(e.target.value as PlumaPose)}
+              >
+                {plumaPoses.map((p) => (
+                  <option key={p} value={p}>
+                    {plumaPoseLabels[p]}
+                  </option>
+                ))}
+              </select>
             </label>
+            {range("Write", write, setWrite, ["Start", "Half", "End"])}
+            {/* The index card keeps Grip, Write, and Rotation. */}
+            {!compact && (
+              <label>
+                <input
+                  type="checkbox"
+                  checked={showHand}
+                  onChange={(e) => setShowHand(e.target.checked)}
+                />{" "}
+                Hand
+              </label>
+            )}
           </>
         )}
         {(name === "mano" || name === "pluma") && (
@@ -606,7 +682,7 @@ function DeskObjectDemo({ name }: { name: string }) {
               ariaLabel={`${name} Rotation`}
               value={angle}
               onChange={setAngle}
-              min={-30}
+              min={angleMin}
               max={30}
               step={1}
               format={degrees}

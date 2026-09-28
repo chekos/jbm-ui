@@ -6180,7 +6180,7 @@
       "name": "hand",
       "entry": "component",
       "title": "Hand",
-      "description": "Static line-art hand in open-palm, pointing, pinching, gripping, typing, or holding pose, independent of placement and props.",
+      "description": "Static line-art hand in open-palm, pointing, pinching, gripping, typing, holding, or writing pose, independent of placement and props.",
       "category": "UI Bits",
       "family": "Hands",
       "capabilities": [
@@ -6209,7 +6209,7 @@
               "type": "HandPose",
               "required": false,
               "default": "\"point\"",
-              "description": "Silhouette: `open` (open palm, fingers together), `point` (index finger extended), `pinch` (index bent over the thumb; also the pen grip Pluma uses, so there is no pen pose), `grip` (front-view fist: four fingers with knuckle bumps on top and the curled fingertips in a row beneath, the thumb lying across under them, pointing in; lay the knuckles over a sheet or tab edge), `type` (the hand from above on a keyboard with the fingers curled down onto the keys: four short stubs, the middle tallest, whose caps are the bent middle joints with the fingertips out of sight beneath (no marks across them), and the thumb low, pointing left toward the space bar; at thumbnail size it reads as the open palm with its fingers folded), or `hold` (upright, seen from the side: the palm rises straight from the wrist and its top sweeps up into a finger-width thumb that bends at a rounded joint and lies over the held object's rim, tip toward the fingers, with a short crease where it leaves the palm; the four fingers lie stacked on the right, wrapped round the object's side with their tips facing the palm, and the open pocket between palm, thumb, fingertips, and heel is where the object sits; draw a side-view mug or a sheet's corner behind it, the rim or top edge just under the thumb; the pose is drawn for an object, and on its own the stacked fingers read apart from the palm, so show it round one). Every pose draws its dividers from the outline's valley points in the outline's stroke width; grip, type, and hold draw all their ink as one path (interior lines retraced as spurs), so joins are tangent with no steps, and the valleys between fingertips and grip's palm edge between index and thumb round off in small fillets. The palm side meets the wrist cut in one tangent-continuous fillet. Also sets the accessible label, e.g. \"Hand: point\"."
+              "description": "Silhouette: `open` (open palm, fingers together), `point` (index finger extended), `pinch` (index bent over the thumb; Pluma's default pen grip), `grip` (front-view fist: four fingers with knuckle bumps on top and the curled fingertips in a row beneath, the thumb lying across under them, pointing in; lay the knuckles over a sheet or tab edge), `type` (the hand from above on a keyboard with the fingers curled down onto the keys: four short stubs, the middle tallest, whose caps are the bent middle joints with the fingertips out of sight beneath (no marks across them), and the thumb low, pointing left toward the space bar; at thumbnail size it reads as the open palm with its fingers folded), or `hold` (upright, seen from the side: the palm rises straight from the wrist and its top sweeps up into a finger-width thumb that bends at a rounded joint and lies over the held object's rim, tip toward the fingers, with a short crease where it leaves the palm; the four fingers lie stacked on the right, wrapped round the object's side with their tips facing the palm, and the open pocket between palm, thumb, fingertips, and heel is where the object sits; draw a side-view mug or a sheet's corner behind it, the rim or top edge just under the thumb; the pose is drawn for an object, and on its own the stacked fingers read apart from the palm, so show it round one), or `write` (a right hand holding a pen in a tripod grip, seen from the thumb side and traced from the owner-chosen references (Paper page hands, artboard Hands v6 · write), turned so its wrist cut is the shared one; at a -45° rotation it stands as the reference does: the back of the hand rises to a rounded knuckle, the index finger runs along the top to its round tip, the thumb tip and the middle fingertip sit under it, and one lobe stands for the tucked ring and little fingers; the index tip overlaps the thumb tip in a filleted valley and lies in front of it, and at J, where the thumb's top side comes out from behind it, the thumb's top side runs down into the palm and the index's underside curls up into the hand, so the web between the two creases is where the barrel lies; drawn for a pen, so show it with Pluma pose write). Every pose draws its dividers from the outline's valley points in the outline's stroke width; grip, type, hold, and write draw all their ink as one path (interior lines retraced as spurs), so joins are tangent with no steps, and the valleys between fingertips and grip's palm edge between index and thumb round off in small fillets. The palm side meets the wrist cut in one tangent-continuous fillet. Also sets the accessible label, e.g. \"Hand: point\"."
             },
             {
               "name": "halo",
@@ -6226,7 +6226,7 @@
         {
           "export": "handOutline",
           "kind": "function",
-          "summary": "A pose's closed outline in the Hand's 30×29 viewBox (for grip, type, and hold it also retraces the interior lines inside it, which add no area), for composites that cut art drawn behind the hand (a mask or clip path) instead of painting a halo over whatever else is under it. Place it with the same transforms as the Hand (Mano's translate, rotate, and anchor, then a scale of size / 30).",
+          "summary": "A pose's closed outline in the Hand's 30×29 viewBox (for grip, type, hold, and write it also retraces the interior lines inside it, which add no area), for composites that cut art drawn behind the hand (a mask or clip path) instead of painting a halo over whatever else is under it. Place it with the same transforms as the Hand (Mano's translate, rotate, and anchor, then a scale of size / 30). For write it also names the parts that lie in front of a held pen (the thumb and index finger), so a pen drawn over the hand can stop at them.",
           "params": [
             {
               "name": "pose",
@@ -6236,12 +6236,12 @@
               "description": "Hand pose; defaults to point, like Hand."
             }
           ],
-          "returns": "{ d, transform, strokeWidth }: the outline path, the transform that places it in the viewBox, and the outline's stroke width in path units. Stroke the path at twice that width to cover the outline plus a gap half the outline wide."
+          "returns": "{ d, transform, strokeWidth, front }: the outline path, the transform that places it in the viewBox, the outline's stroke width in path units, and (write only; otherwise undefined) `front`, the regions in front of a held pen as closed subpaths in the same units and transform, each bounded where it crosses the pen by the hand's own ink. Stroke a path at twice the width to cover the outline plus a gap half the outline wide."
         },
         {
           "export": "handPoses",
           "kind": "constant",
-          "summary": "Every pose name in gallery order: open, point, pinch, grip, type, hold. HandPose is its element type."
+          "summary": "Every pose name in gallery order: open, point, pinch, grip, type, hold, write. HandPose is its element type."
         }
       ],
       "stage": {
@@ -6262,6 +6262,10 @@
           "code": "import { Hand } from \"@/jbm/ui/hand\"\n\n<Hand pose=\"pinch\" width={160} />"
         },
         {
+          "title": "Writing hand, holding a pen",
+          "code": "import { Hand } from \"@/jbm/ui/hand\"\nimport { Pluma } from \"@/jbm/motion/pluma\" // install @jbm/pluma separately\n\n// write is drawn for a pen: on its own it holds nothing.\n<Hand pose=\"write\" width={120} />\n// Pluma draws it with the pen, at the film's writing tilt.\n<svg viewBox=\"0 0 500 340\">\n  <Pluma at={{ x: 220, y: 150 }} size={180} angle={-45} pose=\"write\" />\n</svg>"
+        },
+        {
           "title": "The four reader poses",
           "code": "import { Hand } from \"@/jbm/ui/hand\"\n\n<Hand pose=\"point\" width={120} />\n<Hand pose=\"type\" width={120} />\n<Hand pose=\"grip\" width={120} />\n<Hand pose=\"hold\" width={120} />"
         },
@@ -6275,10 +6279,11 @@
         }
       ],
       "qa": [
-        "Switch Pose through all six: each silhouette sits in the same box with the wrist at the bottom and keeps simple geometric line art and the same outline weight.",
-        "Enlarge every pose (point and pinch included) and inspect the finger joins: each interior divider starts on the outline's valley point, continues the finger's side, and has the outline's stroke width, with no notch or step, and grip, type, and hold keep the open palm's wrist cut exactly (grip and type also its right side). At 8×, grip, type, and hold show no step where a finger side meets a knuckle or fingertip arc, no sharp cusp between fingertips, and no hook at the wrist.",
+        "Switch Pose through all seven: each silhouette sits in the same box with the wrist at the bottom and keeps simple geometric line art and the same outline weight.",
+        "Enlarge every pose (point and pinch included) and inspect the finger joins: each interior divider starts on the outline's valley point, continues the finger's side, and has the outline's stroke width, with no notch or step, and grip, type, hold, and write keep the open palm's wrist cut exactly (grip, type, and write also its right side). At 8×, grip, type, hold, and write show no step where a finger side meets a knuckle or fingertip arc, no sharp cusp between fingertips, and no hook at the wrist.",
         "Name each pose at gallery size and compare it with its generated reference (Paper page hands, artboard Hands v5 for type and hold): grip reads as a fist gripping an edge (knuckles on top, fingertips in a row, thumb across beneath, pointing in), type as a hand from above with its fingers curled down onto keys (short stubs with no marks across them, thumb low toward the space bar), hold as an upright hand round an object (a finger-width thumb over the rim, no bigger than a finger and never a hook arching over the top; stacked fingers on the far side; an open pocket between; a palm no wider than the finger stack is tall).",
-        "Render all six at 48px side by side: a stranger tells every pose apart, type from open above all (short folded fingers against tall straight ones), and the thumb and index tips never touch in pinch or hold.",
+        "Render all seven at 48px side by side: a stranger tells every pose apart, type from open above all (short folded fingers against tall straight ones), and the thumb and index tips never touch in pinch or hold (in write they meet by design, on the pen).",
+        "Overlay write on its reference (Paper page hands, artboard Hands v6 · write) scaled so the wrist cuts match: the knuckle, fingertip column, and wrist land on the reference's landmarks, the knuckle kept inside the box; the six other poses render exactly as before write was added.",
         "In context, grip over a Paper sheet's top edge, type over a DeskProp keyboard (fingertips on the upper rows, thumb over the space bar), and hold upright over a side-view mug (DeskProp kind mug-side: body in the pocket, rim just under the thumb) and over a sheet's top corner.",
         "Check the card fill and ink stroke read on cream, and the aria-label follows the pose.",
         "Scale with width at narrow screens: the 30:29 aspect ratio holds."
@@ -6393,7 +6398,7 @@
         }
       ],
       "qa": [
-        "Switch pose through all six at the same at: the hand stays in its box and does not jump unexpectedly.",
+        "Switch pose through all seven at the same at: the hand stays in its box and does not jump unexpectedly.",
         "Drag Rotation from −30 to 30: the hand pivots about at (or the anchor point), not its centre.",
         "Drag Position through Left, Center, and Right: the hand crosses the stage from its left margin to its right margin without resizing, and stays inside the viewBox at every rotation from −30° to 30°.",
         "Anchor coordinates are in the 30×29 viewBox but each pose applies its own internal transform, so the fingertip lands at a different local point per pose; check the anchor visually for each pose you use."
@@ -6413,7 +6418,7 @@
       "name": "pluma",
       "entry": "component",
       "title": "Pluma",
-      "description": "A pen held in the Hand's pinch, with a helper that reports the nib point.",
+      "description": "A pen held in the Hand's pinch or tripod writing grip, with helpers that report the nib and grip points.",
       "category": "UI Bits",
       "family": "Hands",
       "capabilities": [
@@ -6437,28 +6442,28 @@
         {
           "export": "Pluma",
           "kind": "component",
-          "summary": "SVG group: an ink pen (one silhouette: round-ended barrel tapering straight on to a pointed nib) held in the Hand's pinch pose through Mano. The pen weaves with the hand: the nib and lower shaft pass behind the thumb and the index pad, and from the grip point (in the open pocket of the pinch, where the change of layer cannot show) the upper shaft crosses in front of the index knuckle. A mask cuts the lower pen along the hand's outline (handOutline) plus a gap half the outline wide; over the hand, a second mask cuts the hand's ink along the upper shaft plus the same half-outline gap (refilled with card only inside the hand's fill) and the shaft is drawn again on top, so the barrel's edges and the hand's contours stay separate at every crossing. Nothing is painted on the page outside the hand, so writing under or beside the nib stays whole. The nib, plumaNib, and the pinch silhouette are unchanged. Rotation, grip point, and nib are props; no internal timer. Render inside an <svg>.",
+          "summary": "SVG group: an ink pen (one silhouette: round-ended barrel tapering straight on to a pointed nib) held by the Hand through Mano, in one of two grips. `pinch` (default, unchanged): the pen weaves with the pinch: the nib and lower shaft pass behind the thumb and the index pad, and from the grip point (in the open pocket of the pinch, where the change of layer cannot show) the upper shaft crosses in front of the index knuckle. A mask cuts the lower pen along the hand's outline (handOutline) plus a gap half the outline wide; over the hand, a second mask cuts the hand's ink along the upper shaft plus the same half-outline gap (refilled with card only inside the hand's fill) and the shaft is drawn again on top. `write`: the Hand's tripod writing pose; the pen lies over the hand and the hand's front (thumb and index finger, handOutline's `front`) over the pen, so the nib and lower barrel pass under the thumb and index fingertips, and the upper barrel crosses the web between them in front of the palm and out over the back of the hand; a mask cuts the pen along the front plus its outline and a half-outline gap, so the barrel always stops at a drawn fingertip or crease, and the hand's ink is cut along the pen plus the same gap (sparing the front's contours, refilled with card inside the hand's fill). In both grips the barrel's edges and the hand's contours stay separate at every crossing and nothing is painted on the page outside the hand, so writing under or beside the nib stays whole. Rotation, grip point, nib, and grip are props; no internal timer. Render inside an <svg>.",
           "props": [
             {
               "name": "at",
               "type": "Pt",
               "required": true,
               "default": null,
-              "description": "Grip point in parent SVG units: where the pinch holds the pen. The hand and pen rotate about it."
+              "description": "Grip point in parent SVG units: where the hand holds the pen (pinch: the pocket between the fingertips; write: where the barrel leaves the notch between the thumb and index tips). The hand and pen rotate about it."
             },
             {
               "name": "angle",
               "type": "number",
               "required": false,
               "default": "0",
-              "description": "Rotation in degrees about at for hand and pen together; positive is clockwise."
+              "description": "Rotation in degrees about at for hand and pen together; positive is clockwise. At 0 the hand stands upright, wrist down (write's pen then lies nearly level, nib to the left); the film's writing tilts are about −20° and −45° (write at −45° stands as its reference does)."
             },
             {
               "name": "nibOffset",
               "type": "Pt",
               "required": false,
               "default": null,
-              "description": "Nib position relative to at in parent units, before rotation. The pen runs from the nib through at and 17/30 × size past it. Defaults to the pinch's writing slant, (−7.75, 9.81) × size/30: at size 180, (−46.5, 58.9). A custom direction turns the hand about at by the same amount, so the barrel always lies in the pinch rather than across the palm; the length sets the nib's reach."
+              "description": "Nib position relative to at in parent units, before rotation. The pen runs from the nib through at and on past it (17/30 × size for pinch, 22.5/30 × size for write). Defaults to the pose's writing slant: pinch (−7.75, 9.81) × size/30, at size 180 (−46.5, 58.9); write (−11.91, −1.46) × size/30, at size 180 (−71.47, −8.78). A custom direction turns the hand about at by the same amount, so the barrel always lies in the grip rather than across the palm; the length sets the nib's reach."
             },
             {
               "name": "size",
@@ -6472,7 +6477,14 @@
               "type": "boolean",
               "required": false,
               "default": "true",
-              "description": "Draw the pinching Hand. Set false for the pen alone, e.g. released on the desk."
+              "description": "Draw the Hand. Set false for the pen alone, e.g. released on the desk."
+            },
+            {
+              "name": "pose",
+              "type": "PlumaPose",
+              "required": false,
+              "default": "\"pinch\"",
+              "description": "The grip: `pinch` (default; the Hand's pinch, exactly as before write existed) or `write` (the Hand's tripod writing pose, the nib and lower barrel under the thumb and index fingertips and the upper barrel over the web). plumaPoses lists both."
             }
           ],
           "passthrough": []
@@ -6509,6 +6521,13 @@
               "required": false,
               "default": "180",
               "description": "The Pluma's hand width."
+            },
+            {
+              "name": "pose",
+              "type": "PlumaPose",
+              "required": false,
+              "default": "\"pinch\"",
+              "description": "The Pluma's pose; defaults to pinch."
             }
           ],
           "returns": "The nib point { x, y } in parent units."
@@ -6545,9 +6564,43 @@
               "required": false,
               "default": "180",
               "description": "The Pluma's hand width."
+            },
+            {
+              "name": "pose",
+              "type": "PlumaPose",
+              "required": false,
+              "default": "\"pinch\"",
+              "description": "The Pluma's pose; defaults to pinch."
             }
           ],
           "returns": "A distance in parent units, 0 or more."
+        },
+        {
+          "export": "plumaGrip",
+          "kind": "function",
+          "summary": "Where a pose holds the pen relative to the top-left corner of the Hand's box, for a hand size wide: draw Pluma at that corner plus this point and its hand lands exactly where a bare Hand (or Mano without an anchor) of that size would, e.g. to add the pen to a hand already placed in a scene.",
+          "params": [
+            {
+              "name": "pose",
+              "type": "PlumaPose",
+              "required": false,
+              "default": "\"pinch\"",
+              "description": "pinch (default) or write."
+            },
+            {
+              "name": "size",
+              "type": "number",
+              "required": false,
+              "default": "180",
+              "description": "The hand width; default 180."
+            }
+          ],
+          "returns": "The grip point { x, y } in parent units."
+        },
+        {
+          "export": "plumaPoses",
+          "kind": "constant",
+          "summary": "The grips Pluma draws: pinch, write. PlumaPose is its element type."
         }
       ],
       "stage": {
@@ -6564,6 +6617,10 @@
       },
       "examples": [
         {
+          "title": "Write with the tripod grip at the film's tilt",
+          "code": "import { Pluma, plumaNib } from \"@/jbm/motion/pluma\"\n\n// The nib ends the written word; solve the grip point from it.\nconst nib = { x: 260, y: 200 }\nconst o = plumaNib({ x: 0, y: 0 }, -45, undefined, 180, \"write\")\n<svg viewBox=\"0 0 600 340\">\n  <Pluma at={{ x: nib.x - o.x, y: nib.y - o.y }} angle={-45} size={180} pose=\"write\" />\n</svg>"
+        },
+        {
           "title": "Write a line: the reveal follows the nib",
           "code": "import { Pluma, plumaNib } from \"@/jbm/motion/pluma\"\n\nconst line = { x: 120, y: 200, w: 360 }\nconst progress = 0.4 // from a slider or useProgress\nconst nib = { x: line.x + line.w * progress, y: line.y }\n// Solve the grip point from the nib you want: at = nib − offset.\nconst o = plumaNib({ x: 0, y: 0 })\nconst at = { x: nib.x - o.x, y: nib.y - o.y }\n<svg viewBox=\"0 0 600 340\">\n  <line x1={line.x} y1={line.y} x2={nib.x} y2={nib.y} stroke=\"#20241F\" strokeWidth={3} />\n  <Pluma at={at} />\n</svg>"
         },
@@ -6573,6 +6630,8 @@
         }
       ],
       "qa": [
+        "Switch Grip to write and render it writing a word at −20° and −45°, at 150 and 180: a stranger says \"a hand writing with a pen\"; the nib and lower barrel pass under the thumb and index fingertips, the upper barrel lies over the web and the back of the hand, and the barrel stops a gap short of every fingertip and crease it passes under (nothing pierces a finger; the middle fingertip shows below the barrel, behind it).",
+        "Grip write at 2× and 8×: no ink of the hand runs into the barrel, no barrel edge ends in the middle of a finger, and the cut in the hand's outline where the barrel leaves over the back of the hand shows card inside the hand and nothing on the page.",
         "Rotate from −40° to 40° with the nib marker on: plumaNib lands on the drawn nib tip at every angle and size.",
         "Enlarge the pinch: the nib and lower shaft pass behind the thumb and the index pad, the pen shows in the pocket between them, and from there the upper shaft crosses in front of the index knuckle, one continuous pen with no gap or seam where it changes layer; a stranger says \"a hand writing with a pen\".",
         "Turn Hand off: the pen alone keeps its length and nib; a stranger names it \"pen\".",

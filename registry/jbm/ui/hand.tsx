@@ -1,7 +1,7 @@
 import type { SVGProps } from "react"
 import { color, outlineIn } from "../lib/tokens"
-/** Every pose, in gallery order. `pinch` doubles as the pen grip (Pluma); there is no pen pose. */
-export const handPoses = ["open", "point", "pinch", "grip", "type", "hold"] as const
+/** Every pose, in gallery order. `write` holds a pen in a tripod grip (Pluma draws the pen). */
+export const handPoses = ["open", "point", "pinch", "grip", "type", "hold", "write"] as const
 export type HandPose = (typeof handPoses)[number]
 export type HandProps = SVGProps<SVGSVGElement> & {
   pose?: HandPose
@@ -29,6 +29,20 @@ export type HandProps = SVGProps<SVGSVGElement> & {
 // between palm, thumb, fingertips, and heel is the object's place (a mug's body, a sheet's
 // corner). The pocket's palm edge ends on the thumb's underside, which carries on into the palm as
 // a short crease where the thumb leaves it; the little fingertip curls on over the heel.
+// write (issue #173, owner-chosen references C and D, Paper page "hands", artboard "Hands v6 ·
+// write") is a right hand holding a pen in a tripod grip, seen from the thumb side, traced over the
+// reference scaled and turned so its straight wrist cut is the shared one (at Pluma's -45° it stands
+// as the reference does). The back of the hand rises from the wrist to a rounded knuckle; the index
+// finger runs along the top to its round tip at the left; under it the thumb tip, and under that the
+// middle fingertip, then one lobe for the tucked ring and little fingers. The index tip overlaps the
+// thumb tip in a filleted valley and lies in front of it: its lower contour carries on over the thumb
+// tip to J, where the thumb's top side comes out from behind it and runs down into the palm and the
+// index's underside curls up into the hand; the thumb's underside runs down between the thumb and the
+// curled fingers, and the middle finger's underside meets it. The barrel lies in the web between the
+// two creases from J (handOutline's `front` is the thumb and index, which lie over it); the middle
+// tip sits behind the pen's line, holding it from below. Every fingertip is a 6.4-wide round tip; no
+// nails, wrinkles, or forearm. Like grip, type, and hold, its ink is one path; its deliberate corners
+// are the wrist cut and J.
 // Their ink is one path: the closed outline, with every interior line (dividers, fingertip row,
 // thumb fold or crease, the little fingertip) walked out and back from an outline point as a
 // retraced spur. A spur adds no fill, and one stroke never doubles its antialiased edge where lines
@@ -39,7 +53,7 @@ export type HandProps = SVGProps<SVGSVGElement> & {
 // In every pose, including point and pinch, dividers start on the outline's valley points and use
 // the outline's stroke width, and the palm side meets the wrist cut in one tangent fillet.
 // The outline is the shared token: Hand draws 30 viewBox units across 180 stage px, so it is
-// outlineIn(30 / 180) viewBox units wide. open, grip, type, and hold are authored at scale 0.48
+// outlineIn(30 / 180) viewBox units wide. open, grip, type, hold, and write are authored at scale 0.48
 // (see transforms), point and pinch at 1, so each path carries the token in its own units.
 const VIEW_OUTLINE = outlineIn(30 / 180)
 const WIDE = +(VIEW_OUTLINE / 0.48).toFixed(4)
@@ -177,7 +191,25 @@ const poses = {
       strokeLinejoin: "round",
     },
   ],
+  write: [
+    {
+      d: "M54.1 60.1 C53.9 59 53.5 56.9 53.5 56 C53.5 53.8 55.5 50.2 55.5 45.2 L55.5 33 C55.5 28.604 55.682 26.964 52.857 23.596 L47.393 17.085 C42.844 11.663 43.892 11.338 36.832 11.831 L24.861 12.668 A3.2 3.2 0 0 0 23.462 18.618 A3.2 3.2 0 0 0 27.498 17.962 A3.2 3.2 0 0 1 29.4 19.007 L36.675 27.258 L29.4 19.007 A3.2 3.2 0 0 0 27.498 17.962 C29.074 16.152 30.065 15.019 32.413 14.52 C30.065 15.019 29.074 16.152 27.498 17.962 A3.2 3.2 0 0 1 23.462 18.618 A1.2 1.2 0 0 1 23.984 20.053 A3.2 3.2 0 0 0 23.808 20.897 A3.2 3.2 0 0 0 24.6 23.239 L31.874 31.49 L24.6 23.239 A3.2 3.2 0 0 1 23.808 20.897 A1.2 1.2 0 0 1 22.853 21.988 A3.2 3.2 0 0 0 21.324 27.468 A3.2 3.2 0 0 0 24.852 28.022 L27.662 26.712 L24.852 28.022 A3.2 3.2 0 0 1 21.324 27.468 A1.2 1.2 0 0 1 21.569 28.907 A3.2 3.2 0 0 0 21.274 31.084 L22.674 37.484 A3.2 3.2 0 0 0 25.244 39.951 C30.429 40.866 31.18 40.752 31.6 46 C32.174 53.173 34.445 56.412 36.39 63.34 L36.8 64.8 Z",
+      fill: "#FFFFFF",
+      stroke: "#111212",
+      strokeWidth: WIDE,
+      strokeLinecap: "round",
+      strokeLinejoin: "round",
+    },
+  ],
 } as const
+/**
+ * The parts of a pose that lie in front of a held pen, in the pose's path units: write's thumb
+ * and index finger, bounded by their own drawn contours (the fingertips and the two creases from
+ * the notch between them), so a pen drawn over the hand stops at ink the hand already draws.
+ */
+const fronts: Partial<Record<HandPose, string>> = {
+  write: "M38.659 29.508 L29.4 19.007 A3.2 3.2 0 0 0 24.6 23.239 L33.858 33.741 Z M28.285 15.861 A3.2 3.2 0 1 0 21.885 15.861 A3.2 3.2 0 1 0 28.285 15.861 Z M27.498 17.962 C29.074 16.152 30.065 15.019 32.413 14.52 L32.413 4.52 L25.085 4.52 L25.085 15.861 Z M23.462 18.618 A1.2 1.2 0 0 1 23.984 20.053 L26.042 18.492 Z",
+}
 const transforms = {
   open: "translate(4 1) scale(0.48) translate(-19 -13)",
   point: "translate(-26 -27)",
@@ -185,12 +217,15 @@ const transforms = {
   grip: "translate(4 1) scale(0.48) translate(-19 -13)",
   type: "translate(4 1) scale(0.48) translate(-19 -13)",
   hold: "translate(4 1) scale(0.48) translate(-19 -13)",
+  write: "translate(4 1) scale(0.48) translate(-19 -13)",
 } as const
 /**
  * A pose's closed outline in the Hand's 30×29 viewBox: its path, the transform that places it,
  * and the outline's stroke width in path units. Composites use it to cut art drawn behind the hand
- * (a mask or clip) instead of painting a halo over whatever else is under it. For grip, type, and
- * hold the path also retraces the interior lines as spurs inside the outline; they add no area.
+ * (a mask or clip) instead of painting a halo over whatever else is under it. For grip, type,
+ * hold, and write the path also retraces the interior lines as spurs inside the outline; they add
+ * no area. `front`, where a pose has one (write), is the region in front of a held pen (the thumb
+ * and index finger) in the same units and transform; a pen drawn over the hand stops at it.
  */
 export function handOutline(pose: HandPose = "point") {
   const outline = poses[pose][0]
@@ -198,6 +233,7 @@ export function handOutline(pose: HandPose = "point") {
     d: outline.d,
     transform: transforms[pose],
     strokeWidth: Number(outline.strokeWidth),
+    front: fronts[pose],
   }
 }
 export function Hand({ pose = "point", halo = false, style, ...props }: HandProps) {
