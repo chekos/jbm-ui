@@ -145,6 +145,9 @@ test("ChatBubble: the paper bubble and its tail share one ink outline (#162)", (
   assert.equal(y[0], 1.5, "it starts on the bottom edge centreline")
   assert.equal(y.at(-1), 1.5, "and ends on it")
   assert.match(paper, /margin-bottom:13px/)
+  // A one-word bubble keeps the tail on the bottom edge's straight run, clear of both corners.
+  assert.match(render(ChatBubble, { side: "end", children: "Sí" }), /min-width:88px/)
+  assert.doesNotMatch(render(ChatBubble, { tail: false, children: "Sí" }), /min-width/)
   // Ink and vermilion bubbles keep the same geometry, edged in their own fill.
   for (const [tone, fill] of [["ink", "#20241F"], ["accent", "#C63D24"]]) {
     const html = render(ChatBubble, { tone, children: "x" })

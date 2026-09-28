@@ -16,7 +16,7 @@ export default {
       props: {
         side: "\"start\" aligns the bubble and tail to the inline start (incoming); \"end\" to the inline end (outgoing). RTL-aware via logical margins.",
         tone: "Fill: \"paper\" (card stock with ink text and an ink outline), \"ink\", or \"accent\" (vermilion); ink and accent use cream text and no ink edge.",
-        tail: "Shows the tail below the bubble: its sides leave the bottom edge 35 and 55px in from the aligned side and meet at a tip 32px in, 12.5px below the bubble with its outline, which adds 13px bottom margin. False removes both.",
+        tail: "Shows the tail below the bubble: its sides leave the bottom edge 35 and 55px in from the aligned side and meet at a tip 32px in, 12.5px below the bubble with its outline, which adds 13px bottom margin and a minimum width of 88px, so even a one-word message keeps the tail on the straight run of the bottom edge, clear of both rounded corners. False removes all three.",
         speaker: "Optional speaker name above the message, 11px mono. Omit (null/undefined) to hide.",
       },
     },
@@ -24,7 +24,7 @@ export default {
   stage: {
     mode: "fluid",
     reason:
-      "Width fits the content up to 100% of the container; height is 16px top and bottom (13px padding inside the 3px edge) plus message lines at 18px × 1.5, an optional speaker line (11px + 6px gap), and 13px of margin for the tail when shown.",
+      "Width fits the content up to 100% of the container (at least 88px with a tail); height is 16px top and bottom (13px padding inside the 3px edge) plus message lines at 18px × 1.5, an optional speaker line (11px + 6px gap), and 13px of margin for the tail when shown.",
   },
   examples: [
     {
@@ -35,7 +35,7 @@ export default {
   qa: [
     "Compare paper, ink, and accent tones on cream: text stays legible, the tail matches the bubble fill, and the paper bubble's ink edge runs around body and tail as one line.",
     "Enlarge the paper bubble's tail at 8×: both sides curve out of the bottom edge without a step, gap, stub, or doubled edge, and no ink hairline crosses the opening.",
-    "Check start and end alignment: the tail leaves the bottom edge clear of the rounded corner, mirrored on the end side, and points toward that side.",
+    "Check start and end alignment: the tail leaves the bottom edge clear of the rounded corner, mirrored on the end side, and points toward that side. Repeat with a one-word message (\"Sí\") on both sides: the tail still sits on the straight bottom edge, never off a corner.",
     "Turn off the tail and confirm the 13px gap below disappears.",
     "Check a long unbroken message on a narrow screen wraps inside the bubble instead of overflowing.",
   ],

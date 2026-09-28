@@ -88,6 +88,9 @@ export function ChatBubble({
       style={{
         position: "relative",
         width: "fit-content",
+        // A short message still leaves the tail on the straight run of the bottom edge: it ends a
+        // fillet clear of the far corner's curve, so it never hangs off or kinks into a rounded corner.
+        minWidth: tail ? TAIL.inset + TAIL.b + 2 * TAIL.fillet + radius.card : undefined,
         maxWidth: "100%",
         boxSizing: "border-box",
         marginInlineStart: side === "end" ? "auto" : 0,
