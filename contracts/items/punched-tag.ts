@@ -18,7 +18,7 @@ export default {
       props: {
         children: "Tag content, usually a short name; wraps anywhere when space runs out.",
         tone: "Stock: `paper` (card with ink text), `accent` (vermilion), or `ink`; text switches to cream on accent and ink.",
-        scale: "Size multiplier (default 1) for the tag's own geometry: hole (14 × scale px), its ring (2 × scale, at least 1px), the radii, gap, padding, and type, so a tag on a smaller print keeps its proportions.",
+        scale: "Size multiplier (default 1) for the tag's own geometry: hole (14 × scale px), its ring (the shared outline, stroke.outline × scale, between 1px and stroke.outline), the radii, gap, padding, and type, so a tag on a smaller print keeps its proportions.",
         style: "Inline styles merged last onto the Paper, e.g. width or padding.",
       },
     },
@@ -26,7 +26,7 @@ export default {
   stage: {
     mode: "fluid",
     reason:
-      "Width follows the content (14px hole + 18px gap + text) plus 40px horizontal padding and a 4px border, capped at 100% of the container. Height is one 28px line at normal line height plus 32px padding and 4px border, and grows when the text wraps.",
+      "Width follows the content (14px hole + 18px gap + text) plus 40px horizontal padding and a 6px border (the 3px shared outline each side), capped at 100% of the container. Height is one 28px line at normal line height plus 32px padding and 6px border, and grows when the text wraps.",
   },
   examples: [
     {

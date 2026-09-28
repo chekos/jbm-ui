@@ -5,7 +5,7 @@ export default {
   entry: "component",
   title: "Tokens",
   description:
-    "Cream, ink, and vermilion palette, Geist font stacks and tab-name metrics, radii, surface shadows and borders, stage safe areas, and a CSS variables string.",
+    "Cream, ink, and vermilion palette, Geist font stacks and tab-name metrics, radii, the shared ink outline weight, surface shadows and borders, stage safe areas, and a CSS variables string.",
   category: "Foundations",
   capabilities: [],
   api: [
@@ -37,6 +37,22 @@ export default {
       export: "radius",
       kind: "constant",
       summary: "Corner radii in pixels: chip 14, code 12, card 28, pill 10.",
+    },
+    {
+      export: "stroke",
+      kind: "constant",
+      summary:
+        "The shared ink outline, `stroke.outline`, in stage px: 3 (3px on a 1080 stage). Every desk, paper, and thread object (Hand, Folder, Cajon, FileCabinet, Escritorio, DeskTop, DeskProp, Bandeja, ToolCaddy, Document, Paper, Tear, Register, Slip, Hilo, VideoPrint, PunchedTag) draws its outline at this weight, so a composed scene reads as one line weight.",
+    },
+    {
+      export: "outlineIn",
+      kind: "function",
+      summary:
+        "The shared outline converted to a local unit system, for art whose viewBox or transform scales against the stage (Hand's 30-unit viewBox at 180 px, a scaled DeskProp group).",
+      params: {
+        unitsPerPx: "Local units per stage px; default 1. Non-finite or non-positive values count as 1.",
+      },
+      returns: "stroke.outline × unitsPerPx, in local units.",
     },
     {
       export: "shadowLayers",

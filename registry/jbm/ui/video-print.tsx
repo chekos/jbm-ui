@@ -1,5 +1,5 @@
 import type { CSSProperties } from "react"
-import { color, font } from "../lib/tokens"
+import { color, font, stroke } from "../lib/tokens"
 import { unit, type Box, type Pt } from "../lib/geometry"
 import { Paper } from "./paper"
 import { PunchedTag } from "./punched-tag"
@@ -64,9 +64,11 @@ export function videoPrintLayout(
   const h = dateY - at.y + 18 * s + pad
   const tagX = at.x + 2 * pad
   // The link tag straddles the bottom edge: half its height (a 14 × s line and 6 × s padding
-  // above and below, inside a 2px edge) hangs below the sheet.
+  // above and below, inside the Paper edge on each side) hangs below the sheet.
   // Plus the 8 × s it settles up from while `opened` is below 1.
-  const tagHang = link ? (14 * 1.3 * s + 12 * s + 4) / 2 + 8 * s : 0
+  const edge = stroke.outline
+  const ring = Math.min(edge, Math.max(1, edge * s))
+  const tagHang = link ? (14 * 1.3 * s + 12 * s + 2 * edge) / 2 + 8 * s : 0
   return {
     scale: s,
     w: BASE * s,
@@ -78,8 +80,8 @@ export function videoPrintLayout(
     dateY,
     marks: marks.map((m) => ({ x: frame.x + unit(m) * frame.w, y: ruleY })),
     /** The punched hole of the link tag: where a thread would tie on. Null without a link. */
-    // Sheet edge (2) + left padding + the hole's radius and ring, all scaled with the print.
-    tag: link ? { x: tagX + 2 + 10 * s + 7 * s + Math.max(1, 2 * s), y: at.y + h } : null,
+    // Sheet edge + left padding + the hole's radius and ring (PunchedTag's rule at scale s).
+    tag: link ? { x: tagX + edge + 10 * s + 7 * s + ring, y: at.y + h } : null,
     tagX,
     /** The link tag's widest extent, from tagX: it ends a padding short of the sheet's right edge. */
     tagMaxW: BASE * s - 3 * pad,
@@ -169,7 +171,7 @@ export function VideoPrint({
           rx={2 * s}
           fill="none"
           stroke={color.ink}
-          strokeWidth={2 * s}
+          strokeWidth={stroke.outline}
         />
         <rect
           x={r2(l.rule.x)}

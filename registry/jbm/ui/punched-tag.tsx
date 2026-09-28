@@ -1,5 +1,5 @@
 import type { CSSProperties, ReactNode } from "react"
-import { color, font } from "../lib/tokens"
+import { color, font, stroke } from "../lib/tokens"
 import { Paper, paperInk, type PaperTone } from "./paper"
 
 export function PunchedTag({
@@ -37,7 +37,8 @@ export function PunchedTag({
           height: 14 * k,
           borderRadius: "50%",
           background: color.bg,
-          border: `${Math.max(1, 2 * k)}px solid ${color.ink}`,
+          // The hole's ring: the shared outline, thinner only on a tag scaled below 1.
+          border: `${Math.min(stroke.outline, Math.max(1, stroke.outline * k))}px solid ${color.ink}`,
         }}
       />
       <span

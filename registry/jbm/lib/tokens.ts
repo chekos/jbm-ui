@@ -45,6 +45,17 @@ export function sansWidth(text: string, size: number, italic = false): number {
 }
 
 export const radius = { chip: 14, code: 12, card: 28, pill: 10 } as const
+/**
+ * One ink outline for every desk, paper, and thread object (hands, folders, drawers, desks, props,
+ * sheets, slips, threads), in stage px: 3px on a 1080 stage, so a composed scene reads as one
+ * weight. Components drawn 1:1 in stage px use it as is; one whose own units scale against the
+ * stage takes outlineIn(its units per stage px).
+ */
+export const stroke = { outline: 3 } as const
+/** The shared outline in a local unit system with `unitsPerPx` units to one stage px. */
+export function outlineIn(unitsPerPx = 1): number {
+  return stroke.outline * (Number.isFinite(unitsPerPx) && unitsPerPx > 0 ? unitsPerPx : 1)
+}
 /** Surface recipes: crisp contact, progressively softer depth, then inset edge light.
  * See docs/surface-depth.md. Keep shadow.card compatible with existing consumers.
  */

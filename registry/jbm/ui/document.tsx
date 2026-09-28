@@ -1,5 +1,5 @@
 import * as React from "react"
-import { color, font } from "../lib/tokens"
+import { color, font, stroke } from "../lib/tokens"
 
 export type DocumentProps = React.SVGProps<SVGSVGElement> & {
   label?: string
@@ -28,14 +28,14 @@ export function Document({
         d="M8 2H118L152 36V198H8Z"
         fill={color.card}
         stroke={color.ink}
-        strokeWidth={2}
+        strokeWidth={stroke.outline}
         strokeLinejoin="round"
       />
       <path
         d="M118 2V36H152"
         fill={color.line}
         stroke={color.ink}
-        strokeWidth={2}
+        strokeWidth={stroke.outline}
         strokeLinejoin="round"
       />
       <path

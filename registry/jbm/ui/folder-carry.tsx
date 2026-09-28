@@ -1,5 +1,5 @@
 import { FolderOutline, fitLine, oklab } from "./folder"
-import { color, font, sansWidth } from "../lib/tokens"
+import { color, font, sansWidth, stroke } from "../lib/tokens"
 import { pointOn, unit, type Pt } from "../lib/geometry"
 
 export type FolderGeometry = {
@@ -160,11 +160,11 @@ export function FolderCarry({
       <path
         d={
           fill === color.ink
-            ? `M${g.x + 1} ${flap}H${g.x + g.w - 1}`
+            ? `M${g.x + stroke.outline / 2} ${flap}H${g.x + g.w - stroke.outline / 2}`
             : `M${g.x} ${flap}H${g.x + g.w}`
         }
         stroke={fill === color.ink ? color.bg : color.ink}
-        strokeWidth={2}
+        strokeWidth={stroke.outline}
       />
       {label && onTab && (
         <text

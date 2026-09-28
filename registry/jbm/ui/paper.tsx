@@ -1,5 +1,11 @@
 import * as React from "react";
-import { color, font, sansWidth, shadowLayers } from "../lib/tokens";
+import { color, font, sansWidth, shadowLayers, stroke } from "../lib/tokens";
+
+/** The sheet's ink edge: the shared outline (stroke.outline stage px). */
+const EDGE = stroke.outline;
+/** A tear lip: the ink edge on cream stock; on dark stock a cream hairline. */
+const LIP_HAIRLINE = 1.25;
+const lipWidth = (tone: PaperTone) => (tone === "paper" ? EDGE : LIP_HAIRLINE);
 
 /**
  * Paper cut-out primitives. A `Paper` is a flat shape that reads as a piece of card stock laid on the
@@ -210,7 +216,7 @@ export function Paper({
           width: w,
           height: h,
           background: paperFill(tone),
-          border: edge ? `2px solid ${edgeColor}` : "none",
+          border: edge ? `${EDGE}px solid ${edgeColor}` : "none",
           borderRadius: radius,
           boxShadow: shadow ? paperShadow : "none",
           boxSizing: "border-box",
@@ -228,7 +234,7 @@ export function Paper({
   // its box, so the tear shows what lies under the sheet); the fill and edge sit on a layer behind the
   // children with the creases just above it, the tab behind that, and the tear lips on an overlay
   // above the writing.
-  const inset = edge ? -2 : 0;
+  const inset = edge ? -EDGE : 0;
   const seamPx = seam === null ? null : typeof seam === "number" && Number.isFinite(seam) ? seam : typeof h === "number" ? h / 2 : undefined;
   const seamCss = seamPx === undefined ? "50%" : `${round(seamPx ?? 0)}px`;
   const tearOn = seam !== null && stress.tear > 0;
@@ -264,13 +270,16 @@ export function Paper({
     const key = Math.round(base);
     const fibre = (i: number) =>
       i === 0 || i === spine.length - 1 ? 0 : FRAY * Math.min(1, 2 * stress.tear) * 0.3 * hash(seed, key, 500 + i) * (1 - spine[i].d / depth);
-    // Each lip is a 2px edge on the sheet's side of the cut: its stroke centre sits the half-mouth
-    // plus 1px from the seam. Below a 2px mouth the two strokes run together on the seam as one
-    // 2px crack, and the clip closes with them, so the crack is never split by a hairline.
-    const reachOf = (half: number) => (half >= 2 ? half + 1 : half > 1 ? 3 * (half - 1) : 0);
+    // Each lip is a stroke on the sheet's side of the cut (the EDGE-wide ink edge on cream stock, a
+    // LIP_HAIRLINE cream line on dark stock): its centre sits the half-mouth plus half the lip from
+    // the seam, so its inner side is the mouth. Below a lip-wide mouth the two strokes run together
+    // on the seam as one crack, and the clip closes with them, so the crack is never split by a
+    // hairline.
+    const e = lipWidth(tone) / 2;
+    const reachOf = (half: number) => (half >= 2 * e ? half + e : half > e ? 3 * (half - e) : 0);
     const halves = spine.map((p, i) => open(p.d) + fibre(i));
     const line = (sign: number) => spine.map((p, i) => [round(p.d), round(p.dy + sign * reachOf(halves[i]))] as [number, number]);
-    const mouth = (sign: number) => spine.map((p, i) => [round(p.d), round(p.dy + sign * Math.max(0, reachOf(halves[i]) - 1))] as [number, number]);
+    const mouth = (sign: number) => spine.map((p, i) => [round(p.d), round(p.dy + sign * Math.max(0, reachOf(halves[i]) - e))] as [number, number]);
     const top = mouth(-1),
       bottom = mouth(1);
     // The upper lip's shadow on whatever lies under the sheet (the light is top-left): a thin
@@ -305,7 +314,7 @@ export function Paper({
         ].join(", ")})`;
   }
   const creaseInk = paperInk(tone);
-  const cornerInset = Math.round(Math.max(0, radius) * (1 - Math.SQRT1_2)) + (edge ? 2 : 0);
+  const cornerInset = Math.round(Math.max(0, radius) * (1 - Math.SQRT1_2)) + (edge ? EDGE : 0);
   const box = (n: number | undefined) => (typeof n === "number" && n > 2 * cornerInset ? n - 2 * cornerInset : undefined);
   const bw = box(w);
   const bh = box(h);
@@ -320,7 +329,7 @@ export function Paper({
   const tabRoom = typeof w === "number" && w > 0 ? w - Math.max(radius, 0) : Infinity;
   // Tab width is linear in its size: label (em) + 2 × 0.55 em padding + the edges.
   const labelEm = tab ? sansWidth(tab.label, 1) : 0;
-  const edges = edge ? 4 : 0;
+  const edges = edge ? 2 * EDGE : 0;
   const tabSize =
     tab && wantSize * (labelEm + 1.1) + edges > tabRoom
       ? Math.max(1, Math.floor(((tabRoom - edges - 2) / (labelEm + 1.12)) * 10) / 10)
@@ -330,17 +339,17 @@ export function Paper({
   // How much of the tab shows above the sheet at its reveal, and the label's opacity: nothing
   // until most of the capitals show (0.6 em of the line), then whole a quarter em later.
   const tabPad = Math.round(tabSize * 0.3);
-  const tabH = (edge ? 4 : 0) + 2 * tabPad + tabSize + tuck;
+  const tabH = (edge ? 2 * EDGE : 0) + 2 * tabPad + tabSize + tuck;
   const tabShows = unit(tab?.reveal, 1) * tabH - tuck;
   const tabLabelOpacity = round(
-    Math.min(1, Math.max(0, (tabShows - ((edge ? 2 : 0) + tabPad + 0.6 * tabSize)) / (0.25 * tabSize)))
+    Math.min(1, Math.max(0, (tabShows - ((edge ? EDGE : 0) + tabPad + 0.6 * tabSize)) / (0.25 * tabSize)))
   );
   return (
     <div
       style={{
         width: w,
         height: h,
-        border: edge ? "2px solid transparent" : "none",
+        border: edge ? `${EDGE}px solid transparent` : "none",
         borderRadius: radius,
         boxShadow: shadow ? paperShadow : "none",
         boxSizing: "border-box",
@@ -376,7 +385,7 @@ export function Paper({
               transform: `translateY(${round((1 - unit(tab.reveal, 1)) * 100)}%)`,
               padding: `${Math.round(tabSize * 0.3)}px ${Math.round(tabSize * 0.55)}px ${Math.round(tabSize * 0.3) + tuck}px`,
               background: paperFill(tone),
-              border: edge ? `2px solid ${edgeColor}` : "none",
+              border: edge ? `${EDGE}px solid ${edgeColor}` : "none",
               borderRadius: `${tabRadius}px ${tabRadius}px 0 0`,
               boxShadow: shadow ? paperShadow : "none",
               boxSizing: "border-box",
@@ -402,7 +411,7 @@ export function Paper({
           inset,
           zIndex: -1,
           background: paperFill(tone),
-          border: edge ? `2px solid ${edgeColor}` : "none",
+          border: edge ? `${EDGE}px solid ${edgeColor}` : "none",
           borderRadius: radius,
           boxSizing: "border-box",
         }}
@@ -466,12 +475,12 @@ export function Paper({
               [lips.upper, lips.lower].map((lip, i) => (
                 <polyline
                   key={i}
-                  points={lip.map(([d, dy], j) => `${round((left ? 1 : -1) * (j === 0 ? Math.max(d, 1) : d))},${dy}`).join(" ")}
+                  points={lip.map(([d, dy], j) => `${round((left ? 1 : -1) * (j === 0 ? Math.max(d, lipWidth(tone) / 2) : d))},${dy}`).join(" ")}
                   fill="none"
                   // Ink lips on cream stock; on dark stock a cream hairline, so the cut's edges
                   // read against both the sheet and the page showing through the mouth.
                   stroke={tone === "paper" ? edgeColor : color.bg}
-                  strokeWidth={tone === "paper" ? 2 : 1.25}
+                  strokeWidth={lipWidth(tone)}
                   strokeLinejoin="round"
                   strokeLinecap="round"
                 />

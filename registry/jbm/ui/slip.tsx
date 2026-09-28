@@ -1,7 +1,7 @@
 import type { CSSProperties } from "react"
 import { Paper, paperShadow } from "./paper"
 import { RegisterInk, type RegisterKind } from "./register"
-import { color } from "../lib/tokens"
+import { color, outlineIn } from "../lib/tokens"
 import { unit, type Pt } from "../lib/geometry"
 
 /**
@@ -121,6 +121,9 @@ function flapMatrix(peel: number, fold: number, L: number, T: number) {
   return `matrix(${r(k)} ${r(-rise)} 0 1 ${r(fold * (1 - k))} ${r(rise * fold)})`
 }
 
+/** The slip's ink edge, drawn inside its box: the shared outline. */
+const EDGE = outlineIn()
+
 /** A taped paper slip carrying a few marks of one register; lift and offset are controlled. */
 export function Slip(props: SlipProps) {
   const { tape = true, dashed = false, kind = "prose", n, reveal = 1, accent, style } = props
@@ -148,14 +151,14 @@ export function Slip(props: SlipProps) {
         <svg width={g.w} height={g.h} viewBox={`0 0 ${g.w} ${g.h}`} role="img" aria-label={`Slip of ${kind} writing`} style={{ display: "block", overflow: "visible" }}>
           <RegisterInk kind={kind} n={n ?? (kind === "prose" ? 2 : kind === "mono" ? 1 : 2)} w={g.w} h={g.h} scale={u} pad={10 * u} reveal={reveal} accent={accent} />
           <rect
-            x={1}
-            y={1}
-            width={g.w - 2}
-            height={g.h - 2}
-            rx={Math.max(1, 3 * u - 1)}
+            x={EDGE / 2}
+            y={EDGE / 2}
+            width={g.w - EDGE}
+            height={g.h - EDGE}
+            rx={Math.max(1, 3 * u - EDGE / 2)}
             fill="none"
             stroke={color.ink}
-            strokeWidth={2}
+            strokeWidth={EDGE}
             strokeDasharray={dashed ? `${8 * u} ${5 * u}` : undefined}
           />
         </svg>

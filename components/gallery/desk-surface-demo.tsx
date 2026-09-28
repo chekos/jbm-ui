@@ -5,6 +5,7 @@ import { useBenchParam } from "./bench-url"
 import { DESK_EDGE, DeskTop, type DeskTopDrawerSide } from "@/registry/jbm/ui/desk-top"
 import { Ejes, type EjesFocusTone, type Quadrant } from "@/registry/jbm/ui/ejes"
 import { DeskProp, deskPropLayout, type DeskPropKind } from "@/registry/jbm/ui/desk-prop"
+import { outlineIn } from "@/registry/jbm/lib/tokens"
 import {
   degrees,
   ProgressControl,
@@ -137,9 +138,9 @@ export function DeskSurfaceDemo({ name }: { name: string }) {
       y0 = Math.min(...ys) - m
     return `${Math.round(x0)} ${Math.round(y0)} ${Math.round(Math.max(...xs) + m - x0)} ${Math.round(Math.max(...ys) + m - y0)}`
   })()
-  // Every prop view draws the same on-screen line: 2 px at the preview's full width, whatever
-  // the kind, its Scale, or the viewBox that holds it.
-  const propWeight = (2 * Number(propBox.split(" ")[2])) / PREVIEW_WIDTH
+  // Every prop view draws the same on-screen line: the shared outline at the preview's full
+  // width, whatever the kind, its Scale, or the viewBox that holds it.
+  const propWeight = outlineIn(Number(propBox.split(" ")[2]) / PREVIEW_WIDTH)
 
   return (
     <div style={{ width: "100%" }}>
@@ -182,8 +183,8 @@ export function DeskSurfaceDemo({ name }: { name: string }) {
               {/* A keyboard and a mug on the top, so the surface reads as a desk at a glance. */}
               {props && (
                 <>
-                  <DeskProp kind="keyboard" x={DESK.x + 170} y={DESK.y + 175} scale={0.9} weight={2} />
-                  <DeskProp kind="mug" x={DESK.x + 370} y={DESK.y + 110} scale={0.9} weight={2} />
+                  <DeskProp kind="keyboard" x={DESK.x + 170} y={DESK.y + 175} scale={0.9} />
+                  <DeskProp kind="mug" x={DESK.x + 370} y={DESK.y + 110} scale={0.9} />
                 </>
               )}
             </>

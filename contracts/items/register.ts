@@ -31,7 +31,7 @@ export default {
       export: "Register",
       kind: "component",
       summary:
-        "A Paper sheet (2px ink edge, house paper shadow) carrying one register of drawn writing: bars, boxes, and rules, never legible prose. `mono` is a prompt chevron, prompt bar, and outlined result box per step; `plain` short numbered lists in two columns; `grid` ruled tables with an ink header; `prose` a justified block with paragraph ends (every fifth line and the last, never two in a row and never the first line after a gap) and a block of source ticks; `mixed` stacks registers on one long page. Every quantity is a prop (no timer), so a slider or video frame drives it. Anchors, seams, and the gap are in the sheet's px from its outer top-left corner, the same space `children` draw in.",
+        "A Paper sheet (ink edge at the shared outline weight, house paper shadow) carrying one register of drawn writing: bars, boxes, and rules, never legible prose. `mono` is a prompt chevron, prompt bar, and outlined result box per step; `plain` short numbered lists in two columns; `grid` ruled tables with an ink header; `prose` a justified block with paragraph ends (every fifth line and the last, never two in a row and never the first line after a gap) and a block of source ticks; `mixed` stacks registers on one long page. Every quantity is a prop (no timer), so a slider or video frame drives it. Anchors, seams, and the gap are in the sheet's px from its outer top-left corner, the same space `children` draw in.",
       props: {
         ...spec,
         rotate: "Sheet rotation in degrees (Paper's rotate).",

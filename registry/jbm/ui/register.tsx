@@ -1,6 +1,6 @@
 import { useId, type CSSProperties, type ReactNode } from "react"
 import { Paper, frayReach, paperFill, type PaperTone } from "./paper"
-import { color, font } from "../lib/tokens"
+import { color, font, outlineIn } from "../lib/tokens"
 import { unit, type Box, type Pt } from "../lib/geometry"
 
 /**
@@ -474,7 +474,8 @@ export type RegisterProps = RegisterInkProps & {
   children?: ReactNode
   style?: CSSProperties
 }
-const EDGE = 2
+/** Paper's edge: the shared outline. */
+const EDGE = outlineIn()
 /** A Paper sheet carrying one register of drawn writing. Anchors and gaps are in the sheet's px. */
 export function Register({ rotate = 0, label, children, style, ...ink }: RegisterProps) {
   const u = ink.scale ?? Math.max(0.4, Math.min(4, ink.w / 360))

@@ -1,6 +1,6 @@
 import type { ComponentProps } from "react"
 import { Folder, FolderOutline } from "./folder"
-import { color, font } from "../lib/tokens"
+import { color, font, stroke } from "../lib/tokens"
 import { unit } from "../lib/geometry"
 
 export type FolderEntry = {
@@ -70,7 +70,7 @@ export function FolderContents({
                       height={78}
                       fill={color.card}
                       stroke={color.ink}
-                      strokeWidth={1.5}
+                      strokeWidth={stroke.outline}
                     />
                     <text
                       x={175}
@@ -92,7 +92,7 @@ export function FolderContents({
                   d={`M100 ${y + 29}H225V${y + 118}H100Z`}
                   fill={color.accent}
                   stroke={color.ink}
-                  strokeWidth={1.5}
+                  strokeWidth={stroke.outline}
                 />
               </g>
             )
@@ -106,7 +106,7 @@ export function FolderContents({
                 height={110}
                 fill={color.card}
                 stroke={color.ink}
-                strokeWidth={2}
+                strokeWidth={stroke.outline}
               />
               <text
                 x={41}

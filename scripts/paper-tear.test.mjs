@@ -115,7 +115,7 @@ test("Paper without tension or tab keeps its original single-div markup", () => 
     plain,
     render(Paper, { w: 200, h: 130, rotate: -3, style: { padding: 20 }, tension: 0 }, "x")
   )
-  assert.match(plain, /^<div style="width:200px;height:130px;background:#FFFCF5;border:2px solid #20241F;border-radius:22px;box-shadow:[^"]+;box-sizing:border-box;transform:rotate\(-3deg\);position:relative;padding:20px">x<\/div>$/)
+  assert.match(plain, /^<div style="width:200px;height:130px;background:#FFFCF5;border:3px solid #20241F;border-radius:22px;box-shadow:[^"]+;box-sizing:border-box;transform:rotate\(-3deg\);position:relative;padding:20px">x<\/div>$/)
   assert.equal(render(Paper, { tension: NaN }), render(Paper, {}))
 })
 
@@ -277,8 +277,8 @@ test("tear strips tile the sheet exactly: neighbours share one frayed seam", () 
       const below = points(strips[i + 1].outline)
       assert.deepEqual(below.slice(0, seam.length), seam)
       // It spans the full width, from one straight side to the other.
-      assert.equal(seam[0][0], 1)
-      assert.equal(seam.at(-1)[0], 519)
+      assert.equal(seam[0][0], 1.5)
+      assert.equal(seam.at(-1)[0], 518.5)
     }
     assert.equal(strips[0].top, 0)
     assert.equal(strips.at(-1).bottom, 760)

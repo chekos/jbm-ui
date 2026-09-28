@@ -1,5 +1,5 @@
 import * as React from "react"
-import { color, font, sansWidth } from "../lib/tokens"
+import { color, font, sansWidth, stroke } from "../lib/tokens"
 
 /** Shared complete folder silhouette for standalone folders and filing drawers. */
 export function FolderOutline({
@@ -28,7 +28,7 @@ export function FolderOutline({
       d={`M${x} ${y + tabHeight}H${tabX}V${y}H${tabX + tabWidth - tabSlope}L${tabX + tabWidth} ${y + tabSlope}H${x + w}V${y + h}H${x}Z`}
       fill={fill}
       stroke={color.ink}
-      strokeWidth={2}
+      strokeWidth={stroke.outline}
       strokeLinejoin="round"
     />
   )
@@ -227,7 +227,7 @@ export function Folder({
             d="M180 78H49V184H207V104"
             fill="none"
             stroke={color.ink}
-            strokeWidth={2}
+            strokeWidth={stroke.outline}
           />
           <path d="M180 78V104H207" fill={color.line} />
           {/* The sheet's heading bar: vermilion only on the accent folder. */}
@@ -247,7 +247,7 @@ export function Folder({
         d={`M${25 - p * 15} ${95 + p * 35}H${230 + p * 15}L230 205H25Z`}
         fill={fill}
         stroke={color.ink}
-        strokeWidth={2}
+        strokeWidth={stroke.outline}
         strokeLinejoin="round"
       />
       {front && (

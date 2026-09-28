@@ -299,7 +299,7 @@ test("DeskProp: contact points sit on the prop at any scale and rotation", () =>
       }
 })
 
-test("DeskProp keyboard keys fit its body without overlapping; stroke stays 2 units", () => {
+test("DeskProp keyboard keys fit its body without overlapping; stroke stays the shared outline", () => {
   assert.equal(deskPropKeys.length, 32)
   const body = { x: -135, y: -65, w: 270, h: 130 }
   deskPropKeys.forEach((k, i) => {
@@ -308,7 +308,7 @@ test("DeskProp keyboard keys fit its body without overlapping; stroke stays 2 un
   })
   for (const scale of [0.5, 1, 2]) {
     const markup = svg(React.createElement(DeskProp, { kind: "mug", x: 0, y: 0, scale }))
-    assert.ok(markup.includes(`stroke-width="${2 / scale}"`))
+    assert.ok(markup.includes(`stroke-width="${3 / scale}"`))
     assert.ok(markup.includes('aria-label="Mug"'))
     assert.ok(!markup.includes(color.accent))
   }

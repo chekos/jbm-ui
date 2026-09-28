@@ -1,4 +1,4 @@
-import { color } from "../lib/tokens"
+import { color, stroke } from "../lib/tokens"
 import { unit, type Pt } from "../lib/geometry"
 
 /** `arc` bows the thread sideways; `s` leaves and arrives level, like a line tied to a tab. */
@@ -15,7 +15,7 @@ export type HiloProps = {
   curve?: HiloCurve
   /** Progress 0–1. Without `snapAt` it lays the thread from `from` to `to`. With `snapAt`, 0 → snapAt lays it and snapAt → 1 snaps it. */
   draw?: number
-  /** Thread stroke width in user units. Knots, fibers and the notch scale with it. */
+  /** Thread stroke width in user units; default stroke.outline (3), the shared outline. Knots, fibers and the notch scale with it. */
   width?: number
   /** The `draw` value (0–1) at which the laid thread snaps. Omit for a thread that never snaps; 0 starts already laid, so `draw` drives only the snap. */
   snapAt?: number
@@ -135,7 +135,7 @@ export function hiloGeometry({
   bend = 0,
   curve = "arc",
   draw = 1,
-  width = 2,
+  width = stroke.outline,
   snapAt,
   breakAt = 0.5,
   fray = 0.6,
@@ -145,7 +145,7 @@ export function hiloGeometry({
 }: HiloProps) {
   const from = finite(rawFrom),
     to = finite(rawTo)
-  const w = Math.max(0.5, num(width, 2))
+  const w = Math.max(0.5, num(width, stroke.outline))
   const k = num(bend, 0)
   const s = unit(slack),
     f = unit(fray)

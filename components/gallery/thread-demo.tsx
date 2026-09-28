@@ -244,7 +244,6 @@ function ThreadScene({
                   to={t.to}
                   curve={t.curve}
                   bend={t.bend}
-                  width={2}
                   // The front hides a tab's knot with its tab; the tick's knot always shows.
                   knots
                   draw={

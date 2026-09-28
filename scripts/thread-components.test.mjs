@@ -59,7 +59,7 @@ const { Hilo, hiloGeometry, cubicPoint } = await import(
 const { VideoPrint, videoPrintLayout } = await import(
   "../registry/jbm/ui/video-print.tsx"
 )
-const { color } = await import("../registry/jbm/lib/tokens.ts")
+const { color, stroke } = await import("../registry/jbm/lib/tokens.ts")
 const render = (C, props) => renderToStaticMarkup(React.createElement(C, props))
 const near = (a, b, eps = 1e-6) =>
   Math.abs(a.x - b.x) < eps && Math.abs(a.y - b.y) < eps
@@ -351,8 +351,9 @@ test("video print: declared bounds hold the link tag, the tag never passes the s
     assert.equal(bare.bounds.h, bare.h, "no link, no overhang")
     const l = videoPrintLayout({ w, link: "x" })
     const s = w / 480
-    // The tag's height: a 14 × s line at 1.3, 6 × s padding above and below, and a 2px edge.
-    const tagH = 14 * 1.3 * s + 12 * s + 4
+    // The tag's height: a 14 × s line at 1.3, 6 × s padding above and below, and the shared
+    // outline as its edge on both sides.
+    const tagH = 14 * 1.3 * s + 12 * s + 2 * stroke.outline
     // Plus the 8 × s the tag settles up from while it drops in, so it never crosses the date.
     assert.ok(Math.abs(l.bounds.h - (l.h + tagH / 2 + 8 * s)) < 1e-9)
     assert.equal(l.bounds.w, l.w)
@@ -360,7 +361,7 @@ test("video print: declared bounds hold the link tag, the tag never passes the s
   }
   // The contract's declared stage covers the default print with its tag.
   const l = videoPrintLayout({ link: "x" })
-  assert.ok(l.bounds.h <= 393 && l.bounds.h > 392)
+  assert.ok(l.bounds.h <= 394 && l.bounds.h > 393)
   const long = render(VideoPrint, {
     title: "Sample talk",
     date: "Video · 4 nov 2025",

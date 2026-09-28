@@ -38,7 +38,7 @@ export default {
       export: "tearGeometry",
       kind: "function",
       summary:
-        "Outlines for every strip in sheet coordinates. Neighbouring strips share the identical frayed polyline, so together they cover the sheet exactly; with an edge the straight sides sit 1px in, on the centreline of Paper's 2px border.",
+        "Outlines for every strip in sheet coordinates. Neighbouring strips share the identical frayed polyline, so together they cover the sheet exactly; with an edge the straight sides sit half the shared outline (1.5px) in, on the centreline of Paper's border.",
       params: {
         w: "Sheet width in stage px.",
         h: "Sheet height in stage px.",

@@ -105,7 +105,7 @@ export default {
         tabWidth: "Tab width, including its slope.",
         tabHeight: "Tab height above the body.",
         tabSlope: "Horizontal run of the tab's slanted edge.",
-        fill: "Fill color; the 2px ink edge is fixed.",
+        fill: "Fill color; the ink edge (stroke.outline, 3px) is fixed.",
       },
     },
   ],
@@ -133,7 +133,7 @@ export default {
   qa: [
     "Drag open through 0, 0.5, and 1: the sheet never cuts through the front panel and its lower corner clears the folder edge.",
     "Check the label stays on the front plane while it foreshortens; a long label and sublabel follow the same rule: compressed to at most 0.8, then an ellipsis.",
-    "Compare accent, ink, and card tones; the ink folder keeps a visible 2px edge on cream. Vermilion appears only on the accent tone: the default sheet's heading bar is ink on ink and card folders.",
+    "Compare accent, ink, and card tones; the ink folder keeps a visible 3px edge on cream. Vermilion appears only on the accent tone: the default sheet's heading bar is ink on ink and card folders.",
     "Card tone: the tab name is bold sans (Geist 800), the tab widens for \"Doorways\", reaches the body width for \"Training Within Industry\", and never shows an ellipsis. At open 0.5 and 1 the whole name stays readable over the rising sheet.",
     "Sublabel: stays on the front panel and leans with it through open 0 → 1, under a front label or near the top-left under a tab label.",
     "Scale with style.width at narrow widths: the silhouette keeps its 260:220 proportions.",

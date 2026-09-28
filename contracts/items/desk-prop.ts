@@ -9,7 +9,7 @@ const propProps = {
   press:
     "Key travel, 0–1: the keycap's dished top sinks, centres, and shrinks 4 units a side; on a keyboard, the keys listed in keys inset 3 units a side. A pressed face takes an ink wash (0.28 at 1, the depth of the visual language's 0.72 light) so the press shows at small sizes. The mug ignores it. Clamped.",
   weight:
-    "Ink stroke width in parent units (default 2, the desk's line weight), kept at any scale. A preview that frames one prop in its own viewBox passes a weight that keeps the on-screen line the same as its neighbours'.",
+    "Ink stroke width in parent units (default stroke.outline, the shared 3-unit outline from tokens), kept at any scale. A preview that frames one prop in its own viewBox passes a weight that keeps the on-screen line the same as its neighbours'.",
   keys: "Keyboard only: indices of the keys press applies to, row by row from the top left (0–26 the three full rows, 27–31 the bottom row, 29 the space bar).",
 }
 
@@ -26,7 +26,7 @@ export default {
       export: "DeskProp",
       kind: "component",
       summary:
-        "SVG <g> of one small desk object in the library's card fill and 2-unit ink line, placed by its centre with scale and rotation. It owns no hand: compose Mano at deskPropLayout's contact point. Controlled; no internal timer. Render inside an <svg>.",
+        "SVG <g> of one small desk object in the library's card fill and the shared ink outline (stroke.outline, 3 units), placed by its centre with scale and rotation. It owns no hand: compose Mano at deskPropLayout's contact point. Controlled; no internal timer. Render inside an <svg>.",
       props: propProps,
     },
     {

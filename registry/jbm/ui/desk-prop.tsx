@@ -1,4 +1,4 @@
-import { color } from "../lib/tokens"
+import { color, stroke } from "../lib/tokens"
 import { unit, type Pt } from "../lib/geometry"
 
 export type DeskPropKind = "keycap" | "keyboard" | "mug"
@@ -9,7 +9,7 @@ export type DeskPropProps = {
   y: number
   /** Uniform size multiplier; the ink stroke stays `weight` parent units. Defaults to 1. */
   scale?: number
-  /** Ink stroke width in parent units at any scale. Default 2, the desk's line weight. */
+  /** Ink stroke width in parent units at any scale. Default stroke.outline (3), the shared outline. */
   weight?: number
   /** Rotation in degrees around the centre. Defaults to 0. */
   rotate?: number
@@ -104,21 +104,21 @@ export function DeskProp({
   rotate = 0,
   press = 0,
   keys = [],
-  weight = 2,
+  weight = stroke.outline,
   ...props
 }: DeskPropProps) {
   const { kind } = props
   const l = deskPropLayout({ ...props, scale, rotate, press })
   const p = unit(press)
   // The group is scaled, so the stroke is divided by scale to stay `weight` parent units.
-  const stroke = weight / (scale || 1)
+  const line = weight / (scale || 1)
   return (
     <g
       transform={l.transform}
       role="img"
       aria-label={kind === "keycap" ? "Keycap" : kind === "keyboard" ? "Keyboard" : "Mug"}
       stroke={color.ink}
-      strokeWidth={stroke}
+      strokeWidth={line}
       strokeLinejoin="round"
       fill={color.card}
     >

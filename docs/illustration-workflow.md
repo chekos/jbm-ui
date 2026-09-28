@@ -8,6 +8,8 @@ Use `gh` to read issues, pull requests, comments, and available attachments befo
 
 Inspect existing component source and rendered gallery examples before designing. Identify which objects already exist, which need variants, and which interactions compose them. Match the reference's visual language and the library's line weight, palette, and simplicity. Do not equate resemblance to the subject with resemblance to the reference.
 
+Draw every ink outline of a desk, paper, or thread object at the shared token, `stroke.outline` in `lib/tokens.ts` (3 stage px); art whose units scale against the stage (a viewBox, a scaled group) uses `outlineIn(units per px)`. Never hardcode an outline width. At that weight, parallel edges closer than about 4.5 units fuse into one bar: space stacked edges further apart instead of thinning one.
+
 ## Keep objects, variants, and motion separate
 
 An independent physical object should remain usable on its own. A hand does not own a folder. Hand poses are variants; translation and rotation are separate transforms. A desk may include a file cabinet, but the cabinet and its drawer remain independently reusable.

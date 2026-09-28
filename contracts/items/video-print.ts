@@ -21,7 +21,7 @@ export default {
       export: "VideoPrint",
       kind: "component",
       summary:
-        "A Paper sheet (radius 10, ink edge, paper shadow) carrying a 16:9 frame in pale ink (an opaque 8% ink-on-card tint, identical with or without the sheet, and a 2px ink outline) with a head-and-shoulders line sketch, a pale scrub track whose ink bar advances with `scrub`, ink ticks at the marks the bar has passed, the title (Geist 700) and date (Geist, Graphite), and, when `link` is set, a PunchedTag with the URL in Geist Mono hanging over the bottom edge. Composes Paper and PunchedTag unchanged. Controlled; no timers.",
+        "A Paper sheet (radius 10, ink edge, paper shadow) carrying a 16:9 frame in pale ink (an opaque 8% ink-on-card tint, identical with or without the sheet, and an ink outline at the shared outline weight, the same as the sheet edge at every w) with a head-and-shoulders line sketch, a pale scrub track whose ink bar advances with `scrub`, ink ticks at the marks the bar has passed, the title (Geist 700) and date (Geist, Graphite), and, when `link` is set, a PunchedTag with the URL in Geist Mono hanging over the bottom edge. Composes Paper and PunchedTag unchanged. Controlled; no timers.",
       props: {
         scrub: "Playhead 0–1: how far the ink scrub bar has advanced along the rule. Clamped; NaN is 0.",
         marks: "Positions 0–1 along the rule. A mark leaves an ink tick once scrub reaches it; its anchor point exists from the start (videoPrintLayout().marks), so a thread can tie on as the tick appears.",
@@ -47,10 +47,10 @@ export default {
   ],
   stage: {
     mode: "declared",
-    landscape: { width: 480, height: 393 },
-    vertical: { width: 480, height: 393 },
+    landscape: { width: 480, height: 394 },
+    vertical: { width: 480, height: 394 },
     basis:
-      "At the default w 480: 22px padding, a 436 × 245.25 frame, the rule 12px under it, the title 18px under the rule, the date 30px under the title, then 18 + 22px: a 367.25px sheet. With link, the tag straddles the bottom edge and half of it (15.1 × w/480 + 2px) hangs below, plus the 8 × w/480 it settles up from while `opened` is below 1: 392.35px in all, declared as 393. Every measurement scales with w (sheet height = 0.765 × w); videoPrintLayout().bounds gives the exact box. The tag never extends past the right edge: long URLs end in an ellipsis.",
+      "At the default w 480: 22px padding, a 436 × 245.25 frame, the rule 12px under it, the title 18px under the rule, the date 30px under the title, then 18 + 22px: a 367.25px sheet. With link, the tag straddles the bottom edge and half of it (15.1 × w/480 + the 3px outline) hangs below, plus the 8 × w/480 it settles up from while `opened` is below 1: 393.35px in all, declared as 394. Every measurement scales with w (sheet height = 0.765 × w); videoPrintLayout().bounds gives the exact box. The tag never extends past the right edge: long URLs end in an ellipsis.",
   },
   examples: [
     {

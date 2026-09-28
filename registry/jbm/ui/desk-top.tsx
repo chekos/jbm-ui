@@ -1,4 +1,4 @@
-import { color } from "../lib/tokens"
+import { color, stroke } from "../lib/tokens"
 import { unit, type Box, type Pt } from "../lib/geometry"
 
 export type DeskTopDrawerSide = "start" | "end" | "top" | "bottom"
@@ -267,7 +267,7 @@ export function DeskTop({ light = 1, edge = 0, ...props }: DeskTopProps) {
       role="img"
       aria-label={`Desk seen from above${side ? ", with a drawer" : ""}`}
       stroke={color.ink}
-      strokeWidth={2}
+      strokeWidth={stroke.outline}
       strokeLinejoin="round"
     >
       {/* The slab goes over the drawer, so its outline is the one seam line. */}

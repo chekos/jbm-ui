@@ -5,7 +5,7 @@
       "name": "tokens",
       "entry": "component",
       "title": "Tokens",
-      "description": "Cream, ink, and vermilion palette, Geist font stacks and tab-name metrics, radii, surface shadows and borders, stage safe areas, and a CSS variables string.",
+      "description": "Cream, ink, and vermilion palette, Geist font stacks and tab-name metrics, radii, the shared ink outline weight, surface shadows and borders, stage safe areas, and a CSS variables string.",
       "category": "Foundations",
       "capabilities": [],
       "needsRemotion": false,
@@ -62,6 +62,26 @@
           "export": "radius",
           "kind": "constant",
           "summary": "Corner radii in pixels: chip 14, code 12, card 28, pill 10."
+        },
+        {
+          "export": "stroke",
+          "kind": "constant",
+          "summary": "The shared ink outline, `stroke.outline`, in stage px: 3 (3px on a 1080 stage). Every desk, paper, and thread object (Hand, Folder, Cajon, FileCabinet, Escritorio, DeskTop, DeskProp, Bandeja, ToolCaddy, Document, Paper, Tear, Register, Slip, Hilo, VideoPrint, PunchedTag) draws its outline at this weight, so a composed scene reads as one line weight."
+        },
+        {
+          "export": "outlineIn",
+          "kind": "function",
+          "summary": "The shared outline converted to a local unit system, for art whose viewBox or transform scales against the stage (Hand's 30-unit viewBox at 180 px, a scaled DeskProp group).",
+          "params": [
+            {
+              "name": "unitsPerPx",
+              "type": "number",
+              "required": false,
+              "default": "1",
+              "description": "Local units per stage px; default 1. Non-finite or non-positive values count as 1."
+            }
+          ],
+          "returns": "stroke.outline × unitsPerPx, in local units."
         },
         {
           "export": "shadowLayers",
@@ -887,7 +907,7 @@
         {
           "export": "Paper",
           "kind": "component",
-          "summary": "Flat piece of card stock (border-box, position relative) in cream, vermilion, or ink with an optional 2px edge, the paper drop shadow, and an optional rotation. Under `tension` each pulled corner sends a few short, soft creases into the sheet (under its writing, spreading apart, never meeting or converging) and, from 0.6, a frayed notch tears into the sheet at a seam; `tab` fixes a pestaña behind the top edge that slides out with its reveal. With neither set it renders exactly the original single div. Pure React and controlled; wrap in a motion Pop for entrances.",
+          "summary": "Flat piece of card stock (border-box, position relative) in cream, vermilion, or ink with an optional ink edge at the shared outline weight (stroke.outline, 3px), the paper drop shadow, and an optional rotation. Under `tension` each pulled corner sends a few short, soft creases into the sheet (under its writing, spreading apart, never meeting or converging) and, from 0.6, a frayed notch tears into the sheet at a seam; `tab` fixes a pestaña behind the top edge that slides out with its reveal. With neither set it renders exactly the original single div. Pure React and controlled; wrap in a motion Pop for entrances.",
           "props": [
             {
               "name": "tone",
@@ -929,7 +949,7 @@
               "type": "boolean",
               "required": false,
               "default": "true",
-              "description": "Draws the 2px edge; false removes the border."
+              "description": "Draws the ink edge at the shared outline weight (stroke.outline, 3px); false removes the border."
             },
             {
               "name": "shadow",
@@ -1214,7 +1234,7 @@
       ],
       "stage": {
         "mode": "fluid",
-        "reason": "Paper takes w×h when given and otherwise fills its container's width with height following children. A tab rises size + 2 × round(size × 0.3) + 2 × edge width above the top edge at reveal 1 (56px at size 32 with the 2px edge; the 14px tuck is behind the sheet) without changing layout size; the tear cuts into the box and never adds to it. Sticker is inline and sized by its text: at the default size 72 it is about 72 × 1.05 + 2 × 13 ≈ 102 stage px tall. Rotation does not change layout size, so tilted corners can extend beyond the box."
+        "reason": "Paper takes w×h when given and otherwise fills its container's width with height following children. A tab rises size + 2 × round(size × 0.3) + 2 × edge width above the top edge at reveal 1 (58px at size 32 with the 3px edge; the 14px tuck is behind the sheet) without changing layout size; the tear cuts into the box and never adds to it. Sticker is inline and sized by its text: at the default size 72 it is about 72 × 1.05 + 2 × 13 ≈ 102 stage px tall. Rotation does not change layout size, so tilted corners can extend beyond the box."
       },
       "examples": [
         {
@@ -1231,11 +1251,11 @@
         }
       ],
       "qa": [
-        "Compare paper, accent, and ink tones: the paper tone keeps a 2px ink edge, accent and ink edges match their fill, and cream text reads on both.",
+        "Compare paper, accent, and ink tones: the paper tone keeps a 3px ink edge (stroke.outline), accent and ink edges match their fill, and cream text reads on both.",
         "Check rotated pieces and stickers near the safe-area edge: rotation does not reserve layout space, so tilted corners and the longer drop shadow must not clip.",
         "Stickers never wrap; check the longest word at the chosen size fits the frame in portrait.",
         "Toggle edge and shadow off and confirm the piece still separates from the cream canvas where it is used.",
-        "Drag Tension through 0, 0.4, 0.7, and 1: two short creases (at most 14% of the shorter side) come in from each pulled corner, starting at the corner and spreading apart, fade toward their tips, and lie under the writing; none shows inside a result box, and at no tension do two meet, converge into a V, or read as an X or a crossed-out page. The tear opens only past 0.6 and at 0.7 is already a clearly visible notch cut into the sheet at the seam: a short frayed wedge narrowing into a crack, never a shape sticking out of the edge or a long spike. Its lips are a 2px ink edge on the sheet's side of the cut (a cream hairline on ink stock), a thin shadow band sits under the upper lip, and the rest of the mouth shows what lies under the sheet rather than a painted fill; over the writing it stays inside the band gap. The mouth cuts the sheet's writing too: with Tear through the writing the notch runs through a table's ruled body and stays open through the rules.",
+        "Drag Tension through 0, 0.4, 0.7, and 1: two short creases (at most 14% of the shorter side) come in from each pulled corner, starting at the corner and spreading apart, fade toward their tips, and lie under the writing; none shows inside a result box, and at no tension do two meet, converge into a V, or read as an X or a crossed-out page. The tear opens only past 0.6 and at 0.7 is already a clearly visible notch cut into the sheet at the seam: a short frayed wedge narrowing into a crack, never a shape sticking out of the edge or a long spike. Its lips are an ink edge at the outline weight on the sheet's side of the cut (a cream hairline on ink stock), a thin shadow band sits under the upper lip, and the rest of the mouth shows what lies under the sheet rather than a painted fill; over the writing it stays inside the band gap. The mouth cuts the sheet's writing too: with Tear through the writing the notch runs through a table's ruled body and stays open through the rules.",
         "Try each Pulled corners preset and Tear from the right edge, and the tear on the ink stock: there the writing is card-coloured and stays visible.",
         "The bench shows only the sheet, its tension, and its tab; Sticker and Caption appear in the Usage examples.",
         "Drag Tab reveal from 0 to 1: at 0 the whole tab is hidden behind the sheet; in between the label stays hidden until the tab shows most of its capitals, then fades in whole, so the sheet's edge never leaves glyph tops as specks; at 1 the label is Geist 800 at 32 stage px and the tab base stays tucked behind the edge.",
@@ -5162,7 +5182,7 @@
       "qa": [
         "Compare accent and ink headings: only the heading stroke changes color.",
         "Try a label longer than 16 characters: it ends with an ellipsis and stays inside the sheet.",
-        "Scale with style.width at narrow widths: the fold and 2px ink edge keep their 160:200 proportions.",
+        "Scale with style.width at narrow widths: the fold and ink edge (stroke.outline) keep their 160:200 proportions.",
         "Without a label the SVG is aria-hidden; with one it exposes role img and the label as its name."
       ],
       "docs": [
@@ -5455,7 +5475,7 @@
               "type": "string",
               "required": false,
               "default": "color.accent",
-              "description": "Fill color; the 2px ink edge is fixed."
+              "description": "Fill color; the ink edge (stroke.outline, 3px) is fixed."
             }
           ],
           "passthrough": []
@@ -5490,7 +5510,7 @@
       "qa": [
         "Drag open through 0, 0.5, and 1: the sheet never cuts through the front panel and its lower corner clears the folder edge.",
         "Check the label stays on the front plane while it foreshortens; a long label and sublabel follow the same rule: compressed to at most 0.8, then an ellipsis.",
-        "Compare accent, ink, and card tones; the ink folder keeps a visible 2px edge on cream. Vermilion appears only on the accent tone: the default sheet's heading bar is ink on ink and card folders.",
+        "Compare accent, ink, and card tones; the ink folder keeps a visible 3px edge on cream. Vermilion appears only on the accent tone: the default sheet's heading bar is ink on ink and card folders.",
         "Card tone: the tab name is bold sans (Geist 800), the tab widens for \"Doorways\", reaches the body width for \"Training Within Industry\", and never shows an ellipsis. At open 0.5 and 1 the whole name stays readable over the rising sheet.",
         "Sublabel: stays on the front panel and leans with it through open 0 → 1, under a front label or near the top-left under a tab label.",
         "Scale with style.width at narrow widths: the silhouette keeps its 260:220 proportions."
@@ -6589,7 +6609,7 @@
               "type": "number",
               "required": false,
               "default": null,
-              "description": "Settled sheet count; each sheet sits 4 units above the last. Floored; negative or non-finite values show none."
+              "description": "Settled sheet count; each sheet sits 5 units above the last (the shared 3-unit outline plus a 2-unit gap). Floored; negative or non-finite values show none."
             },
             {
               "name": "landing",
@@ -6632,7 +6652,7 @@
               "type": "number",
               "required": false,
               "default": "0",
-              "description": "Settled sheet count; each sheet sits 4 units above the last. Floored; negative or non-finite values show none."
+              "description": "Settled sheet count; each sheet sits 5 units above the last (the shared 3-unit outline plus a 2-unit gap). Floored; negative or non-finite values show none."
             },
             {
               "name": "landing",
@@ -6642,7 +6662,7 @@
               "description": "Accepted for parity with Bandeja's props; the layout ignores it."
             }
           ],
-          "returns": "{ x, y, w, count, floor, stackTop }: the floored sheet count, the tray floor centre (y + 41), and the centre of the top of the settled stack (floor − count × 4), in parent SVG units."
+          "returns": "{ x, y, w, count, floor, stackTop }: the floored sheet count, the tray floor centre (y + 41), and the centre of the top of the settled stack (floor − count × 5), in parent SVG units."
         }
       ],
       "stage": {
@@ -6655,7 +6675,7 @@
           "width": 280,
           "height": 52
         },
-        "basis": "Parent SVG user units at w 280: from the back rim at y + 16 to the base at y + 68. Beyond three layers the top sheets rise over the back rim (top sheet at y + 24 − 4 × (layers − 1)), and a landing sheet starts 90 units above the stack, so leave headroom above y."
+        "basis": "Parent SVG user units at w 280: from the back rim at y + 16 to the base at y + 68. From three layers the top sheets rise over the back rim (top sheet at y + 24 − 5 × (layers − 1)), and a landing sheet starts 90 units above the stack, so leave headroom above y."
       },
       "examples": [
         {
@@ -6668,7 +6688,7 @@
         }
       ],
       "qa": [
-        "Drag Sheets from 0 to 12: each sheet steps up 4 units, the front lip always covers their lower edges, and tall stacks stay inside the viewBox.",
+        "Drag Sheets from 0 to 12: each sheet steps up 5 units, its edge clear of the one below, the front lip always covers their lower edges, and tall stacks stay inside the viewBox.",
         "Step landing through 0, 0.5, and 1: the incoming sheet fades in while descending and rests exactly on the stack at 1, then increment layers to settle it.",
         "Check the front notch stays centred when w changes."
       ],
@@ -6724,7 +6744,7 @@
               "type": "number",
               "required": false,
               "default": "240",
-              "description": "Width in parent SVG units; the whole drawing scales uniformly by w / 240, including stroke width."
+              "description": "Width in parent SVG units; the whole drawing scales uniformly by w / 240, except the stroke, which stays the shared outline (stroke.outline) in parent units."
             }
           ],
           "passthrough": []
@@ -6751,7 +6771,7 @@
       "qa": [
         "The gallery preview is a still at w 300; there are no controls to exercise.",
         "Check the handle is fully inside the viewBox (it sits above y) and its gap reads as a hole.",
-        "Scale w up and down: the 2px ink stroke scales with the drawing, so thin or thick edges at extreme sizes are expected; confirm they still match nearby objects."
+        "Scale w up and down: the ink stroke stays the shared outline in parent units at every size; confirm it matches nearby objects."
       ],
       "docs": [
         {
@@ -7385,7 +7405,7 @@
         {
           "export": "DeskProp",
           "kind": "component",
-          "summary": "SVG <g> of one small desk object in the library's card fill and 2-unit ink line, placed by its centre with scale and rotation. It owns no hand: compose Mano at deskPropLayout's contact point. Controlled; no internal timer. Render inside an <svg>.",
+          "summary": "SVG <g> of one small desk object in the library's card fill and the shared ink outline (stroke.outline, 3 units), placed by its centre with scale and rotation. It owns no hand: compose Mano at deskPropLayout's contact point. Controlled; no internal timer. Render inside an <svg>.",
           "props": [
             {
               "name": "kind",
@@ -7419,8 +7439,8 @@
               "name": "weight",
               "type": "number",
               "required": false,
-              "default": "2",
-              "description": "Ink stroke width in parent units (default 2, the desk's line weight), kept at any scale. A preview that frames one prop in its own viewBox passes a weight that keeps the on-screen line the same as its neighbours'."
+              "default": "stroke.outline",
+              "description": "Ink stroke width in parent units (default stroke.outline, the shared 3-unit outline from tokens), kept at any scale. A preview that frames one prop in its own viewBox passes a weight that keeps the on-screen line the same as its neighbours'."
             },
             {
               "name": "rotate",
@@ -7484,7 +7504,7 @@
               "type": "number",
               "required": false,
               "default": null,
-              "description": "Ink stroke width in parent units (default 2, the desk's line weight), kept at any scale. A preview that frames one prop in its own viewBox passes a weight that keeps the on-screen line the same as its neighbours'."
+              "description": "Ink stroke width in parent units (default stroke.outline, the shared 3-unit outline from tokens), kept at any scale. A preview that frames one prop in its own viewBox passes a weight that keeps the on-screen line the same as its neighbours'."
             },
             {
               "name": "rotate",
@@ -8115,7 +8135,7 @@
               "type": "number",
               "required": false,
               "default": "1",
-              "description": "Size multiplier (default 1) for the tag's own geometry: hole (14 × scale px), its ring (2 × scale, at least 1px), the radii, gap, padding, and type, so a tag on a smaller print keeps its proportions."
+              "description": "Size multiplier (default 1) for the tag's own geometry: hole (14 × scale px), its ring (the shared outline, stroke.outline × scale, between 1px and stroke.outline), the radii, gap, padding, and type, so a tag on a smaller print keeps its proportions."
             },
             {
               "name": "style",
@@ -8130,7 +8150,7 @@
       ],
       "stage": {
         "mode": "fluid",
-        "reason": "Width follows the content (14px hole + 18px gap + text) plus 40px horizontal padding and a 4px border, capped at 100% of the container. Height is one 28px line at normal line height plus 32px padding and 4px border, and grows when the text wraps."
+        "reason": "Width follows the content (14px hole + 18px gap + text) plus 40px horizontal padding and a 6px border (the 3px shared outline each side), capped at 100% of the container. Height is one 28px line at normal line height plus 32px padding and 6px border, and grows when the text wraps."
       },
       "examples": [
         {
@@ -8180,7 +8200,7 @@
         {
           "export": "VideoPrint",
           "kind": "component",
-          "summary": "A Paper sheet (radius 10, ink edge, paper shadow) carrying a 16:9 frame in pale ink (an opaque 8% ink-on-card tint, identical with or without the sheet, and a 2px ink outline) with a head-and-shoulders line sketch, a pale scrub track whose ink bar advances with `scrub`, ink ticks at the marks the bar has passed, the title (Geist 700) and date (Geist, Graphite), and, when `link` is set, a PunchedTag with the URL in Geist Mono hanging over the bottom edge. Composes Paper and PunchedTag unchanged. Controlled; no timers.",
+          "summary": "A Paper sheet (radius 10, ink edge, paper shadow) carrying a 16:9 frame in pale ink (an opaque 8% ink-on-card tint, identical with or without the sheet, and an ink outline at the shared outline weight, the same as the sheet edge at every w) with a head-and-shoulders line sketch, a pale scrub track whose ink bar advances with `scrub`, ink ticks at the marks the bar has passed, the title (Geist 700) and date (Geist, Graphite), and, when `link` is set, a PunchedTag with the URL in Geist Mono hanging over the bottom edge. Composes Paper and PunchedTag unchanged. Controlled; no timers.",
           "props": [
             {
               "name": "scrub",
@@ -8294,13 +8314,13 @@
         "mode": "declared",
         "landscape": {
           "width": 480,
-          "height": 393
+          "height": 394
         },
         "vertical": {
           "width": 480,
-          "height": 393
+          "height": 394
         },
-        "basis": "At the default w 480: 22px padding, a 436 × 245.25 frame, the rule 12px under it, the title 18px under the rule, the date 30px under the title, then 18 + 22px: a 367.25px sheet. With link, the tag straddles the bottom edge and half of it (15.1 × w/480 + 2px) hangs below, plus the 8 × w/480 it settles up from while `opened` is below 1: 392.35px in all, declared as 393. Every measurement scales with w (sheet height = 0.765 × w); videoPrintLayout().bounds gives the exact box. The tag never extends past the right edge: long URLs end in an ellipsis."
+        "basis": "At the default w 480: 22px padding, a 436 × 245.25 frame, the rule 12px under it, the title 18px under the rule, the date 30px under the title, then 18 + 22px: a 367.25px sheet. With link, the tag straddles the bottom edge and half of it (15.1 × w/480 + the 3px outline) hangs below, plus the 8 × w/480 it settles up from while `opened` is below 1: 393.35px in all, declared as 394. Every measurement scales with w (sheet height = 0.765 × w); videoPrintLayout().bounds gives the exact box. The tag never extends past the right edge: long URLs end in an ellipsis."
       },
       "examples": [
         {
@@ -8396,7 +8416,7 @@
               "type": "number",
               "required": false,
               "default": null,
-              "description": "Thread stroke width in user units (minimum 0.5). Knots are 1.4× it in radius; frayed strands split the cut between them; the notch tints each broken tip at this width. A snapped end is cut square. The bench's Width runs from 1.5, so the thread never renders as a faint hairline."
+              "description": "Thread stroke width in user units (minimum 0.5); defaults to the shared outline, stroke.outline (3). Knots are 1.4× it in radius; frayed strands split the cut between them; the notch tints each broken tip at this width. A snapped end is cut square. The bench's Width runs from 1.5, so the thread never renders as a faint hairline."
             },
             {
               "name": "snapAt",
@@ -8487,8 +8507,8 @@
               "name": "width",
               "type": "number",
               "required": false,
-              "default": "2",
-              "description": "Thread stroke width in user units (minimum 0.5). Knots are 1.4× it in radius; frayed strands split the cut between them; the notch tints each broken tip at this width. A snapped end is cut square. The bench's Width runs from 1.5, so the thread never renders as a faint hairline."
+              "default": "stroke.outline",
+              "description": "Thread stroke width in user units (minimum 0.5); defaults to the shared outline, stroke.outline (3). Knots are 1.4× it in radius; frayed strands split the cut between them; the notch tints each broken tip at this width. A snapped end is cut square. The bench's Width runs from 1.5, so the thread never renders as a faint hairline."
             },
             {
               "name": "snapAt",
@@ -8746,7 +8766,7 @@
         {
           "export": "tearGeometry",
           "kind": "function",
-          "summary": "Outlines for every strip in sheet coordinates. Neighbouring strips share the identical frayed polyline, so together they cover the sheet exactly; with an edge the straight sides sit 1px in, on the centreline of Paper's 2px border.",
+          "summary": "Outlines for every strip in sheet coordinates. Neighbouring strips share the identical frayed polyline, so together they cover the sheet exactly; with an edge the straight sides sit half the shared outline (1.5px) in, on the centreline of Paper's border.",
           "params": [
             {
               "name": "w",
@@ -9135,7 +9155,7 @@
         {
           "export": "Register",
           "kind": "component",
-          "summary": "A Paper sheet (2px ink edge, house paper shadow) carrying one register of drawn writing: bars, boxes, and rules, never legible prose. `mono` is a prompt chevron, prompt bar, and outlined result box per step; `plain` short numbered lists in two columns; `grid` ruled tables with an ink header; `prose` a justified block with paragraph ends (every fifth line and the last, never two in a row and never the first line after a gap) and a block of source ticks; `mixed` stacks registers on one long page. Every quantity is a prop (no timer), so a slider or video frame drives it. Anchors, seams, and the gap are in the sheet's px from its outer top-left corner, the same space `children` draw in.",
+          "summary": "A Paper sheet (ink edge at the shared outline weight, house paper shadow) carrying one register of drawn writing: bars, boxes, and rules, never legible prose. `mono` is a prompt chevron, prompt bar, and outlined result box per step; `plain` short numbered lists in two columns; `grid` ruled tables with an ink header; `prose` a justified block with paragraph ends (every fifth line and the last, never two in a row and never the first line after a gap) and a block of source ticks; `mixed` stacks registers on one long page. Every quantity is a prop (no timer), so a slider or video frame drives it. Anchors, seams, and the gap are in the sheet's px from its outer top-left corner, the same space `children` draw in.",
           "props": [
             {
               "name": "kind",

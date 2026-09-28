@@ -1,4 +1,4 @@
-import { color } from "../lib/tokens"
+import { color, stroke } from "../lib/tokens"
 import { type Box } from "../lib/geometry"
 import { Cajon, type CajonProps } from "../motion/cajon"
 
@@ -33,7 +33,7 @@ export function FileCabinetBody({ x, y, w, h }: Box) {
     <g
       fill={color.card}
       stroke={color.ink}
-      strokeWidth={2}
+      strokeWidth={stroke.outline}
       strokeLinejoin="round"
     >
       <path

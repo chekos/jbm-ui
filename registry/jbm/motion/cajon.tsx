@@ -1,4 +1,4 @@
-import { color, font, sansWidth } from "../lib/tokens"
+import { color, font, sansWidth, stroke } from "../lib/tokens"
 import { unit, type Box, type Pt } from "../lib/geometry"
 import { FolderOutline, oklab, oklabHex } from "../ui/folder"
 
@@ -337,7 +337,7 @@ export function Cajon(props: CajonProps) {
       role="img"
       aria-label={`Filing drawer, ${props.folders.length} folders`}
       stroke={color.ink}
-      strokeWidth={2}
+      strokeWidth={stroke.outline}
       strokeLinejoin="round"
     >
       <DrawerInterior l={l} />

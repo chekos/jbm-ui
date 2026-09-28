@@ -1,5 +1,5 @@
 import type { CSSProperties, ReactNode } from "react"
-import { color } from "../lib/tokens"
+import { color, stroke } from "../lib/tokens"
 import {
   FRAY,
   frayEdge,
@@ -104,7 +104,7 @@ export type TearGeometry = {
 /**
  * Outlines for every strip. Neighbouring strips share the identical frayed polyline at their seam, so
  * together the outlines cover the sheet exactly. Stroke-centred: with an edge, the uncut sides sit
- * 1px inside the box like Paper's 2px border.
+ * half the shared outline inside the box, like Paper's border.
  */
 export function tearGeometry({
   w,
@@ -125,7 +125,7 @@ export function tearGeometry({
 }): TearGeometry[] {
   const W = Math.max(0, finite(w)),
     H = Math.max(0, finite(h))
-  const e = edge ? 1 : 0
+  const e = edge ? stroke.outline / 2 : 0
   const cuts = tearSeams(H, seams, fray)
   const lines = cuts.map((y) =>
     frayEdge({ width: W, y, seed, amplitude: fray }).map((p) => ({
@@ -336,11 +336,11 @@ export function Tear({
           y = ys[i],
           rot = motion[i].rotate * joined[i]
         // The lower edge of a seam (this strip's top) inks in only once the seam has opened past
-        // twice the stroke width (4px); until then the upper strip's edge alone marks it.
+        // twice the stroke width; until then the upper strip's edge alone marks it.
         const openAbove =
           i > 0
             ? opens(i)
-              ? clamp01((gap(i) - 4) / 2)
+              ? clamp01((gap(i) - 2 * stroke.outline) / 2)
               : clamp01(Math.max(p, local[i - 1]) / 0.05)
             : 0
         const openBelow =
@@ -461,7 +461,7 @@ export function Tear({
                   d={s.edges}
                   fill="none"
                   stroke={edgeColor}
-                  strokeWidth={2}
+                  strokeWidth={stroke.outline}
                   strokeLinejoin="round"
                   strokeLinecap="round"
                 />
@@ -476,7 +476,7 @@ export function Tear({
                       fill="none"
                       stroke={edgeColor}
                       strokeOpacity={r2(open as number)}
-                      strokeWidth={2}
+                      strokeWidth={stroke.outline}
                       strokeLinejoin="round"
                       strokeLinecap="round"
                     />
