@@ -20,9 +20,23 @@ export default {
         sublabel: "Short mono line on the front panel, placed with it as it opens (its glyphs keep their proportions): under a front label, or near the panel's top-left when the label is on the tab. Same overflow rule as a front label (fitLine).",
         labelOn: "\"front\" or \"tab\": where the name prints while the folder is closed. Defaults to \"tab\" for the card tone and \"front\" for accent and ink. Once open is above 0 the name prints on the front panel either way; the tab keeps the width it was given.",
         open: "Opening progress from 0 (closed) to 1 (sheet upright). Clamped; non-finite values render closed.",
-        tone: "Folder fill: \"accent\" (vermilion, cream label), \"ink\" (cream label), or \"card\" (plain cream with ink label, tab label by default).",
+        tone: "Folder fill: \"accent\" (vermilion, cream label), \"ink\" (cream label), or \"card\" (plain cream with ink label, tab label by default). A closed card folder shows no sheet: its default sheet, in the folder's own stock, is seated below the front panel's top edge and rises straight out over the first 8% of open, then turns like the others. Accent and ink folders show their contrasting sheet above the panel when closed.",
         children: "Replaces the default sheet entirely. Rendered untransformed, so `open` does not move custom contents; animate them yourself or use FolderContents.",
       },
+    },
+    {
+      export: "folderShape",
+      kind: "constant",
+      summary:
+        "Folder's proportions in its 260×220 space, shared by every folder in the library: viewBox { w: 260, h: 220 }, body { x: 25, y: 55, w: 205, h: 150 } (tab top to the front panel's bottom edge), tab { width: 83, height: 27, slope: 17 }, and flap 95 (the front panel's top edge when closed). tableFolderGeometry and cajonLayout's folders are this body at another scale.",
+    },
+    {
+      export: "folderScaleForDrawer",
+      kind: "function",
+      summary:
+        "The scale that makes a standalone Folder the same object as the front folder of a drawer: render Folder with style.width = 260 × the result, or multiply folderShape by it. Cajon's front folder is the drawer width less 26 units a side (× w / 420 above the 420 reference); a FileCabinet's drawer is the cabinet width less 20.",
+      params: { drawerWidth: "Drawer width in parent units (Cajon's w). Non-finite or non-positive widths use the 420 reference." },
+      returns: "Folder units to parent units: 368 / 205 (about 1.80) for the 420 reference drawer.",
     },
     {
       export: "folderTones",
@@ -126,12 +140,18 @@ export default {
       code: 'import { Folder } from "@/jbm/ui/folder"\n\n<Folder tone="card" label="Doorways" sublabel="rigor · ir a la fuente" />\n// Cream fill, ink text; the tab widens to fit the whole label.',
     },
     {
+      title: "Match the folders in a drawer",
+      code: 'import { Folder, folderScaleForDrawer } from "@/jbm/ui/folder"\n\n// A loose folder the same size as the front folder of a 420-wide Cajon.\n<Folder tone="card" label="Doorways" style={{ width: 260 * folderScaleForDrawer(420) }} />',
+    },
+    {
       title: "Drive it from a Remotion timeline",
       code: 'import { Folder } from "@/jbm/ui/folder"\nimport { useProgress } from "@/jbm/motion/hooks" // install @jbm/motion-hooks separately\n\n// Render inside a Remotion <Composition> or <Player>: hooks run in the component body.\nexport function OpeningFolder() {\n  const open = useProgress(0.5, 1, 0.8)\n  return <Folder label="proyecto" tone="ink" open={open} style={{ width: 390 }} />\n}',
     },
   ],
   qa: [
     "Drag open through 0, 0.5, and 1: the sheet never cuts through the front panel and its lower corner clears the folder edge.",
+    "Card tone closed: only the back panel, its tab and name, and the front panel show; no sheet edge or dog-ear above the front. Step open through 0.04, 0.08, and 0.12: the sheet rises straight out of the front before it turns, with no ink wedge pinched against the panel's top edge.",
+    "Beside a Cajon, a Folder at style.width 260 × folderScaleForDrawer(w) has the same body width as the drawer's front folder.",
     "Check the label stays on the front plane while it foreshortens; a long label and sublabel follow the same rule: compressed to at most 0.8, then an ellipsis.",
     "Compare accent, ink, and card tones; the ink folder keeps a visible 3px edge on cream. Vermilion appears only on the accent tone: the default sheet's heading bar is ink on ink and card folders.",
     "Card tone: the tab name is bold sans (Geist 800), the tab widens for \"Doorways\", reaches the body width for \"Training Within Industry\", and never shows an ellipsis. At open 0.5 and 1 the whole name stays readable over the rising sheet.",

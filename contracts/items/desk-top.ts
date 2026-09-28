@@ -3,10 +3,10 @@ import type { ItemContract } from "../schema"
 const deskProps = {
   box: "Desk footprint { x, y, w, h } in the parent SVG's user units, including the front edge band and any drawer region. Tilt and the drawer never change it.",
   light:
-    "Light on the whole desk, 0–1 (1 full cream): every fill mixes in OKLab toward the palette's line token, reaching it at 0.72 (the visual language's deepest folder), then toward ink (deskLight). The drawer pull follows it; the ink stroke does not. Clamped.",
+    "Light on the whole desk, 0–1 (1 full cream): every fill mixes in OKLab toward the palette's line token, reaching it at 0.72 (the visual language's deepest folder), then toward ink (deskLight). The ink stroke and the ink drawer pull do not change. Clamped.",
   edge: "Camera tilt, 0–1: reveals a front band up to 22 units tall at 1, taken out of the surface's depth: the desk's front edge under the desk top, and a side drawer's own near face under it. 0 is straight down. Clamped.",
   drawer:
-    "Edge that holds an open drawer (start left, end right, top, bottom). The drawer box is pulled out past the desk top's edge, which is the one seam line, and is narrower than the desk along it; its outer wall is its front, thicker than the other walls and carrying the pull (the same label-plate pull as Cajon). Its opening is darker than the desk and runs on under the desk top. Omit for no drawer.",
+    "Edge that holds an open drawer (start left, end right, top, bottom). The drawer box is pulled out past the desk top's edge, which is the one seam line, and is narrower than the desk along it; its outer wall is its front, thicker than the other walls and carrying the pull (an ink bar, the same pull as on Cajon's front, seen from above). Its opening is darker than the desk and runs on under the desk top. Omit for no drawer.",
   drawerSize:
     "Drawer region depth across its edge in parent units, the 6-unit seam included: along the width for start and end, along the height for top and bottom. Defaults to 40% of that dimension; kept between 44 and 80% of the plan.",
 }
@@ -35,7 +35,7 @@ export default {
         "Desk geometry for composites: where the flat surface is, where its centre is (Ejes cross there by default), and the drawer's region, box, opening, front, and pull.",
       params: deskProps,
       returns:
-        "{ box, surface, center, drawer, front, plan, slab, drawn, fill }: surface is the flat top Box; center its centre; drawer is { panel, body, well, front, pull } or null (panel the whole region, body the pulled-out box inside it, well its opening, front its thicker outer wall, pull the plate on it); front is the edge band Box (h 0 when flat); plan the surface, seam, and drawer region above the band; slab the desk top as drawn, out to the seam line; drawn is drawing geometry for DeskTop itself; fill holds the surface, handle, front, panel, and well colours after light. All in parent SVG units.",
+        "{ box, surface, center, drawer, front, plan, slab, drawn, fill }: surface is the flat top Box; center its centre; drawer is { panel, body, well, front, pull } or null (panel the whole region, body the pulled-out box inside it, well its opening, front its thicker outer wall, pull the ink bar on it); front is the edge band Box (h 0 when flat); plan the surface, seam, and drawer region above the band; slab the desk top as drawn, out to the seam line; drawn is drawing geometry for DeskTop itself; fill holds the surface, handle (kept for compatibility; the pull is ink), front, panel, and well colours after light. All in parent SVG units.",
     },
     {
       export: "deskLight",
@@ -86,7 +86,7 @@ export default {
     "At index size the default (Tilted, drawer end) reads as a desk with a drawer pulled out, not a tablet: a plain cream top with its front edge, and a narrower drawer box with a pull on its outer front.",
     "Drag Edge from Flat to Tilted: the front band grows from the bottom inside the box, the surface loses the same depth, their shared edge stays one line with square corners where they meet, and a side drawer shows its own near face.",
     "Step Drawer through none, start, end, top, and bottom: the box never moves; the drawer box sits on the chosen edge, narrower than the desk, meeting it at one seam line (never a double line); its opening is darker than the desk and open toward the seam; every drawer has exactly one pull, on its outer front; a top or bottom drawer takes 40% of the height, not of the width.",
-    "Drag Light from 1 to 0.72: every fill, the drawer pull included, darkens together toward the line token (never taupe); the ink edge does not change.",
+    "Drag Light from 1 to 0.72: every fill darkens together toward the line token (never taupe); the ink edge and the ink pull do not change.",
     "At 8× zoom check the rounded corners, the seam where the drawer meets the desk and the band, and that no contour doubles, steps, or leaves a stub.",
   ],
   docs: [

@@ -1,6 +1,6 @@
 import { color, font, sansWidth, stroke } from "../lib/tokens"
 import { unit, type Box, type Pt } from "../lib/geometry"
-import { FolderOutline, oklab, oklabHex } from "../ui/folder"
+import { FolderOutline, folderScaleForDrawer, folderShape, oklab, oklabHex } from "../ui/folder"
 
 export type DrawerFolder = {
   /** Tab name, drawn in full: the tab widens to fit it, then the name compresses. */
@@ -106,8 +106,9 @@ export function cajonLayout({
   const front = y - 22 * sc + 104 * sc * p
   /** Top edge of the drawer front: everything below it is inside the drawer. */
   const frontTop = front + 32 * sc
-  const width = w - 52 * sc
-  const folderHeight = (width * 150) / 205
+  // The front folder is Folder's body at folderScaleForDrawer(w): loose and filed folders match.
+  const width = folderShape.body.w * folderScaleForDrawer(w)
+  const folderHeight = (width * folderShape.body.h) / folderShape.body.w
   const frontHeight = folderHeight + 8 * sc
   const size = Number.isFinite(labelSize) && labelSize > 0 ? labelSize : 13
   const tabHeight = (size * 27) / 13
@@ -139,8 +140,10 @@ export function cajonLayout({
           n > 6 ? packed : Infinity
         )
       : packed
-  // The front folder rises 62 out of the drawer, more when its tab and band need the room.
-  const rest = frontTop - Math.max(62 * sc, tabHeight + band + lip) * p
+  // The front folder rises 62 out of the drawer, more when its tab and band need the room. Closed,
+  // it sits an outline below the front's top edge, so its tab's top edge never retraces the rim.
+  const rest =
+    frontTop + stroke.outline * (1 - p) - Math.max(62 * sc, tabHeight + band + lip) * p
   const laid = folders.map((f, i) => {
     // Perspective: a folder further back is narrower, never larger. The inset follows how far
     // back the folder sits in the drawer (its rise over the drawer's full depth), up to a fifth
@@ -261,6 +264,14 @@ export function cajonLayout({
       y: Math.min(f.label.mid, frontTop),
     }))
   }
+  // Front hardware, centred and near the top edge: a label holder, then the pull under it.
+  const holder = { w: 60 * sc, h: 24 * sc }
+  const pull = { w: 96 * sc, h: 14 * sc }
+  const holderY = frontTop + 18 * sc
+  const hardware = {
+    holder: { x: x + (w - holder.w) / 2, y: holderY, ...holder },
+    pull: { x: x + (w - pull.w) / 2, y: holderY + holder.h + 14 * sc, ...pull },
+  }
   return {
     x,
     y,
@@ -269,6 +280,8 @@ export function cajonLayout({
     front,
     frontTop,
     frontHeight,
+    /** The front's label holder and pull (flat rectangles), in parent units. */
+    hardware,
     scale: sc,
     depthSpacing: step,
     labelSize: size,
@@ -277,6 +290,8 @@ export function cajonLayout({
     anchors,
   }
 }
+
+const rect = ({ x, y, w, h }: Box) => ({ x, y, width: w, height: h })
 
 /** Grapheme-by-grapheme ink: the next grapheme fades in, the rest is not drawn yet. */
 function Inked({ text, reveal }: { text: string; reveal: number }) {
@@ -397,10 +412,12 @@ export function Cajon(props: CajonProps) {
           </g>
         )
       })}
-      <path
+      {/* Side walls, narrower at the back (the front is nearest the viewer). A closed drawer has
+          none showing: drawn, they would retrace the front's top edge and thicken its ends. */}
+      {l.frontTop - (l.y + 10 * sc) > stroke.outline && <path
         d={`M${l.x + 20 * sc} ${l.y + 10 * sc}L${l.x} ${l.frontTop}V${l.frontTop + l.frontHeight}L${l.x + 20 * sc} ${l.y + 10 * sc + l.frontHeight}ZM${l.x + l.w - 20 * sc} ${l.y + 10 * sc}L${l.x + l.w} ${l.frontTop}V${l.frontTop + l.frontHeight}L${l.x + l.w - 20 * sc} ${l.y + 10 * sc + l.frontHeight}Z`}
         fill={color.card}
-      />
+      />}
       <rect
         x={l.x}
         y={l.frontTop}
@@ -409,18 +426,8 @@ export function Cajon(props: CajonProps) {
         rx={2}
         fill={color.card}
       />
-      <rect
-        x={l.x + l.w / 2 - 36 * sc}
-        y={l.front + 63 * sc}
-        width={72 * sc}
-        height={25 * sc}
-        rx={3 * sc}
-        fill={color.bg}
-      />
-      <path
-        d={`M${l.x + l.w / 2 - 27 * sc} ${l.front + 72 * sc}h${54 * sc}v${10 * sc}h${-54 * sc}Z`}
-        fill={color.ink}
-      />
+      <rect {...rect(l.hardware.holder)} fill={color.bg} />
+      <rect {...rect(l.hardware.pull)} fill={color.ink} />
     </g>
   )
 }
