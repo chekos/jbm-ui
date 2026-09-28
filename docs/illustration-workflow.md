@@ -43,6 +43,7 @@ Compare the actual rendered component with the source image and existing library
 - Stress marks such as creases are texture in the stock, not marks on the content: keep them short, radiating from their source, under the writing, and never meeting into an X or a check.
 - Inspect endpoints, intermediate states, and extremes. Check hidden geometry, front/back ordering, clipping, and contact points throughout travel, not only in one attractive frame.
 - Exercise each control independently, then meaningful combinations. Check zero, one, typical, and crowded counts; both sides; every pose; and desktop/mobile layouts and keyboard input.
+- When a QA harness renders components with `renderToStaticMarkup`, give each render its own page: separately rendered roots repeat `useId` values, so masks and clip paths (Pluma's, for one) collide and the screenshot shows another instance's cut.
 - Recheck the exported implementation after changing SVG paths, stroke weights, or transforms. A correct Paper preview does not prove the React version matches, and a small gallery thumbnail can hide broken joins.
 - Fix visible defects before delivery. Passing tests or a build cannot establish visual quality. Describe precisely what was inspected rather than making a blanket quality claim.
 

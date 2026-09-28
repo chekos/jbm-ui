@@ -21,15 +21,19 @@ export type PlumaProps = {
   hand?: boolean
 }
 // Hand-viewBox geometry of the pen in the pinch pose (issue #137): the grip point sits in the
-// pocket between the bent index pad and the thumb; the nib leaves past the thumb tip and the
-// barrel runs up behind the index finger, out above the knuckles. The nib sits far enough past the
-// thumb that a stretch of barrel shows between the hand's mask gap and the cone (issue #164), so
-// the cone never reads as a clipped triangle cut off from the pen.
+// pocket between the bent index pad and the thumb; the nib leaves past the thumb tip. The nib sits
+// far enough past the thumb that a stretch of barrel shows between the hand's mask gap and the
+// cone (issue #164), so the cone never reads as a clipped triangle cut off from the pen.
+// The pen weaves with the hand (issue #170): the nib and lower shaft pass behind the thumb and the
+// index pad, and from the grip point, in the open pocket where the change of layer cannot show,
+// the upper shaft crosses in front of the index knuckle toward the viewer.
 const GRIP = { x: 6.4, y: 12.1 }
 const NIB = { x: -3.2, y: 24.26 }
 const TAIL = 17 // viewBox units from the grip to the barrel's end
 const WIDTH = 2.6
 const CONE = 3.6
+/** Where the upper shaft starts over the hand, in viewBox units along the pen from the grip (+ toward the nib). */
+const OVER_FROM = 0
 const rotate = (p: Pt, deg: number): Pt => {
   const r = (deg * Math.PI) / 180
   return {
@@ -106,20 +110,28 @@ export function Pluma({
   while (follow > 180) follow -= 360
   while (follow < -180) follow += 360
   const handAngle = f(angle + follow)
-  // The pen passes behind the hand: a mask cuts it along the hand's silhouette plus a gap half the
-  // outline wide, so the two ink edges stay apart. Nothing is painted over the page, so writing
-  // under the nib stays whole.
-  const maskId = `pluma-${useId().replace(/[^\w-]/g, "")}`
+  // The lower pen passes behind the hand: a mask cuts it along the hand's silhouette plus a gap
+  // half the outline wide, so the two ink edges stay apart. The upper shaft is drawn again over the
+  // hand with a card knockout half the outline wide around it, clipped to the hand's own ink, so
+  // the hand's contours stop short of the barrel where it crosses them. Nothing is painted on the
+  // page outside the hand, so writing under the nib stays whole.
+  const id = useId().replace(/[^\w-]/g, "")
+  const maskId = `pluma-${id}`
+  const overId = `pluma-over-${id}`
   const outline = handOutline("pinch")
   const reach = (tail + len + size) * 2
+  const box = { x: f(at.x - reach), y: f(at.y - reach), width: f(2 * reach), height: f(2 * reach) }
+  const handFrame = `translate(${f(at.x)} ${f(at.y)}) rotate(${handAngle}) translate(${f(-GRIP.x * s)} ${f(-GRIP.y * s)}) scale(${f(s)}) ${outline.transform}`
+  const penFrame = `translate(${f(at.x)} ${f(at.y)}) rotate(${f(angle + dir)})`
+  const tailCap = `H${f(-tail + w / 2)} A${f(w / 2)} ${f(w / 2)} 0 0 0 ${f(-tail + w / 2)} ${f(w / 2)}`
+  // Upper shaft: from the grip point back to the round tail.
+  const upper = `M${f(OVER_FROM * s)} ${f(-w / 2)} ${tailCap} H${f(OVER_FROM * s)} Z`
   return (
     <g>
       {hand && (
-        <mask id={maskId} maskUnits="userSpaceOnUse" x={f(at.x - reach)} y={f(at.y - reach)} width={f(2 * reach)} height={f(2 * reach)}>
-          <rect x={f(at.x - reach)} y={f(at.y - reach)} width={f(2 * reach)} height={f(2 * reach)} fill="#fff" />
-          <g
-            transform={`translate(${f(at.x)} ${f(at.y)}) rotate(${handAngle}) translate(${f(-GRIP.x * s)} ${f(-GRIP.y * s)}) scale(${f(s)}) ${outline.transform}`}
-          >
+        <mask id={maskId} maskUnits="userSpaceOnUse" {...box}>
+          <rect {...box} fill="#fff" />
+          <g transform={handFrame}>
             <path
               d={outline.d}
               fill="#000"
@@ -130,14 +142,24 @@ export function Pluma({
           </g>
         </mask>
       )}
+      {hand && (
+        <mask id={overId} maskUnits="userSpaceOnUse" {...box}>
+          <g transform={handFrame}>
+            <path
+              d={outline.d}
+              fill="#fff"
+              stroke="#fff"
+              strokeWidth={outline.strokeWidth}
+              strokeLinejoin="round"
+            />
+          </g>
+        </mask>
+      )}
       <g mask={hand ? `url(#${maskId})` : undefined}>
-        <g
-          transform={`translate(${f(at.x)} ${f(at.y)}) rotate(${f(angle + dir)})`}
-          data-pluma-nib={`${f(len)}`}
-        >
+        <g transform={penFrame} data-pluma-nib={`${f(len)}`}>
           {/* one silhouette: round tail cap, barrel, and a cone tapering straight on to the nib */}
           <path
-            d={`M${f(coneBase)} ${f(-w / 2)} H${f(-tail + w / 2)} A${f(w / 2)} ${f(w / 2)} 0 0 0 ${f(-tail + w / 2)} ${f(w / 2)} H${f(coneBase)} L${f(len)} 0 Z`}
+            d={`M${f(coneBase)} ${f(-w / 2)} ${tailCap} H${f(coneBase)} L${f(len)} 0 Z`}
             fill={color.ink}
           />
         </g>
@@ -150,6 +172,21 @@ export function Pluma({
           angle={handAngle}
           anchor={GRIP}
         />
+      )}
+      {hand && (
+        <g data-pluma-over="">
+          <g mask={`url(#${overId})`}>
+            <path
+              transform={penFrame}
+              d={upper}
+              fill={color.card}
+              stroke={color.card}
+              strokeWidth={f(outline.strokeWidth * s)}
+              strokeLinejoin="round"
+            />
+          </g>
+          <path transform={penFrame} d={upper} fill={color.ink} />
+        </g>
       )}
     </g>
   )
