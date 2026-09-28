@@ -5,6 +5,7 @@ import { useBenchCompact } from "./bench-compact"
 import { Cajon, cajonLayout, type DrawerFolder } from "@/registry/jbm/motion/cajon"
 import { Hand, handPoses, type HandPose } from "@/registry/jbm/ui/hand"
 import { Mano } from "@/registry/jbm/motion/mano"
+import { DeskProp } from "@/registry/jbm/ui/desk-prop"
 import { Pluma, plumaCaretGap, plumaNib } from "@/registry/jbm/motion/pluma"
 import { FileCabinet } from "@/registry/jbm/ui/file-cabinet"
 import { Bandeja } from "@/registry/jbm/motion/bandeja"
@@ -48,6 +49,14 @@ const poseLabels: Record<HandPose, string> = {
   type: "Type",
   hold: "Hold",
 }
+/**
+ * Hold in context: a side-view mug behind a Hand drawn 180 wide, scaled so its body fills the
+ * pocket and runs on under the fingers, its rim's near end (deskPropLayout(...).rim, 93 48.4) just
+ * under the thumb and its far side a clear gap past the knuckles (never grazing them), with the
+ * handle beyond; its body runs on below the wrist cut, clear of it. The viewBox widens to 222 to
+ * fit the handle.
+ */
+const heldMug = { kind: "mug-side", x: 157, y: 98, scale: 1.6 } as const
 const line = { x: 40, y: 262, w: 270 }
 /**
  * Pluma writes a PaperLine: mono glyphs advance exactly 0.6 em, so the nib's x follows `write`
@@ -302,6 +311,7 @@ function DeskObjectDemo({ name }: { name: string }) {
   })
   const [write, setWrite] = useBenchParam("write", 0.6, unit)
   const [showHand, setShowHand] = useBenchParam("hand", true)
+  const [mug, setMug] = useBenchParam("mug", true)
   const [wood, setWood] = useBenchParam("wood", false)
   const [right, setRight] = useBenchParam("right", false)
   const [cabinet, setCabinet] = useBenchParam("cabinet", false)
@@ -354,7 +364,29 @@ function DeskObjectDemo({ name }: { name: string }) {
           padding: 24,
         }}
       >
-        {name === "hand" ? (
+        {name === "hand" && pose === "hold" && mug ? (
+          // The held object: DeskProp's side-view mug behind the hand, at the shared outline. The
+          // box keeps the bare Hand's height (so ?pose=hold hydrates without a layout shift) and
+          // widens for the handle; where the column is too narrow, the scene scales down inside it.
+          <div style={{ width: "100%", containerType: "inline-size", display: "flex", justifyContent: "center" }}>
+            <svg
+              viewBox="0 0 222 174"
+              role="img"
+              aria-label="Hand: hold, round a mug"
+              style={{
+                display: "block",
+                // The bare Hand's box: its width, at the 155 × 174 ratio of its width and
+                // height attributes, with the hand drawn the same size inside it.
+                height: `calc(min(${compact ? 220 : 360}px, 100cqw) * 174 / 155)`,
+                width: `min(100%, ${compact ? 271 : 444}px)`,
+                flex: "none",
+              }}
+            >
+              <DeskProp {...heldMug} />
+              <Hand pose="hold" width={180} height={174} style={{ height: 174 }} aria-hidden="true" />
+            </svg>
+          </div>
+        ) : name === "hand" ? (
           // Up to 360px wide and never stretched into a tall letterbox, centred in the stage.
           <Hand
             pose={pose}
@@ -536,6 +568,16 @@ function DeskObjectDemo({ name }: { name: string }) {
                 </option>
               ))}
             </select>
+          </label>
+        )}
+        {name === "hand" && pose === "hold" && (
+          <label>
+            <input
+              type="checkbox"
+              checked={mug}
+              onChange={(e) => setMug(e.target.checked)}
+            />{" "}
+            Mug (hold is drawn round an object)
           </label>
         )}
         {name === "pluma" && (

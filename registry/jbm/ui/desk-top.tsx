@@ -1,4 +1,4 @@
-import { color } from "../lib/tokens"
+import { color, stroke } from "../lib/tokens"
 import { unit, type Box, type Pt } from "../lib/geometry"
 
 export type DeskTopDrawerSide = "start" | "end" | "top" | "bottom"
@@ -147,8 +147,10 @@ export function deskTopLayout({
   }
   const inset = Math.min(V * 0.12, 48)
   const thick = Math.min(FRONT.max, Math.max(FRONT.min, (depth - SEAM) * 0.16))
-  const t = thick * 0.56
-  const len = Math.min(t * 2.9, (V - 2 * inset) * 0.5)
+  // The pull, as Cajon's: one flat ink bar at the shared outline, centred on the front wall. From
+  // above it shows its top face, a thin bar along the edge.
+  const t = thick * 0.28
+  const len = Math.min(thick * 1.46, (V - 2 * inset) * 0.45)
   const parts = drawer
     ? {
         /** The drawer box as drawn, from the seam line to its front. */
@@ -183,7 +185,7 @@ export function deskTopLayout({
     } satisfies Pt,
     /**
      * The drawer: its region (panel), the pulled-out box inside it (body), the recessed opening
-     * (well), the thicker front wall on the outer edge (front), and the pull plate on it; or null.
+     * (well), the thicker front wall on the outer edge (front), and the pull bar on it; or null.
      */
     drawer:
       region && parts
@@ -205,6 +207,7 @@ export function deskTopLayout({
     drawn: parts && { body: parts.drawn, opening: parts.opening },
     fill: {
       surface: deskLight(color.bg, k),
+      /** Kept for compatibility: the pull is ink, like Cajon's. */
       handle: deskLight(color.card, k),
       front: deskLight(color.bg, k - 0.1),
       panel: deskLight(color.card, k),
@@ -257,17 +260,12 @@ export function DeskTop({ light = 1, edge = 0, ...props }: DeskTopProps) {
         ? { tl: 0, tr: 0, br: 0, bl: R }
         : { tl: 0, tr: 0, br: R, bl: R }
   const pull = drawer?.pull
-  const bar =
-    pull &&
-    (pull.w >= pull.h
-      ? { x: pull.x + pull.w * 0.125, y: pull.y + pull.h * 0.3, w: pull.w * 0.75, h: pull.h * 0.4 }
-      : { x: pull.x + pull.w * 0.3, y: pull.y + pull.h * 0.125, w: pull.w * 0.4, h: pull.h * 0.75 })
   return (
     <g
       role="img"
       aria-label={`Desk seen from above${side ? ", with a drawer" : ""}`}
       stroke={color.ink}
-      strokeWidth={2}
+      strokeWidth={stroke.outline}
       strokeLinejoin="round"
     >
       {/* The slab goes over the drawer, so its outline is the one seam line. */}
@@ -292,12 +290,7 @@ export function DeskTop({ light = 1, edge = 0, ...props }: DeskTopProps) {
         </>
       )}
       <path d={roundedRect(slab, slabR)} fill={fill.surface} />
-      {pull && bar && (
-        <>
-          <rect {...rect(pull)} rx={Math.min(pull.w, pull.h) * 0.12} fill={fill.handle} />
-          <rect {...rect(bar)} fill={color.ink} stroke="none" />
-        </>
-      )}
+      {pull && <rect {...rect(pull)} fill={color.ink} />}
     </g>
   )
 }

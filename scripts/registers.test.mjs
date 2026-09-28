@@ -234,7 +234,18 @@ test("the slip's grip and points follow offset, lift, and rotation", () => {
   const fold = +peeled.match(/<path d="M([\d.]+) 14H0/)[1]
   assert.ok(Math.abs(k * fold + e - fold) < 0.1 && Math.abs(b * fold + f) < 0.1, "hinge fixed on the fold")
   assert.doesNotMatch(renderToStaticMarkup(h(Slip, { tape: false })), new RegExp(color.line))
-  assert.match(renderToStaticMarkup(h(Slip, { dashed: true })), /stroke-dasharray/)
+  // Flagged: an ink margin bracket beside the left edge, never a dashed (marquee) outline.
+  for (const props of [{ flag: true }, { dashed: true }]) {
+    const flagged = renderToStaticMarkup(h(Slip, props))
+    assert.doesNotMatch(flagged, /stroke-dasharray/)
+    const d = flagged.match(/<path data-flag="" d="M([\d.-]+) ([\d.-]+)H([\d.-]+)V([\d.-]+)H([\d.-]+)"/)
+    assert.ok(d, "margin bracket drawn")
+    const [, armX, top, spine, bottom] = d.map(Number)
+    assert.ok(spine < 0 && armX < 0 && armX > spine, "bracket stands in the margin, arms toward the slip")
+    assert.ok(top > 0 && bottom < 72, "bracket stays inside the slip's height")
+  }
+  assert.doesNotMatch(renderToStaticMarkup(h(Slip, { dashed: true, flag: false })), /data-flag/)
+  assert.doesNotMatch(flat, /data-flag/)
   assert.doesNotMatch(flat, new RegExp(color.accent))
 })
 

@@ -1,7 +1,7 @@
 import type { CSSProperties } from "react"
 import { Paper, paperShadow } from "./paper"
 import { RegisterInk, type RegisterKind } from "./register"
-import { color } from "../lib/tokens"
+import { color, outlineIn } from "../lib/tokens"
 import { unit, type Pt } from "../lib/geometry"
 
 /**
@@ -16,7 +16,9 @@ export type SlipProps = {
   offset?: Pt
   /** Masking tape across the top edge. */
   tape?: boolean
-  /** Dashed ink outline: the slip flagged as out of place. */
+  /** Flag the slip as out of place with an ink bracket in the margin beside its left edge, like an editor's mark. */
+  flag?: boolean
+  /** @deprecated Use `flag`. Kept as an alias: it draws the same margin bracket, never a dashed outline. */
   dashed?: boolean
   /** Register drawn on the slip (default prose). */
   kind?: Exclude<RegisterKind, "mixed">
@@ -121,9 +123,38 @@ function flapMatrix(peel: number, fold: number, L: number, T: number) {
   return `matrix(${r(k)} ${r(-rise)} 0 1 ${r(fold * (1 - k))} ${r(rise * fold)})`
 }
 
+/**
+ * The out-of-place flag: an ink bracket in the margin left of the slip, an editor's mark rather
+ * than a selection box. Its spine stands BRACKET.gap × scale px off the slip's edge and its arms
+ * reach back toward the slip, a little inside its height, at the shared outline.
+ */
+const BRACKET = { gap: 15, arm: 6, inset: 4 }
+function MarginBracket({ h, u }: { h: number; u: number }) {
+  const x = -BRACKET.gap * u
+  const top = BRACKET.inset * u,
+    bottom = h - BRACKET.inset * u
+  const arm = BRACKET.arm * u
+  const r = (n: number) => Math.round(n * 100) / 100
+  return (
+    <path
+      data-flag=""
+      d={`M${r(x + arm)} ${r(top)}H${r(x)}V${r(bottom)}H${r(x + arm)}`}
+      fill="none"
+      stroke={color.ink}
+      strokeWidth={EDGE}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  )
+}
+
+/** The slip's ink edge, drawn inside its box: the shared outline. */
+const EDGE = outlineIn()
+
 /** A taped paper slip carrying a few marks of one register; lift and offset are controlled. */
 export function Slip(props: SlipProps) {
-  const { tape = true, dashed = false, kind = "prose", n, reveal = 1, accent, style } = props
+  const { tape = true, flag, dashed = false, kind = "prose", n, reveal = 1, accent, style } = props
+  const flagged = flag ?? dashed
   const g = resolve(props)
   const { rise, angle, zoom } = pose(g)
   const peel = unit(g.lift / 0.4)
@@ -148,16 +179,16 @@ export function Slip(props: SlipProps) {
         <svg width={g.w} height={g.h} viewBox={`0 0 ${g.w} ${g.h}`} role="img" aria-label={`Slip of ${kind} writing`} style={{ display: "block", overflow: "visible" }}>
           <RegisterInk kind={kind} n={n ?? (kind === "prose" ? 2 : kind === "mono" ? 1 : 2)} w={g.w} h={g.h} scale={u} pad={10 * u} reveal={reveal} accent={accent} />
           <rect
-            x={1}
-            y={1}
-            width={g.w - 2}
-            height={g.h - 2}
-            rx={Math.max(1, 3 * u - 1)}
+            x={EDGE / 2}
+            y={EDGE / 2}
+            width={g.w - EDGE}
+            height={g.h - EDGE}
+            rx={Math.max(1, 3 * u - EDGE / 2)}
             fill="none"
             stroke={color.ink}
-            strokeWidth={2}
-            strokeDasharray={dashed ? `${8 * u} ${5 * u}` : undefined}
+            strokeWidth={EDGE}
           />
+          {flagged && <MarginBracket h={g.h} u={u} />}
         </svg>
       </Paper>
       {tape && <Tape w={g.w} u={u} peel={peel} />}

@@ -41,7 +41,7 @@ export default {
   qa: [
     "Compare accent and ink headings: only the heading stroke changes color.",
     "Try a label longer than 16 characters: it ends with an ellipsis and stays inside the sheet.",
-    "Scale with style.width at narrow widths: the fold and 2px ink edge keep their 160:200 proportions.",
+    "Scale with style.width at narrow widths: the fold and ink edge (stroke.outline) keep their 160:200 proportions.",
     "Without a label the SVG is aria-hidden; with one it exposes role img and the label as its name.",
   ],
   docs: [

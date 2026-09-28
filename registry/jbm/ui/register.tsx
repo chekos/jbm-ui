@@ -1,6 +1,6 @@
 import { useId, type CSSProperties, type ReactNode } from "react"
 import { Paper, frayReach, paperFill, type PaperTone } from "./paper"
-import { color, font } from "../lib/tokens"
+import { color, font, outlineIn } from "../lib/tokens"
 import { unit, type Box, type Pt } from "../lib/geometry"
 
 /**
@@ -474,12 +474,23 @@ export type RegisterProps = RegisterInkProps & {
   children?: ReactNode
   style?: CSSProperties
 }
-const EDGE = 2
+/** A writing sheet's corner radius per unit of mark scale: 6 px on a 360 px sheet. */
+export const SHEET_RADIUS = 6
+/**
+ * The corner radius of a writing sheet `w` px wide, shared by Register and Tear (and any Paper that
+ * stands in for a page): SHEET_RADIUS × the sheet's mark scale (`scale`, or w / 360 clamped to
+ * 0.4–4), never under 4 px.
+ */
+export function sheetRadius(w: number, scale?: number) {
+  const u = scale ?? Math.max(0.4, Math.min(4, (Number.isFinite(w) ? w : 360) / 360))
+  return Math.max(4, SHEET_RADIUS * u)
+}
+/** Paper's edge: the shared outline. */
+const EDGE = outlineIn()
 /** A Paper sheet carrying one register of drawn writing. Anchors and gaps are in the sheet's px. */
 export function Register({ rotate = 0, label, children, style, ...ink }: RegisterProps) {
-  const u = ink.scale ?? Math.max(0.4, Math.min(4, ink.w / 360))
   return (
-    <Paper w={ink.w} h={ink.h} tone={ink.tone} radius={Math.max(4, 6 * u)} rotate={rotate} style={{ flexShrink: 0, ...style }}>
+    <Paper w={ink.w} h={ink.h} tone={ink.tone} radius={sheetRadius(ink.w, ink.scale)} rotate={rotate} style={{ flexShrink: 0, ...style }}>
       <svg
         width={ink.w}
         height={ink.h}

@@ -19,7 +19,8 @@ export default {
         lift: "0 flat on a sheet, 1 held above it. Clamped.",
         offset: "Translation in px from the resting place (default { x: 0, y: 0 }).",
         tape: "Masking tape across the top edge with torn ends (default true). Its right third is a flap that peels up as lift goes 0 → 0.4 and sticks again on landing; it stays hinged along its whole fold (it foreshortens as its free end rises), so no notch opens at the hinge.",
-        dashed: "Dashed ink outline instead of solid: the slip flagged as out of place (default false). Ink, not vermilion.",
+        flag: "Flags the slip as out of place with an ink bracket in the margin beside its left edge (default false): a spine 15 × scale px off the edge with arms reaching back toward the slip, at the shared outline, like an editor's margin mark. The slip keeps its solid edge, so it never reads as a selection marquee. Ink, not vermilion; it moves with the slip.",
+        dashed: "Deprecated alias of flag, kept so existing callers still compile: it draws the same margin bracket, not a dashed outline. Ignored when flag is set.",
         kind: "Register drawn on the slip: mono, plain, grid, or prose (default prose).",
         n: "Count for that register: prose source ticks (default 2), mono steps (1), plain groups or grid tables (2).",
         w: "Slip width in px (default 240).",
@@ -57,7 +58,7 @@ export default {
   examples: [
     {
       title: "A taped prose slip, flagged",
-      code: 'import { Slip } from "@/jbm/ui/slip"\n\n<Slip kind="prose" w={240} h={72} dashed />',
+      code: 'import { Slip } from "@/jbm/ui/slip"\n\n<Slip kind="prose" w={240} h={72} flag />',
     },
     {
       title: "Lift from one register, land in another",
@@ -67,7 +68,7 @@ export default {
   qa: [
     "Drag Lift 0 → 0.4 → 1: the tape flap peels up while staying hinged along its whole fold (no notch or wedge at the hinge), then the slip rises, tilts, and its shadow deepens; back to 0 it lies flat and the flap sticks down continuously.",
     "Drag Carry 0 → 1 with Lift at Held: the slip leaves the Tutorial's gap, arcs over, and settles in the Explicación's gap; the source closes to evenly spaced steps while the destination opens exactly one slip-height of room, and no writing passes under the landed slip.",
-    "Toggle Tape, Dashed outline, and Hand independently: each changes only its own object; the dashed outline is ink.",
+    "Toggle Tape, Out-of-place bracket, and Hand independently: each changes only its own object; the bracket is ink, stands in the margin left of the slip at the shared outline, and the slip's own edge stays solid.",
     "With Hand on, check the pinch stays on the slip's bottom edge while the slip is lifted or carried, and that the hand lets go (opens and draws back from the edge) once it lies flat: at Taped + Flat and at Landed + Flat.",
     "Check 2× zoom: torn tape teeth, the fold, and the outline corners join cleanly with even stroke widths.",
   ],

@@ -1,4 +1,4 @@
-import { color } from "../lib/tokens"
+import { color, outlineIn } from "../lib/tokens"
 export type ToolCaddyProps = { x?: number; y?: number; w?: number }
 /** Empty divided desktop organizer. Tools are separate objects. */
 export function ToolCaddy({ x = 0, y = 0, w = 240 }: ToolCaddyProps) {
@@ -8,7 +8,7 @@ export function ToolCaddy({ x = 0, y = 0, w = 240 }: ToolCaddyProps) {
       role="img"
       aria-label="Empty tool caddy"
       stroke={color.ink}
-      strokeWidth={2}
+      strokeWidth={outlineIn(240 / w)}
       strokeLinejoin="round"
     >
       <path d="M28 0H240V132L212 164H0V32Z" fill={color.bg} />

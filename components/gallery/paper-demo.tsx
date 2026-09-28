@@ -9,6 +9,7 @@ import {
   RegisterInk,
   registerLayout,
   registerSeams,
+  sheetRadius,
   type RegisterSpec,
 } from "@/registry/jbm/ui/register"
 import {
@@ -100,7 +101,7 @@ function PaperBench() {
           <Paper
             w={520}
             h={760}
-            radius={10}
+            radius={sheetRadius(pageSpec.w)}
             tone={ink ? "ink" : "paper"}
             tension={tension}
             pull={cornerSets[corners]}
@@ -291,7 +292,6 @@ function TearBench() {
           <Tear
             w={520}
             h={760}
-            radius={10}
             seams={seams}
             progress={progress}
             stagger={stagger}

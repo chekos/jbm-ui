@@ -178,7 +178,9 @@ test("desk dimensions stay fixed and cabinet is optional",()=>{
 test("highlight bubble uses normal text flow and no scene connection",()=>{
   const markup=renderToStaticMarkup(React.createElement(Burbuja,{words:["Reuse","this","word"],highlight:[1],progress:.5}))
   assert.ok(markup.includes("color-mix"))
-  assert.ok(!markup.includes("<svg"))
+  // The only drawing is ChatBubble's own tail; the words stay in normal text flow.
+  assert.equal((markup.match(/<svg/g) ?? []).length, 1)
+  assert.ok(markup.includes("data-tail"))
   assert.ok(!markup.includes("position:absolute;left"))
 })
 test("hand movement wraps the independent artwork without carried props",()=>{
@@ -435,4 +437,51 @@ test("an ajar flap shows: the folder rises so the opening clears what is in fron
 test("anchors of tabs inside a closed drawer stop at its top rim", () => {
   const l = cajonLayout({ folders: sources.slice(0, 3).map((name) => ({ name })), open: 0 })
   for (let i = 0; i < 3; i++) for (const p of l.anchors(i, 2)) assert.ok(p.y <= l.frontTop + 1e-9)
+})
+test("the drawer front carries a label holder near its top edge and a separate pull under it", async () => {
+  const { Cajon } = await import("../registry/jbm/motion/cajon.tsx")
+  const { color, stroke } = await import("../registry/jbm/lib/tokens.ts")
+  const inside = (a, b, m = 0) =>
+    a.x >= b.x + m && a.y >= b.y + m && a.x + a.w <= b.x + b.w - m && a.y + a.h <= b.y + b.h - m
+  for (const w of [280, 420, 900])
+    for (const open of [0, 0.5, 1]) {
+      const l = cajonLayout({ w, open, folders: [{ name: "a" }] })
+      const front = { x: l.x, y: l.frontTop, w: l.w, h: l.frontHeight }
+      const { holder, pull } = l.hardware
+      for (const [part, box] of [["holder", holder], ["pull", pull]]) {
+        assert.ok(inside(box, front, stroke.outline), `${part} on the front at w ${w}`)
+        assert.ok(Math.abs(box.x + box.w / 2 - (l.x + l.w / 2)) < 1e-9, `${part} centred`)
+      }
+      // Near the top edge, the pull under the holder with a clear gap (never one plate).
+      assert.ok(holder.y - l.frontTop <= 0.12 * l.frontHeight, "holder near the top edge")
+      assert.ok(pull.y - (holder.y + holder.h) >= 4.5 + stroke.outline, "separate pieces")
+      assert.ok(pull.y + pull.h - l.frontTop < 0.42 * l.frontHeight, "pull in the upper part, never mid-panel")
+      assert.ok(pull.w > holder.w && pull.h < holder.h, "a wide bar under a small label card")
+    }
+  const markup = renderToStaticMarkup(
+    React.createElement("svg", null, React.createElement(Cajon, { folders: [{ name: "a" }] }))
+  )
+  const rects = [...markup.matchAll(/<rect ([^>]*)>/g)].map((m) => m[1])
+  assert.equal(rects.filter((r) => r.includes(`fill="${color.bg}"`)).length, 1, "one label card")
+  assert.equal(rects.filter((r) => r.includes(`fill="${color.ink}"`)).length, 1, "one ink pull")
+  assert.ok(!rects.some((r) => /stroke-width/.test(r)), "hardware inherits the shared outline")
+})
+test("drawer folders are Folder's body at folderScaleForDrawer, the loose folder's scale", async () => {
+  const { folderShape, folderScaleForDrawer } = await import("../registry/jbm/ui/folder.tsx")
+  const { fileCabinetLayout } = await import("../registry/jbm/ui/file-cabinet.tsx")
+  for (const w of [280, 420, 900]) {
+    const l = cajonLayout({ w, folders: [{ name: "a" }] })
+    const k = folderScaleForDrawer(w)
+    assert.ok(Math.abs(l.folders[0].w - folderShape.body.w * k) < 1e-9, `width at ${w}`)
+    assert.ok(Math.abs(l.folders[0].h - folderShape.body.h * k) < 1e-9, `height at ${w}`)
+  }
+  assert.ok(Math.abs(folderScaleForDrawer(420) - 368 / 205) < 1e-12)
+  assert.equal(folderScaleForDrawer(NaN), folderScaleForDrawer(420))
+  const cab = fileCabinetLayout({ folders: [{ name: "a" }] })
+  assert.ok(
+    Math.abs(
+      cajonLayout(cab.drawer).folders[0].w -
+        folderShape.body.w * folderScaleForDrawer(cab.drawer.w)
+    ) < 1e-9
+  )
 })

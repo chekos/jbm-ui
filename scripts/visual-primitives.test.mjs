@@ -104,3 +104,59 @@ test("card folder prints its whole label on a widened tab and keeps legacy tones
   assert.ok(render(Folder, { tone: "card", label: "A", labelOn: "front" }).includes("matrix(1 0 0 1 46 180)"))
   assert.ok(!render(Folder, { label: "Notes", labelOn: "tab" }).includes("matrix("))
 })
+test("a closed card folder seats its sheet under the front panel; it rises straight out, then turns", () => {
+  const { folderShape } = load(resolve("registry/jbm/ui/folder.tsx"))
+  const sheet = (html) =>
+    html
+      .match(/translate\(([-\d.e]+) ([-\d.e]+)\) scale\(-1 1\) rotate\(([-\d.e]+) 128 140\)/)
+      .slice(1)
+      .map(Number)
+  const [, ty0, r0] = sheet(render(Folder, { tone: "card", label: "Doorways", open: 0 }))
+  // The sheet's top outline (y 78, 1.5 either side) sits wholly under the front's top outline.
+  assert.equal(r0, 0)
+  assert.ok(78 + ty0 - 1.5 >= folderShape.flap + 1.5 - 1e-9, "no sheet edge above the front panel")
+  assert.ok(184 + ty0 + 1.5 <= 205 + 1.5 + 1e-9, "the seated sheet stays inside the front panel")
+  let last = -Infinity
+  for (let step = 0; step <= 100; step++) {
+    const [, ty, rot] = sheet(render(Folder, { tone: "card", open: step / 100 }))
+    assert.ok(-ty >= last - 1e-9, "the sheet never sinks back")
+    last = -ty
+    // While it still rises from its seat it does not turn: no tilted edge under the panel's top.
+    if (ty > 1e-9) assert.equal(rot, 0, `open ${step / 100}`)
+  }
+  // Accent and ink keep their resting sheet above the panel.
+  assert.ok(render(Folder, { open: 0 }).includes("translate(256 0)"))
+  assert.equal(
+    sheet(render(Folder, { tone: "card", open: 1 })).join(),
+    sheet(render(Folder, { open: 1 })).join()
+  )
+})
+
+test("ChatBubble: the paper bubble and its tail share one ink outline (#162)", () => {
+  const { ChatBubble } = load(resolve("registry/jbm/ui/chat-bubble.tsx"))
+  const paper = render(ChatBubble, { children: "Hola" })
+  assert.match(paper, /border:3px solid #20241F/)
+  // The tail: a card patch over the bottom edge, then one ink stroke that leaves and rejoins the edge.
+  const [patch, line] = [...paper.matchAll(/<path d="([^"]+)"([^>]*)>/g)]
+  assert.ok(patch[2].includes(`fill="#FFFCF5"`))
+  assert.ok(line[2].includes(`stroke="#20241F"`) && line[2].includes(`stroke-width="3"`))
+  assert.equal((line[1].match(/M/g) ?? []).length, 1, "the tail is one path")
+  const y = [...line[1].matchAll(/(-?[\d.]+) (-?[\d.]+)/g)].map((m) => +m[2])
+  assert.equal(y[0], 1.5, "it starts on the bottom edge centreline")
+  assert.equal(y.at(-1), 1.5, "and ends on it")
+  assert.match(paper, /margin-bottom:13px/)
+  // A one-word bubble keeps the tail on the bottom edge's straight run, clear of both corners.
+  assert.match(render(ChatBubble, { side: "end", children: "Sí" }), /min-width:90px/)
+  // The outer side never leans back under the corner (no hook off the corner's curve).
+  const x = [...line[1].matchAll(/(-?[\d.]+) (-?[\d.]+)/g)].map((m) => +m[1])
+  const tipX = x[3], outerX = x[1]
+  assert.ok(tipX >= outerX, "the tail's outer side drops straight or leans in")
+  assert.doesNotMatch(render(ChatBubble, { tail: false, children: "Sí" }), /min-width/)
+  // Ink and vermilion bubbles keep the same geometry, edged in their own fill.
+  for (const [tone, fill] of [["ink", "#20241F"], ["accent", "#C63D24"]]) {
+    const html = render(ChatBubble, { tone, children: "x" })
+    assert.match(html, new RegExp(`border:3px solid ${fill}`))
+  }
+  assert.doesNotMatch(render(ChatBubble, { tail: false, children: "x" }), /<svg/)
+  assert.match(render(ChatBubble, { side: "end", children: "x" }), /scaleX\(-1\)/)
+})

@@ -1,5 +1,32 @@
 import * as React from "react"
-import { color, font, sansWidth } from "../lib/tokens"
+import { color, font, sansWidth, stroke } from "../lib/tokens"
+
+/**
+ * Folder's proportions in its 260×220 space, shared by every folder in the library: the body
+ * (from the tab's top to the front panel's bottom edge), the tab, and the front panel's top edge
+ * when closed. A drawer folder (cajonLayout) is this body at another scale.
+ */
+export const folderShape = {
+  viewBox: { w: 260, h: 220 },
+  body: { x: 25, y: 55, w: 205, h: 150 },
+  tab: { width: 83, height: 27, slope: 17 },
+  /** The front panel's top edge (the fold line) when closed. */
+  flap: 95,
+} as const
+
+/** Reference drawer width: furniture keeps its sizes up to it and grows with wider drawers. */
+const DRAWER_REFERENCE = 420
+/**
+ * The scale that makes a standalone Folder the same object as the front folder in a drawer
+ * `drawerWidth` units wide (cajonLayout, or a FileCabinet's drawer, which is the cabinet width less
+ * 20): that folder is the drawer width less 26 units a side (× drawerWidth / 420 above 420).
+ * Render Folder with style.width = 260 × this, or scale FolderOutline geometry by it.
+ */
+export function folderScaleForDrawer(drawerWidth: number): number {
+  const w = Number.isFinite(drawerWidth) && drawerWidth > 0 ? drawerWidth : DRAWER_REFERENCE
+  const sc = w > DRAWER_REFERENCE ? w / DRAWER_REFERENCE : 1
+  return Math.max(0, w - 52 * sc) / folderShape.body.w
+}
 
 /** Shared complete folder silhouette for standalone folders and filing drawers. */
 export function FolderOutline({
@@ -28,7 +55,7 @@ export function FolderOutline({
       d={`M${x} ${y + tabHeight}H${tabX}V${y}H${tabX + tabWidth - tabSlope}L${tabX + tabWidth} ${y + tabSlope}H${x + w}V${y + h}H${x}Z`}
       fill={fill}
       stroke={color.ink}
-      strokeWidth={2}
+      strokeWidth={stroke.outline}
       strokeLinejoin="round"
     />
   )
@@ -135,6 +162,14 @@ export function frontType(u: number, v: number, open: number) {
 }
 
 const TAB_LABEL = 14
+/** The share of open over which a card folder's seated sheet rises before it turns. */
+const SEAT_LEAD = 0.08
+/** How far a closed card folder's sheet sits below its resting place: its top outline (y 78) under the front panel's. */
+const SEAT_DEPTH = folderShape.flap + stroke.outline - 78
+const smoothstep = (t: number) => {
+  const u = Math.max(0, Math.min(1, t))
+  return u * u * (3 - 2 * u)
+}
 export type FolderProps = React.SVGProps<SVGSVGElement> & {
   label?: string
   open?: number
@@ -175,14 +210,23 @@ export function Folder({
   const tabText = tabbed ? sansWidth(label ?? "", TAB_LABEL) : 0
   const tabWidth = tabbed ? Math.min(205, Math.max(83, tabText + 16 + 17)) : 83
   const tabScale = tabText > 0 ? Math.min(1, (tabWidth - 16 - 17) / tabText) : 1
+  // A card sheet is the folder's own stock: while closed it is seated below the front panel's top
+  // edge (its top outline under the front's), because a card sheet's corner and edge above the
+  // panel read as a nested icon rectangle. Over the first SEAT_LEAD of open it rises straight up to
+  // where accent and ink sheets rest (a tilted edge sliding under the panel would pinch an ink
+  // wedge against it), then turns like theirs. Accent and ink folders show their contrasting
+  // sheet above the panel when closed.
+  const lead = known === "card" ? SEAT_LEAD : 0
+  const seat = lead ? SEAT_DEPTH * (1 - smoothstep(p / lead)) : 0
+  const q = lead ? Math.max(0, (p - lead) / (1 - lead)) : p
   // Turn the landscape sheet from 180° to 90°, keeping its size fixed.
-  const paperAngle = 180 - 90 * p
+  const paperAngle = 180 - 90 * q
   // Lift enough to clear the lower corner's sweep, then keep that clearance.
   // The grip follows a shallow sideways arc as the sheet is pulled upright.
-  const clearanceAngle = Math.min((90 * p * Math.PI) / 180, Math.atan2(79, 44))
+  const clearanceAngle = Math.min((90 * q * Math.PI) / 180, Math.atan2(79, 44))
   const paperLift =
     79 * Math.sin(clearanceAngle) + 44 * Math.cos(clearanceAngle) - 44
-  const paperDrift = 8 * Math.sin(Math.PI * p) - 18 * p
+  const paperDrift = 8 * Math.sin(Math.PI * q) - 18 * q
   // The front label sits on its baseline at y 180, or higher when a sublabel prints under it.
   const frontBaseline = sublabel ? 172 : 180
   // Front-panel lines share one overflow rule: compress to 0.8, then ellipsis.
@@ -220,14 +264,14 @@ export function Folder({
       )}
       {children ?? (
         <g
-          transform={`translate(${256 + paperDrift} ${-paperLift}) scale(-1 1) rotate(${paperAngle - 180} 128 140)`}
+          transform={`translate(${256 + paperDrift} ${seat - paperLift}) scale(-1 1) rotate(${paperAngle - 180} 128 140)`}
         >
           <path d="M49 78H180L207 104V184H49Z" fill={color.card} />
           <path
             d="M180 78H49V184H207V104"
             fill="none"
             stroke={color.ink}
-            strokeWidth={2}
+            strokeWidth={stroke.outline}
           />
           <path d="M180 78V104H207" fill={color.line} />
           {/* The sheet's heading bar: vermilion only on the accent folder. */}
@@ -247,7 +291,7 @@ export function Folder({
         d={`M${25 - p * 15} ${95 + p * 35}H${230 + p * 15}L230 205H25Z`}
         fill={fill}
         stroke={color.ink}
-        strokeWidth={2}
+        strokeWidth={stroke.outline}
         strokeLinejoin="round"
       />
       {front && (

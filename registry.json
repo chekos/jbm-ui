@@ -7,7 +7,7 @@
       "name": "tokens",
       "type": "registry:lib",
       "title": "Tokens",
-      "description": "Cream, ink, and vermilion palette, Geist font stacks and tab-name metrics, radii, surface shadows and borders, stage safe areas, and a CSS variables string.",
+      "description": "Cream, ink, and vermilion palette, Geist font stacks and tab-name metrics, radii, the shared ink outline weight, surface shadows and borders, stage safe areas, and a CSS variables string.",
       "categories": [
         "Foundations"
       ],
@@ -1175,7 +1175,7 @@
     {
       "name": "desk-prop",
       "title": "DeskProp",
-      "description": "A free-standing keycap, keyboard, or mug to place on a desk.",
+      "description": "A free-standing keycap, keyboard, or mug (from above or standing, from the side) to place on a desk.",
       "categories": [
         "UI Bits"
       ],
@@ -1346,7 +1346,8 @@
       "type": "registry:ui",
       "registryDependencies": [
         "@jbm/tokens",
-        "@jbm/paper"
+        "@jbm/paper",
+        "@jbm/register"
       ],
       "files": [
         {

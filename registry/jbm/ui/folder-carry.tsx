@@ -1,5 +1,5 @@
-import { FolderOutline, fitLine, oklab } from "./folder"
-import { color, font, sansWidth } from "../lib/tokens"
+import { FolderOutline, fitLine, folderShape, oklab } from "./folder"
+import { color, font, sansWidth, stroke } from "../lib/tokens"
 import { pointOn, unit, type Pt } from "../lib/geometry"
 
 export type FolderGeometry = {
@@ -38,19 +38,20 @@ export const folderCarryHand = {
   angle: 155,
   anchor: { x: 6.4, y: 12.1 },
 } as const
-export const tableFolderGeometry =(at: Pt, width: number): FolderGeometry => {
-  const k = width / 260
+export const tableFolderGeometry = (at: Pt, width: number): FolderGeometry => {
+  const { viewBox, body, tab, flap } = folderShape
+  const k = width / viewBox.w
   return {
-    x: at.x + 25 * k,
-    y: at.y + 55 * k,
-    w: 205 * k,
-    h: 150 * k,
-    tabX: at.x + 25 * k,
-    tabWidth: 83 * k,
-    tabHeight: 27 * k,
-    tabSlope: 17 * k,
+    x: at.x + body.x * k,
+    y: at.y + body.y * k,
+    w: body.w * k,
+    h: body.h * k,
+    tabX: at.x + body.x * k,
+    tabWidth: tab.width * k,
+    tabHeight: tab.height * k,
+    tabSlope: tab.slope * k,
     // Folder's front panel starts 40 below its body top (y 95 in the 260 frame).
-    flap: at.y + 95 * k,
+    flap: at.y + flap * k,
   }
 }
 /** Shared geometry for the object and its hand. A caller can supply drawer geometry directly. */
@@ -160,11 +161,11 @@ export function FolderCarry({
       <path
         d={
           fill === color.ink
-            ? `M${g.x + 1} ${flap}H${g.x + g.w - 1}`
+            ? `M${g.x + stroke.outline / 2} ${flap}H${g.x + g.w - stroke.outline / 2}`
             : `M${g.x} ${flap}H${g.x + g.w}`
         }
         stroke={fill === color.ink ? color.bg : color.ink}
-        strokeWidth={2}
+        strokeWidth={stroke.outline}
       />
       {label && onTab && (
         <text

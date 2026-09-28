@@ -55,7 +55,7 @@ const { DeskTop, deskTopLayout, deskShade, deskLight, DESK_EDGE } =
   await import("../registry/jbm/ui/desk-top.tsx")
 const { Ejes, ejesLayout, quadrants, EJES_TYPE } =
   await import("../registry/jbm/ui/ejes.tsx")
-const { DeskProp, deskPropLayout, deskPropSize, deskPropKeys } =
+const { DeskProp, deskPropLayout, deskPropSize, deskPropKeys, deskPropHomeKey } =
   await import("../registry/jbm/ui/desk-prop.tsx")
 const { renderToStaticMarkup } = await import("react-dom/server")
 const React = await import("react")
@@ -281,7 +281,7 @@ test("Ejes is ink by default; vermilion appears only with focusTone accent", () 
 })
 
 test("DeskProp: contact points sit on the prop at any scale and rotation", () => {
-  for (const kind of ["keycap", "keyboard", "mug"])
+  for (const kind of ["keycap", "keyboard", "mug", "mug-side"])
     for (const scale of [0.5, 1, 2])
       for (const rotate of [-30, 0, 17, 90]) {
         const l = deskPropLayout({ kind, x: 100, y: 80, scale, rotate })
@@ -296,23 +296,75 @@ test("DeskProp: contact points sit on the prop at any scale and rotation", () =>
         const side = Math.hypot(l.corners[1].x - l.corners[0].x, l.corners[1].y - l.corners[0].y)
         assert.ok(Math.abs(side - w * scale) < 1e-9)
         assert.equal(l.keys.length, kind === "keyboard" ? deskPropKeys.length : 0)
+        assert.equal(l.rim === null, kind !== "mug-side")
       }
 })
 
-test("DeskProp keyboard keys fit its body without overlapping; stroke stays 2 units", () => {
-  assert.equal(deskPropKeys.length, 32)
-  const body = { x: -135, y: -65, w: 270, h: 130 }
+test("DeskProp keyboard reads as a keyboard: about 3:1, 12–14 keys a row, offset rows, modifiers around the space bar (#160)", () => {
+  const { w, h } = deskPropSize.keyboard
+  assert.ok(w / h > 2.8 && w / h < 3.3, `aspect ${w / h}`)
+  const rows = [...new Set(deskPropKeys.map((k) => k.y))].sort((a, b) => a - b)
+  assert.equal(rows.length, 4)
+  const row = (y) => deskPropKeys.filter((k) => k.y === y).sort((a, b) => a.x - b.x)
+  const counts = rows.map((y) => row(y).length)
+  assert.deepEqual(counts.slice(0, 3), [14, 13, 12])
+  // Letter rows are offset: no key edge lines up with the row above (bar the flush ends).
+  for (let r = 1; r < 3; r++) {
+    const above = new Set(row(rows[r - 1]).slice(1).map((k) => Math.round(k.x)))
+    const starts = row(rows[r]).slice(1, -1).map((k) => Math.round(k.x))
+    assert.ok(starts.every((x) => !above.has(x)), `row ${r} offset`)
+  }
+  // The modifier row: the widest key is the space bar, with modifiers on both sides.
+  const bottom = row(rows[3])
+  const space = bottom.reduce((m, k) => (k.w > m.w ? k : m))
+  assert.equal(deskPropKeys.indexOf(space), 42)
+  assert.ok(bottom.indexOf(space) >= 2 && bottom.length - 1 - bottom.indexOf(space) >= 2)
+  assert.ok(space.w > 5 * row(rows[0])[1].w)
+  // The home key is the home row's key nearest the middle.
+  const home = deskPropKeys[deskPropHomeKey]
+  assert.equal(home.y, rows[1])
+  for (const k of row(rows[1])) assert.ok(Math.abs(home.x + home.w / 2) <= Math.abs(k.x + k.w / 2) + 1e-9)
+})
+
+test("DeskProp mug-side: one C-shaped handle tucked under an upright body, the rim across the top (#160)", () => {
+  const markup = svg(React.createElement(DeskProp, { kind: "mug-side", x: 0, y: 0 }))
+  assert.ok(markup.includes('aria-label="Mug, side view"'))
+  assert.equal((markup.match(/<circle/g) ?? []).length, 0, "no ring: the side view is not the top-down mug")
+  const handle = markup.match(/data-part="handle" d="([^"]+)"/)[1]
+  // One loop: two concentric half circles (outer then inner), joined at the body.
+  const arcs = [...handle.matchAll(/A([\d.]+) ([\d.]+) 0 0 ([01])/g)].map((m) => [+m[1], +m[3]])
+  assert.equal(arcs.length, 2)
+  assert.ok(arcs[0][0] - arcs[1][0] >= 6, "the handle's band is wider than two outlines")
+  assert.ok(markup.indexOf('data-part="handle"') < markup.indexOf('data-part="body"'), "handle under the body")
+  const body = markup.match(/data-part="body" d="M(-?[\d.]+) (-?[\d.]+)/)
+  const rim = markup.match(/<ellipse data-part="rim" cx="(-?[\d.]+)" cy="(-?[\d.]+)" rx="([\d.]+)" ry="([\d.]+)"/)
+  assert.ok(Math.abs(+rim[1] - +rim[3] - +body[1]) < 1e-9, "rim meets the left side")
+  assert.equal(+rim[2], +body[2], "rim centred on the body's top")
+  const { w, h } = deskPropSize["mug-side"]
+  assert.ok(+rim[2] - +rim[4] - 1.5 >= -h / 2, "rim inside the footprint")
+  const l = deskPropLayout({ kind: "mug-side", x: 0, y: 0 })
+  assert.equal(l.contact.x, +body[1], "contact on the free side")
+  assert.ok(l.rim && l.rim.y < l.contact.y)
+  assert.ok(w > 0)
+})
+
+test("DeskProp keyboard keys fit its body without overlapping; stroke stays the shared outline", () => {
+  assert.equal(deskPropKeys.length, 47)
+  const { w, h } = deskPropSize.keyboard
+  const body = { x: -w / 2, y: -h / 2, w, h }
+  // Key outlines stay 4.5+ units off the body's edge and 6 apart, so no two edges fuse at the outline.
+  const grow = (k, d) => ({ x: k.x - d, y: k.y - d, w: k.w + 2 * d, h: k.h + 2 * d })
   deskPropKeys.forEach((k, i) => {
     assert.ok(inside(k, { x: body.x + 6, y: body.y + 6, w: body.w - 12, h: body.h - 12 }), `key ${i}`)
-    deskPropKeys.slice(i + 1).forEach((o) => assert.ok(!overlaps(k, o)))
+    deskPropKeys.slice(i + 1).forEach((o) => assert.ok(!overlaps(grow(k, 2.9), o), `keys ${i} gap`))
   })
   for (const scale of [0.5, 1, 2]) {
     const markup = svg(React.createElement(DeskProp, { kind: "mug", x: 0, y: 0, scale }))
-    assert.ok(markup.includes(`stroke-width="${2 / scale}"`))
+    assert.ok(markup.includes(`stroke-width="${3 / scale}"`))
     assert.ok(markup.includes('aria-label="Mug"'))
     assert.ok(!markup.includes(color.accent))
   }
-  const pressed = svg(React.createElement(DeskProp, { kind: "keyboard", x: 0, y: 0, press: 1, keys: [13] }))
+  const pressed = svg(React.createElement(DeskProp, { kind: "keyboard", x: 0, y: 0, press: 1, keys: [deskPropHomeKey] }))
   assert.equal((pressed.match(new RegExp(`fill="${color.bg}"`, "g")) ?? []).length, 1)
 })
 
@@ -328,8 +380,9 @@ test("DeskTop: a top or bottom drawer takes 40% of the height; every fill follow
   assert.ok(dim.includes(`fill="${deskLight(color.card, 0.72)}"`))
 })
 test("DeskProp press reads: the pressed face insets and takes an ink wash", () => {
-  const key = svg(React.createElement(DeskProp, { kind: "keyboard", x: 0, y: 0, press: 1, keys: [13] }))
-  assert.match(key, /data-key="13"><rect x="[-\d.]+" y="[-\d.]+" width="16"/)
+  const key = svg(React.createElement(DeskProp, { kind: "keyboard", x: 0, y: 0, press: 1, keys: [deskPropHomeKey] }))
+  // The key sinks a tenth of its short side (1.4 of 14 units) on every side: still a key, not a nub.
+  assert.match(key, new RegExp(`data-key="${deskPropHomeKey}"><rect x="[-\\d.]+" y="[-\\d.]+" width="11.2" height="11.2"`))
   assert.ok(key.includes('fill-opacity="0.28"'))
   const cap = svg(React.createElement(DeskProp, { kind: "keycap", x: 0, y: 0, press: 1 }))
   assert.ok(cap.includes('fill-opacity="0.28"'))
@@ -373,6 +426,15 @@ test("DeskTop drawer: a pulled-out box narrower than the desk, one pull on its o
       }
   const markup = svg(React.createElement(DeskTop, { box, drawer: "bottom", edge: 1 }))
   assert.equal((markup.match(new RegExp(`fill="${color.ink}"`, "g")) ?? []).length, 1, "one pull bar")
+  // The pull is Cajon's: one ink bar at the shared outline, no plate around it, clear of the
+  // front wall's own edges.
+  assert.equal((markup.match(/<rect /g) ?? []).length, 1, "no plate")
+  for (const drawer of ["start", "end", "top", "bottom"]) {
+    const { pull, front } = deskTopLayout({ box, edge: 1, drawer }).drawer
+    const across = drawer === "start" || drawer === "end" ? ["x", "w"] : ["y", "h"]
+    const margin = pull[across[0]] - front[across[0]]
+    assert.ok(margin >= 4.5 + 3 && Math.abs(margin - (front[across[1]] - pull[across[1]] - margin)) < 1e-9, drawer)
+  }
 })
 
 test("Ejes: the four focus outlines are the same size", () => {

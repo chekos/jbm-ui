@@ -4,7 +4,13 @@ import { useBenchCompact } from "./bench-compact"
 import { useBenchParam } from "./bench-url"
 import { DESK_EDGE, DeskTop, type DeskTopDrawerSide } from "@/registry/jbm/ui/desk-top"
 import { Ejes, type EjesFocusTone, type Quadrant } from "@/registry/jbm/ui/ejes"
-import { DeskProp, deskPropLayout, type DeskPropKind } from "@/registry/jbm/ui/desk-prop"
+import {
+  DeskProp,
+  deskPropHomeKey,
+  deskPropLayout,
+  type DeskPropKind,
+} from "@/registry/jbm/ui/desk-prop"
+import { outlineIn } from "@/registry/jbm/lib/tokens"
 import {
   degrees,
   ProgressControl,
@@ -20,7 +26,14 @@ const labels = {
 }
 const focusOptions = ["none", "tl", "tr", "bl", "br", "all"] as const
 type FocusOption = (typeof focusOptions)[number]
-const propKinds = ["all", "keycap", "keyboard", "mug"] as const
+const propKinds = ["all", "keycap", "keyboard", "mug", "mug-side"] as const
+/** "All four" in one row: centres along x at scale 0.8, in a 560 × 240 view. */
+const ALL_PROPS: readonly { kind: DeskPropKind; x: number }[] = [
+  { kind: "keycap", x: 48 },
+  { kind: "keyboard", x: 214 },
+  { kind: "mug", x: 404 },
+  { kind: "mug-side", x: 506 },
+]
 type PropOption = (typeof propKinds)[number]
 const drawerOptions = ["none", "start", "end", "top", "bottom"] as const
 type DrawerOption = (typeof drawerOptions)[number]
@@ -121,12 +134,12 @@ export function DeskSurfaceDemo({ name }: { name: string }) {
       : focus === "all"
         ? ["tl", "tr", "bl", "br"]
         : [focus]
-  const kinds: DeskPropKind[] =
-    kind === "all" ? ["keycap", "keyboard", "mug"] : [kind]
+  const shown: readonly { kind: DeskPropKind; x: number }[] =
+    kind === "all" ? ALL_PROPS : [{ kind, x: 0 }]
   // One prop alone: a fixed viewBox that holds it at the largest Scale and either extreme of
   // Rotation, so it never clips and the Scale slider still reads as growth.
   const propBox = (() => {
-    if (kind === "all") return "0 0 560 300"
+    if (kind === "all") return "0 0 560 240"
     const pts = [-30, 0, 30].flatMap(
       (r) => deskPropLayout({ kind, x: 0, y: 0, scale: 2 * 1.4, rotate: r }).corners
     )
@@ -137,9 +150,9 @@ export function DeskSurfaceDemo({ name }: { name: string }) {
       y0 = Math.min(...ys) - m
     return `${Math.round(x0)} ${Math.round(y0)} ${Math.round(Math.max(...xs) + m - x0)} ${Math.round(Math.max(...ys) + m - y0)}`
   })()
-  // Every prop view draws the same on-screen line: 2 px at the preview's full width, whatever
-  // the kind, its Scale, or the viewBox that holds it.
-  const propWeight = (2 * Number(propBox.split(" ")[2])) / PREVIEW_WIDTH
+  // Every prop view draws the same on-screen line: the shared outline at the preview's full
+  // width, whatever the kind, its Scale, or the viewBox that holds it.
+  const propWeight = outlineIn(Number(propBox.split(" ")[2]) / PREVIEW_WIDTH)
 
   return (
     <div style={{ width: "100%" }}>
@@ -182,8 +195,8 @@ export function DeskSurfaceDemo({ name }: { name: string }) {
               {/* A keyboard and a mug on the top, so the surface reads as a desk at a glance. */}
               {props && (
                 <>
-                  <DeskProp kind="keyboard" x={DESK.x + 170} y={DESK.y + 175} scale={0.9} weight={2} />
-                  <DeskProp kind="mug" x={DESK.x + 370} y={DESK.y + 110} scale={0.9} weight={2} />
+                  <DeskProp kind="keyboard" x={DESK.x + 170} y={DESK.y + 175} scale={0.9} />
+                  <DeskProp kind="mug" x={DESK.x + 370} y={DESK.y + 110} scale={0.9} />
                 </>
               )}
             </>
@@ -202,16 +215,16 @@ export function DeskSurfaceDemo({ name }: { name: string }) {
             />
           )}
           {name === "desk-prop" &&
-            kinds.map((k, i) => (
+            shown.map((s) => (
               <DeskProp
-                key={k}
-                kind={k}
-                x={kinds.length === 1 ? 0 : [80, 270, 470][i]}
-                y={kinds.length === 1 ? 0 : 150}
-                scale={kinds.length === 1 ? scale * 1.4 : 0.8}
+                key={s.kind}
+                kind={s.kind}
+                x={s.x}
+                y={kind === "all" ? 120 : 0}
+                scale={kind === "all" ? 0.8 : scale * 1.4}
                 rotate={rotate}
                 press={press}
-                keys={[13]}
+                keys={[deskPropHomeKey]}
                 weight={propWeight}
               />
             ))}
@@ -281,7 +294,11 @@ export function DeskSurfaceDemo({ name }: { name: string }) {
         {name === "desk-prop" && (
           <>
             {select("Prop", kind, setKind, propKinds, (o) =>
-              o === "all" ? "All three" : o[0].toUpperCase() + o.slice(1)
+              o === "all"
+                ? "All four"
+                : o === "mug-side"
+                  ? "Mug, side view"
+                  : o[0].toUpperCase() + o.slice(1)
             )}
             {kind !== "all" && (
             <RangeControl
@@ -307,7 +324,7 @@ export function DeskSurfaceDemo({ name }: { name: string }) {
                 format={degrees}
               />
             )}
-            {kind !== "mug" &&
+            {kind !== "mug" && kind !== "mug-side" &&
               range("Press", press, setPress, ["Up", "Half", "Down"])}
           </>
         )}

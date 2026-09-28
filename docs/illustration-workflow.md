@@ -8,6 +8,8 @@ Use `gh` to read issues, pull requests, comments, and available attachments befo
 
 Inspect existing component source and rendered gallery examples before designing. Identify which objects already exist, which need variants, and which interactions compose them. Match the reference's visual language and the library's line weight, palette, and simplicity. Do not equate resemblance to the subject with resemblance to the reference.
 
+Draw every ink outline of a desk, paper, or thread object at the shared token, `stroke.outline` in `lib/tokens.ts` (3 stage px); art whose units scale against the stage (a viewBox, a scaled group) uses `outlineIn(units per px)`. Never hardcode an outline width. At that weight, parallel edges closer than about 4.5 units fuse into one bar: space stacked edges further apart instead of thinning one.
+
 ## Keep objects, variants, and motion separate
 
 An independent physical object should remain usable on its own. A hand does not own a folder. Hand poses are variants; translation and rotation are separate transforms. A desk may include a file cabinet, but the cabinet and its drawer remain independently reusable.
@@ -38,9 +40,13 @@ Compare the actual rendered component with the source image and existing library
 - A curled or bent finger is a smooth arc at constant capsule width, never straight segments meeting at a knuckle angle, which reads as a kink. Fingers that curve side by side share one centre (concentric bands), so neighbours keep sharing a side and each divider stays on it.
 - When a pose traces a reference, overlay the reference raster (scaled so its wrist matches the shared wrist cut) under thin outlines of the drawing and compare landmarks, not impressions. At the hand's heavy outline, a V between two contours narrower than about 35° fills solid with ink; open it or close it into a shared divider. Two strokes that leave one point tangentially (a scallop row meeting a divider, an arc peeling off an outline) fill the gap between them with an ink spur a stroke wide; round that cusp with a small fillet.
 - Fix a join defect at the join: make the segments tangent-continuous, round a cusp with a small fillet, or remove a stub. Never rebuild an approved silhouette to avoid a join; overlay the approved version at the same scale and keep the outer silhouette within about 0.3 viewBox units except where a listed defect was removed. Separate strokes that meet collinearly double their antialiased edge into a visible step at 8×, so draw a pose's ink as one path, with interior lines retraced from the outline as spurs (they add no fill).
+- Two parallel ink edges less than the outline plus 2 units apart fuse into one bar twice the shared weight. Keep stacked edges, rims, and walls at least that far apart, or make them coincide exactly. A stack of translated slanted shapes fuses its sides into a comb; draw the sheets under the top one as near-edge bands with upright sides.
+- Scale an inset to what it insets: a pressed key sinks a fraction of its own size, never a fixed amount that leaves a small key as a nub. Cap inner outlines at half the gap between neighbours when an object is drawn small.
+- To stop a contour short of something drawn over it, cut the contour's ink with a mask; never paint a card-coloured knockout, which lands on the page outside the object.
 - Stress marks such as creases are texture in the stock, not marks on the content: keep them short, radiating from their source, under the writing, and never meeting into an X or a check.
 - Inspect endpoints, intermediate states, and extremes. Check hidden geometry, front/back ordering, clipping, and contact points throughout travel, not only in one attractive frame.
 - Exercise each control independently, then meaningful combinations. Check zero, one, typical, and crowded counts; both sides; every pose; and desktop/mobile layouts and keyboard input.
+- When a QA harness renders components with `renderToStaticMarkup`, give each render its own page: separately rendered roots repeat `useId` values, so masks and clip paths (Pluma's, for one) collide and the screenshot shows another instance's cut.
 - Recheck the exported implementation after changing SVG paths, stroke weights, or transforms. A correct Paper preview does not prove the React version matches, and a small gallery thumbnail can hide broken joins.
 - Fix visible defects before delivery. Passing tests or a build cannot establish visual quality. Describe precisely what was inspected rather than making a blanket quality claim.
 

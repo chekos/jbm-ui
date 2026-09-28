@@ -1,4 +1,4 @@
-import { color } from "../lib/tokens"
+import { color, stroke } from "../lib/tokens"
 import { type Box } from "../lib/geometry"
 import { Cajon, type DrawerFolder, cajonLayout } from "./cajon"
 import { FileCabinetBody, fileCabinetLayout } from "../ui/file-cabinet"
@@ -67,7 +67,7 @@ export function Escritorio(props: EscritorioProps) {
       <g
         fill={wood ? color.bg : color.card}
         stroke={color.ink}
-        strokeWidth={2}
+        strokeWidth={stroke.outline}
         strokeLinejoin="round"
       >
         <path

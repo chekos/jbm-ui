@@ -1,5 +1,5 @@
 import type { CSSProperties, ReactNode } from "react"
-import { color } from "../lib/tokens"
+import { color, stroke } from "../lib/tokens"
 import {
   FRAY,
   frayEdge,
@@ -8,6 +8,7 @@ import {
   paperShadow,
   type PaperTone,
 } from "./paper"
+import { sheetRadius } from "./register"
 
 /** Where one strip goes: an offset from its place in the whole sheet (stage px) and a turn (degrees). */
 export type TearDestination = { x?: number; y?: number; rotate?: number }
@@ -40,6 +41,7 @@ export type TearProps = {
   /** Fray amplitude in stage px. */
   fray?: number
   tone?: PaperTone
+  /** Outer corner radius in stage px; default sheetRadius(w), the same corner as a Register sheet of that width. */
   radius?: number
   edge?: boolean
   shadow?: boolean
@@ -104,7 +106,7 @@ export type TearGeometry = {
 /**
  * Outlines for every strip. Neighbouring strips share the identical frayed polyline at their seam, so
  * together the outlines cover the sheet exactly. Stroke-centred: with an edge, the uncut sides sit
- * 1px inside the box like Paper's 2px border.
+ * half the shared outline inside the box, like Paper's border.
  */
 export function tearGeometry({
   w,
@@ -112,7 +114,7 @@ export function tearGeometry({
   seams,
   seed = 1,
   fray = FRAY,
-  radius = 22,
+  radius,
   edge = true,
 }: {
   w: number
@@ -125,7 +127,8 @@ export function tearGeometry({
 }): TearGeometry[] {
   const W = Math.max(0, finite(w)),
     H = Math.max(0, finite(h))
-  const e = edge ? 1 : 0
+  const e = edge ? stroke.outline / 2 : 0
+  const R = radius ?? sheetRadius(W)
   const cuts = tearSeams(H, seams, fray)
   const lines = cuts.map((y) =>
     frayEdge({ width: W, y, seed, amplitude: fray }).map((p) => ({
@@ -142,7 +145,7 @@ export function tearGeometry({
     const span = (above ? top : e) - (below ? bottom : H - e)
     const r = Math.max(
       0,
-      Math.min(finite(radius) - e, W / 2 - e, Math.abs(span) / (above || below ? 1 : 2))
+      Math.min(finite(R) - e, W / 2 - e, Math.abs(span) / (above || below ? 1 : 2))
     )
     const arc = (x: number, y: number) => `A${r2(r)} ${r2(r)} 0 0 1 ${r2(x)} ${r2(y)}`
     const topRun = above
@@ -269,7 +272,7 @@ export function Tear({
   seed = 1,
   fray = FRAY,
   tone = "paper",
-  radius = 22,
+  radius,
   edge = true,
   shadow = true,
   children,
@@ -278,7 +281,8 @@ export function Tear({
 }: TearProps) {
   const W = Math.max(0, finite(w)),
     H = Math.max(0, finite(h))
-  const strips = tearGeometry({ w: W, h: H, seams, seed, fray, radius, edge })
+  const R = radius ?? sheetRadius(W)
+  const strips = tearGeometry({ w: W, h: H, seams, seed, fray, radius: R, edge })
   const local = strips.map((_, i) =>
     tearPieceProgress(progress, i, strips.length, stagger)
   )
@@ -324,7 +328,7 @@ export function Tear({
           style={{
             position: "absolute",
             inset: 0,
-            borderRadius: radius,
+            borderRadius: R,
             boxShadow: paperShadow,
             opacity: 1 - ramp,
           }}
@@ -336,11 +340,11 @@ export function Tear({
           y = ys[i],
           rot = motion[i].rotate * joined[i]
         // The lower edge of a seam (this strip's top) inks in only once the seam has opened past
-        // twice the stroke width (4px); until then the upper strip's edge alone marks it.
+        // twice the stroke width; until then the upper strip's edge alone marks it.
         const openAbove =
           i > 0
             ? opens(i)
-              ? clamp01((gap(i) - 4) / 2)
+              ? clamp01((gap(i) - 2 * stroke.outline) / 2)
               : clamp01(Math.max(p, local[i - 1]) / 0.05)
             : 0
         const openBelow =
@@ -461,7 +465,7 @@ export function Tear({
                   d={s.edges}
                   fill="none"
                   stroke={edgeColor}
-                  strokeWidth={2}
+                  strokeWidth={stroke.outline}
                   strokeLinejoin="round"
                   strokeLinecap="round"
                 />
@@ -476,7 +480,7 @@ export function Tear({
                       fill="none"
                       stroke={edgeColor}
                       strokeOpacity={r2(open as number)}
-                      strokeWidth={2}
+                      strokeWidth={stroke.outline}
                       strokeLinejoin="round"
                       strokeLinecap="round"
                     />

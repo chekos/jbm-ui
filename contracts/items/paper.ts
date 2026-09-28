@@ -14,14 +14,14 @@ export default {
       export: "Paper",
       kind: "component",
       summary:
-        "Flat piece of card stock (border-box, position relative) in cream, vermilion, or ink with an optional 2px edge, the paper drop shadow, and an optional rotation. Under `tension` each pulled corner sends a few short, soft creases into the sheet (under its writing, spreading apart, never meeting or converging) and, from 0.6, a frayed notch tears into the sheet at a seam; `tab` fixes a pestaña behind the top edge that slides out with its reveal. With neither set it renders exactly the original single div. Pure React and controlled; wrap in a motion Pop for entrances.",
+        "Flat piece of card stock (border-box, position relative) in cream, vermilion, or ink with an optional ink edge at the shared outline weight (stroke.outline, 3px), the paper drop shadow, and an optional rotation. Under `tension` each pulled corner sends a few short, soft creases into the sheet (under its writing, spreading apart, never meeting or converging) and, from 0.6, a frayed notch tears into the sheet at a seam; `tab` fixes a pestaña behind the top edge that slides out with its reveal. With neither set it renders exactly the original single div. Pure React and controlled; wrap in a motion Pop for entrances.",
       props: {
         tone: '"paper" (card fill, ink edge), "accent" (vermilion), or "ink". Accent and ink edges match their fill.',
         w: "Width in stage pixels, including the edge; unset fills the container as a block.",
         h: "Height in stage pixels, including the edge; unset follows children.",
         radius: "Corner radius in stage pixels.",
         rotate: "Rotation in degrees (positive is clockwise); 0 applies no transform.",
-        edge: "Draws the 2px edge; false removes the border.",
+        edge: "Draws the ink edge at the shared outline weight (stroke.outline, 3px); false removes the border.",
         shadow: "Applies paperShadow; false renders flat.",
         style: "Inline styles merged last, for example padding or layout for children.",
         children:
@@ -134,7 +134,7 @@ export default {
   stage: {
     mode: "fluid",
     reason:
-      "Paper takes w×h when given and otherwise fills its container's width with height following children. A tab rises size + 2 × round(size × 0.3) + 2 × edge width above the top edge at reveal 1 (56px at size 32 with the 2px edge; the 14px tuck is behind the sheet) without changing layout size; the tear cuts into the box and never adds to it. Sticker is inline and sized by its text: at the default size 72 it is about 72 × 1.05 + 2 × 13 ≈ 102 stage px tall. Rotation does not change layout size, so tilted corners can extend beyond the box.",
+      "Paper takes w×h when given and otherwise fills its container's width with height following children. A tab rises size + 2 × round(size × 0.3) + 2 × edge width above the top edge at reveal 1 (58px at size 32 with the 3px edge; the 14px tuck is behind the sheet) without changing layout size; the tear cuts into the box and never adds to it. Sticker is inline and sized by its text: at the default size 72 it is about 72 × 1.05 + 2 × 13 ≈ 102 stage px tall. Rotation does not change layout size, so tilted corners can extend beyond the box.",
   },
   examples: [
     {
@@ -151,11 +151,11 @@ export default {
     },
   ],
   qa: [
-    "Compare paper, accent, and ink tones: the paper tone keeps a 2px ink edge, accent and ink edges match their fill, and cream text reads on both.",
+    "Compare paper, accent, and ink tones: the paper tone keeps a 3px ink edge (stroke.outline), accent and ink edges match their fill, and cream text reads on both.",
     "Check rotated pieces and stickers near the safe-area edge: rotation does not reserve layout space, so tilted corners and the longer drop shadow must not clip.",
     "Stickers never wrap; check the longest word at the chosen size fits the frame in portrait.",
     "Toggle edge and shadow off and confirm the piece still separates from the cream canvas where it is used.",
-    "Drag Tension through 0, 0.4, 0.7, and 1: two short creases (at most 14% of the shorter side) come in from each pulled corner, starting at the corner and spreading apart, fade toward their tips, and lie under the writing; none shows inside a result box, and at no tension do two meet, converge into a V, or read as an X or a crossed-out page. The tear opens only past 0.6 and at 0.7 is already a clearly visible notch cut into the sheet at the seam: a short frayed wedge narrowing into a crack, never a shape sticking out of the edge or a long spike. Its lips are a 2px ink edge on the sheet's side of the cut (a cream hairline on ink stock), a thin shadow band sits under the upper lip, and the rest of the mouth shows what lies under the sheet rather than a painted fill; over the writing it stays inside the band gap. The mouth cuts the sheet's writing too: with Tear through the writing the notch runs through a table's ruled body and stays open through the rules.",
+    "Drag Tension through 0, 0.4, 0.7, and 1: two short creases (at most 14% of the shorter side) come in from each pulled corner, starting at the corner and spreading apart, fade toward their tips, and lie under the writing; none shows inside a result box, and at no tension do two meet, converge into a V, or read as an X or a crossed-out page. The tear opens only past 0.6 and at 0.7 is already a clearly visible notch cut into the sheet at the seam: a short frayed wedge narrowing into a crack, never a shape sticking out of the edge or a long spike. Its lips are an ink edge at the outline weight on the sheet's side of the cut (a cream hairline on ink stock), a thin shadow band sits under the upper lip, and the rest of the mouth shows what lies under the sheet rather than a painted fill; over the writing it stays inside the band gap. The mouth cuts the sheet's writing too: with Tear through the writing the notch runs through a table's ruled body and stays open through the rules.",
     "Try each Pulled corners preset and Tear from the right edge, and the tear on the ink stock: there the writing is card-coloured and stays visible.",
     "The bench shows only the sheet, its tension, and its tab; Sticker and Caption appear in the Usage examples.",
     "Drag Tab reveal from 0 to 1: at 0 the whole tab is hidden behind the sheet; in between the label stays hidden until the tab shows most of its capitals, then fades in whole, so the sheet's edge never leaves glyph tops as specks; at 1 the label is Geist 800 at 32 stage px and the tab base stays tucked behind the edge.",

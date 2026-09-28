@@ -4,7 +4,7 @@ const trayProps = {
   x: "Left edge of the tray in the parent SVG's user units.",
   y: "Top reference of the tray in parent SVG units; the back rim is at y + 16 and the base at y + 68.",
   w: "Tray width in parent SVG units; the rim, sheets, and front notch scale with it.",
-  layers: "Settled sheet count; each sheet sits 4 units above the last. Floored; negative or non-finite values show none.",
+  layers: "Settled sheet count. The bottom sheet lies in the well (top edge at y + 24); the second clears the back rim (y + 11) and each further sheet sits 5 units above the last (the shared 3-unit outline plus a 2-unit gap), so no edge fuses with the rim. Sheets under the top one show only their near edges, between upright stack sides. Floored; negative or non-finite values show none.",
   landing: "Arrival of one extra incoming sheet, 0–1: it drops from 90 units above the stack top and fades in, settling at 1. Clamped; 0 hides it.",
 }
 
@@ -36,7 +36,7 @@ export default {
         landing: "Accepted for parity with Bandeja's props; the layout ignores it.",
       },
       returns:
-        "{ x, y, w, count, floor, stackTop }: the floored sheet count, the tray floor centre (y + 41), and the centre of the top of the settled stack (floor − count × 4), in parent SVG units.",
+        "{ x, y, w, count, floor, stackTop }: the floored sheet count, the tray floor centre (y + 41), and where the next sheet lands (17 units below its top edge: y + 41 with no sheets, y + 33 − 5 × count after), in parent SVG units.",
     },
   ],
   stage: {
@@ -44,7 +44,7 @@ export default {
     landscape: { width: 280, height: 52 },
     vertical: { width: 280, height: 52 },
     basis:
-      "Parent SVG user units at w 280: from the back rim at y + 16 to the base at y + 68. Beyond three layers the top sheets rise over the back rim (top sheet at y + 24 − 4 × (layers − 1)), and a landing sheet starts 90 units above the stack, so leave headroom above y.",
+      "Parent SVG user units at w 280: from the back rim at y + 16 to the base at y + 68. From two layers the top sheet rises over the back rim (top sheet at y + 16 − 5 × (layers − 1)), and a landing sheet starts 90 units above the stack, so leave headroom above y.",
   },
   examples: [
     {
@@ -57,7 +57,7 @@ export default {
     },
   ],
   qa: [
-    "Drag Sheets from 0 to 12: each sheet steps up 4 units, the front lip always covers their lower edges, and tall stacks stay inside the viewBox.",
+    "Drag Sheets from 0 to 12: the second sheet jumps clear of the back rim, then each steps up 5 units; no sheet edge fuses with the rim, a wall, or the sheet below, the stack's sides stay upright inside the wall posts, and tall stacks stay inside the viewBox.",
     "Step landing through 0, 0.5, and 1: the incoming sheet fades in while descending and rests exactly on the stack at 1, then increment layers to settle it.",
     "Check the front notch stays centred when w changes.",
   ],

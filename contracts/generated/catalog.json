@@ -5,7 +5,7 @@
       "name": "tokens",
       "entry": "component",
       "title": "Tokens",
-      "description": "Cream, ink, and vermilion palette, Geist font stacks and tab-name metrics, radii, surface shadows and borders, stage safe areas, and a CSS variables string.",
+      "description": "Cream, ink, and vermilion palette, Geist font stacks and tab-name metrics, radii, the shared ink outline weight, surface shadows and borders, stage safe areas, and a CSS variables string.",
       "category": "Foundations",
       "capabilities": [],
       "needsRemotion": false,
@@ -62,6 +62,26 @@
           "export": "radius",
           "kind": "constant",
           "summary": "Corner radii in pixels: chip 14, code 12, card 28, pill 10."
+        },
+        {
+          "export": "stroke",
+          "kind": "constant",
+          "summary": "The shared ink outline, `stroke.outline`, in stage px: 3 (3px on a 1080 stage). Every desk, paper, and thread object (Hand, Folder, Cajon, FileCabinet, Escritorio, DeskTop, DeskProp, Bandeja, ToolCaddy, Document, Paper, Tear, Register, Slip, Hilo, VideoPrint, PunchedTag) draws its outline at this weight, so a composed scene reads as one line weight."
+        },
+        {
+          "export": "outlineIn",
+          "kind": "function",
+          "summary": "The shared outline converted to a local unit system, for art whose viewBox or transform scales against the stage (Hand's 30-unit viewBox at 180 px, a scaled DeskProp group).",
+          "params": [
+            {
+              "name": "unitsPerPx",
+              "type": "number",
+              "required": false,
+              "default": "1",
+              "description": "Local units per stage px; default 1. Non-finite or non-positive values count as 1."
+            }
+          ],
+          "returns": "stroke.outline × unitsPerPx, in local units."
         },
         {
           "export": "shadowLayers",
@@ -887,7 +907,7 @@
         {
           "export": "Paper",
           "kind": "component",
-          "summary": "Flat piece of card stock (border-box, position relative) in cream, vermilion, or ink with an optional 2px edge, the paper drop shadow, and an optional rotation. Under `tension` each pulled corner sends a few short, soft creases into the sheet (under its writing, spreading apart, never meeting or converging) and, from 0.6, a frayed notch tears into the sheet at a seam; `tab` fixes a pestaña behind the top edge that slides out with its reveal. With neither set it renders exactly the original single div. Pure React and controlled; wrap in a motion Pop for entrances.",
+          "summary": "Flat piece of card stock (border-box, position relative) in cream, vermilion, or ink with an optional ink edge at the shared outline weight (stroke.outline, 3px), the paper drop shadow, and an optional rotation. Under `tension` each pulled corner sends a few short, soft creases into the sheet (under its writing, spreading apart, never meeting or converging) and, from 0.6, a frayed notch tears into the sheet at a seam; `tab` fixes a pestaña behind the top edge that slides out with its reveal. With neither set it renders exactly the original single div. Pure React and controlled; wrap in a motion Pop for entrances.",
           "props": [
             {
               "name": "tone",
@@ -929,7 +949,7 @@
               "type": "boolean",
               "required": false,
               "default": "true",
-              "description": "Draws the 2px edge; false removes the border."
+              "description": "Draws the ink edge at the shared outline weight (stroke.outline, 3px); false removes the border."
             },
             {
               "name": "shadow",
@@ -1214,7 +1234,7 @@
       ],
       "stage": {
         "mode": "fluid",
-        "reason": "Paper takes w×h when given and otherwise fills its container's width with height following children. A tab rises size + 2 × round(size × 0.3) + 2 × edge width above the top edge at reveal 1 (56px at size 32 with the 2px edge; the 14px tuck is behind the sheet) without changing layout size; the tear cuts into the box and never adds to it. Sticker is inline and sized by its text: at the default size 72 it is about 72 × 1.05 + 2 × 13 ≈ 102 stage px tall. Rotation does not change layout size, so tilted corners can extend beyond the box."
+        "reason": "Paper takes w×h when given and otherwise fills its container's width with height following children. A tab rises size + 2 × round(size × 0.3) + 2 × edge width above the top edge at reveal 1 (58px at size 32 with the 3px edge; the 14px tuck is behind the sheet) without changing layout size; the tear cuts into the box and never adds to it. Sticker is inline and sized by its text: at the default size 72 it is about 72 × 1.05 + 2 × 13 ≈ 102 stage px tall. Rotation does not change layout size, so tilted corners can extend beyond the box."
       },
       "examples": [
         {
@@ -1231,11 +1251,11 @@
         }
       ],
       "qa": [
-        "Compare paper, accent, and ink tones: the paper tone keeps a 2px ink edge, accent and ink edges match their fill, and cream text reads on both.",
+        "Compare paper, accent, and ink tones: the paper tone keeps a 3px ink edge (stroke.outline), accent and ink edges match their fill, and cream text reads on both.",
         "Check rotated pieces and stickers near the safe-area edge: rotation does not reserve layout space, so tilted corners and the longer drop shadow must not clip.",
         "Stickers never wrap; check the longest word at the chosen size fits the frame in portrait.",
         "Toggle edge and shadow off and confirm the piece still separates from the cream canvas where it is used.",
-        "Drag Tension through 0, 0.4, 0.7, and 1: two short creases (at most 14% of the shorter side) come in from each pulled corner, starting at the corner and spreading apart, fade toward their tips, and lie under the writing; none shows inside a result box, and at no tension do two meet, converge into a V, or read as an X or a crossed-out page. The tear opens only past 0.6 and at 0.7 is already a clearly visible notch cut into the sheet at the seam: a short frayed wedge narrowing into a crack, never a shape sticking out of the edge or a long spike. Its lips are a 2px ink edge on the sheet's side of the cut (a cream hairline on ink stock), a thin shadow band sits under the upper lip, and the rest of the mouth shows what lies under the sheet rather than a painted fill; over the writing it stays inside the band gap. The mouth cuts the sheet's writing too: with Tear through the writing the notch runs through a table's ruled body and stays open through the rules.",
+        "Drag Tension through 0, 0.4, 0.7, and 1: two short creases (at most 14% of the shorter side) come in from each pulled corner, starting at the corner and spreading apart, fade toward their tips, and lie under the writing; none shows inside a result box, and at no tension do two meet, converge into a V, or read as an X or a crossed-out page. The tear opens only past 0.6 and at 0.7 is already a clearly visible notch cut into the sheet at the seam: a short frayed wedge narrowing into a crack, never a shape sticking out of the edge or a long spike. Its lips are an ink edge at the outline weight on the sheet's side of the cut (a cream hairline on ink stock), a thin shadow band sits under the upper lip, and the rest of the mouth shows what lies under the sheet rather than a painted fill; over the writing it stays inside the band gap. The mouth cuts the sheet's writing too: with Tear through the writing the notch runs through a table's ruled body and stays open through the rules.",
         "Try each Pulled corners preset and Tear from the right edge, and the tear on the ink stock: there the writing is card-coloured and stays visible.",
         "The bench shows only the sheet, its tension, and its tab; Sticker and Caption appear in the Usage examples.",
         "Drag Tab reveal from 0 to 1: at 0 the whole tab is hidden behind the sheet; in between the label stays hidden until the tab shows most of its capitals, then fades in whole, so the sheet's edge never leaves glyph tops as specks; at 1 the label is Geist 800 at 32 stage px and the tab base stays tucked behind the edge.",
@@ -5032,7 +5052,7 @@
         {
           "export": "ChatBubble",
           "kind": "component",
-          "summary": "One message bubble, sized to its content up to the container width, with an optional mono speaker line and a small triangular tail under the aligned corner. No chat state or typing simulation; callers choose the list or conversation semantics. Div attributes pass through.",
+          "summary": "One message bubble, sized to its content up to the container width, with an optional mono speaker line and a small tail under the aligned corner. The paper tone is card stock with the shared ink outline (stroke.outline) around body and tail as one line: each side of the tail curves out of the bottom edge through a small fillet and the edge opens where the tail leaves it. Ink and accent bubbles are edged in their own fill, so every tone has the same size. No chat state or typing simulation; callers choose the list or conversation semantics. Div attributes pass through.",
           "props": [
             {
               "name": "side",
@@ -5046,14 +5066,14 @@
               "type": "\"paper\" | \"ink\" | \"accent\"",
               "required": false,
               "default": "\"paper\"",
-              "description": "Fill: \"paper\" (card stock with ink text), \"ink\", or \"accent\" (vermilion); ink and accent use cream text."
+              "description": "Fill: \"paper\" (card stock with ink text and an ink outline), \"ink\", or \"accent\" (vermilion); ink and accent use cream text and no ink edge."
             },
             {
               "name": "tail",
               "type": "boolean",
               "required": false,
               "default": "true",
-              "description": "Shows the 18×12 tail below the bubble, which adds 10px bottom margin. False removes both."
+              "description": "Shows the tail below the bubble: its sides leave the bottom edge 37 and 57px in from the aligned side and meet at a tip 40px in (the outer side leans slightly inward, never back under the corner), 12.5px below the bubble with its outline, which adds 13px bottom margin and a minimum width of 90px, so even a one-word message keeps the tail on the straight run of the bottom edge, clear of both rounded corners. False removes all three."
             },
             {
               "name": "speaker",
@@ -5070,7 +5090,7 @@
       ],
       "stage": {
         "mode": "fluid",
-        "reason": "Width fits the content up to 100% of the container; height is 16px padding top and bottom plus message lines at 18px × 1.5, an optional speaker line (11px + 6px gap), and 10px of margin for the tail when shown."
+        "reason": "Width fits the content up to 100% of the container (at least 90px with a tail); height is 16px top and bottom (13px padding inside the 3px edge) plus message lines at 18px × 1.5, an optional speaker line (11px + 6px gap), and 13px of margin for the tail when shown."
       },
       "examples": [
         {
@@ -5079,9 +5099,10 @@
         }
       ],
       "qa": [
-        "Compare paper, ink, and accent tones on cream: text stays legible and the tail matches the bubble fill.",
-        "Check start and end alignment: the tail sits 22px in from the aligned corner and points toward that side.",
-        "Turn off the tail and confirm the 10px gap below disappears.",
+        "Compare paper, ink, and accent tones on cream: text stays legible, the tail matches the bubble fill, and the paper bubble's ink edge runs around body and tail as one line.",
+        "Enlarge the paper bubble's tail at 8×: both sides curve out of the bottom edge without a step, gap, stub, or doubled edge, and no ink hairline crosses the opening.",
+        "Check start and end alignment: the tail leaves the bottom edge clear of the rounded corner, mirrored on the end side, and points toward that side. Repeat with a one-word message (\"Sí\") on both sides: the tail still sits on the straight bottom edge, never off a corner.",
+        "Turn off the tail and confirm the 13px gap below disappears.",
         "Check a long unbroken message on a narrow screen wraps inside the bubble instead of overflowing."
       ],
       "docs": [
@@ -5162,7 +5183,7 @@
       "qa": [
         "Compare accent and ink headings: only the heading stroke changes color.",
         "Try a label longer than 16 characters: it ends with an ellipsis and stays inside the sheet.",
-        "Scale with style.width at narrow widths: the fold and 2px ink edge keep their 160:200 proportions.",
+        "Scale with style.width at narrow widths: the fold and ink edge (stroke.outline) keep their 160:200 proportions.",
         "Without a label the SVG is aria-hidden; with one it exposes role img and the label as its name."
       ],
       "docs": [
@@ -5226,7 +5247,7 @@
               "type": "FolderTone",
               "required": false,
               "default": "\"accent\"",
-              "description": "Folder fill: \"accent\" (vermilion, cream label), \"ink\" (cream label), or \"card\" (plain cream with ink label, tab label by default)."
+              "description": "Folder fill: \"accent\" (vermilion, cream label), \"ink\" (cream label), or \"card\" (plain cream with ink label, tab label by default). A closed card folder shows no sheet: its default sheet, in the folder's own stock, is seated below the front panel's top edge and rises straight out over the first 8% of open, then turns like the others. Accent and ink folders show their contrasting sheet above the panel when closed."
             },
             {
               "name": "sublabel",
@@ -5246,6 +5267,26 @@
           "passthrough": [
             "React.SVGProps<SVGSVGElement>"
           ]
+        },
+        {
+          "export": "folderShape",
+          "kind": "constant",
+          "summary": "Folder's proportions in its 260×220 space, shared by every folder in the library: viewBox { w: 260, h: 220 }, body { x: 25, y: 55, w: 205, h: 150 } (tab top to the front panel's bottom edge), tab { width: 83, height: 27, slope: 17 }, and flap 95 (the front panel's top edge when closed). tableFolderGeometry and cajonLayout's folders are this body at another scale."
+        },
+        {
+          "export": "folderScaleForDrawer",
+          "kind": "function",
+          "summary": "The scale that makes a standalone Folder the same object as the front folder of a drawer: render Folder with style.width = 260 × the result, or multiply folderShape by it. Cajon's front folder is the drawer width less 26 units a side (× w / 420 above the 420 reference); a FileCabinet's drawer is the cabinet width less 20.",
+          "params": [
+            {
+              "name": "drawerWidth",
+              "type": "number",
+              "required": true,
+              "default": null,
+              "description": "Drawer width in parent units (Cajon's w). Non-finite or non-positive widths use the 420 reference."
+            }
+          ],
+          "returns": "Folder units to parent units: 368 / 205 (about 1.80) for the 420 reference drawer."
         },
         {
           "export": "folderTones",
@@ -5455,7 +5496,7 @@
               "type": "string",
               "required": false,
               "default": "color.accent",
-              "description": "Fill color; the 2px ink edge is fixed."
+              "description": "Fill color; the ink edge (stroke.outline, 3px) is fixed."
             }
           ],
           "passthrough": []
@@ -5483,14 +5524,20 @@
           "code": "import { Folder } from \"@/jbm/ui/folder\"\n\n<Folder tone=\"card\" label=\"Doorways\" sublabel=\"rigor · ir a la fuente\" />\n// Cream fill, ink text; the tab widens to fit the whole label."
         },
         {
+          "title": "Match the folders in a drawer",
+          "code": "import { Folder, folderScaleForDrawer } from \"@/jbm/ui/folder\"\n\n// A loose folder the same size as the front folder of a 420-wide Cajon.\n<Folder tone=\"card\" label=\"Doorways\" style={{ width: 260 * folderScaleForDrawer(420) }} />"
+        },
+        {
           "title": "Drive it from a Remotion timeline",
           "code": "import { Folder } from \"@/jbm/ui/folder\"\nimport { useProgress } from \"@/jbm/motion/hooks\" // install @jbm/motion-hooks separately\n\n// Render inside a Remotion <Composition> or <Player>: hooks run in the component body.\nexport function OpeningFolder() {\n  const open = useProgress(0.5, 1, 0.8)\n  return <Folder label=\"proyecto\" tone=\"ink\" open={open} style={{ width: 390 }} />\n}"
         }
       ],
       "qa": [
         "Drag open through 0, 0.5, and 1: the sheet never cuts through the front panel and its lower corner clears the folder edge.",
+        "Card tone closed: only the back panel, its tab and name, and the front panel show; no sheet edge or dog-ear above the front. Step open through 0.04, 0.08, and 0.12: the sheet rises straight out of the front before it turns, with no ink wedge pinched against the panel's top edge.",
+        "Beside a Cajon, a Folder at style.width 260 × folderScaleForDrawer(w) has the same body width as the drawer's front folder.",
         "Check the label stays on the front plane while it foreshortens; a long label and sublabel follow the same rule: compressed to at most 0.8, then an ellipsis.",
-        "Compare accent, ink, and card tones; the ink folder keeps a visible 2px edge on cream. Vermilion appears only on the accent tone: the default sheet's heading bar is ink on ink and card folders.",
+        "Compare accent, ink, and card tones; the ink folder keeps a visible 3px edge on cream. Vermilion appears only on the accent tone: the default sheet's heading bar is ink on ink and card folders.",
         "Card tone: the tab name is bold sans (Geist 800), the tab widens for \"Doorways\", reaches the body width for \"Training Within Industry\", and never shows an ellipsis. At open 0.5 and 1 the whole name stays readable over the rising sheet.",
         "Sublabel: stays on the front panel and leans with it through open 0 → 1, under a front label or near the top-left under a tab label.",
         "Scale with style.width at narrow widths: the silhouette keeps its 260:220 proportions."
@@ -5906,7 +5953,7 @@
         {
           "export": "Cajon",
           "kind": "component",
-          "summary": "SVG <g> of a filing drawer: an interior of flat drawer shades (back wall, floor, and lighter side walls, so an empty drawer reads as an empty box), complete FolderOutline folders stepping up and narrowing toward the back, side walls, and a card front with a handle. Each folder's light (k) darkens with depth, its name inks in with reveal, and its front flap can stand ajar. Folders are occluded by the front and by each other, never shortened. Controlled by open and per-folder values; no internal timer. Render inside an <svg>.",
+          "summary": "SVG <g> of a filing drawer: an interior of flat drawer shades (back wall, floor, and lighter side walls, so an empty drawer reads as an empty box), complete FolderOutline folders stepping up and narrowing toward the back, side walls, and a card front carrying a label holder near its top edge with a separate pull under it (flat rectangles at the shared outline: a cream label card and an ink bar). Each folder's light (k) darkens with depth, its name inks in with reveal, and its front flap can stand ajar. Folders are occluded by the front and by each other, never shortened. Controlled by open and per-folder values; no internal timer. Render inside an <svg>.",
           "props": [
             {
               "name": "x",
@@ -5927,7 +5974,7 @@
               "type": "number",
               "required": false,
               "default": null,
-              "description": "Drawer width in parent SVG units. The front folder is w − 52 wide and its height (and the front's) scales with it at 150:205; folders further back are narrower. Above the 420 reference the furniture grows with it: walls, margins, front travel, the front folder's rise, lift clearance, and the handle all scale by w / 420 (narrower drawers keep the reference sizes)."
+              "description": "Drawer width in parent SVG units. The front folder is w − 52 wide (Folder's body at folderScaleForDrawer(w), so a loose Folder at that scale is the same object) and its height (and the front's) scales with it at 150:205; folders further back are narrower. Above the 420 reference the furniture grows with it: walls, margins, front travel, the front folder's rise, lift clearance, and the front's label holder and pull all scale by w / 420 (narrower drawers keep the reference sizes)."
             },
             {
               "name": "h",
@@ -6000,7 +6047,7 @@
               "type": "number",
               "required": false,
               "default": "420",
-              "description": "Drawer width in parent SVG units. The front folder is w − 52 wide and its height (and the front's) scales with it at 150:205; folders further back are narrower. Above the 420 reference the furniture grows with it: walls, margins, front travel, the front folder's rise, lift clearance, and the handle all scale by w / 420 (narrower drawers keep the reference sizes)."
+              "description": "Drawer width in parent SVG units. The front folder is w − 52 wide (Folder's body at folderScaleForDrawer(w), so a loose Folder at that scale is the same object) and its height (and the front's) scales with it at 150:205; folders further back are narrower. Above the 420 reference the furniture grows with it: walls, margins, front travel, the front folder's rise, lift clearance, and the front's label holder and pull all scale by w / 420 (narrower drawers keep the reference sizes)."
             },
             {
               "name": "h",
@@ -6045,7 +6092,7 @@
               "description": "Name size in parent SVG units (default 13). Tab height is 27/13 of it, the sublabel 0.8 of it. Tab widths come from sansWidth (Geist 800). Perspective does not depend on it: a folder's inset follows its depth in the drawer (its rise over the rise of eight folders), up to a fifth of the width at the back. For video at 1080 use about 24–36."
             }
           ],
-          "returns": "{ x, y, w, h, front, frontTop, frontHeight, scale, depthSpacing, labelSize, band, folders, anchors }. frontTop is the drawer front's top edge; scale is max(1, w / 420). Each folder has x, y (top of tab), w, h, tabX, tabWidth, tabHeight, tabSlope, anchor (tab grip point), label { x, y baseline, mid, end, text, scale } (text is the name as drawn, whole or ending in an ellipsis; scale is 1, or down to 0.94 when a barely-long name fits), sublabel { x, y, scale, width, visible } (visible is false whenever anything in front, a nearer folder's tab or top edge or the drawer front, covers any part of the line: a half-open drawer or a crowded one never prints a fragment), rule (false when an edge in front runs within 8 units under the front flap's top rule, where the two would read as one heavy bar), flap (front flap's top edge), opening { drop, lean } (the ajar flap; lean is 0: the flap's top edge drops straight and is never wider than its folder), visible (0–1, how much of the tab shows above the drawer front; 0 inside a closed drawer), and light (effective k). anchors(i, n) returns n points on folder i's tab midline, from just before the name (clear of its first letter, where a knot sits) to the tab's straight edge; once a tab is below the drawer front's top edge the points stop at that rim, so threads never reach through the front. [] for an unknown folder or n < 1."
+          "returns": "{ x, y, w, h, front, frontTop, frontHeight, hardware, scale, depthSpacing, labelSize, band, folders, anchors }. frontTop is the drawer front's top edge; hardware is { holder, pull }, the front's label holder (60 × 24, 18 below frontTop) and the pull under it (96 × 14, 14 lower), centred, as Boxes (× scale); scale is max(1, w / 420). Each folder has x, y (top of tab), w, h, tabX, tabWidth, tabHeight, tabSlope, anchor (tab grip point), label { x, y baseline, mid, end, text, scale } (text is the name as drawn, whole or ending in an ellipsis; scale is 1, or down to 0.94 when a barely-long name fits), sublabel { x, y, scale, width, visible } (visible is false whenever anything in front, a nearer folder's tab or top edge or the drawer front, covers any part of the line: a half-open drawer or a crowded one never prints a fragment), rule (false when an edge in front runs within 8 units under the front flap's top rule, where the two would read as one heavy bar), flap (front flap's top edge), opening { drop, lean } (the ajar flap; lean is 0: the flap's top edge drops straight and is never wider than its folder), visible (0–1, how much of the tab shows above the drawer front; 0 inside a closed drawer), and light (effective k). anchors(i, n) returns n points on folder i's tab midline, from just before the name (clear of its first letter, where a knot sits) to the tab's straight edge; once a tab is below the drawer front's top edge the points stop at that rim, so threads never reach through the front. [] for an unknown folder or n < 1."
         },
         {
           "export": "drawerLight",
@@ -6110,13 +6157,14 @@
         }
       ],
       "qa": [
+        "At index size the closed and open drawer read as a filing-cabinet drawer: a small cream label holder near the front's top edge and a separate ink pull under it, both centred; never one plate with a slot, and nothing floating mid-panel. The walls narrow toward the back and the front stays as tall as the folders it hides.",
         "Drag Open through 0, 0.5, and 1: the front slides forward, folders rise and fan, and no folder shows below the front edge.",
         "Try 0, 1, 3, and 6 folders with and without sublabels: every tab and the band under it stay visible, back folders are narrower and darker, never larger; with none, the inside reads as an empty box (back wall, floor, lighter side walls), not a dark block. At 8 and 12 folders the stair keeps the height of six: folders pack tighter, names stay whole, and sublabels the next folder would strike are not printed.",
         "Sweep Name reveal 0 → 1: tabs start blank and names ink in from the left, one grapheme at a time; the tab never changes width.",
         "Lift a back folder: it rises behind the folders in front and brightens to k 1; its complete outline appears as it clears them.",
         "Pick any folder in Target and set Flap ajar: the folder rises until its shaded opening shows above the folder (or drawer front) in front of it while the tab of the folder behind stays in view, the flap's top edge drops straight down, never wider than the folder (lifted or not), and the bottom corners stay fixed. On a vermilion folder the opening is a darker vermilion.",
         "Tab names are bold sans (Geist 800), sublabels italic sans. Long names (\"Training Within Industry 1940s\" at Name size 36) widen the tab to the folder, then end in an ellipsis; no name is visibly condensed.",
-        "Set Name size to 24 with six folders: back folders narrow exactly as at 13; at w 900 the handle, walls, and travel grow with the drawer.",
+        "Set Name size to 24 with six folders: back folders narrow exactly as at 13; at w 900 the label holder, pull, walls, and travel grow with the drawer.",
         "Switch Tab layout to stagger3: tabs cycle left, center, right and sublabels stay inside the folder.",
         "The Mano anchor in the hand example is an estimate of the pinch fingertip; verify it visually for your pose."
       ],
@@ -6160,7 +6208,7 @@
               "type": "HandPose",
               "required": false,
               "default": "\"point\"",
-              "description": "Silhouette: `open` (open palm, fingers together), `point` (index finger extended), `pinch` (index bent over the thumb; also the pen grip Pluma uses, so there is no pen pose), `grip` (front-view fist: four fingers with knuckle bumps on top and the curled fingertips in a row beneath, the thumb lying across under them, pointing in; lay the knuckles over a sheet or tab edge), `type` (the hand from above on a keyboard: all four fingers curved together in concentric arcs up and to the left, tips down on the keys, the index curling furthest and the middle tallest, the thumb low and pointing left toward the space bar; use it upright, fingertips on the keys), or `hold` (the side-view mug grip turned so the wrist is at the bottom: four stacked fingers with their curled tips on the palm, the thumb opening from the index in a V; rotate it about -75° to put the fingers through a handle on the left). Every pose draws its dividers from the outline's valley points in the outline's stroke width; grip, type, and hold draw all their ink as one path (interior lines retraced from the outline), so joins are tangent with no steps, and the cusps between fingertips, hold's thumb web, and grip's palm edge between index and thumb round off in small fillets. The palm side meets the wrist cut in one tangent-continuous fillet. Also sets the accessible label, e.g. \"Hand: point\"."
+              "description": "Silhouette: `open` (open palm, fingers together), `point` (index finger extended), `pinch` (index bent over the thumb; also the pen grip Pluma uses, so there is no pen pose), `grip` (front-view fist: four fingers with knuckle bumps on top and the curled fingertips in a row beneath, the thumb lying across under them, pointing in; lay the knuckles over a sheet or tab edge), `type` (the hand from above on a keyboard with the fingers curled down onto the keys: four short stubs, the middle tallest, whose caps are the bent middle joints with the fingertips out of sight beneath (no marks across them), and the thumb low, pointing left toward the space bar; at thumbnail size it reads as the open palm with its fingers folded), or `hold` (upright, seen from the side: the palm rises straight from the wrist and its top sweeps up into a finger-width thumb that bends at a rounded joint and lies over the held object's rim, tip toward the fingers, with a short crease where it leaves the palm; the four fingers lie stacked on the right, wrapped round the object's side with their tips facing the palm, and the open pocket between palm, thumb, fingertips, and heel is where the object sits; draw a side-view mug or a sheet's corner behind it, the rim or top edge just under the thumb; the pose is drawn for an object, and on its own the stacked fingers read apart from the palm, so show it round one). Every pose draws its dividers from the outline's valley points in the outline's stroke width; grip, type, and hold draw all their ink as one path (interior lines retraced as spurs), so joins are tangent with no steps, and the valleys between fingertips and grip's palm edge between index and thumb round off in small fillets. The palm side meets the wrist cut in one tangent-continuous fillet. Also sets the accessible label, e.g. \"Hand: point\"."
             },
             {
               "name": "halo",
@@ -6217,6 +6265,10 @@
           "code": "import { Hand } from \"@/jbm/ui/hand\"\n\n<Hand pose=\"point\" width={120} />\n<Hand pose=\"type\" width={120} />\n<Hand pose=\"grip\" width={120} />\n<Hand pose=\"hold\" width={120} />"
         },
         {
+          "title": "Hold a side-view mug",
+          "code": "import { Hand } from \"@/jbm/ui/hand\"\nimport { DeskProp } from \"@/jbm/ui/desk-prop\" // install @jbm/desk-prop separately\n\n// A 180-wide hand: the mug's rim (deskPropLayout(...).rim) sits at 93 48.4, just under the thumb.\n<svg viewBox=\"0 0 222 174\">\n  <DeskProp kind=\"mug-side\" x={157} y={98} scale={1.6} />\n  <Hand pose=\"hold\" width={180} height={174} style={{ height: 174 }} />\n</svg>"
+        },
+        {
           "title": "Place and rotate inside an SVG",
           "code": "import { Hand } from \"@/jbm/ui/hand\"\nimport { Mano } from \"@/jbm/motion/mano\" // install @jbm/mano separately\n\n<Hand pose=\"open\" width={120} />\n<svg viewBox=\"0 0 500 340\">\n  <Mano at={{ x: 160, y: 30 }} pose=\"point\" angle={12} />\n</svg>"
         }
@@ -6224,8 +6276,9 @@
       "qa": [
         "Switch Pose through all six: each silhouette sits in the same box with the wrist at the bottom and keeps simple geometric line art and the same outline weight.",
         "Enlarge every pose (point and pinch included) and inspect the finger joins: each interior divider starts on the outline's valley point, continues the finger's side, and has the outline's stroke width, with no notch or step, and grip, type, and hold keep the open palm's wrist cut exactly (grip and type also its right side). At 8×, grip, type, and hold show no step where a finger side meets a knuckle or fingertip arc, no sharp cusp between fingertips, and no hook at the wrist.",
-        "Name each pose at gallery size and compare it with its generated reference (Paper page hands): grip reads as a fist gripping an edge (knuckles on top, fingertips in a row, thumb across beneath, pointing in), type as a hand from above with the index curled and the thumb low toward the space bar, hold as the side-view mug grip (stacked fingers, thumb opening from the index).",
-        "In context, grip over a Paper sheet's top edge, type over a DeskProp keyboard (fingertips on the upper rows, thumb over the space bar), and hold rotated about -75° on a DeskProp mug so the fingers wrap the handle and the thumb rides on top.",
+        "Name each pose at gallery size and compare it with its generated reference (Paper page hands, artboard Hands v5 for type and hold): grip reads as a fist gripping an edge (knuckles on top, fingertips in a row, thumb across beneath, pointing in), type as a hand from above with its fingers curled down onto keys (short stubs with no marks across them, thumb low toward the space bar), hold as an upright hand round an object (a finger-width thumb over the rim, no bigger than a finger and never a hook arching over the top; stacked fingers on the far side; an open pocket between; a palm no wider than the finger stack is tall).",
+        "Render all six at 48px side by side: a stranger tells every pose apart, type from open above all (short folded fingers against tall straight ones), and the thumb and index tips never touch in pinch or hold.",
+        "In context, grip over a Paper sheet's top edge, type over a DeskProp keyboard (fingertips on the upper rows, thumb over the space bar), and hold upright over a side-view mug (DeskProp kind mug-side: body in the pocket, rim just under the thumb) and over a sheet's top corner.",
         "Check the card fill and ink stroke read on cream, and the aria-label follows the pose.",
         "Scale with width at narrow screens: the 30:29 aspect ratio holds."
       ],
@@ -6383,7 +6436,7 @@
         {
           "export": "Pluma",
           "kind": "component",
-          "summary": "SVG group: an ink pen (one silhouette: round-ended barrel tapering straight on to a pointed nib) held in the Hand's pinch pose through Mano. The pen is drawn behind the hand: the nib leaves past the thumb tip and the barrel shows above the knuckles. A mask cuts the pen along the hand's outline (handOutline) plus a gap half the outline wide, so the barrel's edge and the hand's contours stay separate where they cross; nothing is painted over the page, so writing under or beside the nib stays whole. Rotation, grip point, and nib are props; no internal timer. Render inside an <svg>.",
+          "summary": "SVG group: an ink pen (one silhouette: round-ended barrel tapering straight on to a pointed nib) held in the Hand's pinch pose through Mano. The pen weaves with the hand: the nib and lower shaft pass behind the thumb and the index pad, and from the grip point (in the open pocket of the pinch, where the change of layer cannot show) the upper shaft crosses in front of the index knuckle. A mask cuts the lower pen along the hand's outline (handOutline) plus a gap half the outline wide; over the hand, a second mask cuts the hand's ink along the upper shaft plus the same half-outline gap (refilled with card only inside the hand's fill) and the shaft is drawn again on top, so the barrel's edges and the hand's contours stay separate at every crossing. Nothing is painted on the page outside the hand, so writing under or beside the nib stays whole. The nib, plumaNib, and the pinch silhouette are unchanged. Rotation, grip point, and nib are props; no internal timer. Render inside an <svg>.",
           "props": [
             {
               "name": "at",
@@ -6520,9 +6573,9 @@
       ],
       "qa": [
         "Rotate from −40° to 40° with the nib marker on: plumaNib lands on the drawn nib tip at every angle and size.",
-        "Enlarge the pinch: the pen passes between the index pad and the thumb, behind the hand; the nib shows past the thumb tip and the barrel above the knuckles, one continuous pen with no gap between barrel and nib.",
+        "Enlarge the pinch: the nib and lower shaft pass behind the thumb and the index pad, the pen shows in the pocket between them, and from there the upper shaft crosses in front of the index knuckle, one continuous pen with no gap or seam where it changes layer; a stranger says \"a hand writing with a pen\".",
         "Turn Hand off: the pen alone keeps its length and nib; a stranger names it \"pen\".",
-        "At 8× and angles −30°, 0°, 30°: wherever the barrel meets the thumb or index contour a gap separates them; no outline disappears into the barrel, no cream ring shows around the hand on the page, and the last written glyph under the nib stays whole.",
+        "At 8× and angles −30°, 0°, 30°: wherever the barrel meets the thumb or index contour a gap separates them (under the hand, the mask gap; over it, the cut in the hand's ink, whose ends fall short of the barrel both inside the hand and on the page); no outline disappears into the barrel, no card or cream ring shows around the hand on the page, and the last written glyph under the nib stays whole.",
         "The underside of the bent index (the pad over the pen) is one smooth curve, with no corner where it turns down toward the thumb.",
         "Set nibOffset to (0, 90) and (−80, 20): the hand turns with the pen and the barrel still passes through the pinch, never behind the palm.",
         "On the bench, drag Write to End at Rotation −30° and 30°: the whole hand, barrel tail included, stays inside the stage."
@@ -6589,7 +6642,7 @@
               "type": "number",
               "required": false,
               "default": null,
-              "description": "Settled sheet count; each sheet sits 4 units above the last. Floored; negative or non-finite values show none."
+              "description": "Settled sheet count. The bottom sheet lies in the well (top edge at y + 24); the second clears the back rim (y + 11) and each further sheet sits 5 units above the last (the shared 3-unit outline plus a 2-unit gap), so no edge fuses with the rim. Sheets under the top one show only their near edges, between upright stack sides. Floored; negative or non-finite values show none."
             },
             {
               "name": "landing",
@@ -6632,7 +6685,7 @@
               "type": "number",
               "required": false,
               "default": "0",
-              "description": "Settled sheet count; each sheet sits 4 units above the last. Floored; negative or non-finite values show none."
+              "description": "Settled sheet count. The bottom sheet lies in the well (top edge at y + 24); the second clears the back rim (y + 11) and each further sheet sits 5 units above the last (the shared 3-unit outline plus a 2-unit gap), so no edge fuses with the rim. Sheets under the top one show only their near edges, between upright stack sides. Floored; negative or non-finite values show none."
             },
             {
               "name": "landing",
@@ -6642,7 +6695,7 @@
               "description": "Accepted for parity with Bandeja's props; the layout ignores it."
             }
           ],
-          "returns": "{ x, y, w, count, floor, stackTop }: the floored sheet count, the tray floor centre (y + 41), and the centre of the top of the settled stack (floor − count × 4), in parent SVG units."
+          "returns": "{ x, y, w, count, floor, stackTop }: the floored sheet count, the tray floor centre (y + 41), and where the next sheet lands (17 units below its top edge: y + 41 with no sheets, y + 33 − 5 × count after), in parent SVG units."
         }
       ],
       "stage": {
@@ -6655,7 +6708,7 @@
           "width": 280,
           "height": 52
         },
-        "basis": "Parent SVG user units at w 280: from the back rim at y + 16 to the base at y + 68. Beyond three layers the top sheets rise over the back rim (top sheet at y + 24 − 4 × (layers − 1)), and a landing sheet starts 90 units above the stack, so leave headroom above y."
+        "basis": "Parent SVG user units at w 280: from the back rim at y + 16 to the base at y + 68. From two layers the top sheet rises over the back rim (top sheet at y + 16 − 5 × (layers − 1)), and a landing sheet starts 90 units above the stack, so leave headroom above y."
       },
       "examples": [
         {
@@ -6668,7 +6721,7 @@
         }
       ],
       "qa": [
-        "Drag Sheets from 0 to 12: each sheet steps up 4 units, the front lip always covers their lower edges, and tall stacks stay inside the viewBox.",
+        "Drag Sheets from 0 to 12: the second sheet jumps clear of the back rim, then each steps up 5 units; no sheet edge fuses with the rim, a wall, or the sheet below, the stack's sides stay upright inside the wall posts, and tall stacks stay inside the viewBox.",
         "Step landing through 0, 0.5, and 1: the incoming sheet fades in while descending and rests exactly on the stack at 1, then increment layers to settle it.",
         "Check the front notch stays centred when w changes."
       ],
@@ -6724,7 +6777,7 @@
               "type": "number",
               "required": false,
               "default": "240",
-              "description": "Width in parent SVG units; the whole drawing scales uniformly by w / 240, including stroke width."
+              "description": "Width in parent SVG units; the whole drawing scales uniformly by w / 240, except the stroke, which stays the shared outline (stroke.outline) in parent units."
             }
           ],
           "passthrough": []
@@ -6751,7 +6804,7 @@
       "qa": [
         "The gallery preview is a still at w 300; there are no controls to exercise.",
         "Check the handle is fully inside the viewBox (it sits above y) and its gap reads as a hole.",
-        "Scale w up and down: the 2px ink stroke scales with the drawing, so thin or thick edges at extreme sizes are expected; confirm they still match nearby objects."
+        "Scale w up and down: the ink stroke stays the shared outline in parent units at every size; confirm it matches nearby objects."
       ],
       "docs": [
         {
@@ -6958,7 +7011,7 @@
               "type": "number",
               "required": false,
               "default": "1",
-              "description": "Light on the whole desk, 0–1 (1 full cream): every fill mixes in OKLab toward the palette's line token, reaching it at 0.72 (the visual language's deepest folder), then toward ink (deskLight). The drawer pull follows it; the ink stroke does not. Clamped."
+              "description": "Light on the whole desk, 0–1 (1 full cream): every fill mixes in OKLab toward the palette's line token, reaching it at 0.72 (the visual language's deepest folder), then toward ink (deskLight). The ink stroke and the ink drawer pull do not change. Clamped."
             },
             {
               "name": "edge",
@@ -6972,7 +7025,7 @@
               "type": "DeskTopDrawerSide",
               "required": false,
               "default": null,
-              "description": "Edge that holds an open drawer (start left, end right, top, bottom). The drawer box is pulled out past the desk top's edge, which is the one seam line, and is narrower than the desk along it; its outer wall is its front, thicker than the other walls and carrying the pull (the same label-plate pull as Cajon). Its opening is darker than the desk and runs on under the desk top. Omit for no drawer."
+              "description": "Edge that holds an open drawer (start left, end right, top, bottom). The drawer box is pulled out past the desk top's edge, which is the one seam line, and is narrower than the desk along it; its outer wall is its front, thicker than the other walls and carrying the pull (an ink bar, the same pull as on Cajon's front, seen from above). Its opening is darker than the desk and runs on under the desk top. Omit for no drawer."
             },
             {
               "name": "drawerSize",
@@ -7001,7 +7054,7 @@
               "type": "number",
               "required": false,
               "default": "1",
-              "description": "Light on the whole desk, 0–1 (1 full cream): every fill mixes in OKLab toward the palette's line token, reaching it at 0.72 (the visual language's deepest folder), then toward ink (deskLight). The drawer pull follows it; the ink stroke does not. Clamped."
+              "description": "Light on the whole desk, 0–1 (1 full cream): every fill mixes in OKLab toward the palette's line token, reaching it at 0.72 (the visual language's deepest folder), then toward ink (deskLight). The ink stroke and the ink drawer pull do not change. Clamped."
             },
             {
               "name": "edge",
@@ -7015,7 +7068,7 @@
               "type": "DeskTopDrawerSide",
               "required": false,
               "default": null,
-              "description": "Edge that holds an open drawer (start left, end right, top, bottom). The drawer box is pulled out past the desk top's edge, which is the one seam line, and is narrower than the desk along it; its outer wall is its front, thicker than the other walls and carrying the pull (the same label-plate pull as Cajon). Its opening is darker than the desk and runs on under the desk top. Omit for no drawer."
+              "description": "Edge that holds an open drawer (start left, end right, top, bottom). The drawer box is pulled out past the desk top's edge, which is the one seam line, and is narrower than the desk along it; its outer wall is its front, thicker than the other walls and carrying the pull (an ink bar, the same pull as on Cajon's front, seen from above). Its opening is darker than the desk and runs on under the desk top. Omit for no drawer."
             },
             {
               "name": "drawerSize",
@@ -7025,7 +7078,7 @@
               "description": "Drawer region depth across its edge in parent units, the 6-unit seam included: along the width for start and end, along the height for top and bottom. Defaults to 40% of that dimension; kept between 44 and 80% of the plan."
             }
           ],
-          "returns": "{ box, surface, center, drawer, front, plan, slab, drawn, fill }: surface is the flat top Box; center its centre; drawer is { panel, body, well, front, pull } or null (panel the whole region, body the pulled-out box inside it, well its opening, front its thicker outer wall, pull the plate on it); front is the edge band Box (h 0 when flat); plan the surface, seam, and drawer region above the band; slab the desk top as drawn, out to the seam line; drawn is drawing geometry for DeskTop itself; fill holds the surface, handle, front, panel, and well colours after light. All in parent SVG units."
+          "returns": "{ box, surface, center, drawer, front, plan, slab, drawn, fill }: surface is the flat top Box; center its centre; drawer is { panel, body, well, front, pull } or null (panel the whole region, body the pulled-out box inside it, well its opening, front its thicker outer wall, pull the ink bar on it); front is the edge band Box (h 0 when flat); plan the surface, seam, and drawer region above the band; slab the desk top as drawn, out to the seam line; drawn is drawing geometry for DeskTop itself; fill holds the surface, handle (kept for compatibility; the pull is ink), front, panel, and well colours after light. All in parent SVG units."
         },
         {
           "export": "deskLight",
@@ -7103,7 +7156,7 @@
         "At index size the default (Tilted, drawer end) reads as a desk with a drawer pulled out, not a tablet: a plain cream top with its front edge, and a narrower drawer box with a pull on its outer front.",
         "Drag Edge from Flat to Tilted: the front band grows from the bottom inside the box, the surface loses the same depth, their shared edge stays one line with square corners where they meet, and a side drawer shows its own near face.",
         "Step Drawer through none, start, end, top, and bottom: the box never moves; the drawer box sits on the chosen edge, narrower than the desk, meeting it at one seam line (never a double line); its opening is darker than the desk and open toward the seam; every drawer has exactly one pull, on its outer front; a top or bottom drawer takes 40% of the height, not of the width.",
-        "Drag Light from 1 to 0.72: every fill, the drawer pull included, darkens together toward the line token (never taupe); the ink edge does not change.",
+        "Drag Light from 1 to 0.72: every fill darkens together toward the line token (never taupe); the ink edge and the ink pull do not change.",
         "At 8× zoom check the rounded corners, the seam where the drawer meets the desk and the band, and that no contour doubles, steps, or leaves a stub."
       ],
       "docs": [
@@ -7362,7 +7415,7 @@
       "name": "desk-prop",
       "entry": "component",
       "title": "DeskProp",
-      "description": "A free-standing keycap, keyboard, or mug to place on a desk.",
+      "description": "A free-standing keycap, keyboard, or mug (from above or standing, from the side) to place on a desk.",
       "category": "UI Bits",
       "family": "Desk objects",
       "capabilities": [
@@ -7385,14 +7438,14 @@
         {
           "export": "DeskProp",
           "kind": "component",
-          "summary": "SVG <g> of one small desk object in the library's card fill and 2-unit ink line, placed by its centre with scale and rotation. It owns no hand: compose Mano at deskPropLayout's contact point. Controlled; no internal timer. Render inside an <svg>.",
+          "summary": "SVG <g> of one small desk object in the library's card fill and the shared ink outline (stroke.outline, 3 units), placed by its centre with scale and rotation. It owns no hand: compose Mano at deskPropLayout's contact point. Controlled; no internal timer. Render inside an <svg>.",
           "props": [
             {
               "name": "kind",
               "type": "DeskPropKind",
               "required": true,
               "default": null,
-              "description": "keycap (a single key, 56 × 56), keyboard (four rows of nine keys, the last with a space bar, 270 × 130), or mug (from above like the others: a round body with its rim and the handle's end to the right, 90 × 78)."
+              "description": "keycap (a single key, 56 × 56), keyboard (a compact 314 × 100 board: three letter rows of 14, 13, and 12 keys offset by tab, caps, and shift, then eight modifiers around a space bar), or mug (from above like the others: a round body with its rim and the handle's end to the right, 90 × 78); mug-side is the same mug standing upright seen from the side (a body a little taller than wide, the rim's ellipse across its top, and one C-shaped handle to the right, 90 × 78), for a hand that holds it."
             },
             {
               "name": "x",
@@ -7419,8 +7472,8 @@
               "name": "weight",
               "type": "number",
               "required": false,
-              "default": "2",
-              "description": "Ink stroke width in parent units (default 2, the desk's line weight), kept at any scale. A preview that frames one prop in its own viewBox passes a weight that keeps the on-screen line the same as its neighbours'."
+              "default": "stroke.outline",
+              "description": "Ink stroke width in parent units (default stroke.outline, the shared 3-unit outline from tokens), kept at any scale. A preview that frames one prop in its own viewBox passes a weight that keeps the on-screen line the same as its neighbours'."
             },
             {
               "name": "rotate",
@@ -7434,14 +7487,14 @@
               "type": "number",
               "required": false,
               "default": "0",
-              "description": "Key travel, 0–1: the keycap's dished top sinks, centres, and shrinks 4 units a side; on a keyboard, the keys listed in keys inset 3 units a side. A pressed face takes an ink wash (0.28 at 1, the depth of the visual language's 0.72 light) so the press shows at small sizes. The mug ignores it. Clamped."
+              "description": "Key travel, 0–1: the keycap's dished top sinks, centres, and shrinks 4 units a side; on a keyboard, the keys listed in keys inset 3 units a side. A pressed face takes an ink wash (0.28 at 1, the depth of the visual language's 0.72 light) so the press shows at small sizes. Both mugs ignore it. Clamped."
             },
             {
               "name": "keys",
               "type": "readonly number[]",
               "required": false,
               "default": "[]",
-              "description": "Keyboard only: indices of the keys press applies to, row by row from the top left (0–26 the three full rows, 27–31 the bottom row, 29 the space bar)."
+              "description": "Keyboard only: indices of the keys press applies to, row by row from the top left (0–13 the tab row, 14–26 the home row, 27–38 the shift row, 39–46 the modifier row, 42 the space bar; deskPropHomeKey, 20, is the home-row key nearest the middle)."
             }
           ],
           "passthrough": []
@@ -7449,14 +7502,14 @@
         {
           "export": "deskPropLayout",
           "kind": "function",
-          "summary": "Placement and contact points after scale and rotation, so a fingertip lands on the keycap or a key and a grip lands on the mug's handle.",
+          "summary": "Placement and contact points after scale and rotation, so a fingertip lands on the keycap or a key, a grip lands on the top-down mug's handle, and an upright hold lands on the side-view mug's free side with its thumb over the rim.",
           "params": [
             {
               "name": "kind",
               "type": "DeskPropKind",
               "required": true,
               "default": null,
-              "description": "keycap (a single key, 56 × 56), keyboard (four rows of nine keys, the last with a space bar, 270 × 130), or mug (from above like the others: a round body with its rim and the handle's end to the right, 90 × 78)."
+              "description": "keycap (a single key, 56 × 56), keyboard (a compact 314 × 100 board: three letter rows of 14, 13, and 12 keys offset by tab, caps, and shift, then eight modifiers around a space bar), or mug (from above like the others: a round body with its rim and the handle's end to the right, 90 × 78); mug-side is the same mug standing upright seen from the side (a body a little taller than wide, the rim's ellipse across its top, and one C-shaped handle to the right, 90 × 78), for a hand that holds it."
             },
             {
               "name": "x",
@@ -7484,7 +7537,7 @@
               "type": "number",
               "required": false,
               "default": null,
-              "description": "Ink stroke width in parent units (default 2, the desk's line weight), kept at any scale. A preview that frames one prop in its own viewBox passes a weight that keeps the on-screen line the same as its neighbours'."
+              "description": "Ink stroke width in parent units (default stroke.outline, the shared 3-unit outline from tokens), kept at any scale. A preview that frames one prop in its own viewBox passes a weight that keeps the on-screen line the same as its neighbours'."
             },
             {
               "name": "rotate",
@@ -7498,45 +7551,50 @@
               "type": "number",
               "required": false,
               "default": "0",
-              "description": "Key travel, 0–1: the keycap's dished top sinks, centres, and shrinks 4 units a side; on a keyboard, the keys listed in keys inset 3 units a side. A pressed face takes an ink wash (0.28 at 1, the depth of the visual language's 0.72 light) so the press shows at small sizes. The mug ignores it. Clamped."
+              "description": "Key travel, 0–1: the keycap's dished top sinks, centres, and shrinks 4 units a side; on a keyboard, the keys listed in keys inset 3 units a side. A pressed face takes an ink wash (0.28 at 1, the depth of the visual language's 0.72 light) so the press shows at small sizes. Both mugs ignore it. Clamped."
             },
             {
               "name": "keys",
               "type": "readonly number[]",
               "required": false,
               "default": null,
-              "description": "Keyboard only: indices of the keys press applies to, row by row from the top left (0–26 the three full rows, 27–31 the bottom row, 29 the space bar)."
+              "description": "Keyboard only: indices of the keys press applies to, row by row from the top left (0–13 the tab row, 14–26 the home row, 27–38 the shift row, 39–46 the modifier row, 42 the space bar; deskPropHomeKey, 20, is the home-row key nearest the middle)."
             }
           ],
-          "returns": "{ kind, center, size, corners, contact, keys, transform }: size is the scaled footprint; corners the four footprint corners; contact the keycap top, the home-row middle key (index 13), or the middle of the mug handle's visible end; keys every keyboard key centre (empty otherwise); transform the SVG transform the prop uses. Parent SVG units."
+          "returns": "{ kind, center, size, corners, contact, rim, keys, transform }: size is the scaled footprint; corners the four footprint corners; contact the keycap top, the home-row key nearest the middle (deskPropHomeKey), the middle of the top-down mug handle's visible end, or the middle of the side-view mug's left side (away from its handle); rim the side-view mug's near rim end, where a thumb crosses the top (null for the other kinds); keys every keyboard key centre (empty otherwise); transform the SVG transform the prop uses. Parent SVG units."
         },
         {
           "export": "deskPropSize",
           "kind": "constant",
-          "summary": "Footprint of each kind at scale 1, in parent units: keycap 56 × 56, keyboard 270 × 130, mug 90 × 78."
+          "summary": "Footprint of each kind at scale 1, in parent units: keycap 56 × 56, keyboard 314 × 100 (about 3:1), mug and mug-side 90 × 78."
         },
         {
           "export": "deskPropKeys",
           "kind": "constant",
-          "summary": "The keyboard's 32 key rectangles in local units (centre origin): three rows of nine 22-unit keys on a 28-unit pitch, then two keys, a 134-unit space bar, and two keys."
+          "summary": "The keyboard's 47 key rectangles in local units (centre origin) on a 20-unit pitch with 6-unit gaps (14-unit letter keys), row by row: tab, 12 letters, and backslash; caps, 11 letters, and return; shift, 10 letters, and shift; then ctrl, alt, cmd, a 119-unit space bar (index 42), cmd, alt, fn, and ctrl. Every row is 15 key units wide, so the modifiers offset the letter rows."
+        },
+        {
+          "export": "deskPropHomeKey",
+          "kind": "constant",
+          "summary": "Index 20 in deskPropKeys: the home-row key nearest the keyboard's middle (H), where deskPropLayout puts a keyboard's contact and a typing fingertip lands."
         }
       ],
       "stage": {
         "mode": "declared",
         "landscape": {
-          "width": 270,
-          "height": 130
+          "width": 314,
+          "height": 100
         },
         "vertical": {
-          "width": 270,
-          "height": 130
+          "width": 314,
+          "height": 100
         },
-        "basis": "Parent SVG units for the largest kind, a keyboard at scale 1 (270 × 130). A keycap is 56 × 56 and a mug 90 × 78; everything multiplies by scale, and rotation can widen the axis-aligned bounds to the rotated corners (deskPropLayout(...).corners). On a 1920 × 1080 desk the Doorways board draws them larger: about scale 1.5 for the keyboard and 2 to 2.4 for the keycap and mug."
+        "basis": "Parent SVG units for the largest kind, a keyboard at scale 1 (314 × 100). A keycap is 56 × 56 and each mug 90 × 78; everything multiplies by scale, and rotation can widen the axis-aligned bounds to the rotated corners (deskPropLayout(...).corners). On a 1920 × 1080 desk the Doorways board draws them larger: about scale 1.5 for the keyboard and 2 to 2.4 for the keycap and mug."
       },
       "examples": [
         {
           "title": "Keyboard, keycap, and mug on a desk",
-          "code": "import { DeskProp } from \"@/jbm/ui/desk-prop\"\n\n<svg viewBox=\"0 0 600 240\">\n  <DeskProp kind=\"keycap\" x={70} y={120} />\n  <DeskProp kind=\"keyboard\" x={290} y={120} rotate={-4} />\n  <DeskProp kind=\"mug\" x={520} y={120} />\n</svg>"
+          "code": "import { DeskProp } from \"@/jbm/ui/desk-prop\"\n\n<svg viewBox=\"0 0 700 240\">\n  <DeskProp kind=\"keycap\" x={70} y={120} />\n  <DeskProp kind=\"keyboard\" x={290} y={120} rotate={-4} />\n  <DeskProp kind=\"mug\" x={520} y={120} />\n  <DeskProp kind=\"mug-side\" x={630} y={120} />\n</svg>"
         },
         {
           "title": "A pointing finger presses the keycap",
@@ -7544,10 +7602,12 @@
         }
       ],
       "qa": [
-        "Switch Prop through All three, keycap, keyboard, and mug: each reads as its noun alone, all three seen from above, in card fill with the same on-screen ink line (2 px at the preview's full width) as each other.",
+        "Switch Prop through All four, keycap, keyboard, mug, and mug side view: each reads as its noun alone (a stranger says keyboard, not keypad or calculator, and mug, not speaker), the first three seen from above and the side-view mug standing upright, in card fill with the same on-screen ink line (the shared outline at the preview's full width) as each other.",
+        "Enlarge the keyboard at 8×: neighbouring key outlines stay apart (a cream gap between every pair), the offset rows never line up into a grid, and the modifier row sits evenly around the space bar.",
+        "Enlarge the side-view mug at 8×: the handle is one C-shaped loop whose ends tuck under the body without a gap or stub, and the rim's ellipse meets the body's sides at its ends.",
         "Drag Scale from 0.5× to 2×: proportions hold and the on-screen stroke stays the same, not thinner or thicker.",
         "Drag Rotation: each prop turns about its centre and stays inside the preview.",
-        "Drag Press on the keycap and the keyboard to Down: the keycap top visibly sinks and darkens; on the keyboard only the home-row middle key insets and darkens, visible at index size.",
+        "Drag Press on the keycap and the keyboard to Down: the keycap top visibly sinks and darkens; on the keyboard only the home-row key nearest the middle (deskPropHomeKey) insets and darkens, visible at index size.",
         "Enlarge the mug at 30°: the handle's end meets the round body without a gap, stub, or doubled edge, and the rim ring is even.",
         "The Mano anchor in the second example is an estimate of the fingertip; verify it visually."
       ],
@@ -7599,14 +7659,14 @@
               "type": "\"paper\" | \"ink\" | \"accent\"",
               "required": false,
               "default": null,
-              "description": "Bubble fill: `paper` (card with ink text), `ink`, or `accent` (both with cream text). Highlighted words always end in the vermilion accent, so avoid `accent` tone when they must stand out."
+              "description": "Bubble fill: `paper` (card with ink text and ChatBubble's ink outline), `ink`, or `accent` (both with cream text). Highlighted words always end in the vermilion accent, so avoid `accent` tone when they must stand out."
             },
             {
               "name": "tail",
               "type": "boolean",
               "required": false,
               "default": null,
-              "description": "Shows the small speech tail under the bubble and reserves 10px of bottom margin for it."
+              "description": "Shows ChatBubble's tail under the bubble, outlined with the body as one line on paper, and reserves 13px of bottom margin for it."
             },
             {
               "name": "speaker",
@@ -7644,7 +7704,7 @@
       ],
       "stage": {
         "mode": "fluid",
-        "reason": "ChatBubble is fit-content up to 100% of its container, so width follows the words and height follows wrapping. At 18px type with line-height 1.5 it adds 16px/20px padding, an optional ~20px speaker line, and 10px for the tail."
+        "reason": "ChatBubble is fit-content up to 100% of its container, so width follows the words and height follows wrapping. At 18px type with line-height 1.5 it adds 16px/20px of padding and edge, an optional ~20px speaker line, and 13px for the tail."
       },
       "examples": [
         {
@@ -8094,14 +8154,14 @@
         {
           "export": "PunchedTag",
           "kind": "component",
-          "summary": "A Paper with a rounded 36px left end, a 14px cream punched hole ringed in ink, and 28px extra-bold content beside it. Width follows content up to 100% of the container.",
+          "summary": "A card-stock luggage tag: the two corners at the hole end cut off at 45°, the other end rounded 12px, a 14px cream punched hole ringed in ink inside a flat line-grey reinforcement washer (4px; on ink or accent stock the ring is grey too, one eyelet), and one line of 28px extra-bold content beside it that ends in an ellipsis past maxWidth. Paper's stock, shared outline (kept the same width along the cuts), and shadow. No string: tie a Hilo at the hole (VideoPrint's layout gives the point). Width follows content up to maxWidth.",
           "props": [
             {
               "name": "children",
               "type": "ReactNode",
               "required": true,
               "default": null,
-              "description": "Tag content, usually a short name; wraps anywhere when space runs out."
+              "description": "Tag content, usually a short name or a URL; kept on one line and cut with an ellipsis when it would pass maxWidth."
             },
             {
               "name": "tone",
@@ -8115,14 +8175,35 @@
               "type": "number",
               "required": false,
               "default": "1",
-              "description": "Size multiplier (default 1) for the tag's own geometry: hole (14 × scale px), its ring (2 × scale, at least 1px), the radii, gap, padding, and type, so a tag on a smaller print keeps its proportions."
+              "description": "Size multiplier (default 1) for the tag's own geometry: hole (14 × scale px), its washer (4 × scale px), its ring (the shared outline, stroke.outline × scale, between 1px and stroke.outline), the corner cuts, radii, gap, padding, and type, so a tag on a smaller print keeps its proportions."
+            },
+            {
+              "name": "cut",
+              "type": "number",
+              "required": false,
+              "default": "14",
+              "description": "Depth of the hole end's two 45° corner cuts in px before scale (default 14). A slim tag (VideoPrint's) passes 8. Deeper than half the tag's height, the two cuts meet in one point (edge and stock clamp alike)."
+            },
+            {
+              "name": "maxWidth",
+              "type": "number | string",
+              "required": false,
+              "default": "\"100%\"",
+              "description": "Widest the tag gets, as px or a CSS length (default \"100%\"). Longer content stays on one line and ends in an ellipsis. In a grid or flex parent, give its track a zero minimum (minmax(0, 1fr), min-width: 0) so the one-line label cannot widen the track past the container."
+            },
+            {
+              "name": "labelStyle",
+              "type": "CSSProperties",
+              "required": false,
+              "default": null,
+              "description": "Styles merged onto the one-line label, e.g. VideoPrint's Geist Mono at 14 × scale px. The one-line rule (nowrap, hidden overflow, ellipsis) stays unless you override it."
             },
             {
               "name": "style",
               "type": "CSSProperties",
               "required": false,
               "default": null,
-              "description": "Inline styles merged last onto the Paper, e.g. width or padding."
+              "description": "Inline styles merged last onto the tag's box, e.g. padding or gap. The edge sits in a transparent 3px border, so padding keeps its meaning."
             }
           ],
           "passthrough": []
@@ -8130,7 +8211,7 @@
       ],
       "stage": {
         "mode": "fluid",
-        "reason": "Width follows the content (14px hole + 18px gap + text) plus 40px horizontal padding and a 4px border, capped at 100% of the container. Height is one 28px line at normal line height plus 32px padding and 4px border, and grows when the text wraps."
+        "reason": "Width follows the content (14px hole + 18px gap + text) plus 40px horizontal padding and 6px of edge (the 3px shared outline each side), capped at maxWidth (default 100% of the container). Height is one 28px line at normal line height plus 32px padding and 6px of edge; the label never wraps."
       },
       "examples": [
         {
@@ -8139,10 +8220,11 @@
         }
       ],
       "qa": [
-        "Toggle Ink stock: the hole stays cream with an ink ring and the text stays legible.",
-        "Check a long label at narrow width: it wraps inside the tag and the hole keeps its 14px circle.",
-        "Compare the shadow and edge with other paper surfaces.",
-        "Set scale to 0.575 (a 276px VideoPrint): the hole, ring, radii, and type shrink together and the hole stays in proportion to the text."
+        "Toggle Ink stock: the hole stays cream inside one grey eyelet (ring and washer), never a radio-button target, and the text stays legible.",
+        "Check a long label or URL at narrow width: it stays on one line and ends in an ellipsis inside the tag, and the hole keeps its 14px circle.",
+        "Enlarge the cut corners at 8×: the ink edge keeps the shared outline's width along each cut, meets the straight edges without a step, and no square shadow corner shows beyond the cuts.",
+        "Compare the shadow and edge with other paper surfaces; the tag draws no string (Hilo is the connector).",
+        "Set scale to 0.575 (a 276px VideoPrint): the hole, ring, corner cuts, radii, and type shrink together and the hole stays in proportion to the text."
       ],
       "docs": [
         {
@@ -8180,7 +8262,7 @@
         {
           "export": "VideoPrint",
           "kind": "component",
-          "summary": "A Paper sheet (radius 10, ink edge, paper shadow) carrying a 16:9 frame in pale ink (an opaque 8% ink-on-card tint, identical with or without the sheet, and a 2px ink outline) with a head-and-shoulders line sketch, a pale scrub track whose ink bar advances with `scrub`, ink ticks at the marks the bar has passed, the title (Geist 700) and date (Geist, Graphite), and, when `link` is set, a PunchedTag with the URL in Geist Mono hanging over the bottom edge. Composes Paper and PunchedTag unchanged. Controlled; no timers.",
+          "summary": "A Paper sheet (radius 10, ink edge, paper shadow) carrying a 16:9 frame in pale ink (an opaque 8% ink-on-card tint, identical with or without the sheet, and an ink outline at the shared outline weight, the same as the sheet edge at every w) with a head-and-shoulders line sketch, a pale scrub track whose ink bar advances with `scrub`, ink ticks at the marks the bar has passed, the title (Geist 700) and date (Geist, Graphite), and, when `link` is set, a PunchedTag with the URL in Geist Mono hanging over the bottom edge. Composes Paper and PunchedTag unchanged. Controlled; no timers.",
           "props": [
             {
               "name": "scrub",
@@ -8294,13 +8376,13 @@
         "mode": "declared",
         "landscape": {
           "width": 480,
-          "height": 393
+          "height": 394
         },
         "vertical": {
           "width": 480,
-          "height": 393
+          "height": 394
         },
-        "basis": "At the default w 480: 22px padding, a 436 × 245.25 frame, the rule 12px under it, the title 18px under the rule, the date 30px under the title, then 18 + 22px: a 367.25px sheet. With link, the tag straddles the bottom edge and half of it (15.1 × w/480 + 2px) hangs below, plus the 8 × w/480 it settles up from while `opened` is below 1: 392.35px in all, declared as 393. Every measurement scales with w (sheet height = 0.765 × w); videoPrintLayout().bounds gives the exact box. The tag never extends past the right edge: long URLs end in an ellipsis."
+        "basis": "At the default w 480: 22px padding, a 436 × 245.25 frame, the rule 12px under it, the title 18px under the rule, the date 30px under the title, then 18 + 22px: a 367.25px sheet. With link, the tag straddles the bottom edge and half of it (15.1 × w/480 + the 3px outline) hangs below, plus the 8 × w/480 it settles up from while `opened` is below 1: 393.35px in all, declared as 394. Every measurement scales with w (sheet height = 0.765 × w); videoPrintLayout().bounds gives the exact box. The tag never extends past the right edge: long URLs end in an ellipsis."
       },
       "examples": [
         {
@@ -8396,7 +8478,7 @@
               "type": "number",
               "required": false,
               "default": null,
-              "description": "Thread stroke width in user units (minimum 0.5). Knots are 1.4× it in radius; frayed strands split the cut between them; the notch tints each broken tip at this width. A snapped end is cut square. The bench's Width runs from 1.5, so the thread never renders as a faint hairline."
+              "description": "Thread stroke width in user units (minimum 0.5); defaults to the shared outline, stroke.outline (3). Knots are 1.4× it in radius; frayed strands split the cut between them; the notch tints each broken tip at this width. A snapped end is cut square. The bench's Width runs from 1.5, so the thread never renders as a faint hairline."
             },
             {
               "name": "snapAt",
@@ -8487,8 +8569,8 @@
               "name": "width",
               "type": "number",
               "required": false,
-              "default": "2",
-              "description": "Thread stroke width in user units (minimum 0.5). Knots are 1.4× it in radius; frayed strands split the cut between them; the notch tints each broken tip at this width. A snapped end is cut square. The bench's Width runs from 1.5, so the thread never renders as a faint hairline."
+              "default": "stroke.outline",
+              "description": "Thread stroke width in user units (minimum 0.5); defaults to the shared outline, stroke.outline (3). Knots are 1.4× it in radius; frayed strands split the cut between them; the notch tints each broken tip at this width. A snapped end is cut square. The bench's Width runs from 1.5, so the thread never renders as a faint hairline."
             },
             {
               "name": "snapAt",
@@ -8619,7 +8701,8 @@
       "needsRemotion": false,
       "registryDependencies": [
         "@jbm/tokens",
-        "@jbm/paper"
+        "@jbm/paper",
+        "@jbm/register"
       ],
       "installName": "tear",
       "inRegistry": true,
@@ -8702,15 +8785,15 @@
               "name": "radius",
               "type": "number",
               "required": false,
-              "default": "22",
-              "description": "Corner radius of the sheet's four outer corners in stage px; strips keep square corners at seams."
+              "default": null,
+              "description": "Corner radius of the sheet's four outer corners in stage px; strips keep square corners at seams. Default sheetRadius(w) from Register (6 px on a 360 px sheet, 6 × w / 360, at least 4), so a torn page keeps the corners of the Register sheet it was."
             },
             {
               "name": "edge",
               "type": "boolean",
               "required": false,
               "default": "true",
-              "description": "Draws the 2px outline on straight edges and, once torn, on frayed edges."
+              "description": "Draws the shared outline (stroke.outline) on straight edges and, once torn, on frayed edges."
             },
             {
               "name": "shadow",
@@ -8746,7 +8829,7 @@
         {
           "export": "tearGeometry",
           "kind": "function",
-          "summary": "Outlines for every strip in sheet coordinates. Neighbouring strips share the identical frayed polyline, so together they cover the sheet exactly; with an edge the straight sides sit 1px in, on the centreline of Paper's 2px border.",
+          "summary": "Outlines for every strip in sheet coordinates. Neighbouring strips share the identical frayed polyline, so together they cover the sheet exactly; with an edge the straight sides sit half the shared outline (1.5px) in, on the centreline of Paper's border.",
           "params": [
             {
               "name": "w",
@@ -8787,15 +8870,15 @@
               "name": "radius",
               "type": "number",
               "required": false,
-              "default": "22",
-              "description": "Outer corner radius; default 22."
+              "default": null,
+              "description": "Outer corner radius; default sheetRadius(w), Register's sheet corner."
             },
             {
               "name": "edge",
               "type": "boolean",
               "required": false,
               "default": "true",
-              "description": "Insets the straight sides by 1px for a 2px stroke; default true."
+              "description": "Insets the straight sides by half the shared outline, on its centreline; default true."
             }
           ],
           "returns": "One `{ index, top, bottom, outline, edges, seamAbove, seamBelow, center }` per strip: SVG path data for the closed outline, the straight edges, and each frayed seam (null at the sheet's top or bottom), plus the rotation centre."
@@ -8970,11 +9053,11 @@
       "examples": [
         {
           "title": "A long page tearing into four register strips",
-          "code": "import { Tear } from \"@/jbm/ui/tear\"\n\n// progress comes from your timeline, e.g. interpolate(frame, [0, 45], [0, 1]).\n<Tear\n  w={520}\n  h={760}\n  radius={10}\n  seams={[190, 380, 570]}\n  progress={0.6}\n  stagger={0.1}\n  pieces={[\n    { to: { x: -40, y: -70, rotate: -5 } },\n    { to: { x: 36, y: -24, rotate: 3 } },\n    { to: { x: -30, y: 24, rotate: -2 } },\n    { to: { x: 34, y: 72, rotate: 3 } },\n  ]}\n>\n  {({ index, top }) => (\n    <div style={{ position: \"absolute\", left: 40, top: top + 32 }}>strip {index + 1}</div>\n  )}\n</Tear>"
+          "code": "import { Tear } from \"@/jbm/ui/tear\"\n\n// progress comes from your timeline, e.g. interpolate(frame, [0, 45], [0, 1]).\n<Tear\n  w={520}\n  h={760}\n  seams={[190, 380, 570]}\n  progress={0.6}\n  stagger={0.1}\n  pieces={[\n    { to: { x: -40, y: -70, rotate: -5 } },\n    { to: { x: 36, y: -24, rotate: 3 } },\n    { to: { x: -30, y: 24, rotate: -2 } },\n    { to: { x: 34, y: 72, rotate: 3 } },\n  ]}\n>\n  {({ index, top }) => (\n    <div style={{ position: \"absolute\", left: 40, top: top + 32 }}>strip {index + 1}</div>\n  )}\n</Tear>"
         },
         {
           "title": "Continue a Paper's starting tear",
-          "code": "import { Paper } from \"@/jbm/ui/paper\"\nimport { Tear } from \"@/jbm/ui/tear\"\n\n// The same seed, seam, and width give the same frayed edge in both.\nexport function Page({ torn }: { torn: boolean }) {\n  return torn ? (\n    <Tear w={520} h={760} radius={10} seams={[380]} progress={0.4} pieces={[{ to: { y: -40, rotate: -3 } }, { to: { y: 40, rotate: 4 } }]} />\n  ) : (\n    <Paper w={520} h={760} radius={10} tension={1} seam={380} />\n  )\n}"
+          "code": "import { Paper } from \"@/jbm/ui/paper\"\nimport { sheetRadius } from \"@/jbm/ui/register\"\nimport { Tear } from \"@/jbm/ui/tear\"\n\n// The same seed, seam, and width give the same frayed edge in both; Tear defaults to the sheetRadius(w) corner.\nexport function Page({ torn }: { torn: boolean }) {\n  return torn ? (\n    <Tear w={520} h={760} seams={[380]} progress={0.4} pieces={[{ to: { y: -40, rotate: -3 } }, { to: { y: 40, rotate: 4 } }]} />\n  ) : (\n    <Paper w={520} h={760} radius={sheetRadius(520)} tension={1} seam={380} />\n  )\n}"
         }
       ],
       "qa": [
@@ -9135,7 +9218,7 @@
         {
           "export": "Register",
           "kind": "component",
-          "summary": "A Paper sheet (2px ink edge, house paper shadow) carrying one register of drawn writing: bars, boxes, and rules, never legible prose. `mono` is a prompt chevron, prompt bar, and outlined result box per step; `plain` short numbered lists in two columns; `grid` ruled tables with an ink header; `prose` a justified block with paragraph ends (every fifth line and the last, never two in a row and never the first line after a gap) and a block of source ticks; `mixed` stacks registers on one long page. Every quantity is a prop (no timer), so a slider or video frame drives it. Anchors, seams, and the gap are in the sheet's px from its outer top-left corner, the same space `children` draw in.",
+          "summary": "A Paper sheet (ink edge at the shared outline weight, house paper shadow) carrying one register of drawn writing: bars, boxes, and rules, never legible prose. `mono` is a prompt chevron, prompt bar, and outlined result box per step; `plain` short numbered lists in two columns; `grid` ruled tables with an ink header; `prose` a justified block with paragraph ends (every fifth line and the last, never two in a row and never the first line after a gap) and a block of source ticks; `mixed` stacks registers on one long page. Every quantity is a prop (no timer), so a slider or video frame drives it. Anchors, seams, and the gap are in the sheet's px from its outer top-left corner, the same space `children` draw in.",
           "props": [
             {
               "name": "kind",
@@ -9433,6 +9516,33 @@
           "returns": "Box, or null without gapAt."
         },
         {
+          "export": "sheetRadius",
+          "kind": "function",
+          "summary": "The corner radius of a writing sheet: SHEET_RADIUS × its mark scale, never under 4 px. Register draws its Paper with it and Tear defaults to it, so a torn page keeps the corners of the sheet it was; pass it to a Paper that stands in for a page.",
+          "params": [
+            {
+              "name": "w",
+              "type": "number",
+              "required": true,
+              "default": null,
+              "description": "Sheet width in stage px."
+            },
+            {
+              "name": "scale",
+              "type": "number",
+              "required": false,
+              "default": null,
+              "description": "The sheet's mark scale, when set; defaults to w / 360 clamped to 0.4–4, as Register's."
+            }
+          ],
+          "returns": "Radius in stage px (6 on a 360 px sheet)."
+        },
+        {
+          "export": "SHEET_RADIUS",
+          "kind": "constant",
+          "summary": "6: a writing sheet's corner radius per unit of mark scale (6 px on a 360 px sheet)."
+        },
+        {
           "export": "RegisterKind",
           "kind": "type",
           "summary": "\"mono\" | \"plain\" | \"grid\" | \"prose\" | \"mixed\"."
@@ -9574,11 +9684,18 @@
               "description": "Masking tape across the top edge with torn ends (default true). Its right third is a flap that peels up as lift goes 0 → 0.4 and sticks again on landing; it stays hinged along its whole fold (it foreshortens as its free end rises), so no notch opens at the hinge."
             },
             {
+              "name": "flag",
+              "type": "boolean",
+              "required": false,
+              "default": null,
+              "description": "Flags the slip as out of place with an ink bracket in the margin beside its left edge (default false): a spine 15 × scale px off the edge with arms reaching back toward the slip, at the shared outline, like an editor's margin mark. The slip keeps its solid edge, so it never reads as a selection marquee. Ink, not vermilion; it moves with the slip."
+            },
+            {
               "name": "dashed",
               "type": "boolean",
               "required": false,
               "default": null,
-              "description": "Dashed ink outline instead of solid: the slip flagged as out of place (default false). Ink, not vermilion."
+              "description": "Deprecated alias of flag, kept so existing callers still compile: it draws the same margin bracket, not a dashed outline. Ignored when flag is set."
             },
             {
               "name": "kind",
@@ -9711,7 +9828,7 @@
       "examples": [
         {
           "title": "A taped prose slip, flagged",
-          "code": "import { Slip } from \"@/jbm/ui/slip\"\n\n<Slip kind=\"prose\" w={240} h={72} dashed />"
+          "code": "import { Slip } from \"@/jbm/ui/slip\"\n\n<Slip kind=\"prose\" w={240} h={72} flag />"
         },
         {
           "title": "Lift from one register, land in another",
@@ -9721,7 +9838,7 @@
       "qa": [
         "Drag Lift 0 → 0.4 → 1: the tape flap peels up while staying hinged along its whole fold (no notch or wedge at the hinge), then the slip rises, tilts, and its shadow deepens; back to 0 it lies flat and the flap sticks down continuously.",
         "Drag Carry 0 → 1 with Lift at Held: the slip leaves the Tutorial's gap, arcs over, and settles in the Explicación's gap; the source closes to evenly spaced steps while the destination opens exactly one slip-height of room, and no writing passes under the landed slip.",
-        "Toggle Tape, Dashed outline, and Hand independently: each changes only its own object; the dashed outline is ink.",
+        "Toggle Tape, Out-of-place bracket, and Hand independently: each changes only its own object; the bracket is ink, stands in the margin left of the slip at the shared outline, and the slip's own edge stays solid.",
         "With Hand on, check the pinch stays on the slip's bottom edge while the slip is lifted or carried, and that the hand lets go (opens and draws back from the edge) once it lies flat: at Taped + Flat and at Landed + Flat.",
         "Check 2× zoom: torn tape teeth, the fold, and the outline corners join cleanly with even stroke widths."
       ],

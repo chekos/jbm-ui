@@ -17,7 +17,7 @@ export default {
       props: {
         x: "Left edge in the parent SVG's user units.",
         y: "Top of the rim in parent SVG units; the handle rises 36 × (w / 240) above it.",
-        w: "Width in parent SVG units; the whole drawing scales uniformly by w / 240, including stroke width.",
+        w: "Width in parent SVG units; the whole drawing scales uniformly by w / 240, except the stroke, which stays the shared outline (stroke.outline) in parent units.",
       },
     },
   ],
@@ -37,7 +37,7 @@ export default {
   qa: [
     "The gallery preview is a still at w 300; there are no controls to exercise.",
     "Check the handle is fully inside the viewBox (it sits above y) and its gap reads as a hole.",
-    "Scale w up and down: the 2px ink stroke scales with the drawing, so thin or thick edges at extreme sizes are expected; confirm they still match nearby objects.",
+    "Scale w up and down: the ink stroke stays the shared outline in parent units at every size; confirm it matches nearby objects.",
   ],
   docs: [
     { title: "Desk illustrations guide", url: "https://jbm-ui.bns.studio/docs/desk-components.md" },

@@ -21,8 +21,8 @@ export default {
         progress:
           "Highlight progress from 0 (highlighted words in the bubble's text color) to 1 (fully vermilion). Clamped by TextFill; non-finite values render as 0.",
         side: "Which side the bubble aligns to and where its tail sits: `start` or `end`.",
-        tone: "Bubble fill: `paper` (card with ink text), `ink`, or `accent` (both with cream text). Highlighted words always end in the vermilion accent, so avoid `accent` tone when they must stand out.",
-        tail: "Shows the small speech tail under the bubble and reserves 10px of bottom margin for it.",
+        tone: "Bubble fill: `paper` (card with ink text and ChatBubble's ink outline), `ink`, or `accent` (both with cream text). Highlighted words always end in the vermilion accent, so avoid `accent` tone when they must stand out.",
+        tail: "Shows ChatBubble's tail under the bubble, outlined with the body as one line on paper, and reserves 13px of bottom margin for it.",
         speaker: "Optional mono label above the message, e.g. the speaker's name.",
       },
     },
@@ -30,7 +30,7 @@ export default {
   stage: {
     mode: "fluid",
     reason:
-      "ChatBubble is fit-content up to 100% of its container, so width follows the words and height follows wrapping. At 18px type with line-height 1.5 it adds 16px/20px padding, an optional ~20px speaker line, and 10px for the tail.",
+      "ChatBubble is fit-content up to 100% of its container, so width follows the words and height follows wrapping. At 18px type with line-height 1.5 it adds 16px/20px of padding and edge, an optional ~20px speaker line, and 13px for the tail.",
   },
   examples: [
     {
