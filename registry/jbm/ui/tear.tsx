@@ -285,6 +285,30 @@ export function Tear({
   // Shadows hand over from the whole sheet to the strips over the first 8% of travel.
   const ramp = clamp01(Math.max(0, ...local) / 0.08)
   const edgeColor = tone === "paper" ? color.ink : paperFill(tone)
+  // How far each seam has actually parted: the lower strip's drop past the upper one. Until a
+  // seam is open by more than the edge stroke, it draws one torn line (the upper strip's edge),
+  // never two coincident zig-zags; and the strips on either side of a seam that is still (almost)
+  // shut keep their sides flush, so the sheet's outline has no step. Sideways travel and turn
+  // come in as the seam opens.
+  const motion = strips.map((_, i) => tearMotion(pieces[i]?.to ?? {}, local[i]))
+  // A seam stays shut until its strips have parted 1.5px, then opens twice as fast to catch up
+  // at 3px: there is never a hairline gap with the sides broken across it.
+  const ease = (g: number) => (g < 1.5 ? 0 : g < 3 ? 2 * (g - 1.5) : g)
+  // Only seams whose strips are sent apart vertically (the lower one ends further down) ease this
+  // way; strips sent to the same height slide apart sideways as given.
+  const opens = (i: number) =>
+    finite(pieces[i]?.to?.y ?? 0) - finite(pieces[i - 1]?.to?.y ?? 0) > 0
+  const ys: number[] = []
+  motion.forEach((m, i) => {
+    ys.push(
+      i === 0 ? m.y : opens(i) ? ys[i - 1] + ease(m.y - motion[i - 1].y) : m.y
+    )
+  })
+  const gap = (i: number) => (i > 0 ? ys[i] - ys[i - 1] : Infinity)
+  const parted = (i: number) => (opens(i) ? clamp01(gap(i) / 6) : 1)
+  const joined = strips.map((_, i) =>
+    Math.min(i > 0 ? parted(i) : 1, i < strips.length - 1 ? parted(i + 1) : 1)
+  )
   return (
     <div
       style={{
@@ -308,9 +332,17 @@ export function Tear({
       )}
       {strips.map((s, i) => {
         const p = local[i]
-        const to = pieces[i]?.to ?? {}
-        const { x, y, rotate: rot } = tearMotion(to, p)
-        const openAbove = i > 0 ? clamp01(Math.max(p, local[i - 1]) / 0.05) : 0
+        const x = motion[i].x * joined[i],
+          y = ys[i],
+          rot = motion[i].rotate * joined[i]
+        // The lower edge of a seam (this strip's top) inks in only once the seam has opened past
+        // twice the stroke width (4px); until then the upper strip's edge alone marks it.
+        const openAbove =
+          i > 0
+            ? opens(i)
+              ? clamp01((gap(i) - 4) / 2)
+              : clamp01(Math.max(p, local[i - 1]) / 0.05)
+            : 0
         const openBelow =
           i < strips.length - 1 ? clamp01(Math.max(p, local[i + 1]) / 0.05) : 0
         const info: TearPieceInfo = { index: i, top: s.top, bottom: s.bottom, progress: p }

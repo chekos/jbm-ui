@@ -866,7 +866,8 @@
       "entry": "component",
       "title": "Paper",
       "description": "Paper cut-out primitives: a card-stock sheet that can crease, start to tear, and carry a real tab, a slanted Sticker with display type, and a centered Caption.",
-      "category": "UI",
+      "category": "UI Bits",
+      "family": "Paper & writing",
       "capabilities": [
         "controls"
       ],
@@ -942,7 +943,7 @@
               "type": "number",
               "required": false,
               "default": "0",
-              "description": "0–1 stress on the sheet. Each pulled corner sends two or three short creases inward (deterministic in `seed`: one near the diagonal, one or two turned 9–15° to either side and shorter). They radiate from a point just beyond the corner, so each starts at its own place on the edges and they spread apart: no two share an end or converge into a V. They fade from the edge, grow to full length at 0.8, and the longest is at most 22% of the diagonal, so creases from different corners never meet. From 0.6 a notch tears into the sheet at `seam`: square-root eased, it is already half its depth with a 17px mouth at 0.7, and at 1 runs in 24% of the width (at most 160px; 96px without `w`) with a 24px mouth. It is a frayed wedge, widest at the edge, narrowing fast past the margin and running out as a single 2px crack; inside the mouth a thin band of the house rule tone is the upper lip's shadow, so it reads as a hole cut into the sheet. 0 draws neither and keeps the plain rendering."
+              "description": "0–1 stress on the sheet. Each pulled corner sends two short creases inward (deterministic in `seed`), turned 7–11° to either side of the corner's diagonal, the second shorter. They start at the pulled corner itself (a few px apart on the rounded contour) and only spread from there: no two share an end or meet. They fade from the corner, grow to full length at 0.8, and the longer is at most 14% of the sheet's shorter side, so they stay at the corner, under the writing's margins. From 0.6 a notch tears into the sheet at `seam`: square-root eased, it is already half its depth with a 17px mouth at 0.7, and at 1 runs in 14% of the width (at most 90px; 64px without `w`) with a 24px mouth. It is a frayed wedge, widest at the edge, narrowing fast and running out as a single crack; its lips are ink on the cream stock and a cream hairline on vermilion or ink stock, and the mouth shows the page beneath; inside the mouth a thin band of the house rule tone is the upper lip's shadow, so it reads as a hole cut into the sheet. 0 draws neither and keeps the plain rendering."
             },
             {
               "name": "pull",
@@ -1234,10 +1235,10 @@
         "Check rotated pieces and stickers near the safe-area edge: rotation does not reserve layout space, so tilted corners and the longer drop shadow must not clip.",
         "Stickers never wrap; check the longest word at the chosen size fits the frame in portrait.",
         "Toggle edge and shadow off and confirm the piece still separates from the cream canvas where it is used.",
-        "Drag Tension through 0, 0.4, 0.7, and 1: short creases (under a quarter of the diagonal) come in from each pulled corner, each starting at its own place on the edges and spreading apart, fade toward their tips, and lie under the writing; none shows inside a result box, and at no tension do two meet, converge into a V, or read as an X or a crossed-out page. The tear opens only past 0.6 and at 0.7 is already a clearly visible notch cut into the sheet at the seam: a frayed wedge narrowing into a 2px crack, never a shape sticking out of the edge. Its lips are a 2px edge on the sheet's side of the cut, a thin shadow band sits under the upper lip, and the rest of the mouth shows what lies under the sheet rather than a painted fill; over the writing it stays inside the band gap. The mouth cuts the sheet's writing too: with Tear through the writing the notch runs through a table's ruled body and stays open through the rules.",
+        "Drag Tension through 0, 0.4, 0.7, and 1: two short creases (at most 14% of the shorter side) come in from each pulled corner, starting at the corner and spreading apart, fade toward their tips, and lie under the writing; none shows inside a result box, and at no tension do two meet, converge into a V, or read as an X or a crossed-out page. The tear opens only past 0.6 and at 0.7 is already a clearly visible notch cut into the sheet at the seam: a short frayed wedge narrowing into a crack, never a shape sticking out of the edge or a long spike. Its lips are a 2px ink edge on the sheet's side of the cut (a cream hairline on ink stock), a thin shadow band sits under the upper lip, and the rest of the mouth shows what lies under the sheet rather than a painted fill; over the writing it stays inside the band gap. The mouth cuts the sheet's writing too: with Tear through the writing the notch runs through a table's ruled body and stays open through the rules.",
         "Try each Pulled corners preset and Tear from the right edge, and the tear on the ink stock: there the writing is card-coloured and stays visible.",
         "The bench shows only the sheet, its tension, and its tab; Sticker and Caption appear in the Usage examples.",
-        "Drag Tab reveal from 0 to 1: at 0 the whole tab is hidden behind the sheet; in between the top edge cuts the label rather than drawing over it; at 1 the label is Geist 800 at 32 stage px and the tab base stays tucked behind the edge.",
+        "Drag Tab reveal from 0 to 1: at 0 the whole tab is hidden behind the sheet; in between the label stays hidden until the tab shows most of its capitals, then fades in whole, so the sheet's edge never leaves glyph tops as specks; at 1 the label is Geist 800 at 32 stage px and the tab base stays tucked behind the edge.",
         "With tension 0 and no tab the markup equals the original single div; existing scenes depend on it."
       ],
       "docs": [
@@ -5211,7 +5212,7 @@
               "type": "string",
               "required": false,
               "default": null,
-              "description": "Folder name; also names the image for assistive technology. On the front panel (accent and ink default) it is Geist Mono 600 and follows fitLine: whole when it fits, compressed horizontally down to 0.8, then compressed with an ellipsis. On the tab (card default) it is a tab name in Geist 800, drawn whole: the tab widens to fit it (sansWidth from tokens), up to the body width, then the name compresses; it stays drawn over the rising default sheet, with a halo in the tab's fill, so it reads in every open beat."
+              "description": "Folder name; also names the image for assistive technology. On the front panel (accent and ink default) it is Geist Mono 600 and follows fitLine: whole when it fits, compressed horizontally down to 0.8, then compressed with an ellipsis. On the tab (card default) it is a tab name in Geist 800, drawn whole: the tab widens to fit it (sansWidth from tokens), up to the body width, then the name compresses. The tab is on the back panel, so once `open` is above 0 (a sheet stands in front of it) the name prints on the front panel instead: never a fragment beside the sheet and never painted over it. Front-panel type keeps its proportions as the panel tilts (frontType)."
             },
             {
               "name": "open",
@@ -5232,14 +5233,14 @@
               "type": "string",
               "required": false,
               "default": null,
-              "description": "Short mono line on the front panel, projected with it as it opens: under a front label, or near the panel's top-left when the label is on the tab. Same overflow rule as a front label (fitLine)."
+              "description": "Short mono line on the front panel, placed with it as it opens (its glyphs keep their proportions): under a front label, or near the panel's top-left when the label is on the tab. Same overflow rule as a front label (fitLine)."
             },
             {
               "name": "labelOn",
               "type": "\"front\" | \"tab\"",
               "required": false,
               "default": "tone === \"card\" ? \"tab\" : \"front\"",
-              "description": "\"front\" or \"tab\". Defaults to \"tab\" for the card tone and \"front\" for accent and ink, so existing folders are unchanged."
+              "description": "\"front\" or \"tab\": where the name prints while the folder is closed. Defaults to \"tab\" for the card tone and \"front\" for accent and ink. Once open is above 0 the name prints on the front panel either way; the tab keeps the width it was given."
             }
           ],
           "passthrough": [
@@ -5333,7 +5334,7 @@
         {
           "export": "frontPlane",
           "kind": "function",
-          "summary": "SVG transform for text printed on the front panel at a closed-folder point, so it widens and leans with the panel as the folder opens. Folder uses it for the label and sublabel; use it for your own marks on the front.",
+          "summary": "SVG transform for text printed on the front panel at a closed-folder point, so it widens and leans with the panel as the folder opens. Use it for marks that should lean with the panel; Folder sets its own type with frontType, so the glyphs are never squashed.",
           "params": [
             {
               "name": "u",
@@ -5358,6 +5359,35 @@
             }
           ],
           "returns": "A matrix(…) string for a transform attribute."
+        },
+        {
+          "export": "frontType",
+          "kind": "function",
+          "summary": "Transform for type on the front panel: the anchor follows frontPlane as the folder opens, but the glyphs keep their proportions (one uniform scale for the panel's foreshortening), never squashed or sheared. Folder uses it for its label and sublabel.",
+          "params": [
+            {
+              "name": "u",
+              "type": "number",
+              "required": true,
+              "default": null,
+              "description": "Baseline start x in the 260×220 folder space (closed)."
+            },
+            {
+              "name": "v",
+              "type": "number",
+              "required": true,
+              "default": null,
+              "description": "Baseline y in the folder space (closed), between 95 and 205."
+            },
+            {
+              "name": "open",
+              "type": "number",
+              "required": true,
+              "default": null,
+              "description": "Opening progress 0–1."
+            }
+          ],
+          "returns": "A matrix(k 0 0 k x y) string for a transform attribute."
         },
         {
           "export": "FolderOutline",
@@ -5911,7 +5941,7 @@
               "type": "readonly DrawerFolder[]",
               "required": true,
               "default": null,
-              "description": "Folders front to back (index 0 nearest the front, drawn last). Each is a DrawerFolder: name (drawn whole on its tab in Geist 800), accent, pulled, k, open, reveal, sublabel (Geist italic), sublabelReveal."
+              "description": "Folders front to back (index 0 nearest the front, drawn last). Each is a DrawerFolder: name (drawn whole on its tab in Geist 800), accent, pulled, k, open, reveal, sublabel (Geist italic), sublabelReveal. A name wider than its folder's widest tab squeezes at most to 0.94, then ends in an ellipsis; glyphs are never visibly condensed."
             },
             {
               "name": "open",
@@ -5925,7 +5955,7 @@
               "type": "number",
               "required": false,
               "default": null,
-              "description": "Rise from one folder to the next one back, in parent SVG units. Default: tab height + band + a lip of flap, so every tab and a band of back panel stay visible for up to six folders; more folders share the rise of six (five steps), so a crowded drawer packs tighter instead of growing: at 12 folders the stack is as tall as at six, names stay whole, and a sublabel whose band the folder in front covers is not printed. At labelSize 13 that is 46 (55 with sublabels). A smaller value packs folders and may hide names."
+              "description": "Rise from one folder to the next one back, in parent SVG units. Default: tab height + band + a lip of flap, so every tab and a band of back panel stay visible for up to six folders; more folders share the rise of six (five steps), so a crowded drawer packs tighter instead of growing: at 12 folders the stack is as tall as at six, names stay whole, and a sublabel whose band the folder in front covers is not printed. At labelSize 13 that is 46 (55 with sublabels). A smaller value packs folders and may hide names. A larger value is capped: the stack never rises more than the drawer front's height, and above six folders a given value packs like the default."
             },
             {
               "name": "tabLayout",
@@ -5984,7 +6014,7 @@
               "type": "readonly DrawerFolder[]",
               "required": true,
               "default": null,
-              "description": "Folders front to back (index 0 nearest the front, drawn last). Each is a DrawerFolder: name (drawn whole on its tab in Geist 800), accent, pulled, k, open, reveal, sublabel (Geist italic), sublabelReveal."
+              "description": "Folders front to back (index 0 nearest the front, drawn last). Each is a DrawerFolder: name (drawn whole on its tab in Geist 800), accent, pulled, k, open, reveal, sublabel (Geist italic), sublabelReveal. A name wider than its folder's widest tab squeezes at most to 0.94, then ends in an ellipsis; glyphs are never visibly condensed."
             },
             {
               "name": "open",
@@ -5998,7 +6028,7 @@
               "type": "number",
               "required": false,
               "default": null,
-              "description": "Rise from one folder to the next one back, in parent SVG units. Default: tab height + band + a lip of flap, so every tab and a band of back panel stay visible for up to six folders; more folders share the rise of six (five steps), so a crowded drawer packs tighter instead of growing: at 12 folders the stack is as tall as at six, names stay whole, and a sublabel whose band the folder in front covers is not printed. At labelSize 13 that is 46 (55 with sublabels). A smaller value packs folders and may hide names."
+              "description": "Rise from one folder to the next one back, in parent SVG units. Default: tab height + band + a lip of flap, so every tab and a band of back panel stay visible for up to six folders; more folders share the rise of six (five steps), so a crowded drawer packs tighter instead of growing: at 12 folders the stack is as tall as at six, names stay whole, and a sublabel whose band the folder in front covers is not printed. At labelSize 13 that is 46 (55 with sublabels). A smaller value packs folders and may hide names. A larger value is capped: the stack never rises more than the drawer front's height, and above six folders a given value packs like the default."
             },
             {
               "name": "tabLayout",
@@ -6015,7 +6045,7 @@
               "description": "Name size in parent SVG units (default 13). Tab height is 27/13 of it, the sublabel 0.8 of it. Tab widths come from sansWidth (Geist 800). Perspective does not depend on it: a folder's inset follows its depth in the drawer (its rise over the rise of eight folders), up to a fifth of the width at the back. For video at 1080 use about 24–36."
             }
           ],
-          "returns": "{ x, y, w, h, front, frontTop, frontHeight, scale, depthSpacing, labelSize, band, folders, anchors }. frontTop is the drawer front's top edge; scale is max(1, w / 420). Each folder has x, y (top of tab), w, h, tabX, tabWidth, tabHeight, tabSlope, anchor (tab grip point), label { x, y baseline, mid, end, scale }, sublabel { x, y, scale, visible } (visible is false when a crowded drawer packs the folder in front over the band), flap (front flap's top edge), opening { drop, lean } (the ajar flap; lean is 0: the flap's top edge drops straight and is never wider than its folder), visible (0–1, how much of the tab shows above the drawer front; 0 inside a closed drawer), and light (effective k). anchors(i, n) returns n points on folder i's tab midline, from just before the name (clear of its first letter, where a knot sits) to the tab's straight edge; once a tab is below the drawer front's top edge the points stop at that rim, so threads never reach through the front. [] for an unknown folder or n < 1."
+          "returns": "{ x, y, w, h, front, frontTop, frontHeight, scale, depthSpacing, labelSize, band, folders, anchors }. frontTop is the drawer front's top edge; scale is max(1, w / 420). Each folder has x, y (top of tab), w, h, tabX, tabWidth, tabHeight, tabSlope, anchor (tab grip point), label { x, y baseline, mid, end, text, scale } (text is the name as drawn, whole or ending in an ellipsis; scale is 1, or down to 0.94 when a barely-long name fits), sublabel { x, y, scale, width, visible } (visible is false whenever anything in front, a nearer folder's tab or top edge or the drawer front, covers any part of the line: a half-open drawer or a crowded one never prints a fragment), rule (false when an edge in front runs within 8 units under the front flap's top rule, where the two would read as one heavy bar), flap (front flap's top edge), opening { drop, lean } (the ajar flap; lean is 0: the flap's top edge drops straight and is never wider than its folder), visible (0–1, how much of the tab shows above the drawer front; 0 inside a closed drawer), and light (effective k). anchors(i, n) returns n points on folder i's tab midline, from just before the name (clear of its first letter, where a knot sits) to the tab's straight edge; once a tab is below the drawer front's top edge the points stop at that rim, so threads never reach through the front. [] for an unknown folder or n < 1."
         },
         {
           "export": "drawerLight",
@@ -6038,6 +6068,11 @@
           "summary": "0.72: the light of the backmost folder when k is not given (the front folder is 1)."
         },
         {
+          "export": "drawerInside",
+          "kind": "constant",
+          "summary": "The open drawer's inside planes as hex fills { back, floor, left, right }, mixed in OKLab from Pencil Rule (the right wall, facing the light) toward Graphite (the back wall, half way), so an empty drawer reads as a box of the palette's rule tones. The side panels outside the walls are card."
+        },
+        {
           "export": "DrawerFolder",
           "kind": "type",
           "summary": "{ name, accent?, pulled?, k?, open?, reveal?, sublabel?, sublabelReveal? }: one folder. pulled 0–1 lifts it out and brings k to 1; k defaults to a ramp from 1 (front) to 0.72 (back); open 0–1 stands the front flap ajar: its top edge drops a fifth of the folder height, straight down and never wider than the folder, and the folder rises (by that drop plus a lip, at most as far as keeps the tab of the folder behind it in view) so at least half the shaded opening shows above whatever is in front of it (vermilion folders shade toward ink, never a new colour); reveal 0–1 inks the name in grapheme by grapheme (sublabelReveal defaults to it)."
@@ -6058,7 +6093,7 @@
           "width": 420,
           "height": 382
         },
-        "basis": "Parent SVG user units at the defaults w 420, open 1, and one folder: from the back edge at y + 10 to the front's bottom at y + 391 (front at y + 82, plus 32, plus a 277 front height from w). Each further folder rises depthSpacing (46 at labelSize 13, 55 with sublabels) above the one in front, from the front folder's top at y + 52: six or more folders reach y − 178 (y − 222 with sublabels). open 0 ends at y + 287. A lifted folder rises its height + 24 (up to ≈ 293) above its resting place, so leave headroom (the gallery uses viewBox 0 −400 500 840)."
+        "basis": "Parent SVG user units at the defaults w 420, open 1, and one folder: from the back edge at y + 10 to the front's bottom at y + 391 (front at y + 82, plus 32, plus a 277 front height from w). Each further folder rises depthSpacing (46 at labelSize 13, 55 with sublabels) above the one in front, from the front folder's top at y + 52: six or more folders reach y − 178 (y − 222 with sublabels). open 0 ends at y + 287. A lifted folder rises until its bottom is 14 units behind the drawer front's top edge (never floating clear of the drawer), so leave headroom (the gallery uses viewBox 0 −400 500 840)."
       },
       "examples": [
         {
@@ -6080,10 +6115,119 @@
         "Sweep Name reveal 0 → 1: tabs start blank and names ink in from the left, one grapheme at a time; the tab never changes width.",
         "Lift a back folder: it rises behind the folders in front and brightens to k 1; its complete outline appears as it clears them.",
         "Pick any folder in Target and set Flap ajar: the folder rises until its shaded opening shows above the folder (or drawer front) in front of it while the tab of the folder behind stays in view, the flap's top edge drops straight down, never wider than the folder (lifted or not), and the bottom corners stay fixed. On a vermilion folder the opening is a darker vermilion.",
-        "Tab names are bold sans (Geist 800), sublabels italic sans. Long names (\"Training Within Industry 1940s\") draw whole: the tab widens to the folder, then the name compresses; there is no ellipsis.",
+        "Tab names are bold sans (Geist 800), sublabels italic sans. Long names (\"Training Within Industry 1940s\" at Name size 36) widen the tab to the folder, then end in an ellipsis; no name is visibly condensed.",
         "Set Name size to 24 with six folders: back folders narrow exactly as at 13; at w 900 the handle, walls, and travel grow with the drawer.",
         "Switch Tab layout to stagger3: tabs cycle left, center, right and sublabels stay inside the folder.",
         "The Mano anchor in the hand example is an estimate of the pinch fingertip; verify it visually for your pose."
+      ],
+      "docs": [
+        {
+          "title": "Desk illustrations guide",
+          "url": "https://jbm-ui.bns.studio/docs/desk-components.md"
+        }
+      ]
+    },
+    {
+      "name": "hand",
+      "entry": "component",
+      "title": "Hand",
+      "description": "Static line-art hand in open-palm, pointing, pinching, gripping, typing, or holding pose, independent of placement and props.",
+      "category": "UI Bits",
+      "family": "Hands",
+      "capabilities": [
+        "controls"
+      ],
+      "needsRemotion": false,
+      "registryDependencies": [
+        "@jbm/tokens"
+      ],
+      "installName": "hand",
+      "inRegistry": true,
+      "page": "/c/hand",
+      "registryItem": "/r/hand.json",
+      "sourcePath": "registry/jbm/ui/hand.tsx",
+      "files": [
+        "registry/jbm/ui/hand.tsx"
+      ],
+      "api": [
+        {
+          "export": "Hand",
+          "kind": "component",
+          "summary": "Card-filled, ink-outlined hand drawn in a 30×29 viewBox. The pose swaps the silhouette only; it owns no position, rotation, folder, pen, or timeline (use Mano from @jbm/mano for placement inside an SVG, Pluma from @jbm/pluma for a held pen). Other SVG attributes pass through to the root <svg>.",
+          "props": [
+            {
+              "name": "pose",
+              "type": "HandPose",
+              "required": false,
+              "default": "\"point\"",
+              "description": "Silhouette: `open` (open palm, fingers together), `point` (index finger extended), `pinch` (index bent over the thumb; also the pen grip Pluma uses, so there is no pen pose), `grip` (front-view fist: four fingers with knuckle bumps on top, the thumb a closed capsule lying across under them and one straight fold closing the last two; every join a right-angle T, no scallops or cusps; lay the knuckles over a sheet or tab edge), `type` (the hand from above on a keyboard: all four fingers arch over together in concentric curves up and to the left, the index and middle tips pointing left and down onto the keys, the middle tallest, the thumb low and pointing left toward the space bar; use it upright, fingertips on the keys), or `hold` (the side-view mug grip turned so the wrist is at the bottom: four stacked fingers closed by one straight fold at right angles to the dividers, the thumb opening from the index in a V with a round web; rotate it about -75° to put the fingers through a handle on the left). Every pose is one closed outline plus open dividers that start on it, in one stroke width; no finger is a closed shape laid over another (the grip's thumb is the one closed shape, laid over the fingers). The palm side meets the wrist cut in one tangent-continuous fillet. Also sets the accessible label, e.g. \"Hand: point\"."
+            },
+            {
+              "name": "halo",
+              "type": "boolean",
+              "required": false,
+              "default": "false",
+              "description": "Knock the hand out of what it overlaps: a card ring half the outline wide just outside the contour, so ink art passing behind the hand (a pen barrel, a thread) never fuses with its outline. The ring paints over everything under the hand, writing included; to cut only the art behind the hand, mask that art with handOutline instead (Pluma does). Default false."
+            }
+          ],
+          "passthrough": [
+            "SVGProps<SVGSVGElement>"
+          ]
+        },
+        {
+          "export": "handOutline",
+          "kind": "function",
+          "summary": "A pose's closed outline in the Hand's 30×29 viewBox, for composites that cut art drawn behind the hand (a mask or clip path) instead of painting a halo over whatever else is under it. Place it with the same transforms as the Hand (Mano's translate, rotate, and anchor, then a scale of size / 30).",
+          "params": [
+            {
+              "name": "pose",
+              "type": "HandPose",
+              "required": false,
+              "default": "\"point\"",
+              "description": "Hand pose; defaults to point, like Hand."
+            }
+          ],
+          "returns": "{ d, transform, strokeWidth }: the outline path, the transform that places it in the viewBox, and the outline's stroke width in path units. Stroke the path at twice that width to cover the outline plus a gap half the outline wide."
+        },
+        {
+          "export": "handPoses",
+          "kind": "constant",
+          "summary": "Every pose name in gallery order: open, point, pinch, grip, type, hold. HandPose is its element type."
+        }
+      ],
+      "stage": {
+        "mode": "declared",
+        "landscape": {
+          "width": 180,
+          "height": 174
+        },
+        "vertical": {
+          "width": 180,
+          "height": 174
+        },
+        "basis": "The 30×29 viewBox renders at width 180; height is auto from the aspect ratio (180 × 29/30 = 174). Pass `width` (the gallery uses 155) or style.width to scale; maxWidth is 100% of the container. Every pose shares the box and the wrist sits at its lower edge."
+      },
+      "examples": [
+        {
+          "title": "Pinching hand",
+          "code": "import { Hand } from \"@/jbm/ui/hand\"\n\n<Hand pose=\"pinch\" width={160} />"
+        },
+        {
+          "title": "The four reader poses",
+          "code": "import { Hand } from \"@/jbm/ui/hand\"\n\n<Hand pose=\"point\" width={120} />\n<Hand pose=\"type\" width={120} />\n<Hand pose=\"grip\" width={120} />\n<Hand pose=\"hold\" width={120} />"
+        },
+        {
+          "title": "Place and rotate inside an SVG",
+          "code": "import { Hand } from \"@/jbm/ui/hand\"\nimport { Mano } from \"@/jbm/motion/mano\" // install @jbm/mano separately\n\n<Hand pose=\"open\" width={120} />\n<svg viewBox=\"0 0 500 340\">\n  <Mano at={{ x: 160, y: 30 }} pose=\"point\" angle={12} />\n</svg>"
+        }
+      ],
+      "qa": [
+        "Switch Pose through all six: each silhouette sits in the same box with the wrist at the bottom and keeps simple geometric line art and the same outline weight.",
+        "Enlarge every pose (point and pinch included) and inspect the finger joins: each interior divider starts on the outline's valley point, continues the finger's side, and has the outline's stroke width, with no notch or step, and grip, type, and hold keep the open palm's wrist cut exactly (grip and type also its heel and right side).",
+        "Name each pose at gallery size and compare it with its generated reference (Paper page hands): grip reads as a fist gripping an edge (knuckles on top, fingertips in a row, thumb across beneath), type as a hand from above with the index curled and the thumb low toward the space bar, hold as the side-view mug grip (stacked fingers, thumb opening from the index).",
+        "In context, grip over a Paper sheet's top edge, type over a DeskProp keyboard (fingertips on the upper rows, thumb over the space bar), and hold rotated about -75° on a DeskProp mug so the fingers wrap the handle and the thumb rides on top.",
+        "Check the card fill and ink stroke read on cream, and the aria-label follows the pose.",
+        "Scale with width at narrow screens: the 30:29 aspect ratio holds."
       ],
       "docs": [
         {
@@ -6314,6 +6458,42 @@
             }
           ],
           "returns": "The nib point { x, y } in parent units."
+        },
+        {
+          "export": "plumaCaretGap",
+          "kind": "function",
+          "summary": "How far right of a caret (the end of the last written glyph) to put the nib so the pen's near edge, cone then barrel, clears the ink for `rise` units above the nib at this rotation. Add it to the caret's x before solving the grip point with plumaNib, so the pen never covers the last glyph.",
+          "params": [
+            {
+              "name": "angle",
+              "type": "number",
+              "required": false,
+              "default": "0",
+              "description": "The Pluma's rotation in degrees."
+            },
+            {
+              "name": "rise",
+              "type": "number",
+              "required": false,
+              "default": "0",
+              "description": "How far above the nib the written ink reaches (its ascenders), in parent units."
+            },
+            {
+              "name": "nibOffset",
+              "type": "Pt",
+              "required": false,
+              "default": null,
+              "description": "The Pluma's nibOffset, if set."
+            },
+            {
+              "name": "size",
+              "type": "number",
+              "required": false,
+              "default": "180",
+              "description": "The Pluma's hand width."
+            }
+          ],
+          "returns": "A distance in parent units, 0 or more."
         }
       ],
       "stage": {
@@ -7490,115 +7670,6 @@
       ]
     },
     {
-      "name": "hand",
-      "entry": "component",
-      "title": "Hand",
-      "description": "Static line-art hand in open-palm, pointing, pinching, gripping, typing, or holding pose, independent of placement and props.",
-      "category": "UI Bits",
-      "family": "Hands",
-      "capabilities": [
-        "controls"
-      ],
-      "needsRemotion": false,
-      "registryDependencies": [
-        "@jbm/tokens"
-      ],
-      "installName": "hand",
-      "inRegistry": true,
-      "page": "/c/hand",
-      "registryItem": "/r/hand.json",
-      "sourcePath": "registry/jbm/ui/hand.tsx",
-      "files": [
-        "registry/jbm/ui/hand.tsx"
-      ],
-      "api": [
-        {
-          "export": "Hand",
-          "kind": "component",
-          "summary": "Card-filled, ink-outlined hand drawn in a 30×29 viewBox. The pose swaps the silhouette only; it owns no position, rotation, folder, pen, or timeline (use Mano from @jbm/mano for placement inside an SVG, Pluma from @jbm/pluma for a held pen). Other SVG attributes pass through to the root <svg>.",
-          "props": [
-            {
-              "name": "pose",
-              "type": "HandPose",
-              "required": false,
-              "default": "\"point\"",
-              "description": "Silhouette: `open` (open palm, fingers together), `point` (index finger extended), `pinch` (index bent over the thumb; also the pen grip Pluma uses, so there is no pen pose), `grip` (front-view fist: four fingers with knuckle bumps on top and the curled fingertips in a scalloped row beneath, the thumb lying across under them; lay the knuckles over a sheet or tab edge), `type` (the hand from above on a keyboard: all four fingers arch over together in concentric curves up and to the left, the index and middle tips pointing left and down onto the keys, the middle tallest, the thumb low and pointing left toward the space bar; use it upright, fingertips on the keys), or `hold` (the side-view mug grip turned so the wrist is at the bottom: four stacked fingers with the same scalloped fingertip row, the thumb opening from the index in a V with a round web; rotate it about -75° to put the fingers through a handle on the left). Every pose is one closed outline plus open dividers that start on it, in one stroke width; no finger is a closed shape laid over another. Also sets the accessible label, e.g. \"Hand: point\"."
-            },
-            {
-              "name": "halo",
-              "type": "boolean",
-              "required": false,
-              "default": "false",
-              "description": "Knock the hand out of what it overlaps: a card ring half the outline wide just outside the contour, so ink art passing behind the hand (a pen barrel, a thread) never fuses with its outline. The ring paints over everything under the hand, writing included; to cut only the art behind the hand, mask that art with handOutline instead (Pluma does). Default false."
-            }
-          ],
-          "passthrough": [
-            "SVGProps<SVGSVGElement>"
-          ]
-        },
-        {
-          "export": "handOutline",
-          "kind": "function",
-          "summary": "A pose's closed outline in the Hand's 30×29 viewBox, for composites that cut art drawn behind the hand (a mask or clip path) instead of painting a halo over whatever else is under it. Place it with the same transforms as the Hand (Mano's translate, rotate, and anchor, then a scale of size / 30).",
-          "params": [
-            {
-              "name": "pose",
-              "type": "HandPose",
-              "required": false,
-              "default": "\"point\"",
-              "description": "Hand pose; defaults to point, like Hand."
-            }
-          ],
-          "returns": "{ d, transform, strokeWidth }: the outline path, the transform that places it in the viewBox, and the outline's stroke width in path units. Stroke the path at twice that width to cover the outline plus a gap half the outline wide."
-        },
-        {
-          "export": "handPoses",
-          "kind": "constant",
-          "summary": "Every pose name in gallery order: open, point, pinch, grip, type, hold. HandPose is its element type."
-        }
-      ],
-      "stage": {
-        "mode": "declared",
-        "landscape": {
-          "width": 180,
-          "height": 174
-        },
-        "vertical": {
-          "width": 180,
-          "height": 174
-        },
-        "basis": "The 30×29 viewBox renders at width 180; height is auto from the aspect ratio (180 × 29/30 = 174). Pass `width` (the gallery uses 155) or style.width to scale; maxWidth is 100% of the container. Every pose shares the box and the wrist sits at its lower edge."
-      },
-      "examples": [
-        {
-          "title": "Pinching hand",
-          "code": "import { Hand } from \"@/jbm/ui/hand\"\n\n<Hand pose=\"pinch\" width={160} />"
-        },
-        {
-          "title": "The four reader poses",
-          "code": "import { Hand } from \"@/jbm/ui/hand\"\n\n<Hand pose=\"point\" width={120} />\n<Hand pose=\"type\" width={120} />\n<Hand pose=\"grip\" width={120} />\n<Hand pose=\"hold\" width={120} />"
-        },
-        {
-          "title": "Place and rotate inside an SVG",
-          "code": "import { Hand } from \"@/jbm/ui/hand\"\nimport { Mano } from \"@/jbm/motion/mano\" // install @jbm/mano separately\n\n<Hand pose=\"open\" width={120} />\n<svg viewBox=\"0 0 500 340\">\n  <Mano at={{ x: 160, y: 30 }} pose=\"point\" angle={12} />\n</svg>"
-        }
-      ],
-      "qa": [
-        "Switch Pose through all six: each silhouette sits in the same box with the wrist at the bottom and keeps simple geometric line art and the same outline weight.",
-        "Enlarge every pose (point and pinch included) and inspect the finger joins: each interior divider starts on the outline's valley point, continues the finger's side, and has the outline's stroke width, with no notch or step, and grip, type, and hold keep the open palm's wrist cut exactly (grip and type also its heel and right side).",
-        "Name each pose at gallery size and compare it with its generated reference (Paper page hands): grip reads as a fist gripping an edge (knuckles on top, fingertips in a row, thumb across beneath), type as a hand from above with the index curled and the thumb low toward the space bar, hold as the side-view mug grip (stacked fingers, thumb opening from the index).",
-        "In context, grip over a Paper sheet's top edge, type over a DeskProp keyboard (fingertips on the upper rows, thumb over the space bar), and hold rotated about -75° on a DeskProp mug so the fingers wrap the handle and the thumb rides on top.",
-        "Check the card fill and ink stroke read on cream, and the aria-label follows the pose.",
-        "Scale with width at narrow screens: the 30:29 aspect ratio holds."
-      ],
-      "docs": [
-        {
-          "title": "Desk illustrations guide",
-          "url": "https://jbm-ui.bns.studio/docs/desk-components.md"
-        }
-      ]
-    },
-    {
       "name": "file-cabinet",
       "entry": "component",
       "title": "FileCabinet",
@@ -8151,7 +8222,7 @@
               "type": "number",
               "required": false,
               "default": "1",
-              "description": "0–1: the tag drops 14 × w/480 px into place; it fades in over the first fifth of the drop and is opaque from then on, so the sheet's edge never shows through it. Only used with link; 0 hides it."
+              "description": "0–1: the tag fades in over the first half and settles up 8 × w/480 px into place from just below its resting spot, so it never rises past it or crosses the date line. Only used with link; 0 hides it."
             },
             {
               "name": "w",
@@ -8223,13 +8294,13 @@
         "mode": "declared",
         "landscape": {
           "width": 480,
-          "height": 385
+          "height": 393
         },
         "vertical": {
           "width": 480,
-          "height": 385
+          "height": 393
         },
-        "basis": "At the default w 480: 22px padding, a 436 × 245.25 frame, the rule 12px under it, the title 18px under the rule, the date 30px under the title, then 18 + 22px: a 367.25px sheet. With link, the tag straddles the bottom edge and half of it (15.1 × w/480 + 2px) hangs below: 384.35px in all, declared as 385. Every measurement scales with w (sheet height = 0.765 × w); videoPrintLayout().bounds gives the exact box. The tag never extends past the right edge: long URLs end in an ellipsis."
+        "basis": "At the default w 480: 22px padding, a 436 × 245.25 frame, the rule 12px under it, the title 18px under the rule, the date 30px under the title, then 18 + 22px: a 367.25px sheet. With link, the tag straddles the bottom edge and half of it (15.1 × w/480 + 2px) hangs below, plus the 8 × w/480 it settles up from while `opened` is below 1: 392.35px in all, declared as 393. Every measurement scales with w (sheet height = 0.765 × w); videoPrintLayout().bounds gives the exact box. The tag never extends past the right edge: long URLs end in an ellipsis."
       },
       "examples": [
         {
@@ -8244,7 +8315,7 @@
       "qa": [
         "Drag Scrub from 0 to 1: the ink bar grows from the left edge of the frame, each tick appears exactly when the bar reaches it, and nothing inks ahead of the bar.",
         "The frame reads as a pale sketch (tinted fill, ink outline, head circle and shoulder arc), never a solid ink block; compare with the video and puertas board panels.",
-        "Toggle the link and drag Tag drops in: the mono URL tag straddles the bottom edge, its hole ringed in ink and scaled with the print (PunchedTag scale = w/480), and stays inside the declared bounds; a long URL ends in an ellipsis instead of wrapping or passing the sheet's right edge. At Half the tag is already opaque.",
+        "Toggle the link and drag Tag drops in: the mono URL tag straddles the bottom edge, its hole ringed in ink and scaled with the print (PunchedTag scale = w/480), and stays inside the declared bounds; a long URL ends in an ellipsis instead of wrapping or passing the sheet's right edge. At every step of the drop the tag's top edge stays below the date line, and at Half it is opaque.",
         "Turn the sheet off: the frame, rule, and type keep their positions (anchors unchanged), and the still keeps exactly the same tint.",
         "Check a thread tied to videoPrintLayout().marks lands on the tick centreline, at w 300 and 480.",
         "The print uses no vermilion of its own."
@@ -8283,7 +8354,7 @@
         {
           "export": "Hilo",
           "kind": "component",
-          "summary": "SVG <g> of an ink thread: one exact cubic Bézier while laying or tied, two pinned pieces after a snap (cut square, with a tuft of fine fibers at each broken end), an optional vermilion notch marking the gap without closing it, and ink knots at the tied points. No arrows. Controlled and deterministic: every quantity comes from props, with no timer or randomness. Render inside an <svg> whose units match your anchors.",
+          "summary": "SVG <g> of an ink thread: one exact cubic Bézier while laying or tied, two pinned pieces after a snap (cut square, each end splitting into two or three short tapered strands), an optional vermilion tint on the broken tips, and ink knots at the tied points. No arrows. Controlled and deterministic: every quantity comes from props, with no timer or randomness. Render inside an <svg> whose units match your anchors.",
           "props": [
             {
               "name": "from",
@@ -8325,7 +8396,7 @@
               "type": "number",
               "required": false,
               "default": null,
-              "description": "Thread stroke width in user units (minimum 0.5). Knots are 1.4× it in radius; fibers are fine strands (0.4× it, 0.75–1.6 units); the notch is 2 × width + 2 thick. A snapped end is cut square."
+              "description": "Thread stroke width in user units (minimum 0.5). Knots are 1.4× it in radius; frayed strands split the cut between them; the notch tints each broken tip at this width. A snapped end is cut square. The bench's Width runs from 1.5, so the thread never renders as a faint hairline."
             },
             {
               "name": "snapAt",
@@ -8339,28 +8410,28 @@
               "type": "number",
               "required": false,
               "default": null,
-              "description": "Where the thread parts, as a fraction of its length from `from`; clamped to 0.05–0.95. The gap opens symmetrically around it: about a fifth of the length, at most 90 units (20 widths for a thick thread), moved inward just enough to leave each end a stub longer than its knot and fibers."
+              "description": "Where the thread parts, as a fraction of its length from `from`; clamped to 0.05–0.95. The gap opens symmetrically around it: about a fifth of the length, at most 90 units (20 widths for a thick thread), moved inward just enough to leave each end a stub longer than its knot and strands."
             },
             {
               "name": "fray",
               "type": "number",
               "required": false,
               "default": null,
-              "description": "0–1: fine fibers coming out of each broken end (0 none, then 3–5 of them, uneven lengths up to 8× width, capped by the gap). They leave the cut side by side across the thread's width and droop 3–22° toward gravity, so an end reads as a small tuft of unravelled thread, never legs along the thread, a symmetric fan, or an arrowhead. They shorten when the gap is tight, to leave room for the notch. 0 is a clean, square cut."
+              "description": "0–1: how each broken end frays: two short tapered strands below 0.5, three from 0.5. Their bases tile the square cut (so the thread splits into them with no step and no round cap), and each runs straight on along the thread, turning at most 8° toward gravity, no longer than about 1.5 widths (never under 3 units): a frayed end, never claws, legs, or a fan. 0 is a clean, square cut."
             },
             {
               "name": "slack",
               "type": "number",
               "required": false,
               "default": null,
-              "description": "0–1. Before a snap, how far the thread sags under gravity (the middle drops up to a quarter of the from→to distance). As the ends recoil that sag hands over to the ends: fully snapped, the route no longer sags and each end hangs from its own anchor, tangent there, its free tip dropping up to half its piece's length."
+              "description": "0–1. Before a snap, how far the thread sags under gravity (the middle drops up to a quarter of the from→to distance). As the ends recoil that sag hands over to the ends: fully snapped, the route no longer sags and each end hangs from its own anchor, tangent there, its free tip dropping up to half its piece's length. With slack the bow of an arc relaxes as the ends recoil, so limp ends always droop downward, never arch up, whichever way the arc bowed."
             },
             {
               "name": "notch",
               "type": "boolean",
               "required": false,
               "default": null,
-              "description": "Marks the gap with a straight, rounded vermilion bar where the missing span of thread was (lowered with the ends' mean droop when they hang), held clear of both tips, their fibers, and both pieces by open paper, so the snapped thread still reads as broken, never as an intact line with a bead: the only accent the thread draws. It appears once the recoiling ends leave room for it."
+              "description": "Marks the break in vermilion on the broken ends themselves: the last max(5, 3 × width) units of each piece, along its own curve and at the thread's width, and their strands. Never a free capsule floating in the gap, so the snapped thread reads as two broken ends, not a thread with a bead. The only accent the thread draws."
             },
             {
               "name": "knots",
@@ -8417,7 +8488,7 @@
               "type": "number",
               "required": false,
               "default": "2",
-              "description": "Thread stroke width in user units (minimum 0.5). Knots are 1.4× it in radius; fibers are fine strands (0.4× it, 0.75–1.6 units); the notch is 2 × width + 2 thick. A snapped end is cut square."
+              "description": "Thread stroke width in user units (minimum 0.5). Knots are 1.4× it in radius; frayed strands split the cut between them; the notch tints each broken tip at this width. A snapped end is cut square. The bench's Width runs from 1.5, so the thread never renders as a faint hairline."
             },
             {
               "name": "snapAt",
@@ -8431,28 +8502,28 @@
               "type": "number",
               "required": false,
               "default": "0.5",
-              "description": "Where the thread parts, as a fraction of its length from `from`; clamped to 0.05–0.95. The gap opens symmetrically around it: about a fifth of the length, at most 90 units (20 widths for a thick thread), moved inward just enough to leave each end a stub longer than its knot and fibers."
+              "description": "Where the thread parts, as a fraction of its length from `from`; clamped to 0.05–0.95. The gap opens symmetrically around it: about a fifth of the length, at most 90 units (20 widths for a thick thread), moved inward just enough to leave each end a stub longer than its knot and strands."
             },
             {
               "name": "fray",
               "type": "number",
               "required": false,
               "default": "0.6",
-              "description": "0–1: fine fibers coming out of each broken end (0 none, then 3–5 of them, uneven lengths up to 8× width, capped by the gap). They leave the cut side by side across the thread's width and droop 3–22° toward gravity, so an end reads as a small tuft of unravelled thread, never legs along the thread, a symmetric fan, or an arrowhead. They shorten when the gap is tight, to leave room for the notch. 0 is a clean, square cut."
+              "description": "0–1: how each broken end frays: two short tapered strands below 0.5, three from 0.5. Their bases tile the square cut (so the thread splits into them with no step and no round cap), and each runs straight on along the thread, turning at most 8° toward gravity, no longer than about 1.5 widths (never under 3 units): a frayed end, never claws, legs, or a fan. 0 is a clean, square cut."
             },
             {
               "name": "slack",
               "type": "number",
               "required": false,
               "default": "0",
-              "description": "0–1. Before a snap, how far the thread sags under gravity (the middle drops up to a quarter of the from→to distance). As the ends recoil that sag hands over to the ends: fully snapped, the route no longer sags and each end hangs from its own anchor, tangent there, its free tip dropping up to half its piece's length."
+              "description": "0–1. Before a snap, how far the thread sags under gravity (the middle drops up to a quarter of the from→to distance). As the ends recoil that sag hands over to the ends: fully snapped, the route no longer sags and each end hangs from its own anchor, tangent there, its free tip dropping up to half its piece's length. With slack the bow of an arc relaxes as the ends recoil, so limp ends always droop downward, never arch up, whichever way the arc bowed."
             },
             {
               "name": "notch",
               "type": "boolean",
               "required": false,
               "default": "false",
-              "description": "Marks the gap with a straight, rounded vermilion bar where the missing span of thread was (lowered with the ends' mean droop when they hang), held clear of both tips, their fibers, and both pieces by open paper, so the snapped thread still reads as broken, never as an intact line with a bead: the only accent the thread draws. It appears once the recoiling ends leave room for it."
+              "description": "Marks the break in vermilion on the broken ends themselves: the last max(5, 3 × width) units of each piece, along its own curve and at the thread's width, and their strands. Never a free capsule floating in the gap, so the snapped thread reads as two broken ends, not a thread with a bead. The only accent the thread draws."
             },
             {
               "name": "knots",
@@ -8462,7 +8533,7 @@
               "description": "Small ink dots at the tied points: `from` as soon as any thread is laid, `to` once it is fully laid."
             }
           ],
-          "returns": "{ base, length, lay, recoil, snapped, width, pieces, strands, strandWidth, notch, notchWidth, knots, knotRadius }: base is the resting cubic [start, handle, handle, end]; lay and recoil are the two phases (0–1); pieces are the cubics drawn in ink (pieces[0][0] is always `from`, and when laid the last piece ends at `to`); strands are fiber [start, control, end] quadratics; notch is the vermilion bar as a straight cubic, or null; knots are the tied points."
+          "returns": "{ base, length, lay, recoil, snapped, width, pieces, inked, strands, notch, knots, knotRadius }: base is the resting cubic [start, handle, handle, end]; lay and recoil are the two phases (0–1); pieces are the whole laid or snapped cubics (pieces[0][0] is always `from`, and when laid the last piece ends at `to`); inked are the pieces as drawn in ink, each broken end short of its tint; strands are tapered strand outlines [base corner, point, base corner]; notch is the list of vermilion tints (the exact ends of the pieces), empty without `notch`; knots are the tied points. A thread laid to within six widths of `to` counts as laid, so its far knot shows."
         },
         {
           "export": "cubicPoint",
@@ -8523,10 +8594,10 @@
       "qa": [
         "Drag Draw from 0 to 1 without a snap: the thread grows from `from` along one smooth curve, the `from` knot appears first, and the `to` knot only when it arrives.",
         "Turn on the snap and drag past 50%: at the snap the two pieces coincide with the tied thread (no jump), then recoil apart; `from` and `to` never move.",
-        "Snapped at the bench defaults reads as broken at a glance: two slack ends apart, each a square cut with a small tuft of fibers, and a vermilion bar in the gap with open paper between it and both ends (never touching them into one line). Fray 0 is a clean square cut; 1 gives five fibers per end, fine, side by side, drooping to one side, never legs, arrowheads, or fletching.",
-        "Slack 0 keeps the snapped ends on the original line (the rompe look); 1 lets them hang limply as two ends, each from its own anchor, never one deep V. The notch stays a straight bar between the ends, clear of both, at every slack, and is the only vermilion.",
-        "Try Break point 5% and 95%, Bend at both ends of its range (−0.3 to 0.3 for arc, 0 to 1 for S), both curve families, Slack 1, and Width 1 and 6 at 8× zoom: nothing leaves the viewBox, no S hooks around its knots at any width, and the notch is drawn and clear of the ends at every combination.",
-        "Place the anchors on real objects (a Cajon tab from cajonLayout, a VideoPrint mark from videoPrintLayout) and check the knots land on them. In the bench's Thread to drawer scene, knots sit on each tab's left edge clear of its name, threads to tabs below the rim cross the side wall's top edge (never the drawer front), no two threads cross, and closing the drawer hides each thread behind the front at its own spot."
+        "Snapped at the bench defaults reads as broken at a glance: two slack ends apart, each a square cut splitting into short strands, the broken tips tinted vermilion along their own curve at the thread's width (no floating bar or bead in the gap). Fray 0 is a clean square cut; 1 gives three strands per end that tile the cut, straight on along the thread, never claws, legs, or a fan.",
+        "Slack 0 keeps the snapped ends on the original line (the rompe look); 1 lets them hang limply as two ends, each from its own anchor, never one deep V. With Curve arc, Slack Limp, both halves droop (never arch up). The tints stay on the tips at every slack and are the only vermilion.",
+        "Try Break point 5% and 95%, Bend at both ends of its range (−0.3 to 0.3 for arc, 0 to 1 for S), both curve families, Slack 1, and Width 1 and 6 at 8× zoom: nothing leaves the viewBox, no S hooks around its knots at any width, and both tints sit on the tips at every combination.",
+        "Place the anchors on real objects (a Cajon tab from cajonLayout, a VideoPrint mark from videoPrintLayout) and check the knots land on them. In the bench's Thread to drawer scene, knots sit on each tab's left edge, more than a knot's radius clear of its name; a thread into a tab below the rim passes behind the side wall (the wall is drawn over its inside segment) and never across the wall's face or the drawer front; no two threads cross; closing the drawer hides each thread behind the front at its own spot. On a phone the scene uses a narrower stage, so tab names stay legible."
       ],
       "docs": [
         {
@@ -10105,7 +10176,7 @@
               "type": "\"front\" | \"tab\"",
               "required": false,
               "default": null,
-              "description": "Where the label prints. Defaults to the tab for the card tone, the front panel otherwise."
+              "description": "Where the label prints while the folder is closed. Defaults to the tab for the card tone, the front panel otherwise. Once open is above 0 the sheet stands in front of the tab, so the label prints on the front panel."
             },
             {
               "name": "entries",

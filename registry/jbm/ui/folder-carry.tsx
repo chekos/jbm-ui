@@ -156,7 +156,16 @@ export function FolderCarry({
       aria-label={label ? `Carrying ${label}` : undefined}
     >
       <FolderOutline {...g} fill={fill} />
-      <path d={`M${g.x} ${flap}H${g.x + g.w}`} stroke={color.ink} strokeWidth={2} />
+      {/* The flap's fold: ink, or cream on an ink folder, where an ink rule would vanish. */}
+      <path
+        d={
+          fill === color.ink
+            ? `M${g.x + 1} ${flap}H${g.x + g.w - 1}`
+            : `M${g.x} ${flap}H${g.x + g.w}`
+        }
+        stroke={fill === color.ink ? color.bg : color.ink}
+        strokeWidth={2}
+      />
       {label && onTab && (
         <text
           transform={`translate(${g.tabX + pad} ${g.y + (tabHeight * 16) / 27}) scale(${+tabScale.toFixed(4)} 1)`}

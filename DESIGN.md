@@ -189,7 +189,7 @@ Components read `--font-sans` / `--font-mono` when the host sets them (next/font
 
 ### Hierarchy
 - **Display** (800, 56–170px in stage pixels, 1.05, -2px tracking): the `Big` headline in scenes; the loudest words on a stage.
-- **Headline** (650, clamp(28px, 2.8vw, 36px), 1.1, -0.035em): the gallery's section headings (UI, Motion, Interactive, …); they outrank the 22px card titles. Each heading is followed by its category's one-line definition in Graphite, at most 65ch wide. The page header is a single row whose only `h1` is the 26px mono wordmark.
+- **Headline** (650, clamp(28px, 2.8vw, 36px), 1.1, -0.035em): the gallery's section headings (UI, Motion, Interactive, …); they outrank the 22px card titles. Each heading is followed by its category's one-line definition in Graphite, at most 50ch wide (about 70 characters). The page header is a single row whose only `h1` is the 26px mono wordmark.
 - **Title** (600, 22px, -0.6px): component names on gallery cards.
 - **Body** (400, 18px, 1.7): long-form explanatory copy in Graphite, capped near 550px.
 - **Body small** (400, 14px, 1.6): card descriptions and secondary copy.

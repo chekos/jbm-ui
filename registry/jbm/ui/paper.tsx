@@ -109,27 +109,25 @@ export function paperTension(tension: number) {
 const allCorners: PaperCorner[] = ["tl", "tr", "br", "bl"];
 const cornerAt: Record<PaperCorner, [number, number]> = { tl: [0, 0], tr: [1, 0], br: [1, 1], bl: [0, 1] };
 
-/** Longest crease, as a share of the crease box's diagonal (a quarter at most). */
-const CREASE_MAX = 0.22;
-/** How far behind the corner the creases' common source sits, as a share of the diagonal. */
-const CREASE_SOURCE = 0.1;
-/** Gap between the box edge and where a crease starts, as a share of the diagonal. */
-const CREASE_INSET = 0.012;
+/** Longest crease, as a share of the crease box's shorter side (12–15% of it). */
+const CREASE_MAX = 0.14;
+/** How far behind the corner the creases' common source sits, as a share of the shorter side. */
+const CREASE_SOURCE = 0.05;
 
 /**
  * The short fold lines one pulled corner sends into the sheet, in fractions of the crease box
- * (0–1 on each axis). Two or three per corner, deterministic in `seed`: one near the diagonal and
- * one or two turned 9–15° to either side, shorter. They radiate from a point beyond the corner, so
- * on the sheet each starts at its own place along the edges and they spread apart: no two share an
- * end or converge into a V. `aspect` is the box's height over its width, so the angles are true on a
- * sized sheet. The longest is CREASE_MAX of the diagonal, and `crease` (0–1) grows them inward.
+ * (0–1 on each axis). Two per corner, deterministic in `seed`, turned 7–11° to either side of the
+ * corner's diagonal, the second shorter. They radiate from a point just behind the corner, so both
+ * start at the pulled corner (a few px apart on the rounded contour) and only spread from there:
+ * no two share an end or meet. `aspect` is the box's height over its width, so the angles are true
+ * on a sized sheet. The longest is CREASE_MAX of the shorter side, and `crease` (0–1) grows them.
  */
 function creaseFan(corner: PaperCorner, crease: number, seed = 1, aspect = 1) {
   const [x, y] = cornerAt[corner];
   const ci = allCorners.indexOf(corner);
   const a = Number.isFinite(aspect) && aspect > 0 ? aspect : 1;
   // Square-pixel frame: width 1, height aspect.
-  const diag = Math.hypot(1, a);
+  const short = Math.min(1, a);
   const cx = x,
     cy = y * a;
   const vx = 0.5 - x,
@@ -137,17 +135,15 @@ function creaseFan(corner: PaperCorner, crease: number, seed = 1, aspect = 1) {
   const vl = Math.hypot(vx, vy);
   const ux = vx / vl,
     uy = vy / vl;
-  const sx = cx - ux * CREASE_SOURCE * diag,
-    sy = cy - uy * CREASE_SOURCE * diag;
-  const count = hash(seed, ci, 90) < 0.5 ? 2 : 3;
+  const sx = cx - ux * CREASE_SOURCE * short,
+    sy = cy - uy * CREASE_SOURCE * short;
   const side = hash(seed, ci, 91) < 0.5 ? -1 : 1;
   const g = unit(crease);
-  const main = CREASE_MAX * diag * (0.8 + 0.2 * hash(seed, ci, 93));
+  const main = CREASE_MAX * short * (0.86 + 0.14 * hash(seed, ci, 93));
   const rays = [
-    { turn: (hash(seed, ci, 92) - 0.5) * 5, len: main, delay: 0 },
-    { turn: side * (9 + 5 * hash(seed, ci, 94)), len: main * (0.5 + 0.2 * hash(seed, ci, 95)), delay: 0.15 },
-    { turn: -side * (10 + 5 * hash(seed, ci, 96)), len: main * (0.38 + 0.17 * hash(seed, ci, 97)), delay: 0.3 },
-  ].slice(0, count);
+    { turn: side * (7 + 4 * hash(seed, ci, 92)), len: main, delay: 0 },
+    { turn: -side * (7 + 4 * hash(seed, ci, 94)), len: main * (0.62 + 0.15 * hash(seed, ci, 95)), delay: 0.2 },
+  ];
   return rays
     .map((r) => {
       const grow = Math.min(1, Math.max(0, (g - r.delay) / (1 - r.delay)));
@@ -157,10 +153,10 @@ function creaseFan(corner: PaperCorner, crease: number, seed = 1, aspect = 1) {
       // Enter the box where the ray has crossed both edges at this corner, then step in.
       const tx = Math.abs(dx) > 1e-9 ? (cx - sx) / dx : 0;
       const ty = Math.abs(dy) > 1e-9 ? (cy - sy) / dy : 0;
-      const t0 = Math.max(tx, ty) + CREASE_INSET * diag;
+      const t0 = Math.max(tx, ty);
       const at = (t: number) => [fine((sx + dx * t) / 1), fine((sy + dy * t) / a)] as [number, number];
       const len = r.len * grow;
-      return { from: at(t0), to: at(t0 + len), grow: len > 0.004 * diag ? grow : 0 };
+      return { from: at(t0), to: at(t0 + len), grow: len > 0.004 * short ? grow : 0 };
     })
     .filter((r) => r.grow > 0);
 }
@@ -236,7 +232,8 @@ export function Paper({
   const seamPx = seam === null ? null : typeof seam === "number" && Number.isFinite(seam) ? seam : typeof h === "number" ? h / 2 : undefined;
   const seamCss = seamPx === undefined ? "50%" : `${round(seamPx ?? 0)}px`;
   const tearOn = seam !== null && stress.tear > 0;
-  const depthMax = typeof w === "number" && w > 0 ? Math.min(w * 0.24, 160) : 96;
+  // A short notch: the lip reaches about a seventh of the sheet in, never a long spike.
+  const depthMax = typeof w === "number" && w > 0 ? Math.min(w * 0.14, 90) : 64;
   const depth = depthMax * stress.tear;
   // Half the mouth at the edge: the notch is 24px open at tension 1 and already 17px at 0.7. It
   // narrows fast past the margin (over the writing it stays inside a band gap) and runs out as a
@@ -330,6 +327,14 @@ export function Paper({
       : wantSize;
   const tabRadius = Math.min(12, Math.max(0, radius), tabSize * 0.4);
   const tuck = 14;
+  // How much of the tab shows above the sheet at its reveal, and the label's opacity: nothing
+  // until most of the capitals show (0.6 em of the line), then whole a quarter em later.
+  const tabPad = Math.round(tabSize * 0.3);
+  const tabH = (edge ? 4 : 0) + 2 * tabPad + tabSize + tuck;
+  const tabShows = unit(tab?.reveal, 1) * tabH - tuck;
+  const tabLabelOpacity = round(
+    Math.min(1, Math.max(0, (tabShows - ((edge ? 2 : 0) + tabPad + 0.6 * tabSize)) / (0.25 * tabSize)))
+  );
   return (
     <div
       style={{
@@ -384,7 +389,9 @@ export function Paper({
               whiteSpace: "nowrap",
             }}
           >
-            {tab.label}
+            {/* The label fades in as a whole once the tab shows it to cap height, so a half-drawn
+                tab never leaves glyph tops as specks along the sheet's edge. */}
+            <span style={{ opacity: tabLabelOpacity }}>{tab.label}</span>
           </div>
         </div>
       )}
@@ -461,8 +468,10 @@ export function Paper({
                   key={i}
                   points={lip.map(([d, dy], j) => `${round((left ? 1 : -1) * (j === 0 ? Math.max(d, 1) : d))},${dy}`).join(" ")}
                   fill="none"
-                  stroke={edgeColor}
-                  strokeWidth={2}
+                  // Ink lips on cream stock; on dark stock a cream hairline, so the cut's edges
+                  // read against both the sheet and the page showing through the mouth.
+                  stroke={tone === "paper" ? edgeColor : color.bg}
+                  strokeWidth={tone === "paper" ? 2 : 1.25}
                   strokeLinejoin="round"
                   strokeLinecap="round"
                 />

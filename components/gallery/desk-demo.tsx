@@ -5,7 +5,7 @@ import { useBenchCompact } from "./bench-compact"
 import { Cajon, cajonLayout, type DrawerFolder } from "@/registry/jbm/motion/cajon"
 import { Hand, handPoses, type HandPose } from "@/registry/jbm/ui/hand"
 import { Mano } from "@/registry/jbm/motion/mano"
-import { Pluma, plumaNib } from "@/registry/jbm/motion/pluma"
+import { Pluma, plumaCaretGap, plumaNib } from "@/registry/jbm/motion/pluma"
 import { FileCabinet } from "@/registry/jbm/ui/file-cabinet"
 import { Bandeja } from "@/registry/jbm/motion/bandeja"
 import { ToolCaddy } from "@/registry/jbm/motion/tool-caddy"
@@ -224,25 +224,32 @@ function CajonDemo() {
             </label>
             {range(`Lift (${targetName})`, pull, setPull, ["Filed", "Half", "Lifted"])}
             {range(`Flap ajar (${targetName})`, ajar, setAjar, ["Shut", "Half", "Ajar"])}
-            {range(`Name reveal (${targetName})`, reveal, setReveal, ["Blank", "Half", "Named"])}
-            {check("Set light", setLight, setSetLight)}
-            {setLight && (
-              <RangeControl
-                label={`Light (${targetName})`}
-                ariaLabel={`${name} Light`}
-                value={k}
-                onChange={setK}
-                min={0.72}
-                max={1}
-                step={0.01}
-                format={(n) => n.toFixed(2)}
-              />
-            )}
-            {check("Vermilion target", accent, setAccent)}
           </>
         )}
         {!compact && (
-          <>
+          // Secondary controls fold away so the stage and the main controls fit a 1280×800 screen.
+          <details className="bench-more">
+            <summary>More options</summary>
+            <div>
+            {count > 0 && (
+              <>
+                {range(`Name reveal (${targetName})`, reveal, setReveal, ["Blank", "Half", "Named"])}
+                {check("Set light", setLight, setSetLight)}
+                {setLight && (
+                  <RangeControl
+                    label={`Light (${targetName})`}
+                    ariaLabel={`${name} Light`}
+                    value={k}
+                    onChange={setK}
+                    min={0.72}
+                    max={1}
+                    step={0.01}
+                    format={(n) => `${Math.round(n * 100)}%`}
+                  />
+                )}
+                {check("Vermilion target", accent, setAccent)}
+              </>
+            )}
             <RangeControl
               label="Name size"
               ariaLabel={`${name} Name size`}
@@ -269,7 +276,8 @@ function CajonDemo() {
             </label>
             {check("Titles", titles, setTitles)}
             {check("Staggered tabs", stagger, setStagger)}
-          </>
+            </div>
+          </details>
         )}
       </div>
     </div>
@@ -285,7 +293,7 @@ function DeskObjectDemo({ name }: { name: string }) {
   const [count, setCount] = useBenchParam(
     "count",
     3,
-    name === "bandeja" ? { clamp: [0, 12] } : { allowed: [0, 1, 3, 6, 8, 12] }
+    { clamp: [0, 12] }
   )
   const [open, setOpen] = useBenchParam("open", 1, unit)
   const [pull, setPull] = useBenchParam("lift", 0, unit)
@@ -306,8 +314,14 @@ function DeskObjectDemo({ name }: { name: string }) {
     pulled: i === 0 ? pull : 0,
   }))
   // Pluma: solve the grip point from where the nib should be, so the ink ends under the nib.
+  // The nib sits a clear gap past the caret, measured after rotation, so the pen never covers
+  // the last glyph at any angle; 16 units spans the ascenders above the nib.
   const nib = {
-    x: line.x + writtenAdvance * writtenGlyphs * write,
+    x:
+      line.x +
+      writtenAdvance * writtenGlyphs * write +
+      plumaCaretGap(angle, 16, undefined, 150) +
+      2,
     y: line.y - 6,
   }
   const offset = plumaNib({ x: 0, y: 0 }, angle, undefined, 150)
@@ -341,7 +355,16 @@ function DeskObjectDemo({ name }: { name: string }) {
         }}
       >
         {name === "hand" ? (
-          <Hand pose={pose} width={155} />
+          // Up to 360px wide and never stretched into a tall letterbox, centred in the stage.
+          <Hand
+            pose={pose}
+            width={155}
+            style={{
+              width: compact ? "min(100%, 220px)" : "min(100%, 360px)",
+              flex: "none",
+              maxHeight: "100%",
+            }}
+          />
         ) : name === "burbuja" ? (
           <Burbuja
             speaker="Tú"
@@ -360,7 +383,9 @@ function DeskObjectDemo({ name }: { name: string }) {
             }
             style={{
               width: "100%",
-              maxWidth: name === "escritorio" ? 640 : 420,
+              // Mano and Pluma fill the stage: the hand is drawn about 220px wide on a bench.
+              maxWidth:
+                name === "escritorio" ? 640 : name === "mano" || name === "pluma" ? 720 : 420,
               height: "auto",
             }}
           >
@@ -446,18 +471,16 @@ function DeskObjectDemo({ name }: { name: string }) {
           <>
             {/* The desk's index card keeps Wood finish, File cabinet, and Open. */}
             {!(compact && name === "escritorio") && (
-              <label>
-                Folders{" "}
-                <select
-                  aria-label={`${name} folder count`}
-                  value={count}
-                  onChange={(e) => setCount(Number(e.target.value))}
-                >
-                  {[0, 1, 3, 6, 8, 12].map((n) => (
-                    <option key={n}>{n}</option>
-                  ))}
-                </select>
-              </label>
+              // Folder count is the same −/+ stepper as Cajon's.
+              <StepperControl
+                label="Folders"
+                value={count}
+                onChange={setCount}
+                min={0}
+                max={12}
+                noun="folders"
+                format={(n) => `${n} ${n === 1 ? "folder" : "folders"}`}
+              />
             )}
             {range("Open", open, setOpen, ["Closed", "Half", "Open"])}
             {name !== "escritorio" &&

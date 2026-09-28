@@ -15,7 +15,7 @@ export type VideoPrintProps = {
   date: string
   /** A URL set in mono on a punched tag hanging from the bottom edge (one line, ellipsis past the print's width). Its presence means "this page was opened". */
   link?: string
-  /** 0–1: the tag drops into place. Only used with `link`. */
+  /** 0–1: the tag fades in and settles into place from just below its resting spot. Only used with `link`. */
   opened?: number
   /** Width in stage pixels; every measurement scales with it (the height is 0.765 × w). */
   w?: number
@@ -65,7 +65,8 @@ export function videoPrintLayout(
   const tagX = at.x + 2 * pad
   // The link tag straddles the bottom edge: half its height (a 14 × s line and 6 × s padding
   // above and below, inside a 2px edge) hangs below the sheet.
-  const tagHang = link ? (14 * 1.3 * s + 12 * s + 4) / 2 : 0
+  // Plus the 8 × s it settles up from while `opened` is below 1.
+  const tagHang = link ? (14 * 1.3 * s + 12 * s + 4) / 2 + 8 * s : 0
   return {
     scale: s,
     w: BASE * s,
@@ -233,9 +234,10 @@ export function VideoPrint({
             position: "absolute",
             left: l.tagX,
             top: l.h,
-            // Opaque for most of the drop, so the sheet's edge never shows through the tag body.
-            opacity: Math.min(1, tagIn / 0.2),
-            transform: `translateY(calc(-50% - ${r2((1 - tagIn) * 14 * s)}px))`,
+            // It settles into place from just below and never rises past its resting spot, so its
+            // top edge never crosses the date line above it while it fades in.
+            opacity: Math.min(1, tagIn / 0.5),
+            transform: `translateY(calc(-50% + ${r2((1 - tagIn) * 8 * s)}px))`,
           }}
         >
           <PunchedTag

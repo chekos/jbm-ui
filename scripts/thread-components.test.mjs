@@ -135,9 +135,11 @@ test("hilo after a snap: the route's sag hands over to two ends hanging from the
   // Fully snapped, slack no longer sags the route itself.
   for (let i = 0; i < 4; i++) assert.ok(near(limp.base[i], taut.base[i], 1e-9))
   const [a, b] = limp.pieces
-  // Each piece keeps its anchor and its anchor tangent; its free tip hangs lowest.
+  // Each piece keeps its anchor and anchor tangent; a limp end's anchor handle is shorter, so
+  // it falls away from its pin instead of arching; its free tip hangs lowest.
   assert.ok(near(a[0], level.from) && near(b[3], level.to))
-  assert.ok(near(a[1], taut.pieces[0][1], 1e-9) && near(b[2], taut.pieces[1][2], 1e-9))
+  assert.ok(a[1].y === taut.pieces[0][1].y && a[1].x < taut.pieces[0][1].x)
+  assert.ok(b[2].y === taut.pieces[1][2].y && b[2].x > taut.pieces[1][2].x)
   for (const [piece, tip] of [[a, 1], [b, 0]]) {
     const ys = Array.from({ length: 21 }, (_, i) => cubicPoint(piece, i / 20).y)
     assert.ok(Math.abs(Math.max(...ys) - cubicPoint(piece, tip).y) < 1e-9, "the free tip is the lowest point")
@@ -145,14 +147,33 @@ test("hilo after a snap: the route's sag hands over to two ends hanging from the
   assert.ok(a[3].y > level.from.y + 20 && b[0].y > level.to.y + 20, "the ends hang limp")
 })
 
-test("hilo fibers all fall to one side of the thread, never a symmetric fan", () => {
+test("hilo frayed ends: two or three short tapered strands that tile the cut and continue the thread (#168)", () => {
   const level = { from: { x: 40, y: 100 }, to: { x: 460, y: 100 } }
   for (const notch of [false, true])
-    for (const width of [2, 6]) {
-      const g = hiloGeometry({ ...level, draw: 1, snapAt: 0, fray: 1, notch, width })
-      assert.equal(g.strands.length, 10)
-      for (const [root, , end] of g.strands) assert.ok(end.y >= root.y - 1e-6, "fibers curl down, with gravity")
-    }
+    for (const width of [2, 6])
+      for (const [fray, count] of [[0.3, 2], [1, 3]]) {
+        const g = hiloGeometry({ ...level, draw: 1, snapAt: 0, fray, notch, width })
+        assert.equal(g.strands.length, 2 * count)
+        const tips = [g.pieces[0][3], g.pieces[1][0]]
+        for (const [b0, point, b1] of g.strands) {
+          const tip = tips.reduce((m, t) => (Math.hypot(b0.x - t.x, b0.y - t.y) < Math.hypot(b0.x - m.x, b0.y - m.y) ? t : m))
+          // The base lies on the square cut, within half the thread's width of the tip's centre.
+          for (const b of [b0, b1]) assert.ok(Math.hypot(b.x - tip.x, b.y - tip.y) <= width / 2 + 1e-6, "base on the cut")
+          const mid = { x: (b0.x + b1.x) / 2, y: (b0.y + b1.y) / 2 }
+          const len = Math.hypot(point.x - mid.x, point.y - mid.y)
+          assert.ok(len <= Math.max(3, 1.5 * width) + 1e-6, `strand ${len} no longer than 1.5 widths`)
+          // Nearly along the thread (level here), drooping a few degrees at most, toward gravity.
+          const angle = (Math.atan2(Math.abs(point.y - mid.y), Math.abs(point.x - mid.x)) * 180) / Math.PI
+          assert.ok(angle <= 10, `strand turns ${angle}°`)
+          assert.ok(point.y >= mid.y - 1e-6, "strands droop with gravity")
+        }
+        // Per end, the bases tile the cut exactly: together they span the thread's width.
+        for (const end of [0, 1]) {
+          const bases = g.strands.slice(end * count, end * count + count)
+          const span = bases.reduce((a, [b0, , b1]) => a + Math.hypot(b1.x - b0.x, b1.y - b0.y), 0)
+          assert.ok(Math.abs(span - width) < 1e-6, `end ${end}: bases span the cut`)
+        }
+      }
 })
 
 test("hilo snapAt 0 starts laid and draw drives only the snap; no snapAt never snaps", () => {
@@ -164,53 +185,25 @@ test("hilo snapAt 0 starts laid and draw drives only the snap; no snapAt never s
   assert.equal(hiloGeometry({ from, to, draw: 1, snapAt: 1 }).snapped, false)
 })
 
-test("hilo gap, fray, and notch: clean cut at fray 0, the notch marks the gap without bridging it, vermilion only when notch", () => {
+test("hilo gap, fray, and notch: clean cut at fray 0; the notch tints each broken tip at the thread's width; vermilion only when notch", () => {
   const clean = hiloGeometry({ from, to, draw: 1, snapAt: 0, fray: 0 })
   assert.equal(clean.strands.length, 0)
   const frayed = hiloGeometry({ from, to, draw: 1, snapAt: 0, fray: 1, notch: true })
-  assert.equal(frayed.strands.length, 10)
-  // The notch is a straight bar strictly between the tips, with open paper between it and
-  // every tip and fiber (#168: a notch that touches the ends reads as an intact thread).
-  // Edge to edge: the notch's half width and each ink stroke's half width come off the distance.
-  const clearance = (g) => {
-    let min = Infinity
-    const ink = [
-      ...[g.pieces[0], g.pieces[1]].flatMap((c) =>
-        Array.from({ length: 81 }, (_, i) => ({ p: cubicPoint(c, i / 80), r: g.width / 2 }))
-      ),
-      ...g.strands.flatMap(([a, q, b]) =>
-        Array.from({ length: 21 }, (_, i) => {
-          const t = i / 20
-          return {
-            p: {
-              x: (1 - t) ** 2 * a.x + 2 * (1 - t) * t * q.x + t * t * b.x,
-              y: (1 - t) ** 2 * a.y + 2 * (1 - t) * t * q.y + t * t * b.y,
-            },
-            r: g.strandWidth / 2,
-          }
-        })
-      ),
-    ]
-    for (let i = 0; i <= 40; i++) {
-      const p = cubicPoint(g.notch, i / 40)
-      for (const { p: q, r } of ink)
-        min = Math.min(min, Math.hypot(p.x - q.x, p.y - q.y) - r - g.notchWidth / 2)
-    }
-    return min
-  }
-  for (const width of [1, 2, 4, 6])
+  assert.equal(frayed.strands.length, 6)
+  // #168: the notch is no free capsule floating in the gap. It is two short tints, each the
+  // exact end of a broken piece (same curve, same width), so the mark belongs to the ends.
+  for (const width of [1.5, 2, 4, 6])
     for (const slack of [0, 0.35, 1])
       for (const breakAt of [0.05, 0.5, 0.95])
         for (const curve of ["s", "arc"]) {
           const g = hiloGeometry({ from, to, curve, bend: curve === "s" ? 0.5 : 0.3, draw: 1, snapAt: 0, fray: 1, notch: true, width, slack, breakAt })
-          assert.ok(g.notch, `notch drawn at width ${width}, slack ${slack}, break ${breakAt}`)
-          const [p0, p1, p2, p3] = g.notch
-          const cross = (u, v) => (u.x - p0.x) * (v.y - p0.y) - (u.y - p0.y) * (v.x - p0.x)
-          assert.ok(Math.abs(cross(p1, p3)) < 1e-6 && Math.abs(cross(p2, p3)) < 1e-6, "the notch is straight")
-          assert.ok(
-            clearance(g) >= 2,
-            `open paper around the notch at width ${width}, slack ${slack}, break ${breakAt}: ${clearance(g)}`
-          )
+          assert.equal(g.notch.length, 2, `tints at width ${width}, slack ${slack}, break ${breakAt}`)
+          assert.ok(near(g.notch[0][3], g.pieces[0][3], 1e-6) && near(g.notch[1][0], g.pieces[1][0], 1e-6), "tints end at the tips")
+          assert.ok(near(g.inked[0][3], g.notch[0][0], 1e-6) && near(g.inked[1][0], g.notch[1][3], 1e-6), "ink meets tint")
+          for (const t of g.notch) {
+            const len = Math.hypot(t[3].x - t[0].x, t[3].y - t[0].y)
+            assert.ok(len <= Math.max(5, 3 * width) + 0.1, `tint ${len} is short`)
+          }
         }
   // The gap is about a fifth of the thread and never more than 90 units.
   const gap = Math.hypot(
@@ -218,16 +211,8 @@ test("hilo gap, fray, and notch: clean cut at fray 0, the notch marks the gap wi
     frayed.pieces[1][0].y - frayed.pieces[0][3].y
   )
   assert.ok(gap > 30 && gap < 110, `gap ${gap}`)
-  // Fibers peel off within a few widths of a tip and reach past it.
-  const tips = [frayed.pieces[0][3], frayed.pieces[1][0]]
-  const dist = (p, q) => Math.hypot(p.x - q.x, p.y - q.y)
-  for (const [a, , b] of frayed.strands) {
-    const tip = dist(a, tips[0]) < dist(a, tips[1]) ? tips[0] : tips[1]
-    assert.ok(dist(a, tip) <= 3 * frayed.width + 0.5)
-    assert.ok(dist(b, tip) > frayed.width)
-  }
-  const markup = render(Hilo, { from, to, draw: 1, snapAt: 0, notch: true })
-  assert.equal(markup.split(color.accent).length - 1, 1)
+  const markup = render(Hilo, { from, to, draw: 1, snapAt: 0, notch: true, width: 3 })
+  assert.equal((markup.match(new RegExp(`stroke="${color.accent}" stroke-width="3"`, "g")) ?? []).length, 2)
   for (const props of [
     { from, to, draw: 1 },
     { from, to, draw: 1, snapAt: 0 },
@@ -250,16 +235,17 @@ test("hilo S curves never hook back around their anchors, at any bend or width (
       }
 })
 
-test("hilo fibers are fine strands out of the cut, not legs along the thread (#168)", () => {
-  for (const width of [1, 2, 6]) {
-    const g = hiloGeometry({ from, to, draw: 1, snapAt: 0, fray: 1, width })
-    assert.ok(g.strandWidth <= Math.max(0.75, 0.4 * width) + 1e-9)
-    const tips = [g.pieces[0][3], g.pieces[1][0]]
-    for (const [root] of g.strands) {
-      const d = Math.min(...tips.map((t) => Math.hypot(root.x - t.x, root.y - t.y)))
-      assert.ok(d <= 0.8 * width, "every fiber leaves the cut itself")
-    }
+test("hilo: a limp snapped arc droops, whichever way it bowed, and the far knot shows once reached (#168)", () => {
+  for (const bend of [0.3, -0.3]) {
+    const g = hiloGeometry({ from, to, curve: "arc", bend, draw: 1, snapAt: 0, slack: 1, fray: 1 })
+    const [a, b] = g.pieces
+    // Each free tip hangs lower than any point of the chord between its anchor and the tip.
+    assert.ok(a[3].y > Math.max(from.y, cubicPoint(a, 0.5).y) - 1e-6, `bend ${bend}: first end droops`)
+    assert.ok(b[0].y > Math.max(to.y, cubicPoint(b, 0.5).y) - 1e-6, `bend ${bend}: last end droops`)
   }
+  // Tied: a thread laid to within a few widths of the far anchor is laid, and its knot shows.
+  const near98 = hiloGeometry({ from, to, draw: 0.49, snapAt: 0.5 })
+  assert.equal(near98.knots.length, 2)
 })
 
 test("hilo is deterministic and never renders NaN", () => {
@@ -367,13 +353,14 @@ test("video print: declared bounds hold the link tag, the tag never passes the s
     const s = w / 480
     // The tag's height: a 14 × s line at 1.3, 6 × s padding above and below, and a 2px edge.
     const tagH = 14 * 1.3 * s + 12 * s + 4
-    assert.ok(Math.abs(l.bounds.h - (l.h + tagH / 2)) < 1e-9)
+    // Plus the 8 × s the tag settles up from while it drops in, so it never crosses the date.
+    assert.ok(Math.abs(l.bounds.h - (l.h + tagH / 2 + 8 * s)) < 1e-9)
     assert.equal(l.bounds.w, l.w)
     assert.ok(l.tagX + l.tagMaxW <= l.w - l.pad + 1e-9, "the tag stops short of the right edge")
   }
   // The contract's declared stage covers the default print with its tag.
   const l = videoPrintLayout({ link: "x" })
-  assert.ok(l.bounds.h <= 385 && l.bounds.h > 384)
+  assert.ok(l.bounds.h <= 393 && l.bounds.h > 392)
   const long = render(VideoPrint, {
     title: "Sample talk",
     date: "Video · 4 nov 2025",

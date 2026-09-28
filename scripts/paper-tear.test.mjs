@@ -128,7 +128,7 @@ test("tension fans short creases from each pulled corner and tears only past 0.6
   const lines = (html) => [...html.matchAll(/<line x1="([\d.]+)%" y1="([\d.]+)%" x2="([\d.]+)%" y2="([\d.]+)%"/g)].map((m) => m.slice(1).map(Number))
   const lips = (html) => (html.match(/<polyline /g) ?? []).length
   const at = (props) => render(Paper, { w: 400, h: 600, ...props }, "WRITING")
-  // Two or three creases per pulled corner, all corner combinations included.
+  // Two creases per pulled corner, all corner combinations included.
   for (const pull of [["tl", "tr", "br", "bl"], ["tl", "br"], ["tl", "tr"], ["bl"]]) {
     const n = lines(at({ tension: 1, pull })).length
     assert.ok(n >= 2 * pull.length && n <= 3 * pull.length, `${pull}: ${n} creases`)
@@ -149,7 +149,9 @@ test("tension fans short creases from each pulled corner and tears only past 0.6
   for (const seed of [1, 2, 3, 5, 7, 9])
     for (const pull of [["tl"], ["tr"], ["br"], ["bl"]]) {
       const fan = lines(at({ tension: 1, seed, pull })).map(([x1, y1, x2, y2]) => [x1 * 4, y1 * 6, x2 * 4, y2 * 6])
-      for (const [x1, y1, x2, y2] of fan) assert.ok(Math.hypot(x2 - x1, y2 - y1) <= 0.25 * Math.hypot(400, 600), `seed ${seed}: crease too long`)
+      // Short: at most 15% of the sheet's shorter side (#167), two per corner.
+      assert.equal(fan.length, 2, `seed ${seed} ${pull}: two creases`)
+      for (const [x1, y1, x2, y2] of fan) assert.ok(Math.hypot(x2 - x1, y2 - y1) <= 0.15 * 400, `seed ${seed}: crease too long`)
       for (let i = 0; i < fan.length; i++)
         for (let j = i + 1; j < fan.length; j++) {
           const [a, b] = [fan[i], fan[j]]
@@ -182,7 +184,8 @@ test("tension fans short creases from each pulled corner and tears only past 0.6
   const notch = [...at({ tension: 0.7, seam: 300 }).matchAll(/<polyline points="([^"]+)"/g)].map((m) =>
     m[1].split(" ").map((p) => p.split(",").map(Number))
   )
-  assert.ok(notch[0].at(-1)[0] >= 45, `notch depth ${notch[0].at(-1)[0]}`)
+  // A short notch (#167): about a seventh of the sheet at full tension, half of it at 0.7.
+  assert.ok(notch[0].at(-1)[0] >= 25 && notch[0].at(-1)[0] <= 0.14 * 400, `notch depth ${notch[0].at(-1)[0]}`)
   assert.ok(notch[1][0][1] - notch[0][0][1] >= 9.5, "notch mouth")
   // The notch is a wedge cut into the sheet: widest at the edge, one 2px crack at the tip, with a
   // shadow band inside the mouth.

@@ -50,7 +50,7 @@ registerHooks({
 })
 
 const { pointOn, pathTilt } = await import("../registry/jbm/lib/geometry.ts")
-const { cajonLayout } = await import("../registry/jbm/motion/cajon.tsx")
+const { cajonLayout, drawerInside } = await import("../registry/jbm/motion/cajon.tsx")
 const { escritorioLayout, Escritorio } =
   await import("../registry/jbm/motion/escritorio.tsx")
 const { Burbuja } =
@@ -146,7 +146,12 @@ test("lifting preserves the entire folder and clears the drawer front", () => {
     const l=cajonLayout({folders:[{name:"front",pulled}]})
     assert.equal(l.folders[0].h,base.folders[0].h)
     assert.equal(l.folders[0].w,base.folders[0].w)
-    if(pulled===1) assert.ok(l.folders[0].y+l.folders[0].h<l.front)
+    // Fully lifted, the folder's bottom stays just behind the front's rim: it never floats clear.
+    if(pulled===1) {
+      const bottom=l.folders[0].y+l.folders[0].h
+      assert.ok(bottom>l.frontTop && bottom<=l.frontTop+14+1e-9)
+      assert.ok(l.folders[0].y<base.folders[0].y)
+    }
   }
 })
 test("closed drawer hides complete folders behind the front with no open top gap", () => {
@@ -270,8 +275,23 @@ test("crowded drawers pack within six folders' rise: names whole, struck sublabe
           if (i === 0) return assert.equal(f.sublabel.visible, true)
           // Each name sits above the next folder forward, so no tab edge crosses it.
           assert.ok(f.label.y + 0.25 * l.labelSize <= l.folders[i - 1].y + 1e-9, `n=${n} i=${i} name whole`)
-          const clear = f.sublabel.y + 0.35 * l.labelSize * 0.8 <= l.folders[i - 1].y + 1e-9
-          if (!clear) assert.equal(f.sublabel.visible, false, `n=${n} i=${i}: struck sublabel is hidden`)
+          // What covers the sublabel is the nearer folders' edge over its span: a tab's top, or
+          // beside the tab the body's top edge. A partly covered sublabel is hidden, never cut.
+          const a = f.sublabel.x, b = a + f.sublabel.width
+          const cover = Math.min(
+            l.frontTop,
+            ...l.folders.slice(0, i).flatMap((g) =>
+              b <= g.x || a >= g.x + g.w
+                ? []
+                : [
+                    ...(b > g.tabX && a < g.tabX + g.tabWidth ? [g.y] : []),
+                    ...(b > g.tabX + g.tabWidth ? [g.y + g.tabSlope] : []),
+                    ...(a < g.tabX ? [g.y + g.tabHeight] : []),
+                  ]
+            )
+          )
+          const clear = f.sublabel.y + 0.35 * l.labelSize * 0.8 <= cover + 1e-9
+          if (sub) assert.equal(f.sublabel.visible, clear, `n=${n} i=${i} size ${labelSize}: a sublabel prints only when clear (${f.sublabel.y} ${cover} ${f.sublabel.x} ${f.sublabel.width})`)
         })
         if (sub) {
           const markup = drawMarkup({ labelSize, folders: folders(n) })
@@ -298,19 +318,25 @@ test("an ajar flap drops straight: never wider than its folder, lifted or not", 
       assert.ok(+x0 >= f.x - 1e-9 && +x1 <= f.x + f.w + 1e-9, "flap inside the folder's width")
     }
 })
-test("an empty open drawer is a box of drawer shades, not an ink block", () => {
+test("an empty open drawer is a box of token shades, not an ink block", () => {
   const markup = drawMarkup({ folders: [], open: 1 })
-  for (const k of [0.5, 0.58, 0.68, 0.78]) assert.ok(markup.includes(`fill="${drawerLight(k)}"`), `plane ${k}`)
+  // Pencil Rule toward Graphite, never an ink mix; the side panels are card, not page-cream holes.
+  for (const [plane, fill] of Object.entries(drawerInside)) assert.ok(markup.includes(`fill="${fill}"`), `plane ${plane}`)
+  assert.equal(drawerInside.right, "#D5D1C6")
+  assert.ok(!markup.includes('fill="#FFF6E8"Z') && markup.includes('fill="#FFFCF5"'))
   // The only ink fill in an empty drawer is the handle.
   assert.equal((markup.match(/fill="#20241F"/g) ?? []).length, 1)
 })
-test("names are drawn whole: the tab widens, then the name compresses", () => {
+test("names: the tab widens, a barely-long name squeezes at most to 0.94, longer ones end in an ellipsis", () => {
   const long = "Training Within Industry 1940s and beyond"
   const markup = drawMarkup({ w: 300, folders: [{ name: long }] })
-  assert.ok(markup.includes(long))
-  assert.ok(!markup.includes("…"))
+  assert.ok(!markup.includes(long))
+  assert.ok(markup.includes("…"))
   const f = cajonLayout({ w: 300, folders: [{ name: long }] }).folders[0]
-  assert.ok(f.tabWidth <= f.w && f.label.scale < 1 && f.label.scale > 0)
+  assert.ok(f.tabWidth <= f.w && f.label.scale === 1 && f.label.text.endsWith("…"))
+  for (const labelSize of [10, 13, 24, 36])
+    for (const g of cajonLayout({ labelSize, folders: sources.map((name) => ({ name })) }).folders)
+      assert.ok(g.label.scale >= 0.94, `size ${labelSize}: ${g.label.text} never visibly condensed`)
   assert.equal(
     cajonLayout({ folders: [{ name: "Grove 1983" }] }).folders[0].label.scale,
     1

@@ -16,9 +16,9 @@ export default {
       summary:
         "Accent, ink, or card folder whose sheet rotates upright and clears the front panel as `open` goes from 0 to 1. Pure React with no internal timer; drive `open` from a slider or a video timeline.",
       props: {
-        label: "Folder name; also names the image for assistive technology. On the front panel (accent and ink default) it is Geist Mono 600 and follows fitLine: whole when it fits, compressed horizontally down to 0.8, then compressed with an ellipsis. On the tab (card default) it is a tab name in Geist 800, drawn whole: the tab widens to fit it (sansWidth from tokens), up to the body width, then the name compresses; it stays drawn over the rising default sheet, with a halo in the tab's fill, so it reads in every open beat.",
-        sublabel: "Short mono line on the front panel, projected with it as it opens: under a front label, or near the panel's top-left when the label is on the tab. Same overflow rule as a front label (fitLine).",
-        labelOn: "\"front\" or \"tab\". Defaults to \"tab\" for the card tone and \"front\" for accent and ink, so existing folders are unchanged.",
+        label: "Folder name; also names the image for assistive technology. On the front panel (accent and ink default) it is Geist Mono 600 and follows fitLine: whole when it fits, compressed horizontally down to 0.8, then compressed with an ellipsis. On the tab (card default) it is a tab name in Geist 800, drawn whole: the tab widens to fit it (sansWidth from tokens), up to the body width, then the name compresses. The tab is on the back panel, so once `open` is above 0 (a sheet stands in front of it) the name prints on the front panel instead: never a fragment beside the sheet and never painted over it. Front-panel type keeps its proportions as the panel tilts (frontType).",
+        sublabel: "Short mono line on the front panel, placed with it as it opens (its glyphs keep their proportions): under a front label, or near the panel's top-left when the label is on the tab. Same overflow rule as a front label (fitLine).",
+        labelOn: "\"front\" or \"tab\": where the name prints while the folder is closed. Defaults to \"tab\" for the card tone and \"front\" for accent and ink. Once open is above 0 the name prints on the front panel either way; the tab keeps the width it was given.",
         open: "Opening progress from 0 (closed) to 1 (sheet upright). Clamped; non-finite values render closed.",
         tone: "Folder fill: \"accent\" (vermilion, cream label), \"ink\" (cream label), or \"card\" (plain cream with ink label, tab label by default).",
         children: "Replaces the default sheet entirely. Rendered untransformed, so `open` does not move custom contents; animate them yourself or use FolderContents.",
@@ -71,13 +71,25 @@ export default {
       export: "frontPlane",
       kind: "function",
       summary:
-        "SVG transform for text printed on the front panel at a closed-folder point, so it widens and leans with the panel as the folder opens. Folder uses it for the label and sublabel; use it for your own marks on the front.",
+        "SVG transform for text printed on the front panel at a closed-folder point, so it widens and leans with the panel as the folder opens. Use it for marks that should lean with the panel; Folder sets its own type with frontType, so the glyphs are never squashed.",
       params: {
         u: "Baseline start x in the 260×220 folder space (closed).",
         v: "Baseline y in the folder space (closed), between 95 and 205.",
         open: "Opening progress 0–1.",
       },
       returns: "A matrix(…) string for a transform attribute.",
+    },
+    {
+      export: "frontType",
+      kind: "function",
+      summary:
+        "Transform for type on the front panel: the anchor follows frontPlane as the folder opens, but the glyphs keep their proportions (one uniform scale for the panel's foreshortening), never squashed or sheared. Folder uses it for its label and sublabel.",
+      params: {
+        u: "Baseline start x in the 260×220 folder space (closed).",
+        v: "Baseline y in the folder space (closed), between 95 and 205.",
+        open: "Opening progress 0–1.",
+      },
+      returns: "A matrix(k 0 0 k x y) string for a transform attribute.",
     },
     {
       export: "FolderOutline",

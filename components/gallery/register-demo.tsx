@@ -73,9 +73,9 @@ function RegisterBench() {
     ...(gapOn ? { gapAt: kind === "mixed" ? 2 : Math.max(1, Math.floor(count / 2)), gap: 70, reflow } : {}),
   }
   const layout = registerLayout(spec)
-  // Anchor rings sized to the tick pitch, so neighbouring rings never touch.
+  // Anchor rings sized to the tick pitch (radius 0.3 × pitch), so neighbours keep a clear gap.
   const pitch = layout.anchors.slice(1).reduce((m, p, i) => Math.min(m, p.y - layout.anchors[i].y), Infinity)
-  const ring = Math.max(2, Math.min(5, pitch / 2 - 1))
+  const ring = Math.max(2, Math.min(5, pitch * 0.3))
   const range = (label: string, value: number, set: (v: number) => void, presets: Presets) => (
     <ProgressControl label={label} ariaLabel={`register ${label}`} value={value} onChange={set} presets={presets} />
   )
@@ -88,17 +88,19 @@ function RegisterBench() {
               {guides && (
                 <svg width={w} height={h} aria-hidden style={{ position: "absolute", inset: 0, overflow: "visible" }}>
                   {layout.seams.map((y) => (
-                    <line key={y} x1={-10} x2={w + 10} y1={y} y2={y} stroke={color.dim} strokeDasharray="4 4" />
+                    // Seam guides stay on the sheet.
+                    <line key={y} x1={2} x2={w - 2} y1={y} y2={y} stroke={color.dim} strokeDasharray="4 4" />
                   ))}
                   {layout.anchors.map((p, i) => (
                     <circle key={i} cx={p.x} cy={p.y} r={ring} fill="none" stroke={color.dim} />
                   ))}
-                  {layout.gap && layout.gap.h > 0 && (
+                  {/* The gap box, inset 4 px from the writing around it. */}
+                  {layout.gap && layout.gap.h > 8 && (
                     <rect
                       x={layout.gap.x}
-                      y={layout.gap.y}
+                      y={layout.gap.y + 4}
                       width={layout.gap.w}
-                      height={layout.gap.h}
+                      height={layout.gap.h - 8}
                       fill="none"
                       stroke={color.dim}
                       strokeDasharray="4 4"

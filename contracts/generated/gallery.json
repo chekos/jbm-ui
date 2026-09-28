@@ -154,7 +154,8 @@
       "name": "paper",
       "title": "Paper",
       "description": "Paper cut-out primitives: a card-stock sheet that can crease, start to tear, and carry a real tab, a slanted Sticker with display type, and a centered Caption.",
-      "category": "UI",
+      "category": "UI Bits",
+      "family": "Paper & writing",
       "capabilities": [
         "controls"
       ],
@@ -960,6 +961,24 @@
       "inRegistry": true
     },
     {
+      "name": "hand",
+      "title": "Hand",
+      "description": "Static line-art hand in open-palm, pointing, pinching, gripping, typing, or holding pose, independent of placement and props.",
+      "category": "UI Bits",
+      "family": "Hands",
+      "capabilities": [
+        "controls"
+      ],
+      "needsRemotion": false,
+      "registryDependencies": [
+        "@jbm/tokens"
+      ],
+      "snippet": "import { Hand } from \"@/jbm/ui/hand\"\n\n<Hand pose=\"pinch\" width={160} />",
+      "installName": "hand",
+      "sourcePath": "registry/jbm/ui/hand.tsx",
+      "inRegistry": true
+    },
+    {
       "name": "mano",
       "title": "Mano",
       "description": "Position and rotate the independent Hand illustration with controlled coordinates.",
@@ -1128,24 +1147,6 @@
       "snippet": "import { Burbuja } from \"@/jbm/motion/burbuja\"\n\n<Burbuja words={[\"Podemos\", \"reutilizar\", \"componentes.\"]}\n  highlight={[1]} progress={1} speaker=\"Tú\" />",
       "installName": "burbuja",
       "sourcePath": "registry/jbm/motion/burbuja.tsx",
-      "inRegistry": true
-    },
-    {
-      "name": "hand",
-      "title": "Hand",
-      "description": "Static line-art hand in open-palm, pointing, pinching, gripping, typing, or holding pose, independent of placement and props.",
-      "category": "UI Bits",
-      "family": "Hands",
-      "capabilities": [
-        "controls"
-      ],
-      "needsRemotion": false,
-      "registryDependencies": [
-        "@jbm/tokens"
-      ],
-      "snippet": "import { Hand } from \"@/jbm/ui/hand\"\n\n<Hand pose=\"pinch\" width={160} />",
-      "installName": "hand",
-      "sourcePath": "registry/jbm/ui/hand.tsx",
       "inRegistry": true
     },
     {

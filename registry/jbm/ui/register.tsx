@@ -138,7 +138,7 @@ function stack(weights: number[], top: number, height: number, gapAt: number | u
 
 type Draft = Omit<RegisterCell, "index" | "band">
 /** One band of a single kind, laid out in `box`; rows stack with the optional gap. */
-function band(kind: Exclude<RegisterKind, "mixed">, n: number, box: Box, u: number, gapAt?: number, gapPx = 0, reflow = 0) {
+function band(kind: Exclude<RegisterKind, "mixed">, n: number, box: Box, u: number, gapAt?: number, gapPx = 0, reflow = 0, mixed = false) {
   const cells: Draft[] = []
   const x = box.x,
     w = box.w
@@ -230,11 +230,24 @@ function band(kind: Exclude<RegisterKind, "mixed">, n: number, box: Box, u: numb
       const marks: RegisterMark[] = [
         { type: "bar", x: cx, y: cy + ch * 0.06, w: cw * 0.8, h: bh, tone: "ink" },
       ]
+      // On a mixed page (a long sheet shown small) or below 8 px a numeral is a speck, not a
+      // number: the list marks its items with small ink squares instead, like the prose bullets.
+      const numerals = !mixed && fs >= 8
+      const dot = Math.max(2, Math.min(fs * 0.7, ih * 2))
       for (let j = 0; j < 3; j++) {
         const my = cy + ch * (0.36 + 0.2 * j)
         marks.push(
-          { type: "num", x: cx, y: my + fs * 0.36, size: fs, text: `${j + 1}.` },
-          { type: "bar", x: cx + fs * 1.35, y: my - ih / 2, w: cw * 0.5, h: ih, tone: "dim" }
+          numerals
+            ? { type: "num", x: cx, y: my + fs * 0.36, size: fs, text: `${j + 1}.` }
+            : { type: "bar", x: cx, y: my - dot / 2, w: dot, h: dot, tone: "ink", r: 0 },
+          {
+            type: "bar",
+            x: cx + (numerals ? fs * 1.35 : dot * 2.2),
+            y: my - ih / 2,
+            w: cw * 0.5,
+            h: ih,
+            tone: "dim",
+          }
         )
       }
       cells.push({
@@ -316,7 +329,7 @@ export function registerLayout(spec: RegisterSpec): RegisterLayout {
     const first = list.map((b, i) => {
       const s = slots[i * 2]
       const box = { x: inner.x, y: s.y + (s.h - s.size) / 2, w: inner.w, h: s.size }
-      const l = band(b.kind, counts[i], box, u)
+      const l = band(b.kind, counts[i], box, u, undefined, 0, 0, true)
       const bottom = Math.max(box.y, ...l.rows.map((r) => r.y + r.h))
       return { box, used: Math.min(box.h, bottom - box.y) }
     })
@@ -339,7 +352,7 @@ export function registerLayout(spec: RegisterSpec): RegisterLayout {
         y += open
       }
       const box = { x: inner.x, y, w: inner.w, h: first[i].used * fit }
-      push(band(b.kind, counts[i], box, u).cells, i)
+      push(band(b.kind, counts[i], box, u, undefined, 0, 0, true).cells, i)
       out.bands.push(box)
       out.rows.push({ ...box })
       if (i) out.seams.push(prevBottom + sep / 2)

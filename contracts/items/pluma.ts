@@ -36,6 +36,19 @@ export default {
       },
       returns: "The nib point { x, y } in parent units.",
     },
+    {
+      export: "plumaCaretGap",
+      kind: "function",
+      summary:
+        "How far right of a caret (the end of the last written glyph) to put the nib so the pen's near edge, cone then barrel, clears the ink for `rise` units above the nib at this rotation. Add it to the caret's x before solving the grip point with plumaNib, so the pen never covers the last glyph.",
+      params: {
+        angle: "The Pluma's rotation in degrees.",
+        rise: "How far above the nib the written ink reaches (its ascenders), in parent units.",
+        nibOffset: "The Pluma's nibOffset, if set.",
+        size: "The Pluma's hand width.",
+      },
+      returns: "A distance in parent units, 0 or more.",
+    },
   ],
   stage: {
     mode: "declared",

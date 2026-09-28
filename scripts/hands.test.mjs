@@ -103,7 +103,12 @@ test("grip, type, hold: one outline plus open dividers; scallops never meet tang
   for (const pose of ["grip", "type", "hold"]) {
     const [outline, ...dividers] = pathsOf(renderToStaticMarkup(h(Hand, { pose })))
     assert.match(outline.d, /Z$/, `${pose}: the outline is closed`)
-    for (const div of dividers) assert.ok(!/[Zz]/.test(div.d), `${pose}: dividers are open lines, not capsules`)
+    // Dividers are open lines; the grip's thumb is the one closed shape, a filled capsule laid
+    // over the fingers (never an open J-hook stroke with a free end in the palm).
+    for (const div of dividers)
+      if (div.fill === "none") assert.ok(!/[Zz]/.test(div.d), `${pose}: dividers are open lines, not capsules`)
+      else assert.ok(pose === "grip" && /Z$/.test(div.d), `${pose}: only the grip's thumb is a closed shape`)
+    if (pose === "grip") assert.equal(dividers.filter((d) => d.fill !== "none").length, 1, "grip: one closed thumb")
     // A fingertip row (a divider of four cubics) leaves and reaches each junction at 35° or more
     // from the neighbouring scallop, so no notch fills with ink.
     for (const div of dividers) {

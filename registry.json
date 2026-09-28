@@ -178,7 +178,7 @@
       "title": "Paper",
       "description": "Paper cut-out primitives: a card-stock sheet that can crease, start to tear, and carry a real tab, a slanted Sticker with display type, and a centered Caption.",
       "categories": [
-        "UI"
+        "UI Bits"
       ],
       "registryDependencies": [
         "@jbm/tokens"
@@ -1011,6 +1011,25 @@
       ]
     },
     {
+      "name": "hand",
+      "title": "Hand",
+      "description": "Static line-art hand in open-palm, pointing, pinching, gripping, typing, or holding pose, independent of placement and props.",
+      "categories": [
+        "UI Bits"
+      ],
+      "type": "registry:component",
+      "registryDependencies": [
+        "@jbm/tokens"
+      ],
+      "files": [
+        {
+          "path": "registry/jbm/ui/hand.tsx",
+          "type": "registry:component",
+          "target": "src/jbm/ui/hand.tsx"
+        }
+      ]
+    },
+    {
       "name": "mano",
       "title": "Mano",
       "description": "Position and rotate the independent Hand illustration with controlled coordinates.",
@@ -1191,25 +1210,6 @@
           "path": "registry/jbm/motion/burbuja.tsx",
           "type": "registry:component",
           "target": "src/jbm/motion/burbuja.tsx"
-        }
-      ]
-    },
-    {
-      "name": "hand",
-      "title": "Hand",
-      "description": "Static line-art hand in open-palm, pointing, pinching, gripping, typing, or holding pose, independent of placement and props.",
-      "categories": [
-        "UI Bits"
-      ],
-      "type": "registry:component",
-      "registryDependencies": [
-        "@jbm/tokens"
-      ],
-      "files": [
-        {
-          "path": "registry/jbm/ui/hand.tsx",
-          "type": "registry:component",
-          "target": "src/jbm/ui/hand.tsx"
         }
       ]
     },

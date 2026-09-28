@@ -49,19 +49,44 @@ const pct = (n: number) => `${Math.round(n * 100)}%`
 // folders they came from. Every endpoint is read from the pieces' own layouts: videoPrintLayout
 // marks, registerLayout source leads, and cajonLayout tabs, all in one stage px space.
 //
-// Routing (#168): the print sits above the page, so its ticks tie down to the three oldest tabs,
-// which stand above the drawer's rim, and the page's source lines tie across to the three newest.
-// Threads that reach a tab below the rim cross the side wall's top edge (over the rim), never the
-// drawer front, and the front hides whatever goes down behind it. Each set is nested (the
-// leftmost tick to the lowest tab, the top source line to the highest), so no two threads cross.
-// Knots sit just inside each tab's left edge, clear of its name.
-const STAGE = { w: 960, h: 790 }
-const PRINT = { x: 40, y: 40, w: 300 }
+// Routing (#168): the print's ticks tie to the three oldest tabs and the page's source lines to
+// the three newest. Each thread ends at a pin on its tab's left edge, on the name's midline and
+// clear of the name. A thread into a tab below the rim goes behind the drawer's side wall: the
+// wall is drawn over the part that is inside the drawer, exactly as the front hides whatever goes
+// down behind it, so no thread is ever drawn across the wall's face. Each set is nested so no
+// two threads cross. Wide benches place the print and page left of the drawer; phones get
+// a portrait stage (page and print side by side over the drawer), so the scene stays legible.
+type SceneLayout = {
+  stage: { w: number; h: number }
+  print: { x: number; y: number; w: number }
+  page: { x: number; y: number }
+  pageSpec: RegisterSpec
+  drawer: { x: number; y: number; w: number }
+  /** Source-line threads: level S curves or upward-bowing arcs. */
+  sourceCurve: { curve: HiloCurve; bend: number }
+  /** Print-tick threads' arc bends, leftmost tick first. */
+  tickBends: readonly number[]
+}
+const wideLayout: SceneLayout = {
+  stage: { w: 960, h: 790 },
+  print: { x: 40, y: 40, w: 300 },
+  page: { x: 40, y: 330 },
+  pageSpec: { kind: "prose", n: 3, w: 300, h: 300 },
+  drawer: { x: 600, y: 466, w: 320 },
+  sourceCurve: { curve: "s", bend: 0.5 },
+  tickBends: [-0.08, -0.05, -0.02],
+}
+const tallLayout: SceneLayout = {
+  stage: { w: 480, h: 610 },
+  print: { x: 16, y: 20, w: 200 },
+  page: { x: 16, y: 252 },
+  pageSpec: { kind: "prose", n: 3, w: 200, h: 210 },
+  drawer: { x: 252, y: 352, w: 216 },
+  sourceCurve: { curve: "s", bend: 0.5 },
+  tickBends: [-0.07, -0.05, -0.03],
+}
 /** Right of the title and date, so a thread leaving a tick downward never crosses the type. */
 const printMarks = [0.5, 0.68, 0.86] as const
-const PAGE = { x: 40, y: 330 }
-const pageSpec: RegisterSpec = { kind: "prose", n: 3, w: 300, h: 300 }
-const DRAWER = { x: 600, y: 466, w: 320 }
 /** Front (newest) to back (oldest). Print ticks tie to the three oldest, source lines to the newest. */
 const drawerFolders: DrawerFolder[] = [
   { name: "Procida 2017" },
@@ -71,18 +96,25 @@ const drawerFolders: DrawerFolder[] = [
   { name: "Taylor 1911" },
   { name: "Gilbreth 1909" },
 ]
-/** The knot radius of a width-2 Hilo (1.4 × width). */
-const KNOT = 2.8
 const threadWindow = 0.5
 const threadStep = (1 - threadWindow) / 5
 
-function ThreadToDrawer() {
-  const compact = useBenchCompact()
-  const unit = { clamp: [0, 1] } as const
-  const [lay, setLay] = useBenchParam("lay", 1, unit)
-  const [scrub, setScrub] = useBenchParam("scrub", 1, unit)
-  const [open, setOpen] = useBenchParam("open", 1, unit)
-  const [snap, setSnap] = useBenchParam("snap", false)
+function ThreadScene({
+  layout,
+  lay,
+  scrub,
+  open,
+  snap,
+  className,
+}: {
+  layout: SceneLayout
+  lay: number
+  scrub: number
+  open: number
+  snap: boolean
+  className: string
+}) {
+  const { stage: STAGE, print: PRINT, page: PAGE, pageSpec, drawer: DRAWER } = layout
   const print = videoPrintLayout({ w: PRINT.w, marks: printMarks }, PRINT)
   // Source lines, top to bottom: each thread leaves from the right end (lead) of its dim source
   // line, as on the board, so the line itself stays visible.
@@ -91,11 +123,11 @@ function ThreadToDrawer() {
     .map((c) => ({ x: PAGE.x + c.lead.x + 4, y: PAGE.y + c.lead.y }))
   const drawer = cajonLayout({ ...DRAWER, folders: drawerFolders, open })
   const frontMask = `hilo-front-${useId().replace(/[^a-zA-Z0-9_-]/g, "")}`
-  // At the tab's left edge on its name's midline, clear of the name. A tab that sinks into the
-  // drawer keeps its thread: the drawer front hides the part behind it (the mask below), so the
-  // thread goes over the rim and down behind the front, knot and all. As a name goes under,
-  // the hidden end eases to its own spot behind the front, so threads into a closed drawer
-  // disappear side by side, in the same nested order, instead of bunching at the corner.
+  // A pin on the tab's left edge at the name's midline, more than a pin's radius clear of the
+  // name, so the thread arrives level and never runs across the name. A tab that sinks into the drawer keeps its thread: the drawer front
+  // hides the part behind it (the mask below), so the thread goes over the rim and down behind
+  // the front, knot and all. As a name goes under, the hidden end eases to its own spot behind
+  // the front, so threads into a closed drawer disappear side by side, in the same nested order.
   const tie = (folder: number) => {
     const f = drawer.folders[folder]
     const under = Math.max(
@@ -106,9 +138,7 @@ function ThreadToDrawer() {
       folder < 3
         ? { x: DRAWER.x + 40, y: drawer.frontTop + 18 + 14 * (2 - folder) }
         : { x: DRAWER.x + 70 + 50 * (folder - 3), y: drawer.frontTop + 24 }
-    // Just inside the tab's left edge (a knot's radius in), so the knot sits on the tab, never
-    // half on the dark drawer back beside it, and still clear of the name.
-    const x = f.tabX + KNOT
+    const x = f.tabX
     return {
       x: x + (hidden.x - x) * under,
       y: f.label.mid + (hidden.y - f.label.mid) * under,
@@ -116,13 +146,12 @@ function ThreadToDrawer() {
   }
   const oldest = drawerFolders.length - 1
   const threads = [
-    // Source lines, top to bottom, to the newest folders, highest tab first: level S curves.
+    // Source lines, top to bottom, to the newest folders, highest tab first.
     ...sources.map((from, j) => ({
       from,
       to: tie(2 - j),
       folder: 2 - j,
-      curve: "s" as const,
-      bend: 0.5,
+      ...layout.sourceCurve,
       ready: 1,
     })),
     // Print ticks, left to right, to the oldest folders, lowest tab first. A thread ties on as
@@ -135,13 +164,20 @@ function ThreadToDrawer() {
       folder: 3 + j,
       curve: "arc" as const,
       // The leftmost tick's thread runs outermost, so the three stay apart as the tabs close up.
-      bend: [-0.08, -0.05, -0.02][j],
+      bend: layout.tickBends[j],
       ready: Math.max(0, Math.min(1, (scrub - printMarks[j]) / 0.12)),
     })),
   ]
   const tied = threads.filter((t) => t.ready > 0).length
+  // The drawer's side-wall faces, as Cajon draws them.
+  const sc = drawer.scale,
+    wx = DRAWER.x,
+    ww = DRAWER.w,
+    wy = DRAWER.y + 10 * sc,
+    fh = drawer.frontHeight
+  const sideWalls = `M${wx + 20 * sc} ${wy}L${wx} ${drawer.frontTop}V${drawer.frontTop + fh}L${wx + 20 * sc} ${wy + fh}ZM${wx + ww - 20 * sc} ${wy}L${wx + ww} ${drawer.frontTop}V${drawer.frontTop + fh}L${wx + ww - 20 * sc} ${wy + fh}Z`
   return (
-    <>
+    <div className={className} style={{ width: "100%" }}>
       <StageFit w={STAGE.w} h={STAGE.h}>
         <svg
           aria-hidden
@@ -194,6 +230,8 @@ function ThreadToDrawer() {
                 height={drawer.frontHeight}
                 fill="#000"
               />
+              {/* So do the side walls: a thread into the drawer passes behind the wall's face. */}
+              <path d={sideWalls} fill="#000" />
             </mask>
           </defs>
           <g mask={`url(#${frontMask})`}>
@@ -229,6 +267,23 @@ function ThreadToDrawer() {
           </g>
         </svg>
       </StageFit>
+    </div>
+  )
+}
+
+function ThreadToDrawer() {
+  const compact = useBenchCompact()
+  const unit = { clamp: [0, 1] } as const
+  const [lay, setLay] = useBenchParam("lay", 1, unit)
+  const [scrub, setScrub] = useBenchParam("scrub", 1, unit)
+  const [open, setOpen] = useBenchParam("open", 1, unit)
+  const [snap, setSnap] = useBenchParam("snap", false)
+  const scene = { lay, scrub, open, snap }
+  return (
+    <>
+      {/* Both stages render; CSS shows the portrait one on phones, so nothing shifts on load. */}
+      <ThreadScene layout={wideLayout} className="thread-scene-wide" {...scene} />
+      <ThreadScene layout={tallLayout} className="thread-scene-tall" {...scene} />
       <Controls>
         <ProgressControl
           label="Lay threads"
@@ -279,7 +334,7 @@ function HiloDemo() {
   const [curve, setCurve] = useBenchParam<HiloCurve>("curve", "s", {
     allowed: ["s", "arc"],
   })
-  const [width, setWidth] = useBenchParam("width", 2, { clamp: [1, 6] })
+  const [width, setWidth] = useBenchParam("width", 3, { clamp: [1.5, 6] })
   // An arc bows by bend × the distance: past ±0.3 it would leave the stage. An S takes 0–1
   // (outside it the thread hooks around its own knots).
   const bendMin = curve === "arc" ? -0.3 : 0,
@@ -375,7 +430,7 @@ function HiloDemo() {
               ariaLabel="hilo Width"
               value={width}
               onChange={setWidth}
-              min={1}
+              min={1.5}
               max={6}
               step={0.5}
               format={(n) => `${n} px`}

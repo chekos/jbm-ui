@@ -15,6 +15,7 @@ import { FolderContents } from "@/registry/jbm/ui/folder-contents"
 import {
   FolderCarry,
   folderCarryHand,
+  carriedFolderGeometry,
   folderGrip,
   tableFolderGeometry,
 } from "@/registry/jbm/ui/folder-carry"
@@ -282,7 +283,13 @@ export function DesignVideoDemo({ name }: { name: string }) {
         {other && (
           <Mano
             at={pointOn(carryPath, progress)}
-            size={70}
+            // The hand scales with the folder it carries (0.45 × the folder's full width), so it
+            // never swamps the small folder at Start or shrinks beside the large one.
+            size={
+              0.45 *
+              (carriedFolderGeometry(carryFrom, carryTo, carryPath, progress).w * 260) /
+              205
+            }
             {...folderCarryHand}
             angle={folderCarryHand.angle + secondary * 30 - 15}
           />

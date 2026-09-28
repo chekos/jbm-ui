@@ -28,7 +28,7 @@ export default {
         title: "The video's title in bold type under the rule; one line, ellipsis when long.",
         date: "The line under the title, usually source and date (\"Video · 4 nov 2025\").",
         link: "A URL set in mono on a punched tag straddling the bottom edge: the sign that this page was opened. One line; a URL longer than the print ends in an ellipsis, so the tag never passes the sheet's right edge. Omit for a print nobody opened.",
-        opened: "0–1: the tag drops 14 × w/480 px into place; it fades in over the first fifth of the drop and is opaque from then on, so the sheet's edge never shows through it. Only used with link; 0 hides it.",
+        opened: "0–1: the tag fades in over the first half and settles up 8 × w/480 px into place from just below its resting spot, so it never rises past it or crosses the date line. Only used with link; 0 hides it.",
         w: "Width in stage pixels (default 480). Everything scales with it; the height is 0.765 × w.",
         sheet: "Draw the Paper sheet (default). false keeps the same layout, anchors, and still tint without the sheet, for nesting on a Paper you already have.",
         style: "Inline styles merged onto the outer box, e.g. position and left/top on a stage.",
@@ -47,10 +47,10 @@ export default {
   ],
   stage: {
     mode: "declared",
-    landscape: { width: 480, height: 385 },
-    vertical: { width: 480, height: 385 },
+    landscape: { width: 480, height: 393 },
+    vertical: { width: 480, height: 393 },
     basis:
-      "At the default w 480: 22px padding, a 436 × 245.25 frame, the rule 12px under it, the title 18px under the rule, the date 30px under the title, then 18 + 22px: a 367.25px sheet. With link, the tag straddles the bottom edge and half of it (15.1 × w/480 + 2px) hangs below: 384.35px in all, declared as 385. Every measurement scales with w (sheet height = 0.765 × w); videoPrintLayout().bounds gives the exact box. The tag never extends past the right edge: long URLs end in an ellipsis.",
+      "At the default w 480: 22px padding, a 436 × 245.25 frame, the rule 12px under it, the title 18px under the rule, the date 30px under the title, then 18 + 22px: a 367.25px sheet. With link, the tag straddles the bottom edge and half of it (15.1 × w/480 + 2px) hangs below, plus the 8 × w/480 it settles up from while `opened` is below 1: 392.35px in all, declared as 393. Every measurement scales with w (sheet height = 0.765 × w); videoPrintLayout().bounds gives the exact box. The tag never extends past the right edge: long URLs end in an ellipsis.",
   },
   examples: [
     {
@@ -65,7 +65,7 @@ export default {
   qa: [
     "Drag Scrub from 0 to 1: the ink bar grows from the left edge of the frame, each tick appears exactly when the bar reaches it, and nothing inks ahead of the bar.",
     "The frame reads as a pale sketch (tinted fill, ink outline, head circle and shoulder arc), never a solid ink block; compare with the video and puertas board panels.",
-    "Toggle the link and drag Tag drops in: the mono URL tag straddles the bottom edge, its hole ringed in ink and scaled with the print (PunchedTag scale = w/480), and stays inside the declared bounds; a long URL ends in an ellipsis instead of wrapping or passing the sheet's right edge. At Half the tag is already opaque.",
+    "Toggle the link and drag Tag drops in: the mono URL tag straddles the bottom edge, its hole ringed in ink and scaled with the print (PunchedTag scale = w/480), and stays inside the declared bounds; a long URL ends in an ellipsis instead of wrapping or passing the sheet's right edge. At every step of the drop the tag's top edge stays below the date line, and at Half it is opaque.",
     "Turn the sheet off: the frame, rule, and type keep their positions (anchors unchanged), and the still keeps exactly the same tint.",
     "Check a thread tied to videoPrintLayout().marks lands on the tick centreline, at w 300 and 480.",
     "The print uses no vermilion of its own.",

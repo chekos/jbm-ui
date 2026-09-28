@@ -744,7 +744,7 @@ footer {
 /* Section titles outrank the 22px/600 card titles. */
 .section-heading { display: flex; align-items: baseline; gap: 12px; margin: 0 0 24px; font-size: clamp(28px, 2.8vw, 36px); font-weight: 650; line-height: 1.1; letter-spacing: -0.035em; }
 .section-heading > span:last-child { font-family: var(--font-mono); font-size: 12px; color: var(--jbm-dim); font-weight: 400; letter-spacing: 0; }
-.section-description { max-width: 65ch; color: var(--jbm-dim); margin: -8px 0 24px; text-wrap: pretty; }
+.section-description { max-width: 50ch; color: var(--jbm-dim); margin: -8px 0 24px; text-wrap: pretty; }
 
 .composition-options { display: flex; flex-wrap: wrap; gap: 10px; padding: 12px; font-size: 12px; }
 .composition-options label { display: flex; align-items: center; gap: 6px; }
@@ -760,12 +760,14 @@ footer {
   color: inherit;
   background: transparent;
   font: inherit;
+  font-size: 12px;
   line-height: 1.4;
 }
 :is(.results, .bench) select:hover {
   border-color: var(--jbm-ink);
 }
 :is(.results, .bench) label:has(> input[type="checkbox"]) {
+  box-sizing: border-box;
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -780,6 +782,20 @@ footer {
   margin: 0;
 }
 .preview:has(.composition-options) { aspect-ratio: auto; }
+/* Index cards cap an illustration's art at 360px tall and scale it to fit, so a portrait page or
+   a tall cabinet never stretches its whole row of cards past the viewport. */
+.results .preview svg:not([data-stage] svg) { max-height: 360px; }
+.results .preview [data-stage] { --stage-frame-w: min(100%, calc(360px * var(--stage-ratio-n))); }
+/* Hilo's thread-to-drawer scene: a landscape stage, or a portrait one on phones. */
+.thread-scene-tall { display: none; }
+@media (max-width: 760px) {
+  .thread-scene-wide { display: none; }
+  .thread-scene-tall { display: block; }
+}
+/* A bench's secondary controls fold under "More options" so the stage and main controls fit. */
+.composition-options > details.bench-more { flex: 1 1 100%; border-top: 1px solid var(--jbm-line); padding-top: 6px; font-size: 12px; }
+.bench-more > div { display: flex; flex-wrap: wrap; gap: 10px; padding-top: 10px; }
+.bench-more .progress-control { flex: 1 1 100%; }
 
 /* Illustration sliders (ProgressControl / RangeControl): label and mono readout on one line,
    then the slider with its named presets beside it. Ink chrome, never vermilion (One Stamp). */
@@ -946,7 +962,7 @@ details.install-once {
   font-size: 14px;
   line-height: 1.6;
   margin: 0 0 8px;
-  max-width: 62ch;
+  max-width: 50ch;
 }
 /* Code blocks: copyable snippets that soft-wrap instead of scrolling sideways. The Copy button
    floats in the top-right corner so the first lines flow around it and later lines use the
@@ -2042,6 +2058,7 @@ details > p {
 }
 .item-stage dd {
   margin: 0;
+  max-width: 50ch;
   color: var(--jbm-dim);
 }
 .item-stage code {
@@ -2056,6 +2073,11 @@ details > p {
 }
 .api-entry {
   margin-top: 32px;
+}
+/* Long type signatures (Omit<React.ButtonHTMLAttributes<…>>) wrap on phones instead of
+   running past the right edge. */
+.api-entry code {
+  overflow-wrap: anywhere;
 }
 .api-table {
   width: 100%;
