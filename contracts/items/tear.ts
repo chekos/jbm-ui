@@ -25,8 +25,8 @@ export default {
         seed: "Fray pattern. Paper's starting tear with the same seed, seam y, and w follows the same edge.",
         fray: "Fray amplitude in stage px (default FRAY, 6); edges stay within 1.8 × fray of the seam.",
         tone: '"paper" (card fill, ink edge), "accent", or "ink", as in Paper.',
-        radius: "Corner radius of the sheet's four outer corners in stage px; strips keep square corners at seams.",
-        edge: "Draws the 2px outline on straight edges and, once torn, on frayed edges.",
+        radius: "Corner radius of the sheet's four outer corners in stage px; strips keep square corners at seams. Default sheetRadius(w) from Register (6 px on a 360 px sheet, 6 × w / 360, at least 4), so a torn page keeps the corners of the Register sheet it was.",
+        edge: "Draws the shared outline (stroke.outline) on straight edges and, once torn, on frayed edges.",
         shadow: "Paper shadow for the sheet and then each strip.",
         children:
           "The sheet's writing on the whole w × h sheet, clipped to each strip. A node is repeated in every strip; a function `({ index, top, bottom, progress }) => node` is called per strip (coordinates are the sheet's). Copies after the first strip are aria-hidden.",
@@ -45,8 +45,8 @@ export default {
         seams: "Seam y positions; filtered by tearSeams.",
         seed: "Fray pattern; default 1.",
         fray: "Fray amplitude; default FRAY.",
-        radius: "Outer corner radius; default 22.",
-        edge: "Insets the straight sides by 1px for a 2px stroke; default true.",
+        radius: "Outer corner radius; default sheetRadius(w), Register's sheet corner.",
+        edge: "Insets the straight sides by half the shared outline, on its centreline; default true.",
       },
       returns:
         "One `{ index, top, bottom, outline, edges, seamAbove, seamBelow, center }` per strip: SVG path data for the closed outline, the straight edges, and each frayed seam (null at the sheet's top or bottom), plus the rotation centre.",
@@ -121,11 +121,11 @@ export default {
   examples: [
     {
       title: "A long page tearing into four register strips",
-      code: 'import { Tear } from "@/jbm/ui/tear"\n\n// progress comes from your timeline, e.g. interpolate(frame, [0, 45], [0, 1]).\n<Tear\n  w={520}\n  h={760}\n  radius={10}\n  seams={[190, 380, 570]}\n  progress={0.6}\n  stagger={0.1}\n  pieces={[\n    { to: { x: -40, y: -70, rotate: -5 } },\n    { to: { x: 36, y: -24, rotate: 3 } },\n    { to: { x: -30, y: 24, rotate: -2 } },\n    { to: { x: 34, y: 72, rotate: 3 } },\n  ]}\n>\n  {({ index, top }) => (\n    <div style={{ position: "absolute", left: 40, top: top + 32 }}>strip {index + 1}</div>\n  )}\n</Tear>',
+      code: 'import { Tear } from "@/jbm/ui/tear"\n\n// progress comes from your timeline, e.g. interpolate(frame, [0, 45], [0, 1]).\n<Tear\n  w={520}\n  h={760}\n  seams={[190, 380, 570]}\n  progress={0.6}\n  stagger={0.1}\n  pieces={[\n    { to: { x: -40, y: -70, rotate: -5 } },\n    { to: { x: 36, y: -24, rotate: 3 } },\n    { to: { x: -30, y: 24, rotate: -2 } },\n    { to: { x: 34, y: 72, rotate: 3 } },\n  ]}\n>\n  {({ index, top }) => (\n    <div style={{ position: "absolute", left: 40, top: top + 32 }}>strip {index + 1}</div>\n  )}\n</Tear>',
     },
     {
       title: "Continue a Paper's starting tear",
-      code: 'import { Paper } from "@/jbm/ui/paper"\nimport { Tear } from "@/jbm/ui/tear"\n\n// The same seed, seam, and width give the same frayed edge in both.\nexport function Page({ torn }: { torn: boolean }) {\n  return torn ? (\n    <Tear w={520} h={760} radius={10} seams={[380]} progress={0.4} pieces={[{ to: { y: -40, rotate: -3 } }, { to: { y: 40, rotate: 4 } }]} />\n  ) : (\n    <Paper w={520} h={760} radius={10} tension={1} seam={380} />\n  )\n}',
+      code: 'import { Paper } from "@/jbm/ui/paper"\nimport { sheetRadius } from "@/jbm/ui/register"\nimport { Tear } from "@/jbm/ui/tear"\n\n// The same seed, seam, and width give the same frayed edge in both; Tear defaults to the sheetRadius(w) corner.\nexport function Page({ torn }: { torn: boolean }) {\n  return torn ? (\n    <Tear w={520} h={760} seams={[380]} progress={0.4} pieces={[{ to: { y: -40, rotate: -3 } }, { to: { y: 40, rotate: 4 } }]} />\n  ) : (\n    <Paper w={520} h={760} radius={sheetRadius(520)} tension={1} seam={380} />\n  )\n}',
     },
   ],
   qa: [

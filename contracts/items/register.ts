@@ -76,6 +76,18 @@ export default {
       params: { spec: "RegisterSpec with gapAt." },
       returns: "Box, or null without gapAt.",
     },
+    {
+      export: "sheetRadius",
+      kind: "function",
+      summary:
+        "The corner radius of a writing sheet: SHEET_RADIUS × its mark scale, never under 4 px. Register draws its Paper with it and Tear defaults to it, so a torn page keeps the corners of the sheet it was; pass it to a Paper that stands in for a page.",
+      params: {
+        w: "Sheet width in stage px.",
+        scale: "The sheet's mark scale, when set; defaults to w / 360 clamped to 0.4–4, as Register's.",
+      },
+      returns: "Radius in stage px (6 on a 360 px sheet).",
+    },
+    { export: "SHEET_RADIUS", kind: "constant", summary: "6: a writing sheet's corner radius per unit of mark scale (6 px on a 360 px sheet)." },
     { export: "RegisterKind", kind: "type", summary: "\"mono\" | \"plain\" | \"grid\" | \"prose\" | \"mixed\"." },
     { export: "RegisterBand", kind: "type", summary: "One band of a mixed page: `{ kind, n?, weight? }`." },
     { export: "RegisterSpec", kind: "type", summary: "The geometry props shared by Register, RegisterInk, and the layout helpers." },

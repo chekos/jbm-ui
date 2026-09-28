@@ -1114,7 +1114,7 @@
     {
       "name": "desk-prop",
       "title": "DeskProp",
-      "description": "A free-standing keycap, keyboard, or mug to place on a desk.",
+      "description": "A free-standing keycap, keyboard, or mug (from above or standing, from the side) to place on a desk.",
       "category": "UI Bits",
       "family": "Desk objects",
       "capabilities": [
@@ -1125,7 +1125,7 @@
         "@jbm/tokens",
         "@jbm/scene-geometry"
       ],
-      "snippet": "import { DeskProp } from \"@/jbm/ui/desk-prop\"\n\n<svg viewBox=\"0 0 600 240\">\n  <DeskProp kind=\"keycap\" x={70} y={120} />\n  <DeskProp kind=\"keyboard\" x={290} y={120} rotate={-4} />\n  <DeskProp kind=\"mug\" x={520} y={120} />\n</svg>",
+      "snippet": "import { DeskProp } from \"@/jbm/ui/desk-prop\"\n\n<svg viewBox=\"0 0 700 240\">\n  <DeskProp kind=\"keycap\" x={70} y={120} />\n  <DeskProp kind=\"keyboard\" x={290} y={120} rotate={-4} />\n  <DeskProp kind=\"mug\" x={520} y={120} />\n  <DeskProp kind=\"mug-side\" x={630} y={120} />\n</svg>",
       "installName": "desk-prop",
       "sourcePath": "registry/jbm/ui/desk-prop.tsx",
       "inRegistry": true
@@ -1276,9 +1276,10 @@
       "needsRemotion": false,
       "registryDependencies": [
         "@jbm/tokens",
-        "@jbm/paper"
+        "@jbm/paper",
+        "@jbm/register"
       ],
-      "snippet": "import { Tear } from \"@/jbm/ui/tear\"\n\n// progress comes from your timeline, e.g. interpolate(frame, [0, 45], [0, 1]).\n<Tear\n  w={520}\n  h={760}\n  radius={10}\n  seams={[190, 380, 570]}\n  progress={0.6}\n  stagger={0.1}\n  pieces={[\n    { to: { x: -40, y: -70, rotate: -5 } },\n    { to: { x: 36, y: -24, rotate: 3 } },\n    { to: { x: -30, y: 24, rotate: -2 } },\n    { to: { x: 34, y: 72, rotate: 3 } },\n  ]}\n>\n  {({ index, top }) => (\n    <div style={{ position: \"absolute\", left: 40, top: top + 32 }}>strip {index + 1}</div>\n  )}\n</Tear>",
+      "snippet": "import { Tear } from \"@/jbm/ui/tear\"\n\n// progress comes from your timeline, e.g. interpolate(frame, [0, 45], [0, 1]).\n<Tear\n  w={520}\n  h={760}\n  seams={[190, 380, 570]}\n  progress={0.6}\n  stagger={0.1}\n  pieces={[\n    { to: { x: -40, y: -70, rotate: -5 } },\n    { to: { x: 36, y: -24, rotate: 3 } },\n    { to: { x: -30, y: 24, rotate: -2 } },\n    { to: { x: 34, y: 72, rotate: 3 } },\n  ]}\n>\n  {({ index, top }) => (\n    <div style={{ position: \"absolute\", left: 40, top: top + 32 }}>strip {index + 1}</div>\n  )}\n</Tear>",
       "installName": "tear",
       "sourcePath": "registry/jbm/ui/tear.tsx",
       "inRegistry": true
@@ -1337,7 +1338,7 @@
         "@jbm/paper",
         "@jbm/register"
       ],
-      "snippet": "import { Slip } from \"@/jbm/ui/slip\"\n\n<Slip kind=\"prose\" w={240} h={72} dashed />",
+      "snippet": "import { Slip } from \"@/jbm/ui/slip\"\n\n<Slip kind=\"prose\" w={240} h={72} flag />",
       "installName": "slip",
       "sourcePath": "registry/jbm/ui/slip.tsx",
       "inRegistry": true

@@ -189,8 +189,9 @@ export const videoPrimitiveExamples = {
   ),
   "chat-bubble": (
     <div style={{ display: "grid", gap: 20 }}>
-      <ChatBubble speaker="Tú" tone="ink">
-        ¿Y si lo hacemos más sencillo?
+      <ChatBubble speaker="Tú">¿Y si lo hacemos más sencillo?</ChatBubble>
+      <ChatBubble speaker="Yo" side="end" tone="ink">
+        Primero la forma.
       </ChatBubble>
       <ChatBubble speaker="La idea" side="end" tone="accent">
         Una pieza a la vez.
