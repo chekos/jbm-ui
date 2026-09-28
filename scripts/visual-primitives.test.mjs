@@ -131,3 +131,25 @@ test("a closed card folder seats its sheet under the front panel; it rises strai
     sheet(render(Folder, { open: 1 })).join()
   )
 })
+
+test("ChatBubble: the paper bubble and its tail share one ink outline (#162)", () => {
+  const { ChatBubble } = load(resolve("registry/jbm/ui/chat-bubble.tsx"))
+  const paper = render(ChatBubble, { children: "Hola" })
+  assert.match(paper, /border:3px solid #20241F/)
+  // The tail: a card patch over the bottom edge, then one ink stroke that leaves and rejoins the edge.
+  const [patch, line] = [...paper.matchAll(/<path d="([^"]+)"([^>]*)>/g)]
+  assert.ok(patch[2].includes(`fill="#FFFCF5"`))
+  assert.ok(line[2].includes(`stroke="#20241F"`) && line[2].includes(`stroke-width="3"`))
+  assert.equal((line[1].match(/M/g) ?? []).length, 1, "the tail is one path")
+  const y = [...line[1].matchAll(/(-?[\d.]+) (-?[\d.]+)/g)].map((m) => +m[2])
+  assert.equal(y[0], 1.5, "it starts on the bottom edge centreline")
+  assert.equal(y.at(-1), 1.5, "and ends on it")
+  assert.match(paper, /margin-bottom:13px/)
+  // Ink and vermilion bubbles keep the same geometry, edged in their own fill.
+  for (const [tone, fill] of [["ink", "#20241F"], ["accent", "#C63D24"]]) {
+    const html = render(ChatBubble, { tone, children: "x" })
+    assert.match(html, new RegExp(`border:3px solid ${fill}`))
+  }
+  assert.doesNotMatch(render(ChatBubble, { tail: false, children: "x" }), /<svg/)
+  assert.match(render(ChatBubble, { side: "end", children: "x" }), /scaleX\(-1\)/)
+})

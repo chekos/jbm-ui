@@ -1175,7 +1175,7 @@
     {
       "name": "desk-prop",
       "title": "DeskProp",
-      "description": "A free-standing keycap, keyboard, or mug to place on a desk.",
+      "description": "A free-standing keycap, keyboard, or mug (from above or standing, from the side) to place on a desk.",
       "categories": [
         "UI Bits"
       ],
@@ -1346,7 +1346,8 @@
       "type": "registry:ui",
       "registryDependencies": [
         "@jbm/tokens",
-        "@jbm/paper"
+        "@jbm/paper",
+        "@jbm/register"
       ],
       "files": [
         {

@@ -244,26 +244,20 @@ export function VideoPrint({
         >
           <PunchedTag
             scale={s}
+            cut={8}
+            maxWidth={l.tagMaxW}
+            labelStyle={{
+              fontFamily: font.mono,
+              fontWeight: 500,
+              fontSize: 14 * s,
+              lineHeight: 1.3,
+            }}
             style={{
               gap: 10 * s,
               padding: `${6 * s}px ${14 * s}px ${6 * s}px ${10 * s}px`,
-              maxWidth: r2(l.tagMaxW),
             }}
           >
-            <span
-              style={{
-                display: "block",
-                fontFamily: font.mono,
-                fontWeight: 500,
-                fontSize: 14 * s,
-                lineHeight: 1.3,
-                whiteSpace: "nowrap",
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-              }}
-            >
-              {link}
-            </span>
+            {link}
           </PunchedTag>
         </div>
       )}

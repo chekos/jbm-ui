@@ -364,3 +364,22 @@ test("Paper's starting tear follows the Tear seam with the same seed", () => {
   const strip = points(tearGeometry({ w, h: 760, seams: [seam], seed })[0].seamBelow)
   assert.deepEqual(strip.slice(1, 4).map(([, y]) => y), edge.slice(1, 4).map((p) => p.y))
 })
+
+test("Tear's default corners match a Register sheet of the same width (#159)", async () => {
+  const { sheetRadius, Register } = await import("../registry/jbm/ui/register.tsx")
+  for (const w of [180, 360, 520, 900]) {
+    const r = sheetRadius(w)
+    const first = tearGeometry({ w, h: 400, seams: [200] })[0].outline
+    const arc = first.match(/A([\d.]+) /)
+    assert.ok(arc, "the first strip keeps the sheet's outer corners")
+    // The strip's stroke-centred arc sits half the outline inside the sheet's corner.
+    assert.ok(Math.abs(+arc[1] + 1.5 - r) < 0.02, `w ${w}: ${arc[1]} vs ${r}`)
+    const sheet = render(Register, { kind: "prose", w, h: 400 })
+    const css = sheet.match(/border-radius:([\d.]+)px/)
+    assert.ok(css && Math.abs(+css[1] - r) < 0.001, `Register w ${w}`)
+    const torn = render(Tear, { w, h: 400, seams: [200], progress: 0 })
+    assert.ok(torn.includes(`border-radius:${css[1]}px`), "Tear's whole-sheet shadow follows the same corner")
+  }
+  assert.equal(sheetRadius(360), 6)
+  assert.equal(sheetRadius(100), 4)
+})

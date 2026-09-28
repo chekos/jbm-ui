@@ -178,7 +178,9 @@ test("desk dimensions stay fixed and cabinet is optional",()=>{
 test("highlight bubble uses normal text flow and no scene connection",()=>{
   const markup=renderToStaticMarkup(React.createElement(Burbuja,{words:["Reuse","this","word"],highlight:[1],progress:.5}))
   assert.ok(markup.includes("color-mix"))
-  assert.ok(!markup.includes("<svg"))
+  // The only drawing is ChatBubble's own tail; the words stay in normal text flow.
+  assert.equal((markup.match(/<svg/g) ?? []).length, 1)
+  assert.ok(markup.includes("data-tail"))
   assert.ok(!markup.includes("position:absolute;left"))
 })
 test("hand movement wraps the independent artwork without carried props",()=>{

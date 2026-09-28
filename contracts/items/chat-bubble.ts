@@ -12,11 +12,11 @@ export default {
       export: "ChatBubble",
       kind: "component",
       summary:
-        "One message bubble, sized to its content up to the container width, with an optional mono speaker line and a small triangular tail under the aligned corner. No chat state or typing simulation; callers choose the list or conversation semantics. Div attributes pass through.",
+        "One message bubble, sized to its content up to the container width, with an optional mono speaker line and a small tail under the aligned corner. The paper tone is card stock with the shared ink outline (stroke.outline) around body and tail as one line: each side of the tail curves out of the bottom edge through a small fillet and the edge opens where the tail leaves it. Ink and accent bubbles are edged in their own fill, so every tone has the same size. No chat state or typing simulation; callers choose the list or conversation semantics. Div attributes pass through.",
       props: {
         side: "\"start\" aligns the bubble and tail to the inline start (incoming); \"end\" to the inline end (outgoing). RTL-aware via logical margins.",
-        tone: "Fill: \"paper\" (card stock with ink text), \"ink\", or \"accent\" (vermilion); ink and accent use cream text.",
-        tail: "Shows the 18×12 tail below the bubble, which adds 10px bottom margin. False removes both.",
+        tone: "Fill: \"paper\" (card stock with ink text and an ink outline), \"ink\", or \"accent\" (vermilion); ink and accent use cream text and no ink edge.",
+        tail: "Shows the tail below the bubble: its sides leave the bottom edge 35 and 55px in from the aligned side and meet at a tip 32px in, 12.5px below the bubble with its outline, which adds 13px bottom margin. False removes both.",
         speaker: "Optional speaker name above the message, 11px mono. Omit (null/undefined) to hide.",
       },
     },
@@ -24,7 +24,7 @@ export default {
   stage: {
     mode: "fluid",
     reason:
-      "Width fits the content up to 100% of the container; height is 16px padding top and bottom plus message lines at 18px × 1.5, an optional speaker line (11px + 6px gap), and 10px of margin for the tail when shown.",
+      "Width fits the content up to 100% of the container; height is 16px top and bottom (13px padding inside the 3px edge) plus message lines at 18px × 1.5, an optional speaker line (11px + 6px gap), and 13px of margin for the tail when shown.",
   },
   examples: [
     {
@@ -33,9 +33,10 @@ export default {
     },
   ],
   qa: [
-    "Compare paper, ink, and accent tones on cream: text stays legible and the tail matches the bubble fill.",
-    "Check start and end alignment: the tail sits 22px in from the aligned corner and points toward that side.",
-    "Turn off the tail and confirm the 10px gap below disappears.",
+    "Compare paper, ink, and accent tones on cream: text stays legible, the tail matches the bubble fill, and the paper bubble's ink edge runs around body and tail as one line.",
+    "Enlarge the paper bubble's tail at 8×: both sides curve out of the bottom edge without a step, gap, stub, or doubled edge, and no ink hairline crosses the opening.",
+    "Check start and end alignment: the tail leaves the bottom edge clear of the rounded corner, mirrored on the end side, and points toward that side.",
+    "Turn off the tail and confirm the 13px gap below disappears.",
     "Check a long unbroken message on a narrow screen wraps inside the bubble instead of overflowing.",
   ],
   docs: [

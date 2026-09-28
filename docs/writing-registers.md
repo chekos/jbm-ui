@@ -32,7 +32,7 @@ A gap opens before row `gapAt` (a band index on a mixed page). `gap` is its full
 
 ## The slip
 
-A `Slip` is an independent paper strip with a few marks of one register, taped where it does not belong. `lift` peels the tape flap (fully by 0.4; the flap stays hinged along its whole fold, foreshortening as its free end rises, so no notch opens at the hinge), raises and tilts the slip, and deepens its shadow; `offset` carries it. `dashed` flags it with a dashed ink outline. It owns no hand and no path: place it at the source gap, move `offset` along your path, and put `Mano` in its pinch pose at `slipGrip(props)` while the slip is lifted or carried. Once it lies flat (taped, or landed) the hand lets go: the gallery bench opens it and draws it back from the edge. Pass the source sheet's `scale` so the slip's bars match the page.
+A `Slip` is an independent paper strip with a few marks of one register, taped where it does not belong. `lift` peels the tape flap (fully by 0.4; the flap stays hinged along its whole fold, foreshortening as its free end rises, so no notch opens at the hinge), raises and tilts the slip, and deepens its shadow; `offset` carries it. `flag` marks it as out of place with an ink bracket in the margin beside its left edge, an editor's mark rather than a selection box (`dashed` is a deprecated alias that draws the same bracket). It owns no hand and no path: place it at the source gap, move `offset` along your path, and put `Mano` in its pinch pose at `slipGrip(props)` while the slip is lifted or carried. Once it lies flat (taped, or landed) the hand lets go: the gallery bench opens it and draws it back from the edge. Pass the source sheet's `scale` so the slip's bars match the page.
 
 ## Verification
 

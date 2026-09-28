@@ -154,7 +154,7 @@ test("desk, folder, and drawer objects stroke their outlines with the token", ()
 
 test("scaled desk objects keep the token in parent units", () => {
   for (const scale of [0.5, 1, 2]) {
-    for (const kind of ["keycap", "keyboard", "mug"]) {
+    for (const kind of ["keycap", "keyboard", "mug", "mug-side"]) {
       const ws = widths(svg(h(DeskProp, { kind, x: 0, y: 0, scale })))
       assert.ok(ws.length > 0)
       for (const w of ws) assert.ok(close(w * scale, PROBE), `${kind} ×${scale}`)
@@ -183,7 +183,10 @@ test("paper objects draw their ink edge at the token", () => {
   const slip = html(h(Slip, {}))
   assert.match(slip, new RegExp(`<rect x="${PROBE / 2}" y="${PROBE / 2}"[^>]*stroke-width="${PROBE}"`))
   const tag = html(h(PunchedTag, null, "tag"))
-  assert.equal(borders(tag).filter((b) => b.c === ink && b.w === PROBE).length, 2, "sheet edge and hole ring")
+  assert.equal(borders(tag).filter((b) => b.c === ink && b.w === PROBE).length, 1, "hole ring")
+  assert.ok(tag.includes(`border:${PROBE}px solid transparent`), "the edge's room")
+  assert.ok(tag.includes(`inset:-${PROBE}px;background:${ink}`), "the ink edge layer covers the edge's room")
+  assert.ok(tag.includes("inset:0;background:#FFFCF5"), "the stock layer inside the edge")
   const print = html(h(VideoPrint, { scrub: 0.5, title: "t", date: "d", link: "x" }))
   assert.ok(widths(print).includes(PROBE), "the still's frame")
   assert.ok(borders(print).some((b) => b.w === PROBE && b.c === ink), "the print's sheet")

@@ -139,6 +139,8 @@ export function DesignVideoDemo({ name }: { name: string }) {
   const [flag, setFlag] = useBenchParam(key("flag"), false)
   const [other, setOther] = useBenchParam(key("other"), true)
   const [count, setCount] = useBenchParam(key("count"), 3, { clamp: [0, 8] })
+  // PunchedTag: a long URL shows the one-line rule (ellipsis at the tag's max width).
+  const [long, setLong] = useBenchParam("long", false)
   const [fill, setFill] = useBenchParam<"accent" | "ink" | "card">(
     "fill",
     "accent",
@@ -368,8 +370,17 @@ export function DesignVideoDemo({ name }: { name: string }) {
       </>
     )
   } else if (name === "punched-tag") {
-    art = <PunchedTag tone={flag ? "ink" : "paper"}>Opus 5.5</PunchedTag>
-    controls = <Toggle label="Ink stock" value={flag} onChange={setFlag} />
+    art = (
+      <PunchedTag tone={flag ? "ink" : "paper"}>
+        {long ? "jbm-ui.bns.studio/catalog/punched-tag.json?long=1&tone=ink&view=strip&frame=12" : "Opus 5.5"}
+      </PunchedTag>
+    )
+    controls = (
+      <>
+        <Toggle label="Ink stock" value={flag} onChange={setFlag} />
+        <Toggle label="Long URL (one line, ellipsis)" value={long} onChange={setLong} />
+      </>
+    )
   } else if (name === "tape-marker") {
     art = <TapeMarker label={other ? "parar aquí" : undefined} />
     controls = <Toggle label="Marker label" value={other} onChange={setOther} />
@@ -389,6 +400,8 @@ export function DesignVideoDemo({ name }: { name: string }) {
         style={{
           minHeight: 190,
           display: "grid",
+          // A column that never grows past the card, so one-line pieces (a long tag) end in an ellipsis.
+          gridTemplateColumns: "minmax(0, 1fr)",
           alignItems: "center",
           justifyItems: name === "frontmatter" ? "stretch" : "center",
           padding: "36px 0 24px",

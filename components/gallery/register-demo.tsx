@@ -182,7 +182,7 @@ function SlipDemo() {
   const [carry, setCarry] = useBenchParam("carry", 0, unit)
   const [lift, setLift] = useBenchParam("lift", 0, unit)
   const [tape, setTape] = useBenchParam("tape", true)
-  const [dashed, setDashed] = useBenchParam("dashed", false)
+  const [flag, setFlag] = useBenchParam("flag", false)
   const [hand, setHand] = useBenchParam("hand", true)
   const src: RegisterSpec = { kind: "mono", n: 6, ...SHEET, gapAt: 3, gap: GAP, reflow: 1 - smooth(carry) }
   const dst: RegisterSpec = { kind: "prose", n: 3, ...SHEET, gapAt: 4, gap: GAP, reflow: smooth(carry) }
@@ -193,7 +193,7 @@ function SlipDemo() {
   const to = { x: DST.x + g1.x + (g1.w - SLIP.w) / 2, y: DST.y + g1.y + 7 }
   const path = [from, { x: (from.x + to.x) / 2, y: Math.min(from.y, to.y) - 60 }, to]
   const at = pointOn(path, smooth(carry))
-  const slip = { lift, offset: { x: at.x - from.x, y: at.y - from.y }, w: SLIP.w, h: SLIP.h, scale: 250 / 360, tape, dashed }
+  const slip = { lift, offset: { x: at.x - from.x, y: at.y - from.y }, w: SLIP.w, h: SLIP.h, scale: 250 / 360, tape, flag }
   const grip = slipGrip(slip)
   const hold = holdOf(carry, lift)
   const handAt = {
@@ -242,7 +242,7 @@ function SlipDemo() {
         {!compact && (
           <>
             <Toggle label="Tape" value={tape} onChange={setTape} />
-            <Toggle label="Dashed outline" value={dashed} onChange={setDashed} />
+            <Toggle label="Out-of-place bracket" value={flag} onChange={setFlag} />
           </>
         )}
       </div>

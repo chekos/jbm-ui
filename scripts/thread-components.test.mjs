@@ -377,3 +377,21 @@ test("video print: declared bounds hold the link tag, the tag never passes the s
   assert.equal(fill(withSheet), fill(without))
   assert.ok(!withSheet.includes("fill-opacity"))
 })
+
+test("PunchedTag: a luggage tag on one line, corners cut at the hole end, and no string (#161)", async () => {
+  const { PunchedTag } = await import("../registry/jbm/ui/punched-tag.tsx")
+  const long = render(PunchedTag, { children: "example.com/" + "a".repeat(200), maxWidth: 320 })
+  for (const rule of ["white-space:nowrap", "overflow:hidden", "text-overflow:ellipsis", "max-width:320px"])
+    assert.ok(long.includes(rule), rule)
+  assert.ok(!long.includes("overflow-wrap"), "never wraps")
+  // Two clip layers (edge, then stock) with 45° cuts at the hole end; the stock cut sits inside the edge.
+  const cuts = [...long.matchAll(/clip-path:polygon\(([\d.]+)px 0/g)].map((m) => +m[1])
+  assert.equal(cuts.length, 2)
+  assert.ok(Math.abs(cuts[0] - 14) < 1e-9 && Math.abs(cuts[1] - (14 - stroke.outline * (2 - Math.SQRT2))) < 0.01)
+  assert.ok(!/<svg|<path|string/i.test(long), "no string or loop: Hilo is the connector")
+  // The label rule stays with a caller label style, and VideoPrint no longer repeats it.
+  const styled = render(PunchedTag, { children: "x", labelStyle: { fontSize: 14 } })
+  assert.ok(styled.includes("font-size:14px") && styled.includes("text-overflow:ellipsis"))
+  const vp = render(VideoPrint, { title: "t", date: "d", scrub: 1, link: "x" })
+  assert.equal((vp.match(/text-overflow:ellipsis/g) ?? []).length, 3, "title, date, and the tag label")
+})
