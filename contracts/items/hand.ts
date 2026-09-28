@@ -54,7 +54,7 @@ export default {
     },
     {
       title: "Hold a side-view mug",
-      code: 'import { Hand } from "@/jbm/ui/hand"\nimport { DeskProp } from "@/jbm/ui/desk-prop" // install @jbm/desk-prop separately\n\n// A 180-wide hand: the mug\'s rim (deskPropLayout(...).rim) sits at 93 34, just under the thumb.\n<svg viewBox="0 0 210 174">\n  <DeskProp kind="mug-side" x={149} y={77.4} scale={1.4} />\n  <Hand pose="hold" width={180} height={174} style={{ height: 174 }} />\n</svg>',
+      code: 'import { Hand } from "@/jbm/ui/hand"\nimport { DeskProp } from "@/jbm/ui/desk-prop" // install @jbm/desk-prop separately\n\n// A 180-wide hand: the mug\'s rim (deskPropLayout(...).rim) sits at 93 34, just under the thumb.\n<svg viewBox="0 0 216 174">\n  <DeskProp kind="mug-side" x={153} y={80.5} scale={1.5} />\n  <Hand pose="hold" width={180} height={174} style={{ height: 174 }} />\n</svg>',
     },
     {
       title: "Place and rotate inside an SVG",

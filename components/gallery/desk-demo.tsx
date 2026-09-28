@@ -52,9 +52,10 @@ const poseLabels: Record<HandPose, string> = {
 /**
  * Hold in context: a side-view mug behind a Hand drawn 180 wide, scaled so its body fills the
  * pocket and runs on under the fingers, its rim's near end (deskPropLayout(...).rim, 93 34) just
- * under the thumb and its handle clear of the knuckles. The viewBox widens to fit the handle.
+ * under the thumb and its far side a clear gap past the knuckles (never grazing them), with the
+ * handle beyond. The viewBox widens to 216 to fit the handle.
  */
-const heldMug = { kind: "mug-side", x: 149, y: 77.4, scale: 1.4 } as const
+const heldMug = { kind: "mug-side", x: 153, y: 80.5, scale: 1.5 } as const
 const line = { x: 40, y: 262, w: 270 }
 /**
  * Pluma writes a PaperLine: mono glyphs advance exactly 0.6 em, so the nib's x follows `write`
@@ -363,20 +364,27 @@ function DeskObjectDemo({ name }: { name: string }) {
         }}
       >
         {name === "hand" && pose === "hold" && mug ? (
-          // The held object: DeskProp's side-view mug behind the hand, at the shared outline.
-          <svg
-            viewBox="0 0 210 174"
-            role="img"
-            aria-label="Hand: hold, round a mug"
-            style={{
-              width: compact ? "min(100%, 257px)" : "min(100%, 420px)",
-              flex: "none",
-              height: "auto",
-            }}
-          >
-            <DeskProp {...heldMug} />
-            <Hand pose="hold" width={180} height={174} style={{ height: 174 }} />
-          </svg>
+          // The held object: DeskProp's side-view mug behind the hand, at the shared outline. The
+          // box keeps the bare Hand's height (so ?pose=hold hydrates without a layout shift) and
+          // widens for the handle; where the column is too narrow, the scene scales down inside it.
+          <div style={{ width: "100%", containerType: "inline-size", display: "flex", justifyContent: "center" }}>
+            <svg
+              viewBox="0 0 216 174"
+              role="img"
+              aria-label="Hand: hold, round a mug"
+              style={{
+                display: "block",
+                // The bare Hand's box: its width, at the 155 × 174 ratio of its width and
+                // height attributes, with the hand drawn the same size inside it.
+                height: `calc(min(${compact ? 220 : 360}px, 100cqw) * 174 / 155)`,
+                width: `min(100%, ${compact ? 264 : 432}px)`,
+                flex: "none",
+              }}
+            >
+              <DeskProp {...heldMug} />
+              <Hand pose="hold" width={180} height={174} style={{ height: 174 }} aria-hidden="true" />
+            </svg>
+          </div>
         ) : name === "hand" ? (
           // Up to 360px wide and never stretched into a tall letterbox, centred in the stage.
           <Hand
