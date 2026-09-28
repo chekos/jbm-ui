@@ -5,11 +5,14 @@ export type DeskTopDrawerSide = "start" | "end" | "top" | "bottom"
 export type DeskTopProps = {
   /** Desk footprint in parent SVG units, front edge band and drawer region included. */
   box: Box
-  /** Light on the whole desk, 0–1: OKLab lightness multiplier k (1 = full cream). Clamped. */
+  /**
+   * Light on the whole desk, 0–1 (1 = full cream). Fills mix toward the palette's line token,
+   * reaching it at 0.72, then toward ink. Clamped.
+   */
   light?: number
   /** Camera tilt, 0–1: reveals the front edge band along the bottom (0 = straight down). Clamped. */
   edge?: number
-  /** Edge that holds an empty drawer region; omit for a desk with no drawer. */
+  /** Edge that holds an open drawer, its front and pull on that edge; omit for no drawer. */
   drawer?: DeskTopDrawerSide
   /**
    * Drawer region depth across its edge, in parent units: along the width for start/end, along
@@ -21,22 +24,30 @@ export type DeskTopProps = {
 /** Front band height at full tilt, in parent units. */
 export const DESK_EDGE = 22
 const SEAM = 6
-const WELL = 14
+/** The drawer's side and back walls; its front is thicker and carries the pull. */
+const WALL = 10
+const FRONT = { min: 16, max: 34 }
+/** The deepest light the visual language uses (the back folder): the desk is line-grey there. */
+const DEEP = 0.72
 
-/** Scale a token colour's OKLab lightness by k, the visual language's "depth as light". */
-export function deskShade(hex: string, k: number): string {
+type Lab = [number, number, number]
+const srgbToLinear = (c: number) =>
+  c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4)
+function toLab(hex: string): Lab {
   const n = parseInt(hex.slice(1), 16)
-  const lin = (c: number) =>
-    c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4)
   const [r, g, b] = [(n >> 16) & 255, (n >> 8) & 255, n & 255].map((c) =>
-    lin(c / 255)
+    srgbToLinear(c / 255)
   )
   const l = Math.cbrt(0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b)
   const m = Math.cbrt(0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b)
   const s = Math.cbrt(0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b)
-  const L = (0.2104542553 * l + 0.793617785 * m - 0.0040720468 * s) * unit(k)
-  const A = 1.9779984951 * l - 2.428592205 * m + 0.4505937099 * s
-  const B = 0.0259040371 * l + 0.7827717662 * m - 0.808675766 * s
+  return [
+    0.2104542553 * l + 0.793617785 * m - 0.0040720468 * s,
+    1.9779984951 * l - 2.428592205 * m + 0.4505937099 * s,
+    0.0259040371 * l + 0.7827717662 * m - 0.808675766 * s,
+  ]
+}
+function toHex([L, A, B]: Lab): string {
   const l2 = (L + 0.3963377774 * A + 0.2158037573 * B) ** 3
   const m2 = (L - 0.1055613458 * A - 0.0638541728 * B) ** 3
   const s2 = (L - 0.0894841775 * A - 1.291485548 * B) ** 3
@@ -52,10 +63,31 @@ export function deskShade(hex: string, k: number): string {
   })
   return `#${out.join("")}`
 }
+const mix = (a: Lab, b: Lab, t: number): Lab =>
+  [0, 1, 2].map((i) => a[i] + (b[i] - a[i]) * t) as Lab
+
+/** Scale a #rrggbb colour's OKLab lightness by k, keeping its chroma. Clamped. */
+export function deskShade(hex: string, k: number): string {
+  const [L, A, B] = toLab(hex)
+  return toHex([L * unit(k), A, B])
+}
 
 /**
+ * A token colour under light k, on the palette: mixed in OKLab from the colour toward the line
+ * token as k falls from 1 to 0.72 (the visual language's deepest folder), then from line toward
+ * ink. 1 returns the colour; lower is always darker.
+ */
+export function deskLight(hex: string, k: number): string {
+  const c = unit(k)
+  const line = toLab(color.line)
+  if (c >= DEEP) return toHex(mix(toLab(hex), line, (1 - c) / (1 - DEEP)))
+  return toHex(mix(line, toLab(color.ink), (DEEP - c) / DEEP))
+}
+
+/**
+/**
  * Top-down desk geometry. The box never changes: tilt takes the front band out of the surface's
- * depth, and a drawer region takes its side of the box, separated from the surface by a seam.
+ * depth, and a drawer takes its side of the box, pulled out past the desk's edge (the seam).
  */
 export function deskTopLayout({
   box,
@@ -70,7 +102,7 @@ export function deskTopLayout({
   const across = drawer === "top" || drawer === "bottom" ? plan.h : plan.w
   const depth = drawer
     ? Math.max(
-        SEAM + 2 * WELL + 8,
+        SEAM + WALL + FRONT.min + 12,
         Math.min(across * 0.8, drawerSize ?? across * 0.4)
       )
     : 0
@@ -89,12 +121,56 @@ export function deskTopLayout({
     region = { ...plan, y: plan.y + plan.h - depth + SEAM, h: depth - SEAM }
     surface = { ...plan, h: plan.h - depth }
   }
-  const well = region && {
-    x: region.x + WELL,
-    y: region.y + WELL,
-    w: region.w - 2 * WELL,
-    h: region.h - 2 * WELL,
+  // Drawer parts in local units: u runs out from the seam's centre line to the region's outer
+  // edge, v along the edge. The drawer box is narrower than the desk, so it reads as pulled out.
+  const vertical = drawer === "start" || drawer === "end"
+  const U = depth - SEAM / 2
+  const V = vertical ? plan.h : plan.w
+  const seamAt = !drawer
+    ? 0
+    : drawer === "end"
+      ? surface.x + surface.w + SEAM / 2
+      : drawer === "start"
+        ? surface.x - SEAM / 2
+        : drawer === "bottom"
+          ? surface.y + surface.h + SEAM / 2
+          : surface.y - SEAM / 2
+  const out = drawer === "start" || drawer === "top" ? -1 : 1
+  const local = (u0: number, u1: number, v0: number, v1: number): Box => {
+    const a = seamAt + out * u0,
+      b = seamAt + out * u1
+    const lo = Math.min(a, b),
+      len = Math.abs(b - a)
+    return vertical
+      ? { x: lo, y: plan.y + v0, w: len, h: v1 - v0 }
+      : { x: plan.x + v0, y: lo, w: v1 - v0, h: len }
   }
+  const inset = Math.min(V * 0.12, 48)
+  const thick = Math.min(FRONT.max, Math.max(FRONT.min, (depth - SEAM) * 0.16))
+  const t = thick * 0.56
+  const len = Math.min(t * 2.9, (V - 2 * inset) * 0.5)
+  const parts = drawer
+    ? {
+        /** The drawer box as drawn, from the seam line to its front. */
+        drawn: local(0, U, inset, V - inset),
+        /** Its opening as drawn: open toward the seam, where it runs on under the desk. */
+        opening: local(0, U - thick, inset + WALL, V - inset - WALL),
+        body: local(SEAM / 2, U, inset, V - inset),
+        well: local(SEAM / 2, U - thick, inset + WALL, V - inset - WALL),
+        front: local(U - thick, U, inset, V - inset),
+        pull: local(U - thick / 2 - t / 2, U - thick / 2 + t / 2, V / 2 - len / 2, V / 2 + len / 2),
+      }
+    : null
+  // The desk slab: the surface out to the seam line.
+  const slab: Box = !drawer
+    ? plan
+    : vertical
+      ? drawer === "end"
+        ? { ...plan, w: seamAt - plan.x }
+        : { ...plan, x: seamAt, w: plan.x + plan.w - seamAt }
+      : drawer === "bottom"
+        ? { ...plan, h: seamAt - plan.y }
+        : { ...plan, y: seamAt, h: plan.y + plan.h - seamAt }
   const k = unit(light)
   return {
     box,
@@ -105,81 +181,157 @@ export function deskTopLayout({
       x: surface.x + surface.w / 2,
       y: surface.y + surface.h / 2,
     } satisfies Pt,
-    /** The drawer region's outer panel and its recessed opening, or null. */
-    drawer: region && well ? { panel: region, well } : null,
+    /**
+     * The drawer: its region (panel), the pulled-out box inside it (body), the recessed opening
+     * (well), the thicker front wall on the outer edge (front), and the pull plate on it; or null.
+     */
+    drawer:
+      region && parts
+        ? {
+            panel: region,
+            body: parts.body,
+            well: parts.well,
+            front: parts.front,
+            pull: parts.pull,
+          }
+        : null,
     /** The front edge band revealed by tilt; h is 0 when edge is 0. */
     front: { x: box.x, y: box.y + box.h - band, w: box.w, h: band },
-    /** The whole plan (surface, seam, and drawer region): one slab under both, so the seam reads as a groove in the desk. */
+    /** The whole plan (surface, seam, and drawer region) above the band. */
     plan,
+    /** The desk top as drawn: the surface out to the seam line. */
+    slab,
+    /** Drawing geometry for DeskTop; not part of the documented layout. */
+    drawn: parts && { body: parts.drawn, opening: parts.opening },
     fill: {
-      surface: deskShade(color.bg, k),
-      handle: deskShade(color.card, k),
-      front: deskShade(color.bg, k * 0.93),
-      panel: deskShade(color.bg, k * 0.97),
-      well: deskShade(color.bg, k * 0.9),
+      surface: deskLight(color.bg, k),
+      handle: deskLight(color.card, k),
+      front: deskLight(color.bg, k - 0.1),
+      panel: deskLight(color.card, k),
+      well: deskLight(color.bg, k - 0.16),
     },
   }
 }
 
-/** A cream desk seen from above: an empty surface, optional drawer region and front edge. */
+/** A cream desk seen from above: an empty surface, an optional open drawer, and a front edge. */
 export function DeskTop({ light = 1, edge = 0, ...props }: DeskTopProps) {
   const l = deskTopLayout({ ...props, light, edge })
-  const { front, surface, drawer, fill } = l
-  // The drawer front shows in the band under its region; a top drawer faces away.
-  const handle =
-    drawer && front.h >= 12 && props.drawer !== "top"
-      ? {
-          x: drawer.panel.x + drawer.panel.w / 2 - 22,
-          y: front.y + front.h / 2 - 3,
-        }
+  const { front, slab, drawer, drawn, fill } = l
+  const side = props.drawer
+  const R = 4
+  const banded = front.h > 0
+  // A band thinner than two lines would merge into one heavy edge: it fades in over its first
+  // 6 units while the corners it squares off lose their radius, so small tilts stay continuous.
+  const fade = Math.min(1, front.h / 6)
+  const square = R * (1 - fade)
+  // The band is the desk's front face under the slab; under a side drawer it is the drawer box's
+  // own near face, and a drawer pulled toward the camera shows only its own.
+  const slabOnBand = banded && side !== "bottom"
+  const slabR: Corners = {
+    tl: R,
+    tr: R,
+    br: slabOnBand ? square : R,
+    bl: slabOnBand ? square : R,
+  }
+  const deskBand: Box | null = slabOnBand ? { ...front, x: slab.x, w: slab.w } : null
+  const body = drawn?.body
+  const nearFace: Box | null =
+    banded && body && side !== "top"
+      ? side === "bottom"
+        ? { ...front, x: body.x, w: body.w }
+        : { x: body.x, y: body.y + body.h, w: body.w, h: front.h }
       : null
-  // Corners that meet the band are square, so the contours share one edge.
-  const r = (b: Box): [number, number] =>
-    b.y + b.h >= front.y - 0.5 && front.h > 0 ? [4, 0] : [4, 4]
+  // Drawer corners: square where the box runs on under the desk, rounded at its free end.
+  const bodyR: Corners =
+    side === "end"
+      ? { tl: 0, tr: R, br: nearFace ? square : R, bl: 0 }
+      : side === "start"
+        ? { tl: R, tr: 0, br: 0, bl: nearFace ? square : R }
+        : side === "top"
+          ? { tl: R, tr: R, br: 0, bl: 0 }
+          : { tl: 0, tr: 0, br: nearFace ? square : R, bl: nearFace ? square : R }
+  const faceR: Corners =
+    side === "end"
+      ? { tl: 0, tr: 0, br: R, bl: 0 }
+      : side === "start"
+        ? { tl: 0, tr: 0, br: 0, bl: R }
+        : { tl: 0, tr: 0, br: R, bl: R }
+  const pull = drawer?.pull
+  const bar =
+    pull &&
+    (pull.w >= pull.h
+      ? { x: pull.x + pull.w * 0.125, y: pull.y + pull.h * 0.3, w: pull.w * 0.75, h: pull.h * 0.4 }
+      : { x: pull.x + pull.w * 0.3, y: pull.y + pull.h * 0.125, w: pull.w * 0.4, h: pull.h * 0.75 })
   return (
     <g
       role="img"
-      aria-label={`Desk seen from above${props.drawer ? ", with a drawer" : ""}`}
+      aria-label={`Desk seen from above${side ? ", with a drawer" : ""}`}
       stroke={color.ink}
       strokeWidth={2}
       strokeLinejoin="round"
     >
-      {front.h > 0 && (
-        <path d={roundedRect(front, 0, 4)} fill={fill.front} />
+      {/* The slab goes over the drawer, so its outline is the one seam line. */}
+      {deskBand && (
+        <path
+          d={roundedRect(deskBand, { tl: 0, tr: 0, br: R, bl: R })}
+          fill={fill.front}
+          opacity={fade < 1 ? fade : undefined}
+        />
       )}
-      {drawer && (
-        // One desk: the plan is a single slab in the groove shade, and the seam between the
-        // surface and the drawer panel shows it instead of a gap to the page.
-        <path d={roundedRect(l.plan, ...r(l.plan))} fill={fill.front} />
-      )}
-      {drawer && (
+      {drawer && body && drawn && (
         <>
-          <path d={roundedRect(drawer.panel, ...r(drawer.panel))} fill={fill.panel} />
-          <rect {...rect(drawer.well)} rx={3} fill={fill.well} />
+          {nearFace && (
+            <path
+              d={roundedRect(nearFace, faceR)}
+              fill={fill.front}
+              opacity={fade < 1 ? fade : undefined}
+            />
+          )}
+          <path d={roundedRect(body, bodyR)} fill={fill.panel} />
+          <path d={openRect(drawn.opening, side!, 3)} fill={fill.well} />
         </>
       )}
-      <path d={roundedRect(surface, ...r(surface))} fill={fill.surface} />
-      {handle && (
-        <rect
-          x={handle.x}
-          y={handle.y}
-          width={44}
-          height={6}
-          rx={3}
-          fill={fill.handle}
-        />
+      <path d={roundedRect(slab, slabR)} fill={fill.surface} />
+      {pull && bar && (
+        <>
+          <rect {...rect(pull)} rx={Math.min(pull.w, pull.h) * 0.12} fill={fill.handle} />
+          <rect {...rect(bar)} fill={color.ink} stroke="none" />
+        </>
       )}
     </g>
   )
 }
 
-/** Closed rectangle path with separate top and bottom corner radii. */
-function roundedRect({ x, y, w, h }: Box, top: number, bottom: number) {
+type Corners = { tl: number; tr: number; br: number; bl: number }
+/** Closed rectangle path with a radius per corner. */
+function roundedRect({ x, y, w, h }: Box, c: Corners) {
   const W = Math.max(0, w),
     H = Math.max(0, h)
-  const t = Math.min(top, W / 2, H / 2),
-    b = Math.min(bottom, W / 2, H / 2)
-  return `M${x + t} ${y}H${x + W - t}${t ? `A${t} ${t} 0 0 1 ${x + W} ${y + t}` : ""}V${y + H - b}${b ? `A${b} ${b} 0 0 1 ${x + W - b} ${y + H}` : ""}H${x + b}${b ? `A${b} ${b} 0 0 1 ${x} ${y + H - b}` : ""}V${y + t}${t ? `A${t} ${t} 0 0 1 ${x + t} ${y}` : ""}Z`
+  const [tl, tr, br, bl] = [c.tl, c.tr, c.br, c.bl].map((r) =>
+    Math.min(r, W / 2, H / 2)
+  )
+  const arc = (r: number, ex: number, ey: number) =>
+    r ? `A${r} ${r} 0 0 1 ${ex} ${ey}` : ""
+  return `M${x + tl} ${y}H${x + W - tr}${arc(tr, x + W, y + tr)}V${y + H - br}${arc(br, x + W - br, y + H)}H${x + bl}${arc(bl, x, y + H - bl)}V${y + tl}${arc(tl, x + tl, y)}Z`
+}
+
+/**
+ * The drawer's opening: rounded on its three drawn sides and open on the seam side, where it
+ * runs on under the desk (the fill closes along the seam line, the stroke does not).
+ */
+function openRect({ x, y, w, h }: Box, side: DeskTopDrawerSide, r: number) {
+  const W = Math.max(0, w),
+    H = Math.max(0, h)
+  const q = Math.min(r, W / 2, H / 2)
+  const a = (ex: number, ey: number) => `A${q} ${q} 0 0 1 ${ex} ${ey}`
+  // Start at the seam end of one side and walk the three drawn sides clockwise.
+  if (side === "end")
+    return `M${x} ${y}H${x + W - q}${a(x + W, y + q)}V${y + H - q}${a(x + W - q, y + H)}H${x}`
+  if (side === "start")
+    return `M${x + W} ${y + H}H${x + q}${a(x, y + H - q)}V${y + q}${a(x + q, y)}H${x + W}`
+  if (side === "bottom")
+    return `M${x + W} ${y}V${y + H - q}${a(x + W - q, y + H)}H${x + q}${a(x, y + H - q)}V${y}`
+  return `M${x} ${y + H}V${y + q}${a(x + q, y)}H${x + W - q}${a(x + W, y + q)}V${y + H}`
 }
 
 function rect({ x, y, w, h }: Box) {

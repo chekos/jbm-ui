@@ -3,6 +3,7 @@
 import { WorkOrderExample } from "./design-video-demo"
 
 import { useBenchParam } from "./bench-url"
+import { useBenchCompact } from "./bench-compact"
 import { Ticket } from "@/registry/jbm/ui/ticket"
 import { ChatBubble } from "@/registry/jbm/ui/chat-bubble"
 import { Document } from "@/registry/jbm/ui/document"
@@ -43,7 +44,7 @@ function TicketDemo() {
           Trae tu curiosidad. Lo demás lo construimos juntos.
         </p>
       </Ticket>
-      <label style={{ fontSize: 13 }}>
+      <label style={{ fontSize: 12 }}>
         <input
           type="checkbox"
           checked={accent}
@@ -55,6 +56,8 @@ function TicketDemo() {
   )
 }
 function FolderDemo() {
+  // Index cards keep opening, tone, and sublabel; /c/folder adds where the label prints.
+  const compact = useBenchCompact()
   const [open, setOpen] = useBenchParam("open", 0.5, { clamp: [0, 1] })
   const [tone, setTone] = useBenchParam<FolderTone>("tone", "accent", {
     allowed: ["accent", "ink", "card"],
@@ -82,7 +85,7 @@ function FolderDemo() {
         onChange={setOpen}
         presets={["Closed", "Half", "Open"]}
       />
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 16, fontSize: 13 }}>
+      <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 16, fontSize: 12 }}>
         <label>
           Tone{" "}
           <select
@@ -95,18 +98,20 @@ function FolderDemo() {
             <option value="card">Card</option>
           </select>
         </label>
-        <label>
-          Label on{" "}
-          <select
-            aria-label="folder Label on"
-            value={place}
-            onChange={(e) => setPlace(e.target.value as typeof place)}
-          >
-            <option value="auto">Tone default</option>
-            <option value="front">Front panel</option>
-            <option value="tab">Tab</option>
-          </select>
-        </label>
+        {!compact && (
+          <label>
+            Label on{" "}
+            <select
+              aria-label="folder Label on"
+              value={place}
+              onChange={(e) => setPlace(e.target.value as typeof place)}
+            >
+              <option value="auto">Tone default</option>
+              <option value="front">Front panel</option>
+              <option value="tab">Tab</option>
+            </select>
+          </label>
+        )}
         <label>
           <input
             type="checkbox"
@@ -168,8 +173,16 @@ function ClockDemo() {
   )
 }
 export const videoPrimitiveExamples = {
+  // Side by side where there is room (a /c bench), so the preview fits a 1280×800 screen.
   ticket: (
-    <div style={{ display: "grid", gap: 32 }}>
+    <div
+      style={{
+        display: "grid",
+        gap: 32,
+        gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 320px), 1fr))",
+        alignItems: "start",
+      }}
+    >
       <TicketDemo />
       <WorkOrderExample />
     </div>

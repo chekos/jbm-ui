@@ -178,7 +178,7 @@
       "title": "Paper",
       "description": "Paper cut-out primitives: a card-stock sheet that can crease, start to tear, and carry a real tab, a slanted Sticker with display type, and a centered Caption.",
       "categories": [
-        "UI"
+        "UI Bits"
       ],
       "registryDependencies": [
         "@jbm/tokens"
@@ -1011,6 +1011,25 @@
       ]
     },
     {
+      "name": "hand",
+      "title": "Hand",
+      "description": "Static line-art hand in open-palm, pointing, pinching, gripping, typing, or holding pose, independent of placement and props.",
+      "categories": [
+        "UI Bits"
+      ],
+      "type": "registry:component",
+      "registryDependencies": [
+        "@jbm/tokens"
+      ],
+      "files": [
+        {
+          "path": "registry/jbm/ui/hand.tsx",
+          "type": "registry:component",
+          "target": "src/jbm/ui/hand.tsx"
+        }
+      ]
+    },
+    {
       "name": "mano",
       "title": "Mano",
       "description": "Position and rotate the independent Hand illustration with controlled coordinates.",
@@ -1096,7 +1115,7 @@
       "title": "Escritorio",
       "description": "An empty desk with separate finish and optional file cabinet.",
       "categories": [
-        "Layout"
+        "UI Bits"
       ],
       "type": "registry:component",
       "registryDependencies": [
@@ -1116,9 +1135,9 @@
     {
       "name": "desk-top",
       "title": "DeskTop",
-      "description": "A cream desk seen from above, with light, a tilt-revealed front edge, and an optional drawer region.",
+      "description": "A cream desk seen from above, with light, a tilt-revealed front edge, and an optional pulled-out drawer.",
       "categories": [
-        "Layout"
+        "UI Bits"
       ],
       "type": "registry:component",
       "registryDependencies": [
@@ -1138,7 +1157,7 @@
       "title": "Ejes",
       "description": "Two ink axes that split an area into four named quadrants, with quiet labels and a focus quadrant.",
       "categories": [
-        "UI Bits"
+        "UI"
       ],
       "type": "registry:component",
       "registryDependencies": [
@@ -1191,25 +1210,6 @@
           "path": "registry/jbm/motion/burbuja.tsx",
           "type": "registry:component",
           "target": "src/jbm/motion/burbuja.tsx"
-        }
-      ]
-    },
-    {
-      "name": "hand",
-      "title": "Hand",
-      "description": "Static line-art hand in open-palm, pointing, pinching, gripping, typing, or holding pose, independent of placement and props.",
-      "categories": [
-        "UI Bits"
-      ],
-      "type": "registry:component",
-      "registryDependencies": [
-        "@jbm/tokens"
-      ],
-      "files": [
-        {
-          "path": "registry/jbm/ui/hand.tsx",
-          "type": "registry:component",
-          "target": "src/jbm/ui/hand.tsx"
         }
       ]
     },

@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react"
 import { useBenchParam } from "./bench-url"
+import { useBenchCompact } from "./bench-compact"
 import { PaperTape } from "@/registry/jbm/ui/paper-tape"
 import { TapeMarker } from "@/registry/jbm/ui/tape-marker"
 import { PaperClip } from "@/registry/jbm/ui/paper-clip"
@@ -13,6 +14,8 @@ import { Frontmatter } from "@/registry/jbm/ui/frontmatter"
 import { FolderContents } from "@/registry/jbm/ui/folder-contents"
 import {
   FolderCarry,
+  folderCarryHand,
+  carriedFolderGeometry,
   folderGrip,
   tableFolderGeometry,
 } from "@/registry/jbm/ui/folder-carry"
@@ -112,11 +115,26 @@ const slotKeys: Record<string, Record<string, string>> = {
   "tape-marker": { other: "label" },
 }
 
+/** The carry bench's floor line and resting places: both folders stand on the floor. */
+const carryFloor = 248
+const onCarryFloor = (x: number, width: number) =>
+  tableFolderGeometry({ x, y: carryFloor - (205 * width) / 260 }, width)
+const carryFrom = onCarryFloor(50, 100),
+  carryTo = onCarryFloor(230, 190)
+const carryPath = [folderGrip(carryFrom), { x: 175, y: 80 }, folderGrip(carryTo)]
+
 export function DesignVideoDemo({ name }: { name: string }) {
+  // Index cards show at most three controls; /c pages keep them all.
+  const compact = useBenchCompact()
   const key = (slot: string) => slotKeys[name]?.[slot] ?? slot
   const unit = { clamp: [0, 1] } as const
   const [progress, setProgress] = useBenchParam(key("progress"), 0.7, unit)
-  const [secondary, setSecondary] = useBenchParam(key("secondary"), 0, unit)
+  // The carry's hand tilt is centred (0°) at 0.5; every other secondary control starts at 0.
+  const [secondary, setSecondary] = useBenchParam(
+    key("secondary"),
+    name === "folder-carry" ? 0.5 : 0,
+    unit
+  )
   const [third, setThird] = useBenchParam(key("third"), 0, unit)
   const [flag, setFlag] = useBenchParam(key("flag"), false)
   const [other, setOther] = useBenchParam(key("other"), true)
@@ -179,8 +197,8 @@ export function DesignVideoDemo({ name }: { name: string }) {
         <Range label="Reveal" value={progress} onChange={setProgress} presets={["Hidden", "Half", "Written"]} />
         <Range label="Lift ink" value={secondary} onChange={setSecondary} presets={["Flat", "Half", "Lifted"]} />
         <Range label="Strike" value={third} onChange={setThird} presets={["None", "Half", "Struck"]} />
-        <Toggle label="Dotted underline" value={flag} onChange={setFlag} />
-        <Toggle label="Accent ink" value={other} onChange={setOther} />
+        {!compact && <Toggle label="Dotted underline" value={flag} onChange={setFlag} />}
+        {!compact && <Toggle label="Accent ink" value={other} onChange={setOther} />}
       </>
     )
   } else if (name === "stamp") {
@@ -222,7 +240,9 @@ export function DesignVideoDemo({ name }: { name: string }) {
           onChange={setSecondary}
           presets={["Inside", "Half", "Out"]}
         />
-        <Range label="Lift contents" value={third} onChange={setThird} presets={["Inside", "Half", "Lifted"]} />
+        {!compact && (
+          <Range label="Lift contents" value={third} onChange={setThird} presets={["Inside", "Half", "Lifted"]} />
+        )}
         <StepperControl
           label="Nested folders"
           value={count}
@@ -232,17 +252,16 @@ export function DesignVideoDemo({ name }: { name: string }) {
           noun="folders"
           format={(n) => `${n} ${n === 1 ? "folder" : "folders"}`}
         />
-        <Toggle
-          label="Reveal nested folders"
-          value={other}
-          onChange={setOther}
-        />
+        {!compact && (
+          <Toggle
+            label="Reveal nested folders"
+            value={other}
+            onChange={setOther}
+          />
+        )}
       </>
     )
   } else if (name === "folder-carry") {
-    const from = tableFolderGeometry({ x: 5, y: 65 }, 100),
-      to = tableFolderGeometry({ x: 225, y: 60 }, 190)
-    const path = [folderGrip(from), { x: 200, y: 45 }, folderGrip(to)]
     art = (
       <svg
         viewBox="0 0 450 270"
@@ -250,22 +269,29 @@ export function DesignVideoDemo({ name }: { name: string }) {
         role="img"
         aria-label="Hand carrying a folder between two sizes"
       >
-        <path d="M10 248H440" stroke={color.line} />
+        <path d={`M10 ${carryFloor}H440`} stroke={color.line} />
+        {/* The hand holds the tab, so the name prints on the front for every fill. */}
         <FolderCarry
-          from={from}
-          to={to}
-          path={path}
+          from={carryFrom}
+          to={carryTo}
+          path={carryPath}
           progress={progress}
           label="proyecto"
           fill={color[fill]}
+          labelOn="front"
         />
         {other && (
           <Mano
-            at={pointOn(path, progress)}
-            pose="pinch"
-            size={70}
-            angle={secondary * 60 - 30}
-            anchor={{ x: 6, y: 10 }}
+            at={pointOn(carryPath, progress)}
+            // The hand scales with the folder it carries (0.45 × the folder's full width), so it
+            // never swamps the small folder at Start or shrinks beside the large one.
+            size={
+              0.45 *
+              (carriedFolderGeometry(carryFrom, carryTo, carryPath, progress).w * 260) /
+              205
+            }
+            {...folderCarryHand}
+            angle={folderCarryHand.angle + secondary * 30 - 15}
           />
         )}
       </svg>
@@ -273,20 +299,22 @@ export function DesignVideoDemo({ name }: { name: string }) {
     controls = (
       <>
         <Range label="Carry progress" ariaLabel="folder-carry Carry progress" value={progress} onChange={setProgress} presets={["Start", "Midway", "Arrived"]} />
-        <Angle label="Hand angle" ariaLabel="folder-carry Hand angle" value={secondary} onChange={setSecondary} from={-30} span={60} />
+        <Angle label="Hand tilt" ariaLabel="folder-carry Hand tilt" value={secondary} onChange={setSecondary} from={-15} span={30} />
         <Toggle label="Show hand" ariaLabel="folder-carry Show hand" value={other} onChange={setOther} />
-        <label style={{ display: "flex", gap: 8, alignItems: "center", fontSize: 12 }}>
-          Folder fill
-          <select
-            aria-label="folder-carry Folder fill"
-            value={fill}
-            onChange={(e) => setFill(e.target.value as typeof fill)}
-          >
-            <option value="accent">Vermilion</option>
-            <option value="ink">Ink</option>
-            <option value="card">Card</option>
-          </select>
-        </label>
+        {!compact && (
+          <label style={{ display: "flex", gap: 8, alignItems: "center", fontSize: 12 }}>
+            Folder fill
+            <select
+              aria-label="folder-carry Folder fill"
+              value={fill}
+              onChange={(e) => setFill(e.target.value as typeof fill)}
+            >
+              <option value="accent">Vermilion</option>
+              <option value="ink">Ink</option>
+              <option value="card">Card</option>
+            </select>
+          </label>
+        )}
       </>
     )
   } else if (name === "frontmatter") {

@@ -51,7 +51,7 @@ registerHooks({
 })
 
 const { color } = await import("../registry/jbm/lib/tokens.ts")
-const { DeskTop, deskTopLayout, deskShade, DESK_EDGE } =
+const { DeskTop, deskTopLayout, deskShade, deskLight, DESK_EDGE } =
   await import("../registry/jbm/ui/desk-top.tsx")
 const { Ejes, ejesLayout, quadrants, EJES_TYPE } =
   await import("../registry/jbm/ui/ejes.tsx")
@@ -325,13 +325,80 @@ test("DeskTop: a top or bottom drawer takes 40% of the height; every fill follow
   }
   const dim = svg(React.createElement(DeskTop, { box, drawer: "end", edge: 1, light: 0.72 }))
   assert.ok(!dim.includes(`fill="${color.card}"`), "the handle dims with the desk")
-  assert.ok(dim.includes(`fill="${deskShade(color.card, 0.72)}"`))
+  assert.ok(dim.includes(`fill="${deskLight(color.card, 0.72)}"`))
 })
 test("DeskProp press reads: the pressed face insets and takes an ink wash", () => {
   const key = svg(React.createElement(DeskProp, { kind: "keyboard", x: 0, y: 0, press: 1, keys: [13] }))
   assert.match(key, /data-key="13"><rect x="[-\d.]+" y="[-\d.]+" width="16"/)
-  assert.ok(key.includes('fill-opacity="0.12"'))
+  assert.ok(key.includes('fill-opacity="0.28"'))
   const cap = svg(React.createElement(DeskProp, { kind: "keycap", x: 0, y: 0, press: 1 }))
-  assert.ok(cap.includes('fill-opacity="0.12"'))
+  assert.ok(cap.includes('fill-opacity="0.28"'))
   assert.ok(!svg(React.createElement(DeskProp, { kind: "keycap", x: 0, y: 0 })).includes("fill-opacity"))
+})
+
+test("DeskTop light stays on the palette: cream at 1, the line token at 0.72, then toward ink", () => {
+  assert.equal(deskLight(color.bg, 1).toUpperCase(), color.bg.toUpperCase())
+  assert.equal(deskLight(color.bg, 0.72).toUpperCase(), color.line.toUpperCase())
+  assert.equal(deskLight(color.card, 0.72).toUpperCase(), color.line.toUpperCase())
+  assert.equal(deskLight(color.bg, 0).toUpperCase(), color.ink.toUpperCase())
+  const luma = (hex) => parseInt(hex.slice(1, 3), 16) + parseInt(hex.slice(3, 5), 16) + parseInt(hex.slice(5, 7), 16)
+  let last = Infinity
+  for (const k of [1, 0.9, 0.8, 0.72, 0.6, 0.3, 0]) {
+    const l = luma(deskLight(color.bg, k))
+    assert.ok(l < last, `k ${k}`)
+    last = l
+  }
+})
+
+test("DeskTop drawer: a pulled-out box narrower than the desk, one pull on its outer front", () => {
+  const box = { x: 31, y: 17, w: 760, h: 460 }
+  for (const drawer of ["start", "end", "top", "bottom"])
+    for (const edge of [0, 1])
+      for (const drawerSize of [undefined, 0, 5000]) {
+        const l = deskTopLayout({ box, edge, drawer, drawerSize })
+        const d = l.drawer
+        assert.ok(inside(d.body, d.panel), `${drawer} body`)
+        assert.ok(inside(d.well, d.body) && inside(d.front, d.body) && inside(d.pull, d.front), drawer)
+        assert.ok(!overlaps(d.well, d.front), `${drawer} opening stops at the front`)
+        // The front sits on the region's outer edge.
+        const outer =
+          drawer === "start" ? d.front.x === d.panel.x
+          : drawer === "end" ? Math.abs(d.front.x + d.front.w - (d.panel.x + d.panel.w)) < 1e-6
+          : drawer === "top" ? d.front.y === d.panel.y
+          : Math.abs(d.front.y + d.front.h - (d.panel.y + d.panel.h)) < 1e-6
+        assert.ok(outer, `${drawer} front on the outer edge`)
+        // Narrower than the desk along the seam, so it reads as pulled out.
+        const along = drawer === "start" || drawer === "end" ? ["h", "y"] : ["w", "x"]
+        assert.ok(d.body[along[0]] < d.panel[along[0]], drawer)
+      }
+  const markup = svg(React.createElement(DeskTop, { box, drawer: "bottom", edge: 1 }))
+  assert.equal((markup.match(new RegExp(`fill="${color.ink}"`, "g")) ?? []).length, 1, "one pull bar")
+})
+
+test("Ejes: the four focus outlines are the same size", () => {
+  for (const quiet of [0, 0.5, 1])
+    for (const center of [undefined, { x: 330, y: 200 }, { x: 520, y: 300 }]) {
+      const f = ejesLayout({ box, center, h: 1, v: 1, quiet, labels }).focus
+      for (const q of ["tr", "bl", "br"]) {
+        assert.ok(Math.abs(f[q].w - f.tl.w) < 1e-9, `${q} width`)
+        assert.ok(Math.abs(f[q].h - f.tl.h) < 1e-9, `${q} height`)
+      }
+      assert.ok(Math.abs(f.tl.x + f.tl.w - (f.bl.x + f.bl.w)) < 1e-9)
+      assert.ok(Math.abs(f.tr.x - f.br.x) < 1e-9)
+    }
+})
+
+test("Ejes accent marks one quadrant only; the rest of the set stays ink", () => {
+  const all = svg(React.createElement(Ejes, { box, h: 1, v: 1, labels, focus: ["tr", "tl", "bl", "br"], focusTone: "accent" }))
+  assert.equal((all.match(new RegExp(color.accent, "g")) ?? []).length, 1)
+  assert.match(all, new RegExp(`data-quadrant="tr"[^>]*stroke="${color.accent}"`))
+})
+
+test("DeskProp weight sets the stroke in parent units at any scale", () => {
+  for (const scale of [0.5, 1, 2]) {
+    const markup = svg(React.createElement(DeskProp, { kind: "keycap", x: 0, y: 0, scale, weight: 3 }))
+    assert.ok(markup.includes(`stroke-width="${3 / scale}"`))
+  }
+  const mug = svg(React.createElement(DeskProp, { kind: "mug", x: 0, y: 0 }))
+  assert.equal((mug.match(/<circle/g) ?? []).length, 2, "top-down mug: body and rim")
 })

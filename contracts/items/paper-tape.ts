@@ -7,6 +7,7 @@ export default {
   description:
     "Strip of paper fed out by length, with printed marks, checkpoint markers, and attachments on one coordinate system.",
   category: "UI Bits",
+  family: "Tape, clips & marks",
   capabilities: ["controls"],
   api: [
     {

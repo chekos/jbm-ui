@@ -71,7 +71,11 @@ export const slipGrip = (props: SlipProps, edge: "top" | "bottom" = "bottom"): P
   return slipPoint(props, { x: g.w * 0.5, y: edge === "top" ? 0 : g.h })
 }
 
-/** Torn masking tape: a body on the slip and a flap that peels up about the fold. */
+/**
+ * Torn masking tape: a body on the slip and a flap that peels up about the fold. The flap stays
+ * hinged along the whole fold line: as it lifts off the slip it foreshortens and its free end
+ * rises (a shear about the fold), so no wedge ever opens between flap and body.
+ */
 function Tape({ w, u, peel }: { w: number; u: number; peel: number }) {
   const L = Math.min(w * 0.8, Math.max(56 * u, w * 0.34))
   const T = 14 * u
@@ -100,13 +104,21 @@ function Tape({ w, u, peel }: { w: number; u: number; peel: number }) {
       <path d={`${body}H${fold + (peel > 0 ? 0 : 0.75 * u)}V${T}Z`} fill={color.line} />
       <path d={body} {...line} />
       {peel > 0 && <path d={`M${fold} 0V${T}`} {...line} strokeOpacity={Math.min(1, peel * 8)} />}
-      <g transform={`rotate(${-38 * peel} ${fold} 0)`}>
+      <g transform={flapMatrix(peel, fold, L, T)}>
         <path d={`${flap}Z`} fill={color.line} />
         <path d={flap} {...line} />
         {peel > 0 && <path d={`M${fold} 0V${T}`} {...line} strokeOpacity={Math.min(1, peel * 8)} />}
       </g>
     </svg>
   )
+}
+
+/** The flap's peel as an affine map that keeps the fold line (x = fold) fixed. */
+function flapMatrix(peel: number, fold: number, L: number, T: number) {
+  const k = 1 - 0.42 * peel
+  const rise = (0.95 * T * peel) / Math.max(1, L - fold)
+  const r = (n: number) => Math.round(n * 1000) / 1000
+  return `matrix(${r(k)} ${r(-rise)} 0 1 ${r(fold * (1 - k))} ${r(rise * fold)})`
 }
 
 /** A taped paper slip carrying a few marks of one register; lift and offset are controlled. */

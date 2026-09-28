@@ -128,7 +128,7 @@ test("tension fans short creases from each pulled corner and tears only past 0.6
   const lines = (html) => [...html.matchAll(/<line x1="([\d.]+)%" y1="([\d.]+)%" x2="([\d.]+)%" y2="([\d.]+)%"/g)].map((m) => m.slice(1).map(Number))
   const lips = (html) => (html.match(/<polyline /g) ?? []).length
   const at = (props) => render(Paper, { w: 400, h: 600, ...props }, "WRITING")
-  // Two or three creases per pulled corner, all corner combinations included.
+  // Two creases per pulled corner, all corner combinations included.
   for (const pull of [["tl", "tr", "br", "bl"], ["tl", "br"], ["tl", "tr"], ["bl"]]) {
     const n = lines(at({ tension: 1, pull })).length
     assert.ok(n >= 2 * pull.length && n <= 3 * pull.length, `${pull}: ${n} creases`)
@@ -144,6 +144,34 @@ test("tension fans short creases from each pulled corner and tears only past 0.6
       assert.ok(Math.abs(x2 - 50) > 12 || Math.abs(y2 - 50) > 12, `seed ${seed}: crease reaches the middle`)
     }
   }
+  // Short (under a quarter of the diagonal) and never a V: within one corner no two creases share
+  // a start, and they spread apart from where they start to where they end.
+  for (const seed of [1, 2, 3, 5, 7, 9])
+    for (const pull of [["tl"], ["tr"], ["br"], ["bl"]]) {
+      const fan = lines(at({ tension: 1, seed, pull })).map(([x1, y1, x2, y2]) => [x1 * 4, y1 * 6, x2 * 4, y2 * 6])
+      // Short: at most 15% of the sheet's shorter side (#167), two per corner.
+      assert.equal(fan.length, 2, `seed ${seed} ${pull}: two creases`)
+      for (const [x1, y1, x2, y2] of fan) assert.ok(Math.hypot(x2 - x1, y2 - y1) <= 0.15 * 400, `seed ${seed}: crease too long`)
+      for (let i = 0; i < fan.length; i++)
+        for (let j = i + 1; j < fan.length; j++) {
+          const [a, b] = [fan[i], fan[j]]
+          // Closest approach between the two segments, sampled along both.
+          let gap = Infinity
+          for (let s = 0; s <= 40; s++)
+            for (let t = 0; t <= 40; t++) {
+              const p = [a[0] + ((a[2] - a[0]) * s) / 40, a[1] + ((a[3] - a[1]) * s) / 40]
+              const q = [b[0] + ((b[2] - b[0]) * t) / 40, b[1] + ((b[3] - b[1]) * t) / 40]
+              gap = Math.min(gap, Math.hypot(p[0] - q[0], p[1] - q[1]))
+            }
+          assert.ok(gap >= 4, `seed ${seed} ${pull}: creases ${i} and ${j} touch (${gap.toFixed(1)}px)`)
+          // Extended forward they spread apart: their directions diverge from a point behind the corner.
+          const da = [a[2] - a[0], a[3] - a[1]],
+            db = [b[2] - b[0], b[3] - b[1]]
+          const cross = da[0] * db[1] - da[1] * db[0]
+          const back = ((b[0] - a[0]) * db[1] - (b[1] - a[1]) * db[0]) / cross
+          assert.ok(back < 0, `seed ${seed} ${pull}: creases ${i} and ${j} converge ahead`)
+        }
+    }
   // Creases lie under the writing: drawn behind the children, on the sheet's layer.
   const creased = at({ tension: 0.7 })
   assert.ok(creased.indexOf("<line") < creased.indexOf("WRITING"))
@@ -153,11 +181,22 @@ test("tension fans short creases from each pulled corner and tears only past 0.6
   assert.equal(lips(at({ tension: 1, seam: null })), 0)
   assert.match(at({ tension: 1, seam: 150 }), /top:150px/)
   // At 0.7 the starting tear is a real notch: half its full depth and a 10px mouth at the edge.
-  const notch = [...at({ tension: 0.7, seam: 300 }).matchAll(/points="([^"]+)"/g)].map((m) =>
+  const notch = [...at({ tension: 0.7, seam: 300 }).matchAll(/<polyline points="([^"]+)"/g)].map((m) =>
     m[1].split(" ").map((p) => p.split(",").map(Number))
   )
-  assert.ok(notch[0].at(-1)[0] >= 45, `notch depth ${notch[0].at(-1)[0]}`)
+  // A short notch (#167): about a seventh of the sheet at full tension, half of it at 0.7.
+  assert.ok(notch[0].at(-1)[0] >= 25 && notch[0].at(-1)[0] <= 0.14 * 400, `notch depth ${notch[0].at(-1)[0]}`)
   assert.ok(notch[1][0][1] - notch[0][0][1] >= 9.5, "notch mouth")
+  // The notch is a wedge cut into the sheet: widest at the edge, one 2px crack at the tip, with a
+  // shadow band inside the mouth.
+  const full = [...at({ tension: 1, seam: 300 }).matchAll(/<polyline points="([^"]+)"/g)].map((m) =>
+    m[1].split(" ").map((p) => p.split(",").map(Number))
+  )
+  const opening = (i) => full[1][i][1] - full[0][i][1]
+  assert.ok(opening(0) >= 24, `mouth ${opening(0)}`)
+  assert.equal(opening(full[0].length - 1), 0)
+  for (let i = 1; i < full[0].length; i++) assert.ok(opening(i) <= opening(i - 1) + 1.5, `wedge narrows at ${i}`)
+  assert.match(at({ tension: 1 }), /<polygon points="[^"]+" fill="#D5D1C6"/)
   // The tear cuts a real hole: the sheet layer is clipped, the root paints no fill.
   const torn = at({ tension: 1 })
   assert.match(torn, /clip-path:polygon\(/)
@@ -192,6 +231,36 @@ test("frayEdge is deterministic, spans the width, and stays within its reach", (
         assert.ok(Math.abs(p.y - y) <= frayReach(10) + 1e-9)
   assert.equal(frayReach(FRAY), 1.8 * FRAY)
   assert.ok(frayEdge({ width: NaN, y: NaN }).every((p) => Number.isFinite(p.x) && Number.isFinite(p.y)))
+})
+
+test("frayEdge reads as torn paper: uneven spacing, not a regular zig-zag", () => {
+  for (const seed of [1, 4, 9]) {
+    const e = frayEdge({ width: 520, y: 300, seed })
+    const gaps = e.slice(1).map((p, i) => p.x - e[i].x)
+    assert.ok(Math.max(...gaps) - Math.min(...gaps) > 3, "spacing varies")
+    // A pinking-shears edge flips direction at almost every point; torn paper wanders.
+    let flips = 0
+    for (let i = 2; i < e.length; i++) if (Math.sign(e[i].y - e[i - 1].y) !== Math.sign(e[i - 1].y - e[i - 2].y)) flips++
+    assert.ok(flips / (e.length - 2) < 0.8, `seed ${seed}: ${flips} flips`)
+    // Most points stay within one amplitude of the line.
+    assert.ok(e.filter((p) => Math.abs(p.y - 300) <= FRAY).length / e.length > 0.85)
+  }
+})
+
+test("strips part before they drift, and stay inside tearBounds", async () => {
+  const { tearMotion, tearBounds } = await import("../registry/jbm/ui/tear.tsx")
+  assert.deepEqual(tearMotion({ x: 40, y: -60, rotate: 4 }, 0.5), { x: 10, y: -30, rotate: 1 })
+  assert.deepEqual(tearMotion({ x: 40, y: -60, rotate: 4 }, 1), { x: 40, y: -60, rotate: 4 })
+  assert.deepEqual(tearMotion(undefined, 0.3), { x: 0, y: 0, rotate: 0 })
+  const props = { w: 520, h: 760, seams: [200, 380, 560], pieces: [{ to: { x: -30, y: -90, rotate: -4 } }, {}, { to: { x: 20, rotate: 3 } }, { to: { y: 60, rotate: 5 } }] }
+  const b = tearBounds(props)
+  assert.ok(b.x < 0 && b.y < -90 && b.x + b.w > 520 && b.y + b.h > 760 + 60)
+  const flat = tearBounds({ ...props, shadow: false })
+  assert.ok(flat.w < b.w && flat.h < b.h)
+  // A closed seam carries no line: at progress 0.2 with a stagger the lower seams are still shut,
+  // and those strips clip their shadows at the seam.
+  const html = render(Tear, { ...props, progress: 0.05, stagger: 0.3 })
+  assert.match(html, /clip-path:polygon\(/)
 })
 
 test("tear strips tile the sheet exactly: neighbours share one frayed seam", () => {
@@ -282,7 +351,7 @@ test("Paper's starting tear follows the Tear seam with the same seed", () => {
     seam = 380,
     seed = 4
   const torn = render(Paper, { w, h: 760, tension: 1, seam, seed })
-  const [upper, lower] = [...torn.matchAll(/points="([^"]+)"/g)].map((m) =>
+  const [upper, lower] = [...torn.matchAll(/<polyline points="([^"]+)"/g)].map((m) =>
     m[1].split(" ").map((p) => p.split(",").map(Number))
   )
   const edge = frayEdge({ width: w, y: seam, seed })

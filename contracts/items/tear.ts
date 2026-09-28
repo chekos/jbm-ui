@@ -7,19 +7,20 @@ export default {
   description:
     "A sheet torn into strips along seams: controlled progress moves each strip to its own destination, with frayed, seeded edges at every seam.",
   category: "UI Bits",
+  family: "Paper & writing",
   capabilities: ["controls"],
   api: [
     {
       export: "Tear",
       kind: "component",
       summary:
-        "A w × h Paper-style sheet cut at `seams` into strips. At progress 0 the strips tile the sheet exactly and no seam shows; as progress rises each strip translates and turns toward its destination, its frayed seam edges fade in over its first 5% of travel, and the sheet's shadow hands over to per-strip shadows. Writing is laid out once on the whole sheet and clipped to each strip. Pure React, controlled, and deterministic per frame.",
+        "A w × h Paper-style sheet cut at `seams` into strips. At progress 0 the strips tile the sheet exactly and no seam shows; as progress rises each strip parts from its neighbours and then drifts and turns toward its destination (tearMotion), its frayed seam edges fade in over its first 5% of travel, and the sheet's shadow hands over to per-strip shadows. A seam that has not opened yet shows no line and no shadow, even while other strips move. Writing is laid out once on the whole sheet and clipped to each strip. Strips travel past the w × h root: reserve tearBounds. Pure React, controlled, and deterministic per frame.",
       props: {
         w: "Sheet width in stage px.",
         h: "Sheet height in stage px.",
         seams: "Seam y positions in stage px from the top; n usable seams make n + 1 strips. Non-finite values, seams closer than frayReach(fray) + 4 to an edge, and seams closer than twice that to the previous seam are dropped (see tearSeams).",
-        progress: "0 = the whole sheet, 1 = every strip at its destination. Clamped and linear; ease it yourself.",
-        pieces: "Destinations top to bottom: `{ to: { x, y, rotate } }`, an offset in stage px from the strip's place in the whole sheet and a turn in degrees about the strip's centre. A missing entry or field stays put.",
+        progress: "0 = the whole sheet, 1 = every strip at its destination. Clamped and not eased; ease it yourself.",
+        pieces: "Destinations top to bottom: `{ to: { x, y, rotate } }`, an offset in stage px from the strip's place in the whole sheet and a turn in degrees about the strip's centre. A missing entry or field stays put. `y` follows the strip's progress and `x` and `rotate` its square (tearMotion). With a stagger, give every strip but the last a y at or above the one below it (the last may move down), so no strip slides back into its neighbour.",
         stagger: "Delay between strips as a share of progress: strip i starts at i × stagger and all finish at 1. Capped at 0.9 / (strips − 1).",
         seed: "Fray pattern. Paper's starting tear with the same seed, seam y, and w follows the same edge.",
         fray: "Fray amplitude in stage px (default FRAY, 6); edges stay within 1.8 × fray of the seam.",
@@ -49,6 +50,30 @@ export default {
       },
       returns:
         "One `{ index, top, bottom, outline, edges, seamAbove, seamBelow, center }` per strip: SVG path data for the closed outline, the straight edges, and each frayed seam (null at the sheet's top or bottom), plus the rotation centre.",
+    },
+    {
+      export: "tearMotion",
+      kind: "function",
+      summary: "Where a strip is at its own progress: it parts along the seam first and drifts and turns as it travels, so the two torn edges of a seam separate as parallel copies and never cross while close.",
+      params: {
+        to: "The strip's destination `{ x?, y?, rotate? }`.",
+        progress: "The strip's own 0–1 progress (tearPieceProgress); clamped.",
+      },
+      returns: "`{ x, y, rotate }`: to.x × p², to.y × p, to.rotate × p².",
+    },
+    {
+      export: "tearBounds",
+      kind: "function",
+      summary: "The box every strip, and with `shadow` its shadow, stays inside at every progress, in the sheet's px (origin at its top-left, so x and y can be negative). Tear's root is only w × h; reserve this box around it.",
+      params: {
+        w: "Sheet width in stage px, as passed to Tear.",
+        h: "Sheet height in stage px.",
+        seams: "Seam y positions; filtered by tearSeams.",
+        pieces: "The strips' destinations, as passed to Tear.",
+        fray: "Fray amplitude; default FRAY.",
+        shadow: "Includes the shadows' room (default true): 16px at the sides, 8px above, and 34px below.",
+      },
+      returns: "`{ x, y, w, h }` in stage px.",
     },
     {
       export: "tearSeams",
@@ -91,7 +116,7 @@ export default {
   stage: {
     mode: "fluid",
     reason:
-      "The root is exactly w × h stage px, the size of the whole sheet; strips move by their destinations beyond it without changing layout, so leave room for the largest offset plus about 20px of shadow. The gallery uses a 520 × 760 sheet with offsets up to 72px on a 760 × 960 stage.",
+      "The root is exactly w × h stage px, the size of the whole sheet; strips move by their destinations beyond it without changing layout. tearBounds(props) returns the box, relative to the root, that every strip and its shadow stays inside at any progress; give the stage at least that. The gallery sizes its stage as the union of tearBounds over every seam count it offers (a 520 × 760 sheet on a stage about 640 × 1000), so no strip or shadow is ever clipped.",
   },
   examples: [
     {
@@ -106,8 +131,9 @@ export default {
   qa: [
     "At Tear 0 the sheet must look whole: no seam line, hairline, or shadow between strips. Compare it with a plain Paper of the same size and radius.",
     "Drag Tear through 0.02, 0.05, 0.5, and 1: seam edges fade in as the strips part, each strip keeps its frayed edges, and later strips overlap earlier ones.",
-    "At 2× zoom check where a frayed seam meets a straight side: the lines join on one centreline with the same 2px width.",
-    "Step Seams from 1 to 6 and Fray seed from 1 to 9: frayed edges never cross each other or the sheet's edge, and the pattern changes only with the seed.",
+    "At 8× zoom check where a frayed seam meets a straight side: the lines join on one centreline with the same 2px width, and each seam side is one clean frayed edge of irregular grain, not a regular zig-zag or two offset rows of teeth.",
+    "Drag Tear through 0.03 and 0.1 with Stagger 0.1 and 0.3: the parting strips' torn edges run as parallel copies and never cross, and the seams that have not opened yet show no line or shadow; the sheet's straight sides stay unbroken there.",
+    "Step Seams from 1 to 4 and Fray seed from 1 to 9: seams run only through clear rows of the page (a fray reach from every bar, header, numeral, and chevron, 8px from every box edge and table rule), so no torn edge cuts a table header or a bar into a black zig-zag or grazes a rule, frayed edges never cross each other or the sheet's edge, the pattern changes only with the seed, and every strip and shadow stays inside the stage.",
     "Set Stagger to 0 and 0.3: every strip still reaches its destination at progress 1.",
   ],
   docs: [

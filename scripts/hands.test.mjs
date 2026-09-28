@@ -79,7 +79,7 @@ test("hand pose list: six poses, each with artwork and a label", () => {
   for (const pose of handPoses) {
     const markup = renderToStaticMarkup(h(Hand, { pose }))
     assert.ok(markup.includes(`aria-label="Hand: ${pose}"`), pose)
-    assert.ok(pathsOf(markup).length >= 4, pose)
+    assert.ok(pathsOf(markup).length >= (["grip", "type", "hold"].includes(pose) ? 1 : 4), pose)
   }
 })
 
@@ -95,6 +95,81 @@ test("every pose: dividers start on outline vertices with the outline's stroke w
         `${pose}: divider ${div.d} starts off the outline`
       )
       assert.equal(div.w, outline.w, `${pose}: divider width`)
+    }
+  }
+})
+
+/** Segments of an absolute path (M L C A Z) with start/end tangents; arcs assume rx = ry. */
+function segments(d) {
+  const toks = d.match(/[a-zA-Z]|-?(?:\d+\.?\d*|\.\d+)/g)
+  const out = []
+  let i = 0, cmd, x = 0, y = 0, sx = 0, sy = 0
+  const n = () => parseFloat(toks[i++])
+  while (i < toks.length) {
+    if (/[a-zA-Z]/.test(toks[i])) cmd = toks[i++]
+    if (cmd === "Z") {
+      if (x !== sx || y !== sy) out.push({ a: [x, y], b: [sx, sy], t0: [sx - x, sy - y], t1: [sx - x, sy - y] })
+      x = sx; y = sy
+      continue
+    }
+    if (cmd === "M") { x = sx = n(); y = sy = n(); continue }
+    if (cmd === "L") {
+      const [bx, by] = [n(), n()]
+      out.push({ a: [x, y], b: [bx, by], t0: [bx - x, by - y], t1: [bx - x, by - y] })
+      x = bx; y = by
+    } else if (cmd === "C") {
+      const c = [n(), n(), n(), n(), n(), n()]
+      out.push({ a: [x, y], b: [c[4], c[5]], t0: [c[0] - x, c[1] - y], t1: [c[4] - c[2], c[5] - c[3]] })
+      x = c[4]; y = c[5]
+    } else if (cmd === "A") {
+      const [r0, , , fa, fs, bx, by] = [n(), n(), n(), n(), n(), n(), n()]
+      const dx = (x - bx) / 2, dy = (y - by) / 2, d2 = dx * dx + dy * dy
+      const r = Math.max(r0, Math.sqrt(d2))
+      const k = (fa === fs ? -1 : 1) * Math.sqrt(Math.max(0, (r * r - d2) / d2))
+      const cx = k * dy + (x + bx) / 2, cy = -k * dx + (y + by) / 2
+      const tan = (px, py) => (fs ? [-(py - cy), px - cx] : [py - cy, -(px - cx)])
+      out.push({ a: [x, y], b: [bx, by], t0: tan(x, y), t1: tan(bx, by) })
+      x = bx; y = by
+    } else throw new Error(`command ${cmd}`)
+  }
+  return out
+}
+const turn = (u, v) => {
+  let t = (Math.atan2(v[1], v[0]) - Math.atan2(u[1], u[0])) * (180 / Math.PI)
+  while (t > 180) t -= 360
+  while (t < -180) t += 360
+  return t
+}
+
+test("grip, type, hold: one ink path; interior lines are retraced spurs; every join is tangent", () => {
+  // Corners the approved silhouettes keep: the wrist cut, type's thumb web, hold's thumb V and the
+  // palm edge under its little finger.
+  const corners = {
+    grip: ["36.8,64.8", "54.1,60.1"],
+    type: ["36.8,64.8", "54.1,60.1", "28.372,43.7"],
+    hold: ["36.8,64.8", "54.1,60.1", "54.33,35.07", "31.173,43.875"],
+  }
+  for (const pose of ["grip", "type", "hold"]) {
+    const paths = pathsOf(renderToStaticMarkup(h(Hand, { pose })))
+    assert.equal(paths.length, 1, `${pose}: the outline carries every interior line`)
+    const [ink] = paths
+    assert.notEqual(ink.fill, "none")
+    assert.match(ink.d, /Z$/, `${pose}: the outline is closed`)
+    const segs = segments(ink.d)
+    // A segment walked both ways is an interior spur (no fill); the rest is the outline.
+    const k = (s) => `${s.a}|${s.b}`
+    const count = new Map()
+    for (const s of segs) count.set(k(s), (count.get(k(s)) ?? 0) + 1)
+    const spur = (s) => count.has(`${s.b}|${s.a}`)
+    for (const s of segs.filter(spur))
+      assert.equal(count.get(k(s)), count.get(`${s.b}|${s.a}`), `${pose}: spur ${k(s)} is retraced`)
+    assert.ok(segs.filter(spur).length >= 6, `${pose}: interior lines are spurs`)
+    for (let i = 0; i < segs.length; i++) {
+      const s = segs[i], nx = segs[(i + 1) % segs.length]
+      const t = Math.abs(turn(s.t1, nx.t0))
+      const at = `${s.b[0]},${s.b[1]}`
+      if (corners[pose].includes(at)) continue
+      assert.ok(t < 0.5 || t > 179.5, `${pose}: join at ${at} turns ${t.toFixed(1)}°`)
     }
   }
 })
@@ -131,6 +206,11 @@ test("pluma: plumaNib is the drawn nib tip at every angle, size, and offset", ()
         assert.ok(close(drawn.x, nib.x, 0.05) && close(drawn.y, nib.y, 0.05), `${size} ${angle}`)
         assert.ok(markup.includes("Hand: pinch"))
       }
+  // The pen is one silhouette masked by the hand's outline; nothing card-coloured is painted on the page.
+  const held = renderToStaticMarkup(h("svg", null, h(Pluma, { at: { x: 100, y: 100 } })))
+  assert.match(held, /<mask id="pluma-[\w-]+"/)
+  assert.ok(!held.includes(`stroke="${color.card}"`), "no card halo")
+  assert.equal((held.match(/<path d="M[^"]*" fill="#20241F"/g) ?? []).length, 1, "one pen silhouette")
   const alone = renderToStaticMarkup(h("svg", null, h(Pluma, { at: { x: 0, y: 0 }, hand: false })))
   assert.ok(!alone.includes("Hand:"))
   assert.ok(!alone.includes(color.accent))

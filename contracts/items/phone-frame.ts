@@ -6,6 +6,7 @@ export default {
   title: "PhoneFrame",
   description: "Phone silhouette with a thick ink edge and speaker slot that stacks your content at the bottom of its screen.",
   category: "UI Bits",
+  family: "Interface bits",
   capabilities: [],
   api: [
     {

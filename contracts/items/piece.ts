@@ -6,6 +6,7 @@ export default {
   title: "Piece",
   description: "Picks the button, input, or card illustration by kind and sizes it from one width.",
   category: "UI Bits",
+  family: "Interface bits",
   capabilities: [],
   api: [
     {

@@ -6,10 +6,10 @@ const drawerProps = {
   w: "Drawer width in parent SVG units. The front folder is w − 52 wide and its height (and the front's) scales with it at 150:205; folders further back are narrower. Above the 420 reference the furniture grows with it: walls, margins, front travel, the front folder's rise, lift clearance, and the handle all scale by w / 420 (narrower drawers keep the reference sizes).",
   h: "Nominal drawer depth, returned by cajonLayout for composites; the drawing does not use it (front height follows w).",
   folders:
-    "Folders front to back (index 0 nearest the front, drawn last). Each is a DrawerFolder: name (drawn whole on its tab in Geist 800), accent, pulled, k, open, reveal, sublabel (Geist italic), sublabelReveal.",
+    "Folders front to back (index 0 nearest the front, drawn last). Each is a DrawerFolder: name (drawn whole on its tab in Geist 800), accent, pulled, k, open, reveal, sublabel (Geist italic), sublabelReveal. A name wider than its folder's widest tab squeezes at most to 0.94, then ends in an ellipsis; glyphs are never visibly condensed.",
   open: "Drawer opening from 0 (closed) to 1 (front slid forward 104 units, folders raised 62 and fanned by depthSpacing; both × w / 420 above 420). Clamped; pulled and ajar folders only rise while open.",
   depthSpacing:
-    "Rise from one folder to the next one back, in parent SVG units. Default: tab height + band + a lip of flap, so every tab and a band of back panel stay visible for up to eight folders; more folders share the rise of eight. At labelSize 13 that is 46 (55 with sublabels). A smaller value packs folders and may hide names.",
+    "Rise from one folder to the next one back, in parent SVG units. Default: tab height + band + a lip of flap, so every tab and a band of back panel stay visible for up to six folders; more folders share the rise of six (five steps), so a crowded drawer packs tighter instead of growing: at 12 folders the stack is as tall as at six, names stay whole, and a sublabel whose band the folder in front covers is not printed. At labelSize 13 that is 46 (55 with sublabels). A smaller value packs folders and may hide names. A larger value is capped: the stack never rises more than the drawer front's height, and above six folders a given value packs like the default.",
   tabLayout:
     "\"stair\" (default) puts every tab at its folder's left edge, so tabs climb as back folders narrow; \"stagger3\" cycles tabs left, center, right.",
   labelSize:
@@ -23,13 +23,14 @@ export default {
   description:
     "A fixed-size filing drawer whose complete folders fan front to back, darker with depth.",
   category: "UI Bits",
+  family: "Folders & drawers",
   capabilities: ["controls"],
   api: [
     {
       export: "Cajon",
       kind: "component",
       summary:
-        "SVG <g> of a filing drawer: dark interior, complete FolderOutline folders stepping up and narrowing toward the back, side walls, and a card front with a handle. Each folder's light (k) darkens with depth, its name inks in with reveal, and its front flap can stand ajar. Folders are occluded by the front and by each other, never shortened. Controlled by open and per-folder values; no internal timer. Render inside an <svg>.",
+        "SVG <g> of a filing drawer: an interior of flat drawer shades (back wall, floor, and lighter side walls, so an empty drawer reads as an empty box), complete FolderOutline folders stepping up and narrowing toward the back, side walls, and a card front with a handle. Each folder's light (k) darkens with depth, its name inks in with reveal, and its front flap can stand ajar. Folders are occluded by the front and by each other, never shortened. Controlled by open and per-folder values; no internal timer. Render inside an <svg>.",
       props: drawerProps,
     },
     {
@@ -39,7 +40,7 @@ export default {
         "The geometry Cajon draws, for composites that attach threads, hands, or labels to folders.",
       params: drawerProps,
       returns:
-        "{ x, y, w, h, front, frontTop, frontHeight, scale, depthSpacing, labelSize, band, folders, anchors }. frontTop is the drawer front's top edge; scale is max(1, w / 420). Each folder has x, y (top of tab), w, h, tabX, tabWidth, tabHeight, tabSlope, anchor (tab grip point), label { x, y baseline, mid, end, scale }, sublabel { x, y, scale }, flap (front flap's top edge), opening { drop, lean } (the ajar flap), visible (0–1, how much of the tab shows above the drawer front; 0 inside a closed drawer), and light (effective k). anchors(i, n) returns n points on folder i's tab midline, from just before the name (clear of its first letter, where a knot sits) to the tab's straight edge; once a tab is below the drawer front's top edge the points stop at that rim, so threads never reach through the front. [] for an unknown folder or n < 1.",
+        "{ x, y, w, h, front, frontTop, frontHeight, scale, depthSpacing, labelSize, band, folders, anchors }. frontTop is the drawer front's top edge; scale is max(1, w / 420). Each folder has x, y (top of tab), w, h, tabX, tabWidth, tabHeight, tabSlope, anchor (tab grip point), label { x, y baseline, mid, end, text, scale } (text is the name as drawn, whole or ending in an ellipsis; scale is 1, or down to 0.94 when a barely-long name fits), sublabel { x, y, scale, width, visible } (visible is false whenever anything in front, a nearer folder's tab or top edge or the drawer front, covers any part of the line: a half-open drawer or a crowded one never prints a fragment), rule (false when an edge in front runs within 8 units under the front flap's top rule, where the two would read as one heavy bar), flap (front flap's top edge), opening { drop, lean } (the ajar flap; lean is 0: the flap's top edge drops straight and is never wider than its folder), visible (0–1, how much of the tab shows above the drawer front; 0 inside a closed drawer), and light (effective k). anchors(i, n) returns n points on folder i's tab midline, from just before the name (clear of its first letter, where a knot sits) to the tab's straight edge; once a tab is below the drawer front's top edge the points stop at that rim, so threads never reach through the front. [] for an unknown folder or n < 1.",
     },
     {
       export: "drawerLight",
@@ -55,10 +56,16 @@ export default {
       summary: "0.72: the light of the backmost folder when k is not given (the front folder is 1).",
     },
     {
+      export: "drawerInside",
+      kind: "constant",
+      summary:
+        "The open drawer's inside planes as hex fills { back, floor, left, right }, mixed in OKLab from Pencil Rule (the right wall, facing the light) toward Graphite (the back wall, half way), so an empty drawer reads as a box of the palette's rule tones. The side panels outside the walls are card.",
+    },
+    {
       export: "DrawerFolder",
       kind: "type",
       summary:
-        "{ name, accent?, pulled?, k?, open?, reveal?, sublabel?, sublabelReveal? }: one folder. pulled 0–1 lifts it out and brings k to 1; k defaults to a ramp from 1 (front) to 0.72 (back); open 0–1 stands the front flap ajar: its top edge drops a fifth of the folder height and leans out, and the folder rises (by that drop plus a lip, at most as far as keeps the tab of the folder behind it in view) so at least half the shaded opening shows above whatever is in front of it (vermilion folders shade toward ink, never a new colour); reveal 0–1 inks the name in grapheme by grapheme (sublabelReveal defaults to it).",
+        "{ name, accent?, pulled?, k?, open?, reveal?, sublabel?, sublabelReveal? }: one folder. pulled 0–1 lifts it out and brings k to 1; k defaults to a ramp from 1 (front) to 0.72 (back); open 0–1 stands the front flap ajar: its top edge drops a fifth of the folder height, straight down and never wider than the folder, and the folder rises (by that drop plus a lip, at most as far as keeps the tab of the folder behind it in view) so at least half the shaded opening shows above whatever is in front of it (vermilion folders shade toward ink, never a new colour); reveal 0–1 inks the name in grapheme by grapheme (sublabelReveal defaults to it).",
     },
     {
       export: "CajonProps",
@@ -71,7 +78,7 @@ export default {
     landscape: { width: 420, height: 382 },
     vertical: { width: 420, height: 382 },
     basis:
-      "Parent SVG user units at the defaults w 420, open 1, and one folder: from the back edge at y + 10 to the front's bottom at y + 391 (front at y + 82, plus 32, plus a 277 front height from w). Each further folder rises depthSpacing (46 at labelSize 13, 55 with sublabels) above the one in front, from the front folder's top at y + 52: eight folders reach y − 270 (y − 333 with sublabels). open 0 ends at y + 287. A lifted folder rises its height + 24 (up to ≈ 293) above its resting place, so leave headroom (the gallery uses viewBox 0 −400 500 840).",
+      "Parent SVG user units at the defaults w 420, open 1, and one folder: from the back edge at y + 10 to the front's bottom at y + 391 (front at y + 82, plus 32, plus a 277 front height from w). Each further folder rises depthSpacing (46 at labelSize 13, 55 with sublabels) above the one in front, from the front folder's top at y + 52: six or more folders reach y − 178 (y − 222 with sublabels). open 0 ends at y + 287. A lifted folder rises until its bottom is 14 units behind the drawer front's top edge (never floating clear of the drawer), so leave headroom (the gallery uses viewBox 0 −400 500 840).",
   },
   examples: [
     {
@@ -89,11 +96,11 @@ export default {
   ],
   qa: [
     "Drag Open through 0, 0.5, and 1: the front slides forward, folders rise and fan, and no folder shows below the front edge.",
-    "Try 1, 3, 6, and 8 folders with and without sublabels: every tab and the band under it stay visible, back folders are narrower and darker, never larger. At 12 folders the stair keeps the height of eight and labels may overlap.",
+    "Try 0, 1, 3, and 6 folders with and without sublabels: every tab and the band under it stay visible, back folders are narrower and darker, never larger; with none, the inside reads as an empty box (back wall, floor, lighter side walls), not a dark block. At 8 and 12 folders the stair keeps the height of six: folders pack tighter, names stay whole, and sublabels the next folder would strike are not printed.",
     "Sweep Name reveal 0 → 1: tabs start blank and names ink in from the left, one grapheme at a time; the tab never changes width.",
     "Lift a back folder: it rises behind the folders in front and brightens to k 1; its complete outline appears as it clears them.",
-    "Pick any folder in Target and set Flap ajar: the folder rises until its shaded opening shows above the folder (or drawer front) in front of it while the tab of the folder behind stays in view, the flap's top edge drops and its corners lean just past the body, and the bottom corners stay fixed. On a vermilion folder the opening is a darker vermilion.",
-    "Tab names are bold sans (Geist 800), sublabels italic sans. Long names (\"Training Within Industry 1940s\") draw whole: the tab widens to the folder, then the name compresses; there is no ellipsis.",
+    "Pick any folder in Target and set Flap ajar: the folder rises until its shaded opening shows above the folder (or drawer front) in front of it while the tab of the folder behind stays in view, the flap's top edge drops straight down, never wider than the folder (lifted or not), and the bottom corners stay fixed. On a vermilion folder the opening is a darker vermilion.",
+    "Tab names are bold sans (Geist 800), sublabels italic sans. Long names (\"Training Within Industry 1940s\" at Name size 36) widen the tab to the folder, then end in an ellipsis; no name is visibly condensed.",
     "Set Name size to 24 with six folders: back folders narrow exactly as at 13; at w 900 the handle, walls, and travel grow with the drawer.",
     "Switch Tab layout to stagger3: tabs cycle left, center, right and sublabels stay inside the folder.",
     "The Mano anchor in the hand example is an estimate of the pinch fingertip; verify it visually for your pose.",

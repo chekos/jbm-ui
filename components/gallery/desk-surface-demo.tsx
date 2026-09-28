@@ -1,7 +1,8 @@
 "use client"
 
+import { useBenchCompact } from "./bench-compact"
 import { useBenchParam } from "./bench-url"
-import { DeskTop, type DeskTopDrawerSide } from "@/registry/jbm/ui/desk-top"
+import { DESK_EDGE, DeskTop, type DeskTopDrawerSide } from "@/registry/jbm/ui/desk-top"
 import { Ejes, type EjesFocusTone, type Quadrant } from "@/registry/jbm/ui/ejes"
 import { DeskProp, deskPropLayout, type DeskPropKind } from "@/registry/jbm/ui/desk-prop"
 import {
@@ -10,7 +11,6 @@ import {
   RangeControl,
   type Presets,
 } from "./progress-control"
-
 
 const labels = {
   top: "hacer",
@@ -25,7 +25,28 @@ type PropOption = (typeof propKinds)[number]
 const drawerOptions = ["none", "start", "end", "top", "bottom"] as const
 type DrawerOption = (typeof drawerOptions)[number]
 
+/** The preview's widest rendering, in CSS px: at that width the ink line is exactly 2 px. */
+const PREVIEW_WIDTH = 640
+/**
+ * DeskTop bench: the desk's own top is one fixed box whatever the drawer option; a drawer is
+ * added past its edge, into padding the stage reserves on every side, so the furniture never
+ * shrinks to make room for it.
+ */
+const DESK = { x: 170, y: 116, w: 480, h: 300 }
+const DRAWER_DEPTH = { side: 150, end: 112 }
+function deskBox(drawer: DrawerOption, band: number) {
+  const { x, y, w, h } = DESK
+  const hh = h + band
+  if (drawer === "start") return { x: x - DRAWER_DEPTH.side, y, w: w + DRAWER_DEPTH.side, h: hh }
+  if (drawer === "end") return { x, y, w: w + DRAWER_DEPTH.side, h: hh }
+  if (drawer === "top") return { x, y: y - DRAWER_DEPTH.end, w, h: hh + DRAWER_DEPTH.end }
+  if (drawer === "bottom") return { x, y, w, h: hh + DRAWER_DEPTH.end }
+  return { x, y, w, h: hh }
+}
+
 export function DeskSurfaceDemo({ name }: { name: string }) {
+  // Index cards keep three controls at most; /c pages show every one.
+  const compact = useBenchCompact()
   // On /c/<name> benches each value lives in the URL; see bench-url.tsx.
   const unit = { clamp: [0, 1] } as const
   // The documented light range: 1 (front) down to 0.72, the deepest folder in the visual language.
@@ -35,6 +56,7 @@ export function DeskSurfaceDemo({ name }: { name: string }) {
   const [drawer, setDrawer] = useBenchParam<DrawerOption>("drawer", "end", {
     allowed: drawerOptions,
   })
+  const [props, setProps] = useBenchParam("props", true)
   const [h, setH] = useBenchParam("h", 1, unit)
   const [v, setV] = useBenchParam("v", 1, unit)
   const [quiet, setQuiet] = useBenchParam("quiet", 0, unit)
@@ -115,6 +137,9 @@ export function DeskSurfaceDemo({ name }: { name: string }) {
       y0 = Math.min(...ys) - m
     return `${Math.round(x0)} ${Math.round(y0)} ${Math.round(Math.max(...xs) + m - x0)} ${Math.round(Math.max(...ys) + m - y0)}`
   })()
+  // Every prop view draws the same on-screen line: 2 px at the preview's full width, whatever
+  // the kind, its Scale, or the viewBox that holds it.
+  const propWeight = (2 * Number(propBox.split(" ")[2])) / PREVIEW_WIDTH
 
   return (
     <div style={{ width: "100%" }}>
@@ -133,19 +158,35 @@ export function DeskSurfaceDemo({ name }: { name: string }) {
               ? propBox
               : name === "ejes"
                 ? "0 0 800 500"
-                : "0 0 820 520"
+                : "0 0 820 560"
           }
-          style={{ width: "100%", maxWidth: 640, height: "auto" }}
+          style={{ width: "100%", maxWidth: PREVIEW_WIDTH, height: "auto" }}
         >
           {name === "desk-top" && (
-            <DeskTop
-              box={{ x: 30, y: 30, w: 760, h: 460 }}
-              light={light}
-              edge={edge}
-              drawer={
-                drawer === "none" ? undefined : (drawer as DeskTopDrawerSide)
-              }
-            />
+            <>
+              <DeskTop
+                box={deskBox(drawer, DESK_EDGE * edge)}
+                light={light}
+                edge={edge}
+                drawer={
+                  drawer === "none" ? undefined : (drawer as DeskTopDrawerSide)
+                }
+                drawerSize={
+                  drawer === "start" || drawer === "end"
+                    ? DRAWER_DEPTH.side
+                    : drawer === "none"
+                      ? undefined
+                      : DRAWER_DEPTH.end
+                }
+              />
+              {/* A keyboard and a mug on the top, so the surface reads as a desk at a glance. */}
+              {props && (
+                <>
+                  <DeskProp kind="keyboard" x={DESK.x + 170} y={DESK.y + 175} scale={0.9} weight={2} />
+                  <DeskProp kind="mug" x={DESK.x + 370} y={DESK.y + 110} scale={0.9} weight={2} />
+                </>
+              )}
+            </>
           )}
           {name === "ejes" && (
             <Ejes
@@ -171,6 +212,7 @@ export function DeskSurfaceDemo({ name }: { name: string }) {
                 rotate={rotate}
                 press={press}
                 keys={[13]}
+                weight={propWeight}
               />
             ))}
         </svg>
@@ -190,26 +232,42 @@ export function DeskSurfaceDemo({ name }: { name: string }) {
               min={0.72}
               max={1}
               step={0.01}
-              format={(n) => `k ${n.toFixed(2)}`}
+              format={(n) => `${Math.round(n * 100)}%`}
             />
             {select("Drawer", drawer, setDrawer, drawerOptions)}
+            {!compact && (
+              <label>
+                <input
+                  type="checkbox"
+                  aria-label={`${name} Props on top`}
+                  checked={props}
+                  onChange={(e) => setProps(e.target.checked)}
+                />{" "}
+                Props on top
+              </label>
+            )}
           </>
         )}
         {name === "ejes" && (
           <>
             {range("Horizontal", h, setH, ["Hidden", "Half", "Drawn"])}
             {range("Vertical", v, setV, ["Hidden", "Half", "Drawn"])}
-            {range("Quiet", quiet, setQuiet, ["Full", "Half", "Quiet"])}
-            {select("Grow from", origin, setOrigin, ["center", "start"] as const, (o) =>
-              o === "center" ? "Crossing" : "Edges"
-            )}
+            {!compact && range("Quiet", quiet, setQuiet, ["Full", "Half", "Quiet"])}
+            {!compact &&
+              select("Grow from", origin, setOrigin, ["center", "start"] as const, (o) =>
+                o === "center" ? "Crossing" : "Edges"
+              )}
             {select("Focus", focus, setFocus, focusOptions, (o) =>
               o === "none" ? "None" : o === "all" ? "All four" : o.toUpperCase()
             )}
-            {focus !== "none" && (
+            {!compact && focus !== "none" && (
               <>
                 {select("Tone", tone, setTone, ["ink", "fill", "accent"] as const, (o) =>
-                  o === "ink" ? "Ink outline" : o === "fill" ? "Light fill" : "Accent outline"
+                  o === "ink"
+                    ? "Ink outline"
+                    : o === "fill"
+                      ? "Light fill"
+                      : "Accent on the first"
                 )}
                 {range("Outline", focusProgress, setFocusProgress, [
                   "None",
@@ -237,16 +295,18 @@ export function DeskSurfaceDemo({ name }: { name: string }) {
               format={(n) => `${n.toFixed(2)}×`}
             />
             )}
-            <RangeControl
-              label="Rotation"
-              ariaLabel={`${name} Rotation`}
-              value={rotate}
-              onChange={setRotate}
-              min={-30}
-              max={30}
-              step={1}
-              format={degrees}
-            />
+            {!compact && (
+              <RangeControl
+                label="Rotation"
+                ariaLabel={`${name} Rotation`}
+                value={rotate}
+                onChange={setRotate}
+                min={-30}
+                max={30}
+                step={1}
+                format={degrees}
+              />
+            )}
             {kind !== "mug" &&
               range("Press", press, setPress, ["Up", "Half", "Down"])}
           </>

@@ -335,22 +335,38 @@ pre:focus-visible {
   color: var(--jbm-dim);
   margin: 0;
 }
+/* Cards in a row share their preview and text heights: each card spans two rows of the grid
+   (preview, then text) as a subgrid, so the tallest preview in a row sets that row and every
+   title and Install line starts at the same height. Rows are spaced by
+   the cards' bottom margin (a subgrid would otherwise put the gap between its own two rows). */
 .gallery-grid {
+  --card-gap: 28px;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 28px;
-  align-items: start;
+  column-gap: var(--card-gap);
+  row-gap: 0;
 }
 @media (min-width: 1200px) {
   .gallery-grid {
+    --card-gap: 24px;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 24px;
   }
 }
 .component-card {
+  display: grid;
+  grid-row: span 2;
+  grid-template-rows: subgrid;
+  margin-bottom: var(--card-gap);
   border: 1px solid var(--jbm-line);
   border-radius: 10px;
   overflow: hidden;
+  background: var(--jbm-bg);
+}
+/* The preview fills its row; the demo sits at the top of it, so art lines up across the row and
+   the spare height gathers under the shorter demos' controls. */
+.component-card > :first-child {
+  align-self: stretch;
+  align-items: flex-start;
 }
 /* Title and capability tags share a baseline row; tags appear only when informative. */
 .card-heading {
@@ -361,7 +377,7 @@ pre:focus-visible {
   gap: 4px 16px;
   margin-bottom: 8px;
 }
-.card-content .card-heading h3 {
+.card-content .card-heading :is(h3, h4) {
   margin: 0;
 }
 .card-content .card-tags {
@@ -407,16 +423,16 @@ pre:focus-visible {
   background: var(--jbm-card);
   border-top: 1px solid var(--jbm-line);
 }
-.card-content h3 {
+.card-content :is(h3, h4) {
   font-size: 22px;
   font-weight: 600;
   letter-spacing: -0.6px;
   margin: 0 0 8px;
 }
-.card-content h3 a {
+.card-content :is(h3, h4) a {
   text-decoration: none;
 }
-.card-content h3 a:hover {
+.card-content :is(h3, h4) a:hover {
   text-decoration: underline;
 }
 .card-content p {
@@ -720,15 +736,66 @@ footer {
 }
 
 .gallery-section { margin-block: 48px 72px; }
+/* Family sub-headings inside a large category (UI Bits): small, quiet, with a mono count, so
+   they group cards without competing with the section title or the 22px card titles. */
+.gallery-family + .gallery-family { margin-top: 24px; }
+.family-heading { display: flex; align-items: baseline; gap: 10px; margin: 0 0 14px; padding-top: 14px; border-top: 1px solid var(--jbm-line); font-size: 15px; font-weight: 600; letter-spacing: -0.01em; line-height: 1.3; }
+.family-heading > span:last-child { font-family: var(--font-mono); font-size: 12px; font-weight: 400; color: var(--jbm-dim); }
 /* Section titles outrank the 22px/600 card titles. */
 .section-heading { display: flex; align-items: baseline; gap: 12px; margin: 0 0 24px; font-size: clamp(28px, 2.8vw, 36px); font-weight: 650; line-height: 1.1; letter-spacing: -0.035em; }
 .section-heading > span:last-child { font-family: var(--font-mono); font-size: 12px; color: var(--jbm-dim); font-weight: 400; letter-spacing: 0; }
-.section-description { max-width: 65ch; color: var(--jbm-dim); margin: -8px 0 24px; text-wrap: pretty; }
+.section-description { max-width: 50ch; color: var(--jbm-dim); margin: -8px 0 24px; text-wrap: pretty; }
 
 .composition-options { display: flex; flex-wrap: wrap; gap: 10px; padding: 12px; font-size: 12px; }
 .composition-options label { display: flex; align-items: center; gap: 6px; }
-.composition-options select { max-width: 100%; border: 1px solid var(--jbm-line); border-radius: 4px; padding: 4px; color: inherit; background: transparent; }
+/* One select and one checkbox for every gallery control (index cards, /c/<name> benches, and the
+   motion bench's scene options): a 28px select that matches the preset buttons, and a checkbox
+   whose label is a 24px-tall hit area (WCAG 2.2 target size). Demos only lay controls out. */
+:is(.results, .bench) select {
+  max-width: 100%;
+  min-height: 28px;
+  border: 1px solid var(--jbm-line);
+  border-radius: 6px;
+  padding: 3px 8px;
+  color: inherit;
+  background: transparent;
+  font: inherit;
+  font-size: 12px;
+  line-height: 1.4;
+}
+:is(.results, .bench) select:hover {
+  border-color: var(--jbm-ink);
+}
+:is(.results, .bench) label:has(> input[type="checkbox"]) {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 24px;
+  padding-block: 2px;
+  cursor: pointer;
+}
+:is(.results, .bench) input[type="checkbox"] {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  margin: 0;
+}
 .preview:has(.composition-options) { aspect-ratio: auto; }
+/* Index cards cap an illustration's art at 360px tall and scale it to fit, so a portrait page or
+   a tall cabinet never stretches its whole row of cards past the viewport. */
+.results .preview svg:not([data-stage] svg) { max-height: 360px; }
+.results .preview [data-stage] { --stage-frame-w: min(100%, calc(360px * var(--stage-ratio-n))); }
+/* Hilo's thread-to-drawer scene: a landscape stage, or a portrait one on phones. */
+.thread-scene-tall { display: none; }
+@media (max-width: 760px) {
+  .thread-scene-wide { display: none; }
+  .thread-scene-tall { display: block; }
+}
+/* A bench's secondary controls fold under "More options" so the stage and main controls fit. */
+.composition-options > details.bench-more { flex: 1 1 100%; border-top: 1px solid var(--jbm-line); padding-top: 6px; font-size: 12px; }
+.bench-more > div { display: flex; flex-wrap: wrap; gap: 10px; padding-top: 10px; }
+.bench-more .progress-control { flex: 1 1 100%; }
 
 /* Illustration sliders (ProgressControl / RangeControl): label and mono readout on one line,
    then the slider with its named presets beside it. Ink chrome, never vermilion (One Stamp). */
@@ -768,8 +835,9 @@ footer {
   margin: 0;
 }
 /* One preset column width for every item (the widest set, "Start · Midway · Arrived", fits), so
-   slider tracks end at the same x on every bench; each button takes an equal share. On a bench,
-   a slider without presets keeps the same column empty, so its track ends there too. */
+   slider tracks end at the same x on every bench; each button takes an equal share. On a bench, a
+   slider without presets keeps the same column empty, so its track ends there too; on an index
+   card only when another slider in the card has presets. */
 .progress-control {
   --preset-w: 184px;
 }
@@ -782,7 +850,9 @@ footer {
   flex: 1 1 0;
   white-space: nowrap;
 }
-.bench-preview .progress-control-row:not(:has(.progress-presets))::after {
+.bench-preview .progress-control-row:not(:has(.progress-presets))::after,
+.results .preview:has(.progress-presets:not(.progress-stepper))
+  .progress-control-row:not(:has(.progress-presets))::after {
   content: "";
   flex: none;
   width: var(--preset-w);
@@ -892,7 +962,7 @@ details.install-once {
   font-size: 14px;
   line-height: 1.6;
   margin: 0 0 8px;
-  max-width: 62ch;
+  max-width: 50ch;
 }
 /* Code blocks: copyable snippets that soft-wrap instead of scrolling sideways. The Copy button
    floats in the top-right corner so the first lines flow around it and later lines use the
@@ -1145,12 +1215,14 @@ details > p {
   margin: 0;
   line-height: 1.5;
 }
-/* At 761px and wider every description holds two lines (80ch fits the longest), so the bench,
-   and the strip under its toolbar, starts at the same height on every item page. */
+/* At 761px and wider every description reserves three lines at a readable measure (50ch, about
+   70 characters a line, holds the longest), so the bench, and the strip under its toolbar,
+   starts at the same height on every item page. */
 @media (min-width: 761px) {
   .item-qa .item-description {
-    max-width: 80ch;
-    min-height: 3em;
+    max-width: 50ch;
+    min-height: 4.5em;
+    font-size: 16px;
   }
 }
 .item-bench {
@@ -1192,14 +1264,134 @@ details > p {
 .bench[data-layout="controls"] {
   --bench-above: calc(var(--bench-gap) + 36px);
 }
+/* Controlled-illustration fit (761px and wider), for demos that render a stage and then controls
+   (a form control after the first box).
+   The demo root is the preview's box, or its only child when the bench wraps the demo in padding.
+   The stage is the root's first box (after a leading switch that has not moved to the toolbar
+   slot); everything after it is controls. The preview takes exactly the height left under the
+   intro and toolbar (--bench-h), so a pager walk compares like with like, and the stage takes
+   what the controls leave, never under 240px. An SVG stage letterboxes at its own aspect ratio;
+   a StageFit frame narrows to the height (--stage-frame-w); other art stays centred. When the
+   controls need more, the preview grows to hold them (min-height: min-content) instead of
+   clipping. From 1024px the controls move to a rail beside the stage, so the whole stage and its
+   controls share the first viewport. These rules only apply inside a /c/<name> bench (index cards
+   and phones keep each demo's own inline layout), which is why they override inline styles; one
+   inset replaces each demo's own paddings so stages and rails line up from item to item. */
+@media (min-width: 761px) {
+  .bench[data-layout="controls"]
+    .bench-preview
+    > .preview:has(
+      > div > :not(:first-child) :is(input, select, button),
+      > div > :only-child > :not(:first-child) :is(input, select, button)
+    ) {
+    flex-direction: column;
+    align-items: stretch;
+    height: calc(var(--bench-h) - 2px);
+    min-height: min-content;
+    > div,
+    > div > :only-child {
+      display: flex !important;
+      flex-direction: column;
+      flex: 1 1 auto;
+      gap: 16px !important;
+      padding: 24px !important;
+    }
+    > div:has(> :only-child) {
+      padding: 0 !important;
+    }
+    > div:not(:has(> :only-child)) > *,
+    > div > :only-child > * {
+      flex: none;
+      padding: 0 !important;
+    }
+    > div:not(:has(> :only-child))
+      > :is(:first-child:not(.progress-control), .progress-control:first-child + *),
+    > div
+      > :only-child
+      > :is(:first-child:not(.progress-control), .progress-control:first-child + *) {
+      flex: 1 1 0;
+      min-height: 240px !important;
+      align-content: center;
+      /* An SVG, or a box holding one or a StageFit, fills the stage box. */
+      &:is(svg, [data-stage], :has(> svg:only-child, > [data-stage]:only-child)) {
+        display: flex !important;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+      > svg:only-child {
+        flex: 1 1 0;
+        min-height: 0;
+      }
+    }
+    [data-stage] {
+      flex: 1 1 0;
+      align-self: stretch;
+      display: grid !important;
+      place-items: center;
+      min-height: 0;
+      container-type: size;
+      --stage-frame-w: min(100cqw, 100cqh * var(--stage-ratio-n));
+    }
+  }
+}
+@media (min-width: 1024px) {
+  .bench[data-layout="controls"]:has(
+      > .bench-preview > .preview > div > :not(:first-child) :is(input, select, button),
+      > .bench-preview > .preview > div > :only-child > :not(:first-child) :is(input, select, button)
+    ) {
+    max-width: calc(var(--bench-col-max) + 304px);
+    > :is(.bench-toolbar, .bench-preview) {
+      width: 100%;
+    }
+    .preview > div:not(:has(> :only-child)),
+    .preview > div > :only-child {
+      display: grid !important;
+      /* Important: some demos set their grid tracks and gap inline. */
+      grid-template-columns: minmax(0, 1fr) clamp(320px, 28vw, 400px) !important;
+      /* Controls stack in the rail's first rows; the last row takes the height that is left. */
+      grid-template-rows: repeat(5, auto) minmax(0, 1fr) !important;
+      gap: 0 32px !important;
+    }
+    .preview > div:not(:has(> :only-child)) > *,
+    .preview > div > :only-child > * {
+      grid-column: 2;
+      margin-bottom: 16px;
+    }
+    .preview
+      > div:not(:has(> :only-child))
+      > :is(:first-child:not(.progress-control), .progress-control:first-child + *),
+    .preview
+      > div
+      > :only-child
+      > :is(:first-child:not(.progress-control), .progress-control:first-child + *) {
+      grid-column: 1;
+      grid-row: 1 / -1;
+      margin: 0;
+    }
+  }
+}
 /* Bar strip view: the strip leaves the 1000px stage column for the full content width, and every
    item's cells share one size, so a pager walk compares like with like: a third of the column
    (about 434 × 271 at 1440×900), or less when two rows of 8:5 frames with captions would not fit
    the height left under the intro, never under 240px wide. The size depends only on the viewport
    and --bench-top (the intro keeps one height at 761px and wider), never on the item's cue count.
-   --strip-w resolves against the bench (a size container), the toolbar shares its edges. */
+   --strip-w resolves against the bench (a size container). The toolbar keeps the single view's
+   width in both views (--bench-single-w, the stage width with the stepper below it), so Copy link
+   stays put, like the view switch, when the view changes. */
 .bench[data-layout="bar"] {
   container-type: inline-size;
+  --bench-single-w: min(
+    100%,
+    var(--bench-col-max),
+    max(
+        240px,
+        calc(
+          100svh - var(--bench-top, 210px) - var(--bench-above) -
+            var(--bench-gap) - var(--bench-bar-h) - var(--bench-foot)
+        )
+      ) * var(--stage-ratio, 1.6)
+  );
 }
 .bench[data-layout="bar"][data-view="strip"] {
   --bench-below: 0px;
@@ -1213,8 +1405,11 @@ details > p {
   --strip-w: min(100cqw, 3 * var(--strip-cell-w) + 2 * 12px);
   max-width: none;
 }
-.bench[data-layout="bar"][data-view="strip"] > :is(.bench-toolbar, .bench-strip) {
+.bench[data-layout="bar"][data-view="strip"] > .bench-strip {
   width: var(--strip-w);
+}
+.bench[data-layout="bar"][data-view="strip"] > .bench-toolbar {
+  width: var(--bench-single-w);
 }
 .bench[data-layout="bar"] .bench-strip-row {
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -1252,6 +1447,26 @@ details > p {
 .bench-link .copy-button {
   min-height: 36px;
   padding: 6px 12px;
+}
+/* A demo's bench-level switch (BenchToolbarSlot) leads the toolbar, drawn like the motion
+   benches' Single / Strip switch whether it uses .bench-segmented or the preset buttons. */
+.bench-toolbar-slot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.bench-toolbar-slot .progress-control {
+  width: auto !important;
+}
+.bench-toolbar-slot .progress-presets {
+  width: auto;
+}
+.bench-toolbar-slot .progress-presets button {
+  min-height: 36px;
+  padding: 6px 12px;
+  font-size: 14px;
 }
 .bench-preview,
 .bench-frames {
@@ -1431,16 +1646,7 @@ details > p {
   gap: 8px;
   min-height: 24px;
 }
-.bench-options select {
-  min-height: 32px;
-  border: 1px solid var(--jbm-line);
-  border-radius: 6px;
-  padding: 4px 8px;
-  background: transparent;
-  color: inherit;
-  font: inherit;
-}
-.bench-options select:focus-visible,
+:is(.results, .bench) select:focus-visible,
 .bench-check input:focus-visible {
   outline: 2px solid var(--jbm-accent);
   outline-offset: 3px;
@@ -1448,11 +1654,6 @@ details > p {
 .bench-check input,
 .bench-scrub input {
   accent-color: var(--jbm-ink);
-}
-.bench-check input {
-  width: 18px;
-  height: 18px;
-  margin: 0;
 }
 .bench-segmented,
 .bench-steps {
@@ -1819,8 +2020,9 @@ details > p {
 .item-api code {
   font-family: var(--font-mono);
 }
+/* 50ch of 14px Geist is about 70 characters a line, the measure every API text keeps. */
 .item-api p {
-  max-width: 62ch;
+  max-width: 50ch;
   margin: 8px 0 0;
   color: var(--jbm-dim);
   font-size: 14px;
@@ -1856,6 +2058,7 @@ details > p {
 }
 .item-stage dd {
   margin: 0;
+  max-width: 50ch;
   color: var(--jbm-dim);
 }
 .item-stage code {
@@ -1870,6 +2073,11 @@ details > p {
 }
 .api-entry {
   margin-top: 32px;
+}
+/* Long type signatures (Omit<React.ButtonHTMLAttributes<…>>) wrap on phones instead of
+   running past the right edge. */
+.api-entry code {
+  overflow-wrap: anywhere;
 }
 .api-table {
   width: 100%;
@@ -1909,14 +2117,16 @@ details > p {
 .api-table td:last-child {
   padding-right: 0;
 }
+/* Name, type, and default take more of the row so the description column keeps a readable
+   measure (about 70 characters) on wide screens; long types wrap less as a result. */
 .api-col-name {
-  width: 16%;
+  width: 18%;
 }
 .api-col-type {
-  width: 22%;
+  width: 28%;
 }
 .api-col-default {
-  width: 16%;
+  width: 18%;
 }
 .api-description {
   color: var(--jbm-dim);
@@ -1932,7 +2142,7 @@ details > p {
   font-size: 12px;
 }
 .api-qa {
-  max-width: 72ch;
+  max-width: 52ch;
   margin: 8px 0 0;
   padding-left: 18px;
   color: var(--jbm-dim);
@@ -2008,8 +2218,51 @@ details > p {
   .item-title-row {
     column-gap: 14px;
   }
+  /* Phones give every item page one intro height too, so the bench and its strip start at the
+     same height on a pager walk: the breadcrumb stays on the wordmark's row (a long item name
+     truncates; the title below spells it out), the tags take their own line without the
+     category the breadcrumb already names, and the description reserves four lines (the
+     longest at 350px). */
+  .item-qa .item-topbar .wordmark {
+    flex: none;
+  }
+  .item-qa .item-topbar > nav:has(> .breadcrumb) {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+  .item-qa .breadcrumb {
+    flex-wrap: nowrap;
+    min-width: 0;
+  }
+  .item-qa .breadcrumb li {
+    flex: none;
+    white-space: nowrap;
+  }
+  .item-qa .breadcrumb [aria-current="page"] {
+    flex: 0 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .item-qa .item-tags {
+    flex-basis: 100%;
+    min-height: 18px;
+  }
+  .item-qa .item-tags li {
+    white-space: nowrap;
+  }
+  .item-qa .item-tags li:first-child {
+    display: none;
+  }
+  .item-qa .item-tags li:first-child + li::before {
+    content: none;
+  }
+  .item-qa .item-tags li + li::before {
+    padding: 0 6px;
+  }
   .item-qa .item-description {
     font-size: 14px;
+    min-height: 6em;
   }
   /* Phones (78px bar): steps, readout, and replay on one row, the scrubber full width under
      them, all in thumb reach directly below the stage. */
@@ -2039,6 +2292,11 @@ details > p {
   .bench-segmented button {
     min-height: 40px;
     padding-inline: 10px;
+  }
+  /* Copy link matches the 40px view switch, so every bench toolbar is one height on phones. */
+  .bench-link .copy-button,
+  .bench-toolbar-slot .progress-presets button {
+    min-height: 40px;
   }
   /* The readout fills what the steps and replay leave (the scrubber has its own row here). */
   .bench-readout {

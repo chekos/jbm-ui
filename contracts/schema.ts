@@ -5,7 +5,7 @@
 // /catalog.json, and /llms.txt. See docs/agent-contract.md.
 //
 // Contract files may only use `import type`: the generator evaluates them without a bundler.
-import type { Category } from "@/components/gallery/categories"
+import type { Category, Family } from "@/components/gallery/categories"
 
 /** What the gallery preview lets you inspect. An empty list means a still preview. */
 export type Capability =
@@ -116,6 +116,11 @@ export type ItemContract = {
   description: string
   /** Behaviour-based browsing category; synced into registry.json `categories`. */
   category: Exclude<Category, "All">
+  /**
+   * The index sub-heading the item sits under within its category (categories.ts
+   * `categoryFamilies`). Required in a category that lists families, rejected elsewhere.
+   */
+  family?: Family
   capabilities: Capability[]
   /** Every runtime export of the item's source files, except those listed in `omit`. */
   api: ApiEntry[]
@@ -204,6 +209,8 @@ export type ContractEntry = {
   title: string
   description: string
   category: ItemContract["category"]
+  /** Present only when the category lists families. */
+  family?: Family
   capabilities: Capability[]
   /** Derived from registry.json: the item, or anything it installs, depends on Remotion. */
   needsRemotion: boolean

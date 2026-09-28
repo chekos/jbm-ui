@@ -6,6 +6,7 @@ export default {
   title: "ToolCaddy",
   description: "An empty divided desktop organizer.",
   category: "UI Bits",
+  family: "Desk objects",
   capabilities: [],
   api: [
     {

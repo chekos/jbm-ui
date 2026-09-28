@@ -23,7 +23,7 @@ export type DrawerFolder = {
 export type CajonProps = Partial<Box> & {
   folders: readonly DrawerFolder[]
   open?: number
-  /** Rise, in parent SVG units, from one folder to the next one back. Defaults to tab height plus a band of back panel (the tab and band stay visible up to eight folders; more folders pack into the same rise). */
+  /** Rise, in parent SVG units, from one folder to the next one back. Defaults to tab height plus a band of back panel (the tab and band stay visible up to six folders; more folders pack into the same rise, so the stack never grows past six folders' height). */
   depthSpacing?: number
   /** stair: every tab at its folder's left edge, so the tabs climb as folders narrow toward the back. stagger3: tabs cycle left, center, right. */
   tabLayout?: "stair" | "stagger3"
@@ -38,6 +38,18 @@ const card = oklab(color.card),
   cream = oklab(color.bg),
   ink = oklab(color.ink),
   accent = oklab(color.accent)
+const rule = oklab(color.line),
+  graphite = oklab(color.dim)
+/** Interior shade t of the way from Pencil Rule (0) to Graphite (1), mixed in OKLab. */
+const interior = (t: number) =>
+  oklabHex([0, 1, 2].map((i) => rule[i] + (graphite[i] - rule[i]) * t) as [number, number, number])
+/** The drawer's inside planes: back wall darkest, the side wall facing the light palest. */
+export const drawerInside = {
+  back: interior(0.5),
+  floor: interior(0.35),
+  left: interior(0.2),
+  right: interior(0),
+}
 /** The inside of an ajar vermilion folder: the accent mixed a third of the way to ink in OKLab. */
 const accentShade = oklabHex(
   [0, 1, 2].map((i) => accent[i] + (ink[i] - accent[i]) / 3) as [number, number, number]
@@ -59,6 +71,21 @@ export function drawerLight(k: number): string {
 const segmenter = new Intl.Segmenter(undefined, { granularity: "grapheme" })
 const graphemes = (text: string) =>
   Array.from(segmenter.segment(text), (s) => s.segment)
+
+/**
+ * A tab name in `room` units at `size`: whole when it fits, or when a barely visible squeeze (down
+ * to 0.94) is enough; otherwise cut to end in an ellipsis at full width. Glyphs are never
+ * visibly condensed.
+ */
+function fitName(name: string, size: number, room: number): { text: string; scale: number } {
+  const full = sansWidth(name, size)
+  if (full <= room + 1e-6) return { text: name, scale: 1 }
+  if (full * 0.94 <= room) return { text: name, scale: room / full }
+  const g = graphemes(name)
+  let n = g.length - 1
+  while (n > 1 && sansWidth(g.slice(0, n).join("").trimEnd() + "…", size) > room) n--
+  return { text: g.slice(0, n).join("").trimEnd() + "…", scale: 1 }
+}
 
 /** Fixed physical bounds. Index zero is nearest the drawer front. */
 export function cajonLayout({
@@ -93,14 +120,25 @@ export function cajonLayout({
   const band = Math.max(0.4 * tabHeight, hasSublabel ? subSize * 1.9 : 0)
   const lip = 0.3 * tabHeight
   const n = folders.length
-  // The drawer's depth, as rise: eight folders' tabs and bands (seven steps) fill it.
-  const fullRise = (tabHeight + band + lip) * 7
+  // The drawer's depth, as rise: eight folders' tabs and bands (seven steps) would reach its back
+  // wall; perspective narrows folders along it.
+  const natural = tabHeight + band + lip
+  const fullRise = natural * 7
+  // Count changes packing, not furniture: up to six folders stand a tab and band apart; more
+  // share the rise of six (five steps), so a crowded drawer packs tighter instead of growing.
+  // A given spacing is capped too: the stack never rises past the drawer front's height, and
+  // above six folders it packs into six folders' rise like the default.
+  const packed = (natural * 5) / Math.max(5, n - 1)
   const step =
     depthSpacing !== undefined &&
     Number.isFinite(depthSpacing) &&
     depthSpacing >= 0
-      ? depthSpacing
-      : fullRise / Math.max(7, n - 1)
+      ? Math.min(
+          depthSpacing,
+          frontHeight / Math.max(1, n - 1),
+          n > 6 ? packed : Infinity
+        )
+      : packed
   // The front folder rises 62 out of the drawer, more when its tab and band need the room.
   const rest = frontTop - Math.max(62 * sc, tabHeight + band + lip) * p
   const laid = folders.map((f, i) => {
@@ -117,12 +155,19 @@ export function cajonLayout({
     // so far that it covers the tab of the folder behind it.
     const ajar = unit(f.open ?? 0)
     const drop = ajar * 0.2 * fh
-    const lean = ajar * 0.03 * fw
+    // The flap's top edge drops straight down: it is never wider than its folder.
+    const lean = 0
     const rise = Math.min(drop + ajar * lip, i < n - 1 ? Math.max(0, step - tabHeight) : Infinity)
-    const top = rest - i * step * p - pulled * p * (fh + 24 * sc) - p * rise
+    // A lifted folder's bottom stays 14 units behind the drawer front's rim, never floating
+    // clear of it: the lift is capped at what keeps it there.
+    const seated = rest - i * step * p - p * rise
+    const lift = Math.min(pulled * p * (fh + 24 * sc), Math.max(0, seated + fh - (frontTop + 14 * sc)))
+    const top = seated - lift
     const textWidth = sansWidth(f.name, size)
     const tabWidth = Math.min(fw, textWidth + 2 * pad + tabSlope)
     const room = tabWidth - 2 * pad - tabSlope
+    // A name longer than the widest tab ends in an ellipsis; glyphs are never squeezed.
+    const shown = fitName(f.name, size, room)
     const tabX =
       tabLayout === "stagger3" ? fx + ((i % 3) * (fw - tabWidth)) / 2 : fx
     const baseline = top + (tabHeight * 16) / 27
@@ -148,7 +193,8 @@ export function cajonLayout({
         y: baseline,
         mid: midline,
         end: tabX + tabWidth - tabSlope - pad,
-        scale: textWidth > room + 1e-6 ? room / textWidth : 1,
+        text: shown.text,
+        scale: shown.scale,
       },
       /** Top edge of the front flap when closed. */
       flap: top + tabHeight + band,
@@ -156,14 +202,48 @@ export function cajonLayout({
       opening: { drop, lean },
       /** 0–1: how much of the tab shows above the drawer front (0 once it is inside). */
       visible: Math.max(0, Math.min(1, (frontTop - top) / tabHeight)),
-      /** Sublabel baseline start and horizontal compression, on the band under the name. */
+      /**
+       * Sublabel baseline start, horizontal compression, and whether it prints (false when a
+       * crowded drawer packs the folder in front over its band).
+       */
       sublabel: {
         x: subX,
         y: top + tabHeight + subSize * 1.15,
         scale: subWidth > 0 ? Math.min(1, (fx + fw - pad - subX) / subWidth) : 1,
+        width: subWidth > 0 ? Math.min(subWidth, fx + fw - pad - subX) : 0,
+        visible: true,
       },
+      /** Whether the front flap's top rule draws (false when an edge in front sits just under it). */
+      rule: true,
       light: k + (1 - k) * pulled,
     }
+  })
+  // What stands in front of folder i at a given x: the drawer front and every folder nearer the
+  // front (tab, then body top edge beside it). A sublabel prints only when that edge clears its
+  // whole line; a partly covered line would leave fragments beside the next tab. The flap rule
+  // hides when an edge in front runs just under it, where the two would read as one heavy bar.
+  const coverAt = (i: number, a: number, b: number) => {
+    let y = frontTop
+    for (let j = 0; j < i; j++) {
+      const g = laid[j]
+      if (b <= g.x || a >= g.x + g.w) continue
+      const tab = b > g.tabX && a < g.tabX + g.tabWidth
+      const right = b > g.tabX + g.tabWidth
+      const left = a < g.tabX
+      if (tab) y = Math.min(y, g.y)
+      if (right) y = Math.min(y, g.y + g.tabSlope)
+      if (left) y = Math.min(y, g.y + g.tabHeight)
+    }
+    return y
+  }
+  laid.forEach((f, i) => {
+    const s = folders[i].sublabel
+    if (s) {
+      const need = f.sublabel.y + subSize * 0.35
+      f.sublabel.visible = coverAt(i, f.sublabel.x, f.sublabel.x + f.sublabel.width) >= need
+    }
+    const gap = coverAt(i, f.x + 5, f.x + f.w - 5) - f.flap
+    f.rule = !(gap < 8)
   })
   /**
    * n thread endpoints on folder i's tab midline, from just before the name (clear of its first
@@ -214,6 +294,38 @@ function Inked({ text, reveal }: { text: string; reveal: number }) {
   )
 }
 
+/**
+ * The open drawer's inside, between its card side panels, as flat planes mixed from Pencil Rule
+ * toward Graphite: the back wall, the floor, and the two inner side walls, lighter than the back
+ * (the right wall faces the top-left light). An empty drawer reads as an empty box, not a dark block, and the strips
+ * beside the folders are wall, not ink bars.
+ */
+function DrawerInterior({ l }: { l: ReturnType<typeof cajonLayout> }) {
+  const sc = l.scale
+  const x0 = l.x + 20 * sc,
+    x1 = l.x + l.w - 20 * sc,
+    top = l.y + 10 * sc,
+    bottom = l.frontTop
+  const depth = bottom - top
+  if (!(depth > 0)) return null
+  // The back wall's foot, and how far each side wall's inner face spans at the floor.
+  const foot = top + depth * 0.45
+  const wall = 8 * sc
+  const d = (...pts: [number, number][]) =>
+    "M" + pts.map(([x, y]) => `${+x.toFixed(2)} ${+y.toFixed(2)}`).join("L") + "Z"
+  return (
+    <g>
+      <g stroke="none">
+        <path d={d([x0, top], [x1, top], [x1, foot], [x0, foot])} fill={drawerInside.back} />
+        <path d={d([x0, foot], [x1, foot], [x1, bottom], [x0, bottom])} fill={drawerInside.floor} />
+        <path d={d([x0, top], [x0 + wall, foot], [x0 + wall, bottom], [x0, bottom])} fill={drawerInside.left} />
+        <path d={d([x1, top], [x1, bottom], [x1 - wall, bottom], [x1 - wall, foot])} fill={drawerInside.right} />
+      </g>
+      <path d={d([x0, top], [x1, top], [l.x + l.w, bottom], [l.x, bottom])} fill="none" />
+    </g>
+  )
+}
+
 /** A drawer alone. Complete folders are occluded by its front, never shortened. */
 export function Cajon(props: CajonProps) {
   const l = cajonLayout(props)
@@ -228,10 +340,7 @@ export function Cajon(props: CajonProps) {
       strokeWidth={2}
       strokeLinejoin="round"
     >
-      <path
-        d={`M${l.x + 20 * sc} ${l.y + 10 * sc}H${l.x + l.w - 20 * sc}L${l.x + l.w} ${l.frontTop}H${l.x}Z`}
-        fill={color.ink}
-      />
+      <DrawerInterior l={l} />
       {[...props.folders.keys()].reverse().map((i) => {
         const f = props.folders[i],
           q = l.folders[i]
@@ -244,7 +353,7 @@ export function Cajon(props: CajonProps) {
         return (
           <g key={i} data-folder-index={i}>
             <FolderOutline {...q} fill={fill} />
-            {f.sublabel && (
+            {f.sublabel && q.sublabel.visible && (
               <text
                 transform={`translate(${q.sublabel.x} ${q.sublabel.y}) scale(${q.sublabel.scale} 1)`}
                 fontFamily={font.sans}
@@ -272,25 +381,25 @@ export function Cajon(props: CajonProps) {
                   fill={fill}
                 />
               </>
-            ) : (
+            ) : q.rule ? (
               <path d={`M${q.x + 5} ${q.flap}H${q.x + q.w - 5}`} fill="none" />
-            )}
+            ) : null}
             <text
-              transform={`translate(${q.label.x} ${q.label.y}) scale(${q.label.scale} 1)`}
+              transform={`translate(${q.label.x} ${q.label.y})${q.label.scale < 1 ? ` scale(${+q.label.scale.toFixed(4)} 1)` : ""}`}
               fontFamily={font.sans}
               fontWeight={800}
               fontSize={size}
               stroke="none"
               fill={text}
             >
-              <Inked text={f.name} reveal={reveal} />
+              <Inked text={q.label.text} reveal={reveal} />
             </text>
           </g>
         )
       })}
       <path
         d={`M${l.x + 20 * sc} ${l.y + 10 * sc}L${l.x} ${l.frontTop}V${l.frontTop + l.frontHeight}L${l.x + 20 * sc} ${l.y + 10 * sc + l.frontHeight}ZM${l.x + l.w - 20 * sc} ${l.y + 10 * sc}L${l.x + l.w} ${l.frontTop}V${l.frontTop + l.frontHeight}L${l.x + l.w - 20 * sc} ${l.y + 10 * sc + l.frontHeight}Z`}
-        fill={color.bg}
+        fill={color.card}
       />
       <rect
         x={l.x}

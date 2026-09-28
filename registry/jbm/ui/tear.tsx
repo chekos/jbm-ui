@@ -53,6 +53,8 @@ export type TearProps = {
   style?: CSSProperties
 }
 
+/** How far past the sheet a strip's clip reaches, so it never trims a shadow or a turned corner. */
+const FAR = 2000
 const finite = (n: number, fallback = 0) => (Number.isFinite(n) ? n : fallback)
 const clamp01 = (n: number) => Math.min(1, Math.max(0, finite(n)))
 const r2 = (n: number) => Math.round(n * 100) / 100
@@ -176,9 +178,86 @@ export function tearGeometry({
 }
 
 /**
+ * Where a strip is at its own progress p toward `to`: it parts along the seam first (y follows p)
+ * and drifts and turns as it travels (x and rotate follow p²), so neighbouring torn edges separate
+ * as parallel copies before they shift, and never cross while they are close.
+ */
+export function tearMotion(to: TearDestination = {}, progress: number) {
+  const p = clamp01(progress)
+  return {
+    x: finite(to.x ?? 0) * p * p,
+    y: finite(to.y ?? 0) * p,
+    rotate: finite(to.rotate ?? 0) * p * p,
+  }
+}
+
+/** Room the shadows take around a strip: the sheet's and each strip's drop shadow fall down. */
+const SHADOW_ROOM = { top: 8, side: 16, bottom: 34 }
+
+/**
+ * The box, in the sheet's px (origin at its top-left, so x and y can be negative), that every strip
+ * stays inside at every progress: Tear's root is only w × h, and strips travel past it by their
+ * destinations. With `shadow` (default true) it includes the room the shadows take. Reserve this box
+ * (or give the stage at least this much room) so no strip or shadow is clipped.
+ */
+export function tearBounds({
+  w,
+  h,
+  seams,
+  pieces = [],
+  fray = FRAY,
+  shadow = true,
+}: Pick<TearProps, "w" | "h" | "seams" | "pieces" | "fray" | "shadow">) {
+  const W = Math.max(0, finite(w)),
+    H = Math.max(0, finite(h))
+  const bounds = [0, ...tearSeams(H, seams, fray), H]
+  const reach = frayReach(fray)
+  let x0 = 0,
+    y0 = 0,
+    x1 = W,
+    y1 = H
+  bounds.slice(0, -1).forEach((top, i) => {
+    const bottom = bounds[i + 1]
+    const t = i > 0 ? top - reach : 0
+    const b = i < bounds.length - 2 ? bottom + reach : H
+    const cx = W / 2,
+      cy = (top + bottom) / 2
+    const to = pieces[i]?.to ?? {}
+    // Translation and turn are both linear in the strip's own progress: sample the path.
+    for (let k = 0; k <= 32; k++) {
+      const p = k / 32
+      const m = tearMotion(to, p)
+      const a = (m.rotate * Math.PI) / 180
+      const dx = m.x,
+        dy = m.y
+      for (const [x, y] of [
+        [0, t],
+        [W, t],
+        [W, b],
+        [0, b],
+      ]) {
+        const px = cx + dx + (x - cx) * Math.cos(a) - (y - cy) * Math.sin(a)
+        const py = cy + dy + (x - cx) * Math.sin(a) + (y - cy) * Math.cos(a)
+        x0 = Math.min(x0, px)
+        x1 = Math.max(x1, px)
+        y0 = Math.min(y0, py)
+        y1 = Math.max(y1, py)
+      }
+    }
+  })
+  const pad = shadow === false ? { top: 0, side: 0, bottom: 0 } : SHADOW_ROOM
+  x0 = Math.floor(x0 - pad.side)
+  y0 = Math.floor(y0 - pad.top)
+  x1 = Math.ceil(x1 + pad.side)
+  y1 = Math.ceil(y1 + pad.bottom)
+  return { x: x0, y: y0, w: x1 - x0, h: y1 - y0 }
+}
+
+/**
  * A sheet torn into horizontal strips along seams. At progress 0 the strips tile the sheet exactly
  * and no seam shows; as progress rises each strip travels to its own destination and its torn edges
- * appear, frayed and deterministic. Pure React and controlled: the caller owns timing.
+ * appear, frayed and deterministic. Pure React and controlled: the caller owns timing. The root is
+ * w × h; strips move past it, so reserve tearBounds() around it.
  */
 export function Tear({
   w,
@@ -206,6 +285,30 @@ export function Tear({
   // Shadows hand over from the whole sheet to the strips over the first 8% of travel.
   const ramp = clamp01(Math.max(0, ...local) / 0.08)
   const edgeColor = tone === "paper" ? color.ink : paperFill(tone)
+  // How far each seam has actually parted: the lower strip's drop past the upper one. Until a
+  // seam is open by more than the edge stroke, it draws one torn line (the upper strip's edge),
+  // never two coincident zig-zags; and the strips on either side of a seam that is still (almost)
+  // shut keep their sides flush, so the sheet's outline has no step. Sideways travel and turn
+  // come in as the seam opens.
+  const motion = strips.map((_, i) => tearMotion(pieces[i]?.to ?? {}, local[i]))
+  // A seam stays shut until its strips have parted 1.5px, then opens twice as fast to catch up
+  // at 3px: there is never a hairline gap with the sides broken across it.
+  const ease = (g: number) => (g < 1.5 ? 0 : g < 3 ? 2 * (g - 1.5) : g)
+  // Only seams whose strips are sent apart vertically (the lower one ends further down) ease this
+  // way; strips sent to the same height slide apart sideways as given.
+  const opens = (i: number) =>
+    finite(pieces[i]?.to?.y ?? 0) - finite(pieces[i - 1]?.to?.y ?? 0) > 0
+  const ys: number[] = []
+  motion.forEach((m, i) => {
+    ys.push(
+      i === 0 ? m.y : opens(i) ? ys[i - 1] + ease(m.y - motion[i - 1].y) : m.y
+    )
+  })
+  const gap = (i: number) => (i > 0 ? ys[i] - ys[i - 1] : Infinity)
+  const parted = (i: number) => (opens(i) ? clamp01(gap(i) / 6) : 1)
+  const joined = strips.map((_, i) =>
+    Math.min(i > 0 ? parted(i) : 1, i < strips.length - 1 ? parted(i + 1) : 1)
+  )
   return (
     <div
       style={{
@@ -229,14 +332,46 @@ export function Tear({
       )}
       {strips.map((s, i) => {
         const p = local[i]
-        const to = pieces[i]?.to ?? {}
-        const x = finite(to.x ?? 0) * p,
-          y = finite(to.y ?? 0) * p,
-          rot = finite(to.rotate ?? 0) * p
-        const openAbove = i > 0 ? clamp01(Math.max(p, local[i - 1]) / 0.05) : 0
+        const x = motion[i].x * joined[i],
+          y = ys[i],
+          rot = motion[i].rotate * joined[i]
+        // The lower edge of a seam (this strip's top) inks in only once the seam has opened past
+        // twice the stroke width (4px); until then the upper strip's edge alone marks it.
+        const openAbove =
+          i > 0
+            ? opens(i)
+              ? clamp01((gap(i) - 4) / 2)
+              : clamp01(Math.max(p, local[i - 1]) / 0.05)
+            : 0
         const openBelow =
           i < strips.length - 1 ? clamp01(Math.max(p, local[i + 1]) / 0.05) : 0
         const info: TearPieceInfo = { index: i, top: s.top, bottom: s.bottom, progress: p }
+        // While a seam is closed, the strips' shadows must not show along it (a line where no tear
+        // shows yet): clip the shadowed fill at the seam, 1px inside the strip below (the
+        // under-band covers that row), and let the clip recede 60px as the seam opens. Beside the
+        // sheet both strips' side shadows are cut on the same line, so they meet without a gap.
+        const run = (d: string | null, shift: number, lift: number) => {
+          const pts = d ? [...d.matchAll(/[ML](-?[\d.]+) (-?[\d.]+)/g)].map((m) => [+m[1], +m[2]]) : []
+          if (!pts.length) return []
+          const [x0, y0] = pts[0]
+          const [x1, y1] = pts[pts.length - 1]
+          return [
+            `-${FAR}px ${r2(y0 + lift)}px`,
+            `${x0}px ${r2(y0 + lift)}px`,
+            ...pts.map(([x, y]) => `${x}px ${r2(y + shift + lift)}px`),
+            `${x1}px ${r2(y1 + lift)}px`,
+            `${W + FAR}px ${r2(y1 + lift)}px`,
+          ]
+        }
+        const clipAbove = shadow && ramp > 0 && s.seamAbove !== null && openAbove < 1
+        const clipBelow = shadow && ramp > 0 && s.seamBelow !== null && openBelow < 1
+        const shadowClip =
+          clipAbove || clipBelow
+            ? `polygon(${[
+                ...(clipAbove ? run(s.seamAbove, 1, -61 * openAbove) : [`-${FAR}px -${FAR}px`, `${W + FAR}px -${FAR}px`]),
+                ...(clipBelow ? run(s.seamBelow, 0, 61 * openBelow).reverse() : [`${W + FAR}px ${H + FAR}px`, `-${FAR}px ${H + FAR}px`]),
+              ].join(", ")})`
+            : undefined
         const content = typeof children === "function" ? children(info) : children
         return (
           <div
@@ -254,13 +389,20 @@ export function Tear({
                   ? `translate(${r2(x)}px, ${r2(y)}px) rotate(${r2(rot)}deg)`
                   : undefined,
               transformOrigin: `${s.center.x}px ${s.center.y}px`,
-              filter:
-                shadow && ramp > 0
-                  ? `drop-shadow(0 1px 1px rgba(32,36,31,${r2(0.1 * ramp)})) drop-shadow(0 8px 10px rgba(32,36,31,${r2(0.14 * ramp)}))`
-                  : undefined,
               pointerEvents: "none",
             }}
           >
+            <div
+              style={{
+                position: "absolute",
+                inset: 0,
+                filter:
+                  shadow && ramp > 0
+                    ? `drop-shadow(0 1px 1px rgba(32,36,31,${r2(0.1 * ramp)})) drop-shadow(0 8px 10px rgba(32,36,31,${r2(0.14 * ramp)}))`
+                    : undefined,
+                clipPath: shadowClip,
+              }}
+            >
             <svg
               width={W}
               height={H}
@@ -268,19 +410,30 @@ export function Tear({
               style={{ position: "absolute", inset: 0, overflow: "visible" }}
             >
               <path d={s.outline} fill={paperFill(tone)} />
-              {/* While the seam is closed, a 3px band of stock runs under the next strip so no
-                  antialiasing hairline shows where the two fills meet. */}
-              {s.seamBelow && openBelow < 1 && (
+            </svg>
+            </div>
+            {/* While the seam is closed, a band of stock from half a pixel above the seam to 3px
+                below it runs under the next strip, so no antialiasing hairline shows where the two
+                fills (and the clipped shadows) meet. It sits outside the shadowed layer, so it
+                casts no shadow of its own. */}
+            {s.seamBelow && openBelow < 1 && (
+              <svg
+                width={W}
+                height={H}
+                aria-hidden
+                style={{ position: "absolute", inset: 0, overflow: "visible" }}
+              >
                 <path
                   d={s.seamBelow}
                   fill="none"
                   stroke={paperFill(tone)}
                   strokeOpacity={r2(1 - openBelow)}
-                  strokeWidth={3}
-                  transform="translate(0 1.5)"
+                  strokeWidth={3.5}
+                  transform="translate(0 1.25)"
                 />
-              )}
-            </svg>
+              </svg>
+            )}
+            {/* The writing, clipped to the strip, over the fill and the under-band. */}
             {content != null && (
               <div
                 style={{
@@ -295,6 +448,8 @@ export function Tear({
                 {content}
               </div>
             )}
+            {/* The ink edges draw last. Like the writing they sit outside the clipped shadow layer,
+                so a closed seam never nicks the sheet's straight sides or its writing. */}
             {edge && (
               <svg
                 width={W}

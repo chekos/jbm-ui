@@ -83,7 +83,7 @@ const inside = (box, l, label) => {
 test("each register draws exactly n units and keeps every cell on the sheet", () => {
   for (const size of sizes)
     for (const kind of ["mono", "plain", "grid"])
-      for (let n = 1; n <= (kind === "grid" ? 12 : 24); n++) {
+      for (let n = 0; n <= (kind === "grid" ? 12 : 24); n++) {
         const l = registerLayout({ kind, n, ...size })
         assert.equal(l.cells.length, n, `${kind} ${n}`)
         assert.deepEqual(l.cells.map((c) => c.index), [...Array(n).keys()])
@@ -134,6 +134,15 @@ test("mixed pages stack bands with seams strictly between them", () => {
   assert.deepEqual([...new Set(page.cells.map((c) => c.kind))], ["mono", "plain", "grid", "prose", "source"])
   assert.equal(page.anchors.length, 3)
   assert.equal(registerLayout({ kind: "mixed", w: 380, h: 840, sources: 5 }).anchors.length, 5)
+  // n 0 is a blank page: no bands on a mixed sheet.
+  assert.equal(registerLayout({ kind: "mixed", n: 0, w: 380, h: 840 }).cells.length, 0)
+  // Numerals read as numbers: 12 × scale on the gallery's mixed page, and never squeezed there.
+  const bench = registerLayout({ kind: "mixed", w: 300, h: 700 })
+  for (const c of bench.cells)
+    for (const m of c.marks) if (m.type === "num") assert.ok(Math.abs(m.size - 12 * bench.scale) < 1e-6)
+  // Source ticks sit far enough apart that a ring around each clears the next.
+  const ys = registerLayout({ kind: "prose", n: 12, w: 300, h: 380 }).anchors.map((p) => p.y)
+  for (let i = 1; i < ys.length; i++) assert.ok(ys[i] - ys[i - 1] >= 10, "tick pitch")
   // Single registers have no seams.
   assert.deepEqual(registerSeams({ kind: "prose", w: 300, h: 380 }), [])
 })
@@ -218,8 +227,12 @@ test("the slip's grip and points follow offset, lift, and rotation", () => {
     }
   const flat = renderToStaticMarkup(h(Slip, {}))
   const peeled = renderToStaticMarkup(h(Slip, { lift: 1 }))
-  assert.match(flat, /rotate\(0 /, "flap flat at rest")
-  assert.match(peeled, /rotate\(-38 /, "flap peeled when held")
+  // The flap peels as a shear hinged on the fold (x = fold stays put), so no notch opens.
+  assert.match(flat, /matrix\(1 0 0 1 0 0\)/, "flap flat at rest")
+  const [, k, b, e, f] = peeled.match(/matrix\(([\d.-]+) ([\d.-]+) 0 1 ([\d.-]+) ([\d.-]+)\)/).map(Number)
+  assert.ok(k < 1 && b < 0, "flap peeled when held")
+  const fold = +peeled.match(/<path d="M([\d.]+) 14H0/)[1]
+  assert.ok(Math.abs(k * fold + e - fold) < 0.1 && Math.abs(b * fold + f) < 0.1, "hinge fixed on the fold")
   assert.doesNotMatch(renderToStaticMarkup(h(Slip, { tape: false })), new RegExp(color.line))
   assert.match(renderToStaticMarkup(h(Slip, { dashed: true })), /stroke-dasharray/)
   assert.doesNotMatch(flat, new RegExp(color.accent))

@@ -120,6 +120,20 @@ export function frontPlane(u: number, v: number, open: number) {
   return `matrix(${sx} 0 ${shear} ${sy} ${127.5 + (u - 127.5) * sx} ${205 - t * (110 - 35 * open)})`
 }
 
+/**
+ * Placement for type on the front panel: the anchor follows frontPlane, but the glyphs keep their
+ * proportions (one uniform scale that shrinks with the panel's foreshortening) instead of being
+ * squashed and sheared by the tilt.
+ */
+export function frontType(u: number, v: number, open: number) {
+  const t = (205 - v) / 110
+  const sx = 1 + (t * 30 * open) / 205
+  const k = +Math.sqrt(1 - (35 * open) / 110).toFixed(4)
+  const e = +(127.5 + (u - 127.5) * sx).toFixed(3)
+  const f = +(205 - t * (110 - 35 * open)).toFixed(3)
+  return `matrix(${k} 0 0 ${k} ${e} ${f})`
+}
+
 const TAB_LABEL = 14
 export type FolderProps = React.SVGProps<SVGSVGElement> & {
   label?: string
@@ -127,7 +141,11 @@ export type FolderProps = React.SVGProps<SVGSVGElement> & {
   tone?: FolderTone
   /** Short line printed on the front panel: under the label, or near the panel top when the label is on the tab. */
   sublabel?: string
-  /** Where the label prints. Defaults to the tab for the card tone, the front panel otherwise. */
+  /**
+   * Where the label prints while the folder is closed. Defaults to the tab for the card tone, the
+   * front panel otherwise. Once open is above 0 the sheet stands in front of the tab, so the label
+   * prints on the front panel.
+   */
   labelOn?: "front" | "tab"
   /** SVG contents in the 260×220 folder space, drawn behind its front panel. */
   children?: React.ReactNode
@@ -149,9 +167,13 @@ export function Folder({
   const { fill, text } = folderTones[known]
   // On the tab, the label is never truncated: the tab widens to fit it (up to the body width),
   // then the name compresses horizontally.
-  const onTab = Boolean(label) && labelOn === "tab"
-  const tabText = onTab ? sansWidth(label ?? "", TAB_LABEL) : 0
-  const tabWidth = onTab ? Math.min(205, Math.max(83, tabText + 16 + 17)) : 83
+  // The tab is on the back panel, so a raised sheet stands in front of it: once the folder opens
+  // the name moves to the front panel instead of showing as a fragment beside the sheet. The tab
+  // keeps the width it was given for the name, so the silhouette never changes with open.
+  const tabbed = Boolean(label) && labelOn === "tab"
+  const onTab = tabbed && p === 0
+  const tabText = tabbed ? sansWidth(label ?? "", TAB_LABEL) : 0
+  const tabWidth = tabbed ? Math.min(205, Math.max(83, tabText + 16 + 17)) : 83
   const tabScale = tabText > 0 ? Math.min(1, (tabWidth - 16 - 17) / tabText) : 1
   // Turn the landscape sheet from 180° to 90°, keeping its size fixed.
   const paperAngle = 180 - 90 * p
@@ -184,6 +206,18 @@ export function Folder({
       style={{ display: "block", maxWidth: "100%", height: "auto", ...style }}
     >
       <FolderOutline fill={fill} tabWidth={tabWidth} />
+      {/* The tab name is printed on the back panel: a rising sheet passes in front of it. */}
+      {onTab && (
+        <text
+          transform={`translate(33 73) scale(${tabScale} 1)`}
+          fontFamily={font.sans}
+          fontSize={TAB_LABEL}
+          fontWeight={800}
+          fill={text}
+        >
+          {label}
+        </text>
+      )}
       {children ?? (
         <g
           transform={`translate(${256 + paperDrift} ${-paperLift}) scale(-1 1) rotate(${paperAngle - 180} 128 140)`}
@@ -209,23 +243,6 @@ export function Folder({
           />
         </g>
       )}
-      {/* The tab name stays readable in every open beat: drawn over the rising sheet. */}
-      {onTab && (
-        <text
-          transform={`translate(33 73) scale(${tabScale} 1)`}
-          fontFamily={font.sans}
-          fontSize={TAB_LABEL}
-          fontWeight={800}
-          fill={text}
-          // A halo in the tab's fill knocks out sheet lines behind the name.
-          stroke={fill}
-          strokeWidth={5}
-          strokeLinejoin="round"
-          paintOrder="stroke"
-        >
-          {label}
-        </text>
-      )}
       <path
         d={`M${25 - p * 15} ${95 + p * 35}H${230 + p * 15}L230 205H25Z`}
         fill={fill}
@@ -235,7 +252,7 @@ export function Folder({
       />
       {front && (
         <text
-          transform={`${frontPlane(46, frontBaseline, p)} scale(${+front.scale.toFixed(4)} 1)`}
+          transform={`${frontType(46, frontBaseline, p)} scale(${+front.scale.toFixed(4)} 1)`}
           fontFamily={font.mono}
           fontSize={16}
           fontWeight={600}
@@ -246,7 +263,7 @@ export function Folder({
       )}
       {sub && (
         <text
-          transform={`${frontPlane(onTab ? 37 : 46, onTab ? 114 : 192, p)} scale(${+sub.scale.toFixed(4)} 1)`}
+          transform={`${frontType(onTab ? 37 : 46, onTab ? 114 : 192, p)} scale(${+sub.scale.toFixed(4)} 1)`}
           fontFamily={font.mono}
           fontSize={onTab ? 12 : 11}
           fill={text}

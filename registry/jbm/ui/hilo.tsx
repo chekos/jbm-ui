@@ -9,7 +9,7 @@ export type HiloProps = {
   from: Pt
   /** Where the thread is tied last, in the parent SVG's user units. */
   to: Pt
-  /** Curvature, 0 = straight. `arc`: sideways bow as a fraction of the from→to distance (positive bows left of travel, upward for a left-to-right thread). `s`: level handles as a fraction of the horizontal distance (0.5 is a soft S). */
+  /** Curvature, 0 = straight. `arc`: sideways bow as a fraction of the from→to distance (positive bows left of travel, upward for a left-to-right thread). `s`: level handles as a fraction of the horizontal distance, clamped to 0–1 so the thread never hooks around its anchors (0.5 is a soft S). */
   bend?: number
   /** Curve family that `bend` shapes. */
   curve?: HiloCurve
@@ -21,11 +21,11 @@ export type HiloProps = {
   snapAt?: number
   /** Where the thread parts, as a fraction 0–1 of its length from `from` (clamped to 0.05–0.95). */
   breakAt?: number
-  /** 0–1: how many curled fibers peel off each snapped end, and how long. 0 is a clean cut. */
+  /** 0–1: how many short tapered strands (two or three) split from each snapped end, and how long (at most about 1.5 widths). 0 is a clean cut. */
   fray?: number
-  /** 0–1: before a snap, how far the thread sags under gravity; after a snap, how limply the two ends hang. */
+  /** 0–1: before a snap, how far the thread sags under gravity; after a snap, how limply the two ends hang (a limp end droops downward and loses the arc's bow, whichever way it bowed). */
   slack?: number
-  /** Fills the span between the frayed ends with a vermilion bar: the only accent the thread draws. */
+  /** Marks the break in vermilion: a short tint on each broken tip, at the thread's width and along its curve, so the mark belongs to the ends. The only accent the thread draws. */
   notch?: boolean
   /** Small ink knots where the thread is tied to `from` and `to`. */
   knots?: boolean
@@ -105,18 +105,23 @@ function paramAt(table: number[], fraction: number) {
 }
 
 /**
- * Fibers at a frayed end, in the order they appear as fray grows: how far behind the tip each
- * peels off (in widths), where it points (degrees from the thread, turned toward gravity), and its
- * relative length. All of them fall to the same side, with uneven lengths and one trailing past the
- * tip, so an end reads as unravelled thread, never as a fan, fletching, or arrowhead. Fixed, so
- * every frame is identical.
+ * Strands at a frayed end, in the order they appear as fray grows: where each leaves the cut
+ * across the thread (-1 to 1, gravity side positive), its share of the cut's width, how far it
+ * turns toward gravity (degrees), and its relative length. Two or three short, straight, tapered
+ * strands that tile the cut, so the thread splits into them without a step: a frayed end, never
+ * claws, legs, or a fan. Fixed, so every frame is identical.
  */
-const FIBERS = [
-  { root: 0, angle: 12, length: 1.3 },
-  { root: 1.1, angle: 48, length: 0.62 },
-  { root: 0.5, angle: 28, length: 0.95 },
-  { root: 1.9, angle: 74, length: 0.4 },
-  { root: 2.7, angle: 38, length: 0.75 },
+const STRANDS = [
+  [{ across: 0, share: 1, angle: 0, length: 1 }],
+  [
+    { across: -0.5, share: 0.5, angle: 2, length: 1 },
+    { across: 0.5, share: 0.5, angle: 7, length: 0.72 },
+  ],
+  [
+    { across: -0.667, share: 0.333, angle: 2, length: 0.85 },
+    { across: 0, share: 0.334, angle: 4, length: 1 },
+    { across: 0.667, share: 0.333, angle: 8, length: 0.7 },
+  ],
 ] as const
 
 /**
@@ -149,8 +154,11 @@ export function hiloGeometry({
   // The resting curve: bend shapes it, slack sags it (gravity is +y).
   let c1: Pt, c2: Pt
   if (curve === "s") {
-    c1 = { x: from.x + k * d.x, y: from.y }
-    c2 = { x: to.x - k * d.x, y: to.y }
+    // Level handles shorter than 0 point back past the anchors and hook the thread around its
+    // own knots; longer than 1 they cross and loop. 0–1 keeps every S a single sweep.
+    const h = Math.min(1, Math.max(0, k))
+    c1 = { x: from.x + h * d.x, y: from.y }
+    c2 = { x: to.x - h * d.x, y: to.y }
   } else {
     const n = L > 0 ? { x: d.y / L, y: -d.x / L } : { x: 0, y: -1 }
     c1 = add(add(from, d, 1 / 3), n, (4 / 3) * k * L)
@@ -160,24 +168,51 @@ export function hiloGeometry({
   const p = unit(draw)
   const snaps = typeof snapAt === "number" && Number.isFinite(snapAt)
   const at = snaps ? unit(snapAt) : 1
-  const lay = !snaps ? p : at <= 0 ? 1 : Math.min(1, p / at)
+  let lay = !snaps ? p : at <= 0 ? 1 : Math.min(1, p / at)
   const recoil = snaps && at < 1 && p > at ? (p - at) / (1 - at) : 0
   // Before a snap slack sags the whole route; as the ends recoil the sag hands over to each end
   // hanging from its own anchor, so a snapped thread is two limp ends, never one deep V.
   const sag = { x: 0, y: (4 / 3) * s * 0.25 * L * (1 - recoil) }
-  const base: HiloCubic = [from, add(c1, sag), add(c2, sag), to]
+  // A snapped thread has no tension left to hold its bow: with slack the bow relaxes toward the
+  // straight line as the ends recoil, and each end then droops under gravity (below), so limp
+  // ends always hang down, never arch up, whichever way the arc bowed.
+  const relax = s * recoil
+  const straight1 = add(from, d, 1 / 3),
+    straight2 = add(from, d, 2 / 3)
+  const base: HiloCubic = [
+    from,
+    add(lerp(c1, straight1, relax), sag),
+    add(lerp(c2, straight2, relax), sag),
+    to,
+  ]
   const table = lengths(base)
   const length = table[SAMPLES]
+  // Within a few knot radii of the far anchor the thread is laid: it reaches the knot, which
+  // then shows, instead of stopping in mid-air a hair short of it.
+  if (lay > 0 && lay < 1 && (1 - lay) * length <= 6 * w) lay = 1
 
   const pieces: HiloCubic[] = []
-  const strands: [Pt, Pt, Pt][] = []
-  let notchCurve: HiloCubic | null = null
+  const strands: Pt[][] = []
+  const tints: HiloCubic[] = []
+  const inked: HiloCubic[] = []
   if (length > 0 && lay > 0 && recoil <= 0) {
     pieces.push(split(base, 0, paramAt(table, lay)))
   } else if (length > 0 && recoil > 0) {
-    const b = Math.min(0.95, Math.max(0.05, num(breakAt, 0.5)))
-    // Half the gap, as a fraction of the length: about a fifth of the thread, never more than 90 units.
-    const half = Math.min(0.09, 45 / length, 0.8 * Math.min(b, 1 - b))
+    // Half the gap, as a fraction of the length: about a fifth of the thread, never more than 90
+    // units, or 20 widths for a thick thread, so its fibers and the notch still fit with paper
+    // showing between them.
+    const half = Math.min(
+      Math.max(0.09, (10 * w) / length),
+      Math.max(45, 10 * w) / length,
+      0.45
+    )
+    // The gap opens around the break point, moved inward just enough to leave each end a stub
+    // longer than its knot and fibers.
+    const stub = Math.min(0.5 - half, Math.max(0.04, (8 * w) / length))
+    const b = Math.min(
+      1 - half - stub,
+      Math.max(half + stub, Math.min(0.95, Math.max(0.05, num(breakAt, 0.5))))
+    )
     const sA = b - recoil * half,
       sB = b + recoil * half
     const tA = paramAt(table, sA),
@@ -191,57 +226,68 @@ export function hiloGeometry({
       lenB = (1 - sB) * length
     const dA = hang(lenA),
       dB = hang(lenB)
+    // A limp end keeps its anchor tangent but only briefly: the anchor's handle shortens with
+    // slack, so the end falls away from its pin almost at once instead of first running on along
+    // the old route (which reads as an arch).
+    const grip = 1 - 0.75 * relax
     const pieceA: HiloCubic = [
       a[0],
-      a[1],
+      lerp(a[0], a[1], grip),
       add(a[2], { x: 0, y: dA / 3 }),
       add(a[3], { x: 0, y: dA }),
     ]
     const pieceB: HiloCubic = [
       add(z[0], { x: 0, y: dB }),
       add(z[1], { x: 0, y: dB / 3 }),
-      z[2],
+      lerp(z[3], z[2], grip),
       z[3],
     ]
     pieces.push(pieceA, pieceB)
-    // Fibers spring out quickly after the snap. Each peels off the piece a little behind the tip,
-    // leaves along the thread, and curls away from it.
-    const spring = Math.min(1, recoil * 3)
-    const count = f > 0 ? 3 + Math.round(f * 2) : 0
-    const reach = spring * w * (3 + 3 * f)
-    if (reach > 0)
-      for (const [piece, len, atEnd] of [
-        [pieceA, lenA, true],
-        [pieceB, lenB, false],
-      ] as const) {
-        for (const fiber of FIBERS.slice(0, count)) {
-          const back = Math.min(0.45, (fiber.root * w * spring) / Math.max(len, 1e-9))
-          const t = atEnd ? 1 - back : back
-          const root = cubicPoint(piece, t)
-          const ahead = cubicPoint(piece, atEnd ? Math.min(1, t + 0.01) : Math.max(0, t - 0.01))
-          const behind = cubicPoint(piece, atEnd ? Math.max(0, t - 0.01) : Math.min(1, t + 0.01))
-          const out = norm(sub(ahead, behind))
-          // Turn toward gravity (+y): the side of the thread that faces down, or the same fixed
-          // side when the end points straight up or down.
-          const side = out.x > 1e-6 ? 1 : out.x < -1e-6 ? -1 : 1
-          const r = (side * fiber.angle * Math.PI) / 180
-          const dir = {
-            x: out.x * Math.cos(r) - out.y * Math.sin(r),
-            y: out.x * Math.sin(r) + out.y * Math.cos(r),
-          }
-          const l = reach * fiber.length + fiber.root * w * spring
-          strands.push([root, add(root, out, l * 0.55), add(root, dir, l)])
+    // Strands spring out quickly after the snap: straight continuations of the thread, at most
+    // about 1.5 widths long (never under 3 units, so a fine thread still shows its fray).
+    const spring = Math.min(1, recoil * 5)
+    const count = f > 0 ? (f < 0.5 ? 2 : 3) : 0
+    const reach = count > 0 ? spring * Math.max(3, w * (0.9 + 0.6 * f)) : 0
+    // The vermilion tint: the last few units of each broken end, along its own curve.
+    const tintLen = Math.max(5, 3 * w)
+    for (const [piece, atEnd] of [
+      [pieceA, true],
+      [pieceB, false],
+    ] as const) {
+      const pt = lengths(piece)
+      const pl = pt[SAMPLES]
+      if (notch && pl > 2 * tintLen) {
+        const cut = paramAt(pt, atEnd ? 1 - tintLen / pl : tintLen / pl)
+        if (atEnd) {
+          inked.push(split(piece, 0, cut))
+          tints.push(split(piece, cut, 1))
+        } else {
+          tints.push(split(piece, 0, cut))
+          inked.push(split(piece, cut, 1))
         }
+      } else inked.push(piece)
+      if (reach <= 0 || reach < w * 0.6) continue
+      const tip = atEnd ? piece[3] : piece[0]
+      const near = cubicPoint(piece, atEnd ? 0.99 : 0.01)
+      const out = norm(sub(tip, near))
+      // Turn toward gravity (+y): the side of the thread that faces down, or the same fixed side
+      // when the end points straight up or down.
+      const side = out.x > 1e-6 ? 1 : out.x < -1e-6 ? -1 : 1
+      const across = { x: -out.y * side, y: out.x * side }
+      for (const st of STRANDS[count - 1]) {
+        const r = (side * st.angle * Math.PI) / 180
+        const dir = {
+          x: out.x * Math.cos(r) - out.y * Math.sin(r),
+          y: out.x * Math.sin(r) + out.y * Math.cos(r),
+        }
+        // A tapered strand: its base is its share of the square cut, its point a strand's
+        // length on. Bases tile the cut exactly, so the end has no step and no round cap.
+        const mid = add(tip, across, (st.across * w) / 2)
+        const halfBase = (st.share * w) / 2
+        const b0 = add(mid, across, -halfBase),
+          b1 = add(mid, across, halfBase)
+        strands.push([b0, add(mid, dir, reach * st.length), b1])
       }
-    // The notch spans tip to tip along the gap in the original route, bent to follow hanging ends.
-    if (notch) {
-      const gap = split(base, tA, tB)
-      notchCurve = [
-        pieceA[3],
-        add(gap[1], sub(pieceA[3], gap[0])),
-        add(gap[2], sub(pieceB[0], gap[3])),
-        pieceB[0],
-      ]
     }
   }
   const tied = knots && lay > 0
@@ -253,10 +299,12 @@ export function hiloGeometry({
     snapped: recoil > 0,
     width: w,
     pieces,
+    /** The pieces as drawn in ink: each snapped end short of its vermilion tint. */
+    inked: inked.length ? inked : pieces,
+    /** Tapered strand outlines (base corner, point, base corner), filled in ink. */
     strands,
-    strandWidth: Math.max(0.75, w * 0.6),
-    notch: notchCurve,
-    notchWidth: w * 4,
+    /** The vermilion tints on the broken tips; empty without `notch` or before a snap. */
+    notch: tints,
     knots: tied ? (lay >= 1 ? [from, to] : [from]) : [],
     knotRadius: w * 1.4,
   }
@@ -281,26 +329,34 @@ export function Hilo(props: HiloProps) {
       strokeLinecap="round"
       strokeLinejoin="round"
     >
-      {g.pieces.map((c, i) => (
-        <path key={i} d={cubicPath(c)} stroke={color.ink} strokeWidth={g.width} />
+      {g.inked.map((c, i) => (
+        <path
+          key={i}
+          d={cubicPath(c)}
+          stroke={color.ink}
+          strokeWidth={g.width}
+          // A snapped end is cut square, so its fibers read as the thread coming apart, not as
+          // whiskers on a rounded stub. The tied end sits under its knot.
+          strokeLinecap={g.snapped ? "butt" : undefined}
+        />
+      ))}
+      {g.notch.map((c, i) => (
+        <path
+          key={`t${i}`}
+          d={cubicPath(c)}
+          stroke={color.accent}
+          strokeWidth={g.width}
+          strokeLinecap="butt"
+        />
       ))}
       {g.strands.length > 0 && (
         <path
           d={g.strands
-            .map(
-              ([a, q, b]) =>
-                `M${n2(a.x)} ${n2(a.y)}Q${n2(q.x)} ${n2(q.y)} ${n2(b.x)} ${n2(b.y)}`
-            )
+            .map((pts) => "M" + pts.map((q) => `${n2(q.x)} ${n2(q.y)}`).join("L") + "Z")
             .join("")}
-          stroke={color.ink}
-          strokeWidth={g.strandWidth}
-        />
-      )}
-      {g.notch && (
-        <path
-          d={cubicPath(g.notch)}
-          stroke={color.accent}
-          strokeWidth={g.notchWidth}
+          // Strands continue their tip: vermilion where the break is marked, ink otherwise.
+          fill={g.notch.length > 0 ? color.accent : color.ink}
+          stroke="none"
         />
       )}
       {g.knots.map((k, i) => (

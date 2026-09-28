@@ -6,6 +6,7 @@ export default {
   title: "Mano",
   description: "Position and rotate the independent Hand illustration with controlled coordinates.",
   category: "UI Bits",
+  family: "Hands",
   capabilities: ["controls"],
   api: [
     {
@@ -47,7 +48,7 @@ export default {
   qa: [
     "Switch pose through all six at the same at: the hand stays in its box and does not jump unexpectedly.",
     "Drag Rotation from −30 to 30: the hand pivots about at (or the anchor point), not its centre.",
-    "Drag Position: the hand translates without resizing or clipping at the viewBox edges.",
+    "Drag Position through Left, Center, and Right: the hand crosses the stage from its left margin to its right margin without resizing, and stays inside the viewBox at every rotation from −30° to 30°.",
     "Anchor coordinates are in the 30×29 viewBox but each pose applies its own internal transform, so the fingertip lands at a different local point per pose; check the anchor visually for each pose you use.",
   ],
   docs: [

@@ -154,7 +154,8 @@
       "name": "paper",
       "title": "Paper",
       "description": "Paper cut-out primitives: a card-stock sheet that can crease, start to tear, and carry a real tab, a slanted Sticker with display type, and a centered Caption.",
-      "category": "UI",
+      "category": "UI Bits",
+      "family": "Paper & writing",
       "capabilities": [
         "controls"
       ],
@@ -162,7 +163,7 @@
       "registryDependencies": [
         "@jbm/tokens"
       ],
-      "snippet": "import { Paper, Sticker, Caption } from \"@/jbm/ui/paper\"\n\n<Paper w={200} h={130} rotate={-3} style={{ padding: 20 }}>\n  <Caption size={24}>papel</Caption>\n</Paper>\n<Sticker size={40} rotate={-5}>¿otra vez?</Sticker>\n<Sticker tone=\"ink\" size={28} rotate={2}>catálogo</Sticker>",
+      "snippet": "import { Paper } from \"@/jbm/ui/paper\"\n\n// Drive tension and reveal from your timeline, e.g. interpolate(frame, [0, 60], [0, 1]).\n<Paper\n  w={520}\n  h={760}\n  radius={10}\n  tension={0.9}\n  seam={380}\n  tab={{ label: \"Tutorial\", reveal: 1 }}\n/>",
       "installName": "paper",
       "sourcePath": "registry/jbm/ui/paper.tsx",
       "inRegistry": true
@@ -564,6 +565,7 @@
       "title": "UiButton",
       "description": "Illustrated pill button with a label bar, in ink, accent, or outlined paper tones.",
       "category": "UI Bits",
+      "family": "Interface bits",
       "capabilities": [],
       "needsRemotion": false,
       "registryDependencies": [
@@ -580,6 +582,7 @@
       "title": "UiInput",
       "description": "Illustrated outlined text field with a placeholder bar and a cursor you switch on or off.",
       "category": "UI Bits",
+      "family": "Interface bits",
       "capabilities": [],
       "needsRemotion": false,
       "registryDependencies": [
@@ -596,6 +599,7 @@
       "title": "UiCard",
       "description": "Illustrated content card with a line-art picture (hills and a vermilion sun) over two text bars.",
       "category": "UI Bits",
+      "family": "Interface bits",
       "capabilities": [],
       "needsRemotion": false,
       "registryDependencies": [
@@ -612,6 +616,7 @@
       "title": "Piece",
       "description": "Picks the button, input, or card illustration by kind and sizes it from one width.",
       "category": "UI Bits",
+      "family": "Interface bits",
       "capabilities": [],
       "needsRemotion": false,
       "registryDependencies": [
@@ -630,6 +635,7 @@
       "title": "PhoneFrame",
       "description": "Phone silhouette with a thick ink edge and speaker slot that stacks your content at the bottom of its screen.",
       "category": "UI Bits",
+      "family": "Interface bits",
       "capabilities": [],
       "needsRemotion": false,
       "registryDependencies": [
@@ -646,6 +652,7 @@
       "title": "Badge",
       "description": "Round check or cross badge in accent, ink, or paper tones for fixed and broken states.",
       "category": "UI Bits",
+      "family": "Interface bits",
       "capabilities": [],
       "needsRemotion": false,
       "registryDependencies": [
@@ -662,6 +669,7 @@
       "title": "TokenGlyph",
       "description": "Square glyphs for design tokens: overlapping colour swatches, an Aa type sample, or a spacing dimension line.",
       "category": "UI Bits",
+      "family": "Interface bits",
       "capabilities": [],
       "needsRemotion": false,
       "registryDependencies": [
@@ -841,6 +849,7 @@
       "title": "Document",
       "description": "Folded paper illustration with optional label and accent heading.",
       "category": "UI Bits",
+      "family": "Paper & writing",
       "capabilities": [],
       "needsRemotion": false,
       "registryDependencies": [
@@ -856,6 +865,7 @@
       "title": "Folder",
       "description": "Controlled folder illustration that pulls its sheet upright from 0 to 1.",
       "category": "UI Bits",
+      "family": "Folders & drawers",
       "capabilities": [
         "controls"
       ],
@@ -935,6 +945,7 @@
       "title": "Cajon",
       "description": "A fixed-size filing drawer whose complete folders fan front to back, darker with depth.",
       "category": "UI Bits",
+      "family": "Folders & drawers",
       "capabilities": [
         "controls"
       ],
@@ -950,10 +961,29 @@
       "inRegistry": true
     },
     {
+      "name": "hand",
+      "title": "Hand",
+      "description": "Static line-art hand in open-palm, pointing, pinching, gripping, typing, or holding pose, independent of placement and props.",
+      "category": "UI Bits",
+      "family": "Hands",
+      "capabilities": [
+        "controls"
+      ],
+      "needsRemotion": false,
+      "registryDependencies": [
+        "@jbm/tokens"
+      ],
+      "snippet": "import { Hand } from \"@/jbm/ui/hand\"\n\n<Hand pose=\"pinch\" width={160} />",
+      "installName": "hand",
+      "sourcePath": "registry/jbm/ui/hand.tsx",
+      "inRegistry": true
+    },
+    {
       "name": "mano",
       "title": "Mano",
       "description": "Position and rotate the independent Hand illustration with controlled coordinates.",
       "category": "UI Bits",
+      "family": "Hands",
       "capabilities": [
         "controls"
       ],
@@ -973,6 +1003,7 @@
       "title": "Pluma",
       "description": "A pen held in the Hand's pinch, with a helper that reports the nib point.",
       "category": "UI Bits",
+      "family": "Hands",
       "capabilities": [
         "controls"
       ],
@@ -992,6 +1023,7 @@
       "title": "Bandeja",
       "description": "A shallow paper tray with optional sheets.",
       "category": "UI Bits",
+      "family": "Desk objects",
       "capabilities": [
         "controls"
       ],
@@ -1010,6 +1042,7 @@
       "title": "ToolCaddy",
       "description": "An empty divided desktop organizer.",
       "category": "UI Bits",
+      "family": "Desk objects",
       "capabilities": [],
       "needsRemotion": false,
       "registryDependencies": [
@@ -1024,7 +1057,8 @@
       "name": "escritorio",
       "title": "Escritorio",
       "description": "An empty desk with separate finish and optional file cabinet.",
-      "category": "Layout",
+      "category": "UI Bits",
+      "family": "Desk objects",
       "capabilities": [
         "controls"
       ],
@@ -1043,8 +1077,9 @@
     {
       "name": "desk-top",
       "title": "DeskTop",
-      "description": "A cream desk seen from above, with light, a tilt-revealed front edge, and an optional drawer region.",
-      "category": "Layout",
+      "description": "A cream desk seen from above, with light, a tilt-revealed front edge, and an optional pulled-out drawer.",
+      "category": "UI Bits",
+      "family": "Desk objects",
       "capabilities": [
         "controls"
       ],
@@ -1062,7 +1097,7 @@
       "name": "ejes",
       "title": "Ejes",
       "description": "Two ink axes that split an area into four named quadrants, with quiet labels and a focus quadrant.",
-      "category": "UI Bits",
+      "category": "UI",
       "capabilities": [
         "controls"
       ],
@@ -1081,6 +1116,7 @@
       "title": "DeskProp",
       "description": "A free-standing keycap, keyboard, or mug to place on a desk.",
       "category": "UI Bits",
+      "family": "Desk objects",
       "capabilities": [
         "controls"
       ],
@@ -1114,27 +1150,11 @@
       "inRegistry": true
     },
     {
-      "name": "hand",
-      "title": "Hand",
-      "description": "Static line-art hand in open-palm, pointing, pinching, gripping, typing, or holding pose, independent of placement and props.",
-      "category": "UI Bits",
-      "capabilities": [
-        "controls"
-      ],
-      "needsRemotion": false,
-      "registryDependencies": [
-        "@jbm/tokens"
-      ],
-      "snippet": "import { Hand } from \"@/jbm/ui/hand\"\n\n<Hand pose=\"pinch\" width={160} />",
-      "installName": "hand",
-      "sourcePath": "registry/jbm/ui/hand.tsx",
-      "inRegistry": true
-    },
-    {
       "name": "file-cabinet",
       "title": "FileCabinet",
       "description": "SVG cabinet enclosure around a controlled filing drawer whose folders slide out and lift.",
       "category": "UI Bits",
+      "family": "Folders & drawers",
       "capabilities": [
         "controls"
       ],
@@ -1154,6 +1174,7 @@
       "title": "PaperClip",
       "description": "Independent ink wire clip to lay across a paper edge.",
       "category": "UI Bits",
+      "family": "Tape, clips & marks",
       "capabilities": [],
       "needsRemotion": false,
       "registryDependencies": [
@@ -1169,6 +1190,7 @@
       "title": "ClippedNote",
       "description": "Paper note with an optional paper clip, rotation, and paper, accent, or ink stock.",
       "category": "UI Bits",
+      "family": "Tape, clips & marks",
       "capabilities": [
         "controls"
       ],
@@ -1188,6 +1210,7 @@
       "title": "PunchedTag",
       "description": "Card-stock luggage-style label with a punched hole and bold content, in paper, accent, or ink stock.",
       "category": "UI Bits",
+      "family": "Tape, clips & marks",
       "capabilities": [
         "controls"
       ],
@@ -1206,6 +1229,7 @@
       "title": "VideoPrint",
       "description": "A printed video still on a Paper sheet: a pale 16:9 line sketch, an ink scrub rule with anchor ticks, title and date, and an optional punched link tag.",
       "category": "UI Bits",
+      "family": "Paper & writing",
       "capabilities": [
         "controls"
       ],
@@ -1216,7 +1240,7 @@
         "@jbm/paper",
         "@jbm/punched-tag"
       ],
-      "snippet": "import { VideoPrint } from \"@/jbm/ui/video-print\"\n\n<VideoPrint\n  scrub={1}\n  title=\"Alex Hormozi\"\n  date=\"YouTube · 4 nov 2025\"\n  link=\"youtube.com/watch?v=mr4Pw66_498\"\n/>",
+      "snippet": "import { VideoPrint } from \"@/jbm/ui/video-print\"\n\n<VideoPrint\n  scrub={1}\n  title=\"Sample talk\"\n  date=\"Video · 4 nov 2025\"\n  link=\"example.com/watch?v=sample-talk\"\n/>",
       "installName": "video-print",
       "sourcePath": "registry/jbm/ui/video-print.tsx",
       "inRegistry": true
@@ -1226,6 +1250,7 @@
       "title": "Hilo",
       "description": "An ink thread tied between two points that lays out, sags, and snaps into frayed ends with an optional vermilion notch.",
       "category": "UI Bits",
+      "family": "Paper & writing",
       "capabilities": [
         "controls"
       ],
@@ -1244,6 +1269,7 @@
       "title": "Tear",
       "description": "A sheet torn into strips along seams: controlled progress moves each strip to its own destination, with frayed, seeded edges at every seam.",
       "category": "UI Bits",
+      "family": "Paper & writing",
       "capabilities": [
         "controls"
       ],
@@ -1280,6 +1306,7 @@
       "title": "Register",
       "description": "Paper sheet of drawn writing whose shape says who reads it: steps, lists, tables, sourced prose, or a mixed page.",
       "category": "UI Bits",
+      "family": "Paper & writing",
       "capabilities": [
         "controls"
       ],
@@ -1299,6 +1326,7 @@
       "title": "Slip",
       "description": "Taped paper slip of out-of-register writing that peels, lifts, and travels while registers reflow around it.",
       "category": "UI Bits",
+      "family": "Paper & writing",
       "capabilities": [
         "controls"
       ],
@@ -1319,6 +1347,7 @@
       "title": "Stamp",
       "description": "Vermilion rubber-stamp impression that drops, makes contact, and inks in as a 0–1 press progresses.",
       "category": "UI Bits",
+      "family": "Tape, clips & marks",
       "capabilities": [
         "controls"
       ],
@@ -1337,6 +1366,7 @@
       "title": "TapeMarker",
       "description": "Folded vermilion paper checkpoint marker with an optional label above it.",
       "category": "UI Bits",
+      "family": "Tape, clips & marks",
       "capabilities": [
         "controls"
       ],
@@ -1355,6 +1385,7 @@
       "title": "PaperTape",
       "description": "Strip of paper fed out by length, with printed marks, checkpoint markers, and attachments on one coordinate system.",
       "category": "UI Bits",
+      "family": "Tape, clips & marks",
       "capabilities": [
         "controls"
       ],
@@ -1392,6 +1423,7 @@
       "title": "FolderContents",
       "description": "Folder that opens to reveal a sheet and a fan of nested folders whose documents extract independently.",
       "category": "UI Bits",
+      "family": "Folders & drawers",
       "capabilities": [
         "controls"
       ],
@@ -1411,6 +1443,7 @@
       "title": "FolderCarry",
       "description": "Folder carried along a path by its tab, interpolating size and label between two resting places.",
       "category": "UI Bits",
+      "family": "Folders & drawers",
       "capabilities": [
         "controls"
       ],
@@ -1420,7 +1453,7 @@
         "@jbm/scene-geometry",
         "@jbm/folder"
       ],
-      "snippet": "import { FolderCarry, folderGrip, tableFolderGeometry } from \"@/jbm/ui/folder-carry\"\n\nconst from = tableFolderGeometry({ x: 5, y: 65 }, 100)\nconst to = tableFolderGeometry({ x: 225, y: 60 }, 190)\nconst path = [folderGrip(from), { x: 200, y: 45 }, folderGrip(to)]\n\n<svg viewBox=\"0 0 450 270\" width=\"100%\">\n  <FolderCarry from={from} to={to} path={path} progress={0.5} label=\"proyecto\" />\n</svg>",
+      "snippet": "import { FolderCarry, folderGrip, tableFolderGeometry } from \"@/jbm/ui/folder-carry\"\n\n// Both resting places stand on the floor at y 248: a folder frame is 205/260 of its width tall.\nconst onFloor = (x: number, width: number) => tableFolderGeometry({ x, y: 248 - (205 * width) / 260 }, width)\nconst from = onFloor(50, 100)\nconst to = onFloor(230, 190)\nconst path = [folderGrip(from), { x: 175, y: 80 }, folderGrip(to)]\n\n<svg viewBox=\"0 0 450 270\" width=\"100%\">\n  <FolderCarry from={from} to={to} path={path} progress={0.5} label=\"proyecto\" />\n</svg>",
       "installName": "folder-carry",
       "sourcePath": "registry/jbm/ui/folder-carry.tsx",
       "inRegistry": true

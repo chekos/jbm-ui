@@ -3,10 +3,7 @@
 import { useEffect, useRef, useState, type ReactNode } from "react"
 import { Player, type PlayerRef } from "@remotion/player"
 import { SceneFromSpec } from "@/registry/jbm/motion/compile"
-import type {
-  SceneLayout,
-  SafeArea,
-} from "@/registry/jbm/motion/spec"
+import type { SceneLayout, SafeArea } from "@/registry/jbm/motion/spec"
 import { stage, type Orientation } from "@/registry/jbm/lib/tokens"
 import { Scene } from "@/registry/jbm/motion/scene"
 import { Pop, Stagger } from "@/registry/jbm/motion/pop"
@@ -26,6 +23,7 @@ import {
 } from "@/registry/jbm/motion/hooks"
 import { Big } from "@/registry/jbm/ui/big"
 import { ReplayButton } from "@/registry/jbm/ui/replay-button"
+import { useBenchCompact } from "./bench-compact"
 import { Chip } from "@/registry/jbm/ui/chip"
 import { color } from "@/registry/jbm/lib/tokens"
 
@@ -291,6 +289,8 @@ export function usePlayback(durationInFrames: number, label: string) {
 }
 
 export const playerChrome = {
+  // The owner uses Remotion under its free license (issue #114); this silences the per-page notice.
+  acknowledgeRemotionLicense: true,
   controls: false,
   loop: false,
   moveToBeginningWhenEnded: false,
@@ -304,6 +304,8 @@ export default function MotionPreview({ name }: { name: string }) {
   const [layout, setLayout] = useState<SceneLayout>("headline-illustration")
   const [safeArea, setSafeArea] = useState<"full" | "social">("full")
   const [guides, setGuides] = useState(false)
+  // Index cards keep layout, safe area, and Replay; /c/scene-spec adds the safe-area guides.
+  const compact = useBenchCompact()
   const durationInFrames = previewDuration(name, layout)
   const { player, last, progress, charging, status, replay } = usePlayback(
     durationInFrames,
@@ -339,14 +341,16 @@ export default function MotionPreview({ name }: { name: string }) {
               <option value="social">Social</option>
             </select>
           </label>
-          <label>
-            <input
-              type="checkbox"
-              checked={guides}
-              onChange={(e) => setGuides(e.target.checked)}
-            />{" "}
-            Show safe area
-          </label>
+          {!compact && (
+            <label>
+              <input
+                type="checkbox"
+                checked={guides}
+                onChange={(e) => setGuides(e.target.checked)}
+              />{" "}
+              Show safe area
+            </label>
+          )}
         </div>
       )}
       <Player
