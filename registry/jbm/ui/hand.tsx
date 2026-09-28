@@ -15,20 +15,25 @@ export type HandProps = SVGProps<SVGSVGElement> & {
   halo?: boolean
 }
 // Based on the issue #50 cursor reference; open-palm joins share coordinates and stroke widths.
-// grip, type, and hold (issue #136) trace the owner-approved generated references (Paper, page
-// "hands") in the open palm's construction: same transform, outline, wrist cut, and 6.4-wide
-// fingers with round tips. grip is a front-view fist: knuckle bumps on top, the curled fingertips
-// in a row below, the thumb lying across under them, pointing in. type is the hand from above on a
-// keyboard: the four fingers are concentric curved bands around one centre, so neighbours share a
-// side exactly; each rises straight from the palm and arcs up-left, the index curling furthest and
-// the middle tallest, and the thumb lies low, pointing left toward the space bar. hold is the
-// side-view mug grip turned so the wrist sits at the bottom: four stacked fingers with their curled
-// tips on the palm and the thumb opening from the index in a V.
+// grip, type, and hold trace owner-approved generated references (Paper, page "hands"; grip from
+// issue #136, type and hold redrawn from the "Hands v5" references for issue #154) in the open
+// palm's construction: same transform, outline, wrist cut, and 6.4-wide fingers with round tips.
+// grip is a front-view fist: knuckle bumps on top, the curled fingertips in a row below, the thumb
+// lying across under them, pointing in. type is the hand from above on a keyboard with the fingers
+// curled down onto the keys: short stubs (their caps are the bent middle joints; the tips are out
+// of sight under them), each crossed by one fold mark where it turns down, and the thumb low,
+// pointing left toward the space bar. hold is upright, seen from the side: the palm rises from the
+// wrist and turns over into the thumb, which crosses the held object's rim; the four fingers lie
+// stacked on the right, wrapped round the object's side with their tips facing the palm, and the
+// open pocket between palm, thumb, fingertips, and heel is the object's place (a mug's body, a
+// sheet's edge). The little fingertip curls on over the heel.
 // Their ink is one path: the closed outline, with every interior line (dividers, fingertip row,
-// thumb fold) walked out and back from an outline point as a retraced spur. A spur adds no fill,
-// and one stroke never doubles its antialiased edge where lines meet, so joins show no steps.
-// Every join is tangent-continuous; each cusp between fingertips, the web of hold's thumb, and
-// grip's palm edge between index and thumb round off in a fillet.
+// thumb fold, the little fingertip) walked out and back from an outline point as a retraced spur;
+// type's fold marks are short strokes retraced the same way. A spur adds no fill, and one stroke
+// never doubles its antialiased edge where lines meet, so joins show no steps. Every join is
+// tangent-continuous except the wrist cut, type's thumb web, and hold's heel where it meets the
+// little finger; each valley between fingertips, and grip's palm edge between index and thumb,
+// rounds off in a fillet.
 // In every pose, including point and pinch, dividers start on the outline's valley points and use
 // the outline's stroke width, and the palm side meets the wrist cut in one tangent fillet.
 // The outline is the shared token: Hand draws 30 viewBox units across 180 stage px, so it is
@@ -152,7 +157,7 @@ const poses = {
   ],
   type: [
     {
-      d: "M55.5 45.2 C55.5 39.2 53.597 37.453 53.248 32.465 L53.179 31.465 A31.4 31.4 0 0 0 52.569 27.127 A3.2 3.2 0 0 0 47.62 25.159 A1.7 1.7 0 0 1 45.075 24.39 A1.7 1.7 0 0 0 47.62 25.159 A3.2 3.2 0 0 0 46.309 28.457 A25 25 0 0 1 46.794 31.911 L47.178 37.398 L46.794 31.911 A25 25 0 0 0 46.309 28.457 A25 25 0 0 0 45.075 24.39 A25 25 0 0 0 44.868 23.887 A3.2 3.2 0 0 0 39.579 22.958 A1.7 1.7 0 0 1 36.954 22.793 A1.7 1.7 0 0 0 39.579 22.958 A3.2 3.2 0 0 0 38.976 26.387 A18.6 18.6 0 0 1 40.41 32.358 L40.793 37.844 L40.41 32.358 A18.6 18.6 0 0 0 38.976 26.387 A18.6 18.6 0 0 0 36.954 22.793 A18.6 18.6 0 0 0 34.776 20.275 A3.2 3.2 0 0 0 29.483 21.675 A1.7 1.7 0 0 1 27.332 22.814 A1.7 1.7 0 0 0 29.483 21.675 A3.2 3.2 0 0 0 30.33 24.879 A12.2 12.2 0 0 1 34.025 32.804 L34.409 38.291 L34.025 32.804 A12.2 12.2 0 0 0 30.33 24.879 A12.2 12.2 0 0 0 27.955 23.089 A3.2 3.2 0 0 0 27.332 22.814 A3.2 3.2 0 0 0 23.429 24.565 A3.2 3.2 0 0 0 24.755 28.632 A5.8 5.8 0 0 1 27.641 33.25 L28.372 43.7 L24 41.93 A3.203 3.203 0 0 0 19.83 43.7 A3.203 3.203 0 0 0 21.6 47.87 C24.38 48.99 29.4 53.6 32.9 57.6 C34.744 59.707 35.641 60.642 36.39 63.34 L36.8 64.8 L54.1 60.1 C53.9 59 53.5 56.9 53.5 56 C53.5 53.8 55.5 50.2 55.5 45.2 Z",
+      d: "M54.1 60.1 C53.9 59 53.5 56.9 53.5 56 C53.5 53.8 55.5 50.2 55.5 45.2 C55.5 40.6 54 38.4 54 35 L54 33.6 A3.2 3.2 0 0 0 49.345 30.75 A1.2 1.2 0 0 1 47.6 29.681 A1.2 1.2 0 0 0 49.345 30.75 A3.2 3.2 0 0 0 47.6 33.6 L47.6 40.5 L47.6 33.6 L47.6 29.681 L47.6 29.6 A3.2 3.2 0 0 0 42.407 27.096 A1.2 1.2 0 0 1 40.662 26.824 A1.2 1.2 0 0 0 42.407 27.096 A3.2 3.2 0 0 0 41.2 29.6 L41.2 40.5 L41.2 29.6 L41.2 28.6 A3.2 3.2 0 0 0 40.662 26.824 A3.2 3.2 0 0 0 34.864 27.965 A1.2 1.2 0 0 1 33.118 28.783 A1.2 1.2 0 0 0 34.864 27.965 A3.2 3.2 0 0 0 34.8 28.6 L34.8 31.6 L34.8 40.5 L34.8 31.6 A3.2 3.2 0 0 0 33.118 28.783 A3.2 3.2 0 0 0 28.4 31.6 L28.4 43.7 L24 41.93 A3.203 3.203 0 0 0 19.83 43.7 A3.203 3.203 0 0 0 21.6 47.87 C24.38 48.99 29.4 53.6 32.9 57.6 C34.744 59.707 35.641 60.642 36.39 63.34 L36.8 64.8 Z M29.7 36.6 A3.2 3.2 0 0 1 33.5 36.6 A3.2 3.2 0 0 0 29.7 36.6 M36.1 33.6 A3.2 3.2 0 0 1 39.9 33.6 A3.2 3.2 0 0 0 36.1 33.6 M42.5 34.6 A3.2 3.2 0 0 1 46.3 34.6 A3.2 3.2 0 0 0 42.5 34.6 M48.9 38.6 A3.2 3.2 0 0 1 52.7 38.6 A3.2 3.2 0 0 0 48.9 38.6",
       fill: "#FFFFFF",
       stroke: "#111212",
       strokeWidth: WIDE,
@@ -162,7 +167,7 @@ const poses = {
   ],
   hold: [
     {
-      d: "M54.33 35.07 A3.2 3.2 0 0 1 54.441 35.957 A3.2 3.2 0 0 1 51.641 39.083 A3.2 3.2 0 0 1 48.154 36.747 L45.793 28.052 L48.154 36.747 L48.371 37.548 A3.2 3.2 0 0 1 46.121 41.475 A3.2 3.2 0 0 1 42.195 39.225 L39.792 30.375 L42.195 39.225 L42.284 39.553 A3.2 3.2 0 0 1 40.034 43.48 A3.2 3.2 0 0 1 36.107 41.23 L35.843 40.255 L34.533 35.43 L35.843 40.255 A3.2 3.2 0 0 1 31.173 43.875 A3.2 3.2 0 0 0 35.843 40.255 L36.107 41.23 A3.2 3.2 0 0 0 40.034 43.48 A3.2 3.2 0 0 0 42.284 39.553 L42.195 39.225 A3.2 3.2 0 0 0 46.121 41.475 A3.2 3.2 0 0 0 48.371 37.548 L48.154 36.747 A3.2 3.2 0 0 0 51.641 39.083 A3.2 3.2 0 0 0 54.441 35.957 A7 7 0 0 1 54.896 33.578 A7 7 0 0 0 54.441 35.957 A3.2 3.2 0 0 0 54.33 35.07 L51.969 26.375 A3.2 3.2 0 0 0 48.043 24.125 A3.2 3.2 0 0 0 45.793 28.052 A3.2 3.2 0 0 0 41.866 25.802 A3.2 3.2 0 0 0 39.616 29.729 L39.792 30.375 A3.2 3.2 0 0 0 35.865 28.126 A3.2 3.2 0 0 0 33.616 32.052 L34.533 35.43 A3.2 3.2 0 0 0 30.606 33.18 A3.2 3.2 0 0 0 28.356 37.107 L29.666 41.932 A3.2 3.2 0 0 0 31.173 43.875 C30.04 47.01 35.67 55.86 36.8 64.8 L54.1 60.1 C54.1 56.25 61.29 46.99 61.58 44.5 L63.46 28.79 A3.204 3.204 0 0 0 61.047 25.289 A3.204 3.204 0 0 0 57.29 27.27 L54.896 33.578 Z",
+      d: "M54.1 60.1 C55.331 57.364 61.68 53.392 63.8 50 L60.8 50 A3.2 3.2 0 0 1 57.6 46.8 A3.2 3.2 0 0 0 60.8 50 L63.8 50 L66.4 50 A3.2 3.2 0 0 0 69.036 44.986 A1.2 1.2 0 0 1 69.473 43.241 A1.2 1.2 0 0 0 69.036 44.986 A3.2 3.2 0 0 0 66.4 43.6 L60.8 43.6 L66.4 43.6 L68 43.6 A3.2 3.2 0 0 0 69.473 43.241 A3.2 3.2 0 0 0 70.333 38.209 A1.2 1.2 0 0 1 70.442 36.464 A1.2 1.2 0 0 0 70.333 38.209 A3.2 3.2 0 0 0 68 37.2 L59.5 37.2 L68 37.2 L68.4 37.2 A3.2 3.2 0 0 0 70.442 36.464 A3.2 3.2 0 0 0 70.079 31.276 A1.2 1.2 0 0 1 69.752 29.531 A1.2 1.2 0 0 0 70.079 31.276 A3.2 3.2 0 0 0 68.4 30.8 L67.2 30.8 L61 30.8 L67.2 30.8 A3.2 3.2 0 0 0 69.752 29.531 A3.2 3.2 0 0 0 67.2 24.4 L61 24.4 A3.2 3.2 0 0 0 58.345 29.386 A1.2 1.2 0 0 1 57.881 31.132 A1.2 1.2 0 0 0 58.345 29.386 A3.2 3.2 0 0 0 61 30.8 L59.3 30.8 A3.2 3.2 0 0 0 57.881 31.132 A3.2 3.2 0 0 0 57.179 36.396 A1.2 1.2 0 0 1 57.233 38.141 A1.2 1.2 0 0 0 57.179 36.396 A3.2 3.2 0 0 0 59.3 37.2 L59.5 37.2 A3.2 3.2 0 0 0 57.233 38.141 A3.2 3.2 0 0 0 57.871 43.154 A1.2 1.2 0 0 1 58.225 44.9 A1.2 1.2 0 0 0 57.871 43.154 A3.2 3.2 0 0 0 59.5 43.6 L60.8 43.6 A3.2 3.2 0 0 0 58.225 44.9 A3.2 3.2 0 0 0 57.6 46.8 L47 46.8 A4 4 0 0 1 43 42.8 L43 31 A9 9 0 0 1 53.563 22.137 A3.1 3.1 0 0 0 57.154 19.622 A3.1 3.1 0 0 0 54.639 16.031 A15.2 15.2 0 0 0 36.948 28.885 C34.721 44.729 35.052 58.522 36.39 63.34 L36.8 64.8 Z",
       fill: "#FFFFFF",
       stroke: "#111212",
       strokeWidth: WIDE,
@@ -183,7 +188,8 @@ const transforms = {
  * A pose's closed outline in the Hand's 30×29 viewBox: its path, the transform that places it,
  * and the outline's stroke width in path units. Composites use it to cut art drawn behind the hand
  * (a mask or clip) instead of painting a halo over whatever else is under it. For grip, type, and
- * hold the path also retraces the interior lines as spurs inside the outline; they add no area.
+ * hold the path also retraces the interior lines (and type's fold marks) as spurs inside the
+ * outline; they add no area.
  */
 export function handOutline(pose: HandPose = "point") {
   const outline = poses[pose][0]
