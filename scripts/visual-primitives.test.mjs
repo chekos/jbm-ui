@@ -104,3 +104,30 @@ test("card folder prints its whole label on a widened tab and keeps legacy tones
   assert.ok(render(Folder, { tone: "card", label: "A", labelOn: "front" }).includes("matrix(1 0 0 1 46 180)"))
   assert.ok(!render(Folder, { label: "Notes", labelOn: "tab" }).includes("matrix("))
 })
+test("a closed card folder seats its sheet under the front panel; it rises straight out, then turns", () => {
+  const { folderShape } = load(resolve("registry/jbm/ui/folder.tsx"))
+  const sheet = (html) =>
+    html
+      .match(/translate\(([-\d.e]+) ([-\d.e]+)\) scale\(-1 1\) rotate\(([-\d.e]+) 128 140\)/)
+      .slice(1)
+      .map(Number)
+  const [, ty0, r0] = sheet(render(Folder, { tone: "card", label: "Doorways", open: 0 }))
+  // The sheet's top outline (y 78, 1.5 either side) sits wholly under the front's top outline.
+  assert.equal(r0, 0)
+  assert.ok(78 + ty0 - 1.5 >= folderShape.flap + 1.5 - 1e-9, "no sheet edge above the front panel")
+  assert.ok(184 + ty0 + 1.5 <= 205 + 1.5 + 1e-9, "the seated sheet stays inside the front panel")
+  let last = -Infinity
+  for (let step = 0; step <= 100; step++) {
+    const [, ty, rot] = sheet(render(Folder, { tone: "card", open: step / 100 }))
+    assert.ok(-ty >= last - 1e-9, "the sheet never sinks back")
+    last = -ty
+    // While it still rises from its seat it does not turn: no tilted edge under the panel's top.
+    if (ty > 1e-9) assert.equal(rot, 0, `open ${step / 100}`)
+  }
+  // Accent and ink keep their resting sheet above the panel.
+  assert.ok(render(Folder, { open: 0 }).includes("translate(256 0)"))
+  assert.equal(
+    sheet(render(Folder, { tone: "card", open: 1 })).join(),
+    sheet(render(Folder, { open: 1 })).join()
+  )
+})

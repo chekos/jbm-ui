@@ -373,6 +373,15 @@ test("DeskTop drawer: a pulled-out box narrower than the desk, one pull on its o
       }
   const markup = svg(React.createElement(DeskTop, { box, drawer: "bottom", edge: 1 }))
   assert.equal((markup.match(new RegExp(`fill="${color.ink}"`, "g")) ?? []).length, 1, "one pull bar")
+  // The pull is Cajon's: one ink bar at the shared outline, no plate around it, clear of the
+  // front wall's own edges.
+  assert.equal((markup.match(/<rect /g) ?? []).length, 1, "no plate")
+  for (const drawer of ["start", "end", "top", "bottom"]) {
+    const { pull, front } = deskTopLayout({ box, edge: 1, drawer }).drawer
+    const across = drawer === "start" || drawer === "end" ? ["x", "w"] : ["y", "h"]
+    const margin = pull[across[0]] - front[across[0]]
+    assert.ok(margin >= 4.5 + 3 && Math.abs(margin - (front[across[1]] - pull[across[1]] - margin)) < 1e-9, drawer)
+  }
 })
 
 test("Ejes: the four focus outlines are the same size", () => {
