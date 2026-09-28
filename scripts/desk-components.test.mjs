@@ -434,6 +434,74 @@ test("an ajar flap shows: the folder rises so the opening clears what is in fron
         if (i < 3) assert.ok(l.folders[i + 1].y + f.tabHeight <= f.y + 1e-9, `tab behind ${i}`)
       }
 })
+test("a closed flap edge never crosses a folder body: it draws side to side only over a tab of flap clear of everything in front", () => {
+  const twelve = [...sources, "Smith 1776", "Babbage 1832", "Fayol 1916", "Follett 1924"]
+  // The top of folder g's silhouette at x (tab, its slope, and the body beside it), or none.
+  const topAt = (g, x) => {
+    if (x < g.x || x > g.x + g.w) return Infinity
+    if (x < g.tabX) return g.y + g.tabHeight
+    const knee = g.tabX + g.tabWidth - g.tabSlope
+    if (x <= knee) return g.y
+    if (x <= g.tabX + g.tabWidth) return g.y + (x - knee)
+    return g.y + g.tabSlope
+  }
+  const edges = (markup) =>
+    [...markup.matchAll(/d="M([-\d.e]+) ([-\d.e]+)H([-\d.e]+)" fill="none"/g)].map((m) => m.slice(1).map(Number))
+  const check = (props, label) => {
+    const l = cajonLayout(props)
+    const drawn = edges(drawMarkup(props))
+    const expected = l.folders.filter((f, i) => f.rule && !(props.folders[i].open > 0))
+    assert.equal(drawn.length, expected.length, `${label}: one edge per drawn rule`)
+    for (const [x0, y, x1] of drawn) {
+      const i = l.folders.findIndex((f) => Math.abs(f.x - x0) < 1e-6 && Math.abs(f.flap - y) < 1e-6)
+      assert.ok(i >= 0, `${label}: edge at ${y} belongs to a folder's flap`)
+      const f = l.folders[i]
+      assert.ok(Math.abs(x1 - (f.x + f.w)) < 1e-6, `${label}: edge meets both sides of folder ${i}`)
+      // Everything in front: the drawer front and every nearer folder's true silhouette.
+      for (let s = 0; s <= 64; s++) {
+        const x = x0 + ((x1 - x0) * s) / 64
+        const cover = Math.min(l.frontTop, ...l.folders.slice(0, i).map((g) => topAt(g, x)))
+        assert.ok(
+          y + f.tabHeight <= cover + 1e-6,
+          `${label}: folder ${i} edge at x ${x.toFixed(1)} is ${(cover - y).toFixed(1)} above what is in front`
+        )
+      }
+    }
+    return l
+  }
+  for (const labelSize of [13, 24])
+    for (const tabLayout of ["stair", "stagger3"])
+      for (const sub of [false, true])
+        for (const n of [1, 3, 5, 8, 12]) {
+          const base = (extra) =>
+            twelve.slice(0, n).map((name, j) => ({
+              name,
+              sublabel: sub ? "Administrative Behavior" : undefined,
+              ...extra(j),
+            }))
+          // A fan at rest, at any opening and any given spacing, shows no closed flap edge.
+          for (const open of [0, 0.5, 1])
+            for (const depthSpacing of [undefined, 24, 60]) {
+              const props = { labelSize, tabLayout, open, depthSpacing, folders: base(() => ({})) }
+              const l = check(props, `n=${n} open ${open} rise ${depthSpacing}`)
+              assert.ok(l.folders.every((f) => !f.rule), `n=${n} open ${open}: a fan at rest has no seams`)
+            }
+          // Lift and ajar extremes, one folder or all of them.
+          for (const target of [0, Math.floor(n / 2), n - 1, -1])
+            for (const pulled of [0.05, 0.1, 0.5, 1])
+              for (const ajar of [0, 1]) {
+                const aim = (j) => target === -1 || j === target
+                const props = {
+                  labelSize,
+                  tabLayout,
+                  folders: base((j) => (aim(j) ? { pulled, open: ajar } : {})),
+                }
+                const l = check(props, `n=${n} target ${target} lift ${pulled} ajar ${ajar}`)
+                if (target === 0 && pulled === 1 && ajar === 0)
+                  assert.equal(l.folders[0].flapEdge, 1, "a folder lifted out shows its front panel, like Folder")
+              }
+        }
+})
 test("anchors of tabs inside a closed drawer stop at its top rim", () => {
   const l = cajonLayout({ folders: sources.slice(0, 3).map((name) => ({ name })), open: 0 })
   for (let i = 0; i < 3; i++) for (const p of l.anchors(i, 2)) assert.ok(p.y <= l.frontTop + 1e-9)

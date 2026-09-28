@@ -216,15 +216,20 @@ export function cajonLayout({
         width: subWidth > 0 ? Math.min(subWidth, fx + fw - pad - subX) : 0,
         visible: true,
       },
-      /** Whether the front flap's top rule draws (false when an edge in front sits just under it). */
-      rule: true,
+      /**
+       * Whether the closed front flap's top edge draws: only where a tab height or more of flap
+       * shows under it, clear of everything in front (see flapEdge).
+       */
+      rule: false,
+      /** 0–1 ink of the closed flap's top edge: 0 over a strip thinner than a tab, 1 from 1.5 tabs. */
+      flapEdge: 0,
       light: k + (1 - k) * pulled,
     }
   })
   // What stands in front of folder i at a given x: the drawer front and every folder nearer the
   // front (tab, then body top edge beside it). A sublabel prints only when that edge clears its
-  // whole line; a partly covered line would leave fragments beside the next tab. The flap rule
-  // hides when an edge in front runs just under it, where the two would read as one heavy bar.
+  // whole line; a partly covered line would leave fragments beside the next tab. The same edge
+  // decides the closed flap's top edge (below).
   const coverAt = (i: number, a: number, b: number) => {
     let y = frontTop
     for (let j = 0; j < i; j++) {
@@ -245,8 +250,15 @@ export function cajonLayout({
       const need = f.sublabel.y + subSize * 0.35
       f.sublabel.visible = coverAt(i, f.sublabel.x, f.sublabel.x + f.sublabel.width) >= need
     }
-    const gap = coverAt(i, f.x + 5, f.x + f.w - 5) - f.flap
-    f.rule = !(gap < 8)
+    // A closed flap's top edge reads as a front panel only over a strip of flap at least a tab
+    // tall. The lip left under each folder of a fan, or the front folder's strip above the rim,
+    // is thinner: there the edge reads as a seam across the body, or as the tab edge in front
+    // showing through, so it is not drawn. Over the whole span the edge sits above what is in
+    // front, so no folder ever covers part of it; it inks in from one tab of strip to one and a
+    // half, so a folder lifting clear gains its edge smoothly.
+    const strip = coverAt(i, f.x, f.x + f.w) - f.flap
+    f.flapEdge = unit((strip - f.tabHeight) / (0.5 * f.tabHeight))
+    f.rule = f.flapEdge > 0
   })
   /**
    * n thread endpoints on folder i's tab midline, from just before the name (clear of its first
@@ -399,7 +411,12 @@ export function Cajon(props: CajonProps) {
                 />
               </>
             ) : q.rule ? (
-              <path d={`M${q.x + 5} ${q.flap}H${q.x + q.w - 5}`} fill="none" />
+              // Side to side, like Folder's front panel: a flap edge, never a floating rule.
+              <path
+                d={`M${q.x} ${q.flap}H${q.x + q.w}`}
+                fill="none"
+                strokeOpacity={q.flapEdge < 1 ? +q.flapEdge.toFixed(3) : undefined}
+              />
             ) : null}
             <text
               transform={`translate(${q.label.x} ${q.label.y})${q.label.scale < 1 ? ` scale(${+q.label.scale.toFixed(4)} 1)` : ""}`}
