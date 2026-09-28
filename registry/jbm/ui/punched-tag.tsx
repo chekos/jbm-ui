@@ -5,13 +5,19 @@ import { paperFill, paperInk, paperShadow, type PaperTone } from "./paper"
 const r2 = (n: number) => Math.round(n * 100) / 100
 /** The fill's cut inside an edge `t` thick around a 45° cut `c` deep, so the edge keeps its width along the cut. */
 const innerCut = (c: number, t: number) => Math.max(0, c - t * (2 - Math.SQRT2))
-/** The tag's outline: the two corners at the hole end cut off at 45°, `c` deep. */
-const tagClip = (c: number) =>
-  `polygon(${r2(c)}px 0, 100% 0, 100% 100%, ${r2(c)}px 100%, 0 calc(100% - ${r2(c)}px), 0 ${r2(c)}px)`
+/**
+ * The tag's outline: the two corners at the hole end cut off at 45°, `c` deep. The cuts' ends on
+ * the hole-end side never pass the middle of the height, so a cut deeper than half the tag makes one
+ * point instead of crossing itself; the edge and the stock clamp alike, so they share that point.
+ */
+const tagClip = (c: number) => {
+  const y = `min(${r2(c)}px, 50%)`
+  return `polygon(${r2(c)}px 0, 100% 0, 100% 100%, ${r2(c)}px 100%, 0 calc(100% - ${y}), 0 ${y})`
+}
 
 /**
- * A card-stock luggage tag: the two corners at the hole end cut off, a punched hole, and one line
- * of bold content that ends in an ellipsis past `maxWidth`. It carries no string: Hilo is the one
+ * A card-stock luggage tag: the two corners at the hole end cut off, a punched hole in a reinforcement
+ * washer, and one line of bold content that ends in an ellipsis past `maxWidth`. It carries no string: Hilo is the one
  * connector, tied at the hole. Pure React.
  */
 export function PunchedTag({
@@ -27,7 +33,7 @@ export function PunchedTag({
   tone?: PaperTone
   /** Size multiplier for the tag's own geometry: hole, ring, corner cuts, radii, gap, padding, and type. Default 1. */
   scale?: number
-  /** Depth of the hole end's 45° corner cuts in px before `scale` (default 14); keep it under half the tag's height. */
+  /** Depth of the hole end's 45° corner cuts in px before `scale` (default 14). Deeper than half the tag's height, the cuts meet in one point. */
   cut?: number
   /** Widest the tag gets, as px or a CSS length (default 100%): longer content stays on one line and ends in an ellipsis. */
   maxWidth?: number | string
@@ -102,8 +108,11 @@ export function PunchedTag({
           height: 14 * k,
           borderRadius: "50%",
           background: color.bg,
-          // The hole's ring: the shared outline, thinner only on a tag scaled below 1.
-          border: `${Math.min(t, Math.max(1, t * k))}px solid ${color.ink}`,
+          // The hole's ring: the shared outline, thinner only on a tag scaled below 1, inside a
+          // flat reinforcement washer, the luggage tag's grommet. On ink or vermilion stock the ring
+          // takes the washer's grey, so ring and washer read as one eyelet, not a radio button.
+          border: `${Math.min(t, Math.max(1, t * k))}px solid ${tone === "paper" ? color.ink : color.line}`,
+          boxShadow: `0 0 0 ${r2(4 * k)}px ${color.line}`,
         }}
       />
       <span

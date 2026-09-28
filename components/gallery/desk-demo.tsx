@@ -576,7 +576,7 @@ function DeskObjectDemo({ name }: { name: string }) {
               checked={mug}
               onChange={(e) => setMug(e.target.checked)}
             />{" "}
-            Mug
+            Mug (hold is drawn round an object)
           </label>
         )}
         {name === "pluma" && (

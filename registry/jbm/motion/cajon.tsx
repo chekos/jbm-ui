@@ -322,7 +322,9 @@ function DrawerInterior({ l }: { l: ReturnType<typeof cajonLayout> }) {
     top = l.y + 10 * sc,
     bottom = l.frontTop
   const depth = bottom - top
-  if (!(depth > 0)) return null
+  // Same gate as the side walls: until the well is deeper than one outline, its rim stroke would
+  // only thicken the front's top edge.
+  if (!(depth > stroke.outline)) return null
   // The back wall's foot, and how far each side wall's inner face spans at the floor.
   const foot = top + depth * 0.45
   const wall = 8 * sc

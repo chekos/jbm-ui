@@ -13,7 +13,7 @@ export type DeskPropProps = {
   y: number
   /** Uniform size multiplier; the ink stroke stays `weight` parent units. Defaults to 1. */
   scale?: number
-  /** Ink stroke width in parent units at any scale. Default stroke.outline (3), the shared outline. */
+  /** Ink stroke width in parent units at any scale. Default stroke.outline (3), the shared outline. A small keyboard draws its key outlines at no more than half the gap between keys. */
   weight?: number
   /** Rotation in degrees around the centre. Defaults to 0. */
   rotate?: number
@@ -159,6 +159,9 @@ export function DeskProp({
   const p = unit(press)
   // The group is scaled, so the stroke is divided by scale to stay `weight` parent units.
   const line = weight / (scale || 1)
+  // Key outlines never take more than half the gap between keys, so a small keyboard keeps
+  // cream between its keys instead of fusing into an ink grid. The case keeps the full weight.
+  const keyLine = Math.min(line, GAP / 2)
   const S = MUG_SIDE
   const H = S.handle
   return (
@@ -208,9 +211,10 @@ export function DeskProp({
             rx={10}
           />
           {deskPropKeys.map((k, i) => {
-            // A pressed key sinks 3 units on every side and takes a light ink wash.
+            // A pressed key sinks a tenth of its short side (at most 3 units) on every side and
+            // takes a light ink wash, so it keeps the shape of its neighbours.
             const down = keys.includes(i) ? p : 0
-            const inset = 3 * down
+            const inset = Math.min(3, 0.1 * Math.min(k.w, k.h)) * down
             const face = {
               x: r2(k.x + inset),
               y: r2(k.y + inset),
@@ -220,7 +224,7 @@ export function DeskProp({
             }
             return (
               <g key={i} data-key={i}>
-                <rect {...face} fill={down > 0 ? color.bg : color.card} />
+                <rect {...face} strokeWidth={keyLine < line ? r2(keyLine) : undefined} fill={down > 0 ? color.bg : color.card} />
                 {down > 0 && (
                   <rect
                     {...face}

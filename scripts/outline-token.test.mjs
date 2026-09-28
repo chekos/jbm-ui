@@ -157,7 +157,11 @@ test("scaled desk objects keep the token in parent units", () => {
     for (const kind of ["keycap", "keyboard", "mug", "mug-side"]) {
       const ws = widths(svg(h(DeskProp, { kind, x: 0, y: 0, scale })))
       assert.ok(ws.length > 0)
-      for (const w of ws) assert.ok(close(w * scale, PROBE), `${kind} ×${scale}`)
+      // A small keyboard caps its key outlines at half the 6-unit key gap (3 × scale parent
+      // units) so the keys never fuse; the case keeps the token.
+      const keyCap = kind === "keyboard" ? Math.min(PROBE, 3 * scale) : PROBE
+      assert.ok(close(ws[0] * scale, PROBE), `${kind} ×${scale}`)
+      for (const w of ws) assert.ok(close(w * scale, PROBE) || close(w * scale, keyCap), `${kind} ×${scale}`)
     }
     // An explicit weight still wins.
     assert.ok(widths(svg(h(DeskProp, { kind: "mug", x: 0, y: 0, scale, weight: 2 }))).every((w) => close(w * scale, 2)))
@@ -221,5 +225,22 @@ test("listed components import the outline from lib/tokens and hardcode no outli
     assert.doesNotMatch(src, /stroke=\{color\.ink\}\s*strokeWidth=\{[\d.]+\}/, f)
     assert.doesNotMatch(src, /strokeWidth: "[\d.]+"/, f)
     assert.doesNotMatch(src, /\b2px solid\b/, f)
+  }
+})
+
+test("Bandeja: no sheet edge lands within a pitch of the back rim, and the stack stays inside the posts", () => {
+  const pitch = PROBE + 2
+  for (let layers = 0; layers <= 12; layers++) {
+    const markup = svg(h(Bandeja, { layers, landing: 0 }))
+    const paths = [...markup.matchAll(/<path d="([^"]+)"/g)].map((m) => m[1])
+    // The first path is the tray's back well; the last two are the walls and the front lip.
+    for (const d of paths.slice(1, -2)) {
+      const pts = [...d.matchAll(/(-?[\d.]+)[ ,](-?[\d.]+)/g)].map((m) => ({ x: +m[1], y: +m[2] }))
+      for (const m of d.matchAll(/(?:^M|L)(-?[\d.]+) (-?[\d.]+)|V(-?[\d.]+)/g)) {
+        const y = +(m[2] ?? m[3])
+        assert.ok(y === 16 || Math.abs(y - 16) >= pitch, `layers ${layers}: an edge at y ${y} fuses with the rim`)
+      }
+      for (const p of pts) assert.ok(p.x >= 22 + pitch && p.x <= 280 - 22 - pitch, `layers ${layers}: the stack reaches past a wall post (${p.x})`)
+    }
   }
 })

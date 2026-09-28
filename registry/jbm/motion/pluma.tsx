@@ -111,13 +111,14 @@ export function Pluma({
   while (follow < -180) follow += 360
   const handAngle = f(angle + follow)
   // The lower pen passes behind the hand: a mask cuts it along the hand's silhouette plus a gap
-  // half the outline wide, so the two ink edges stay apart. The upper shaft is drawn again over the
-  // hand with a card knockout half the outline wide around it, clipped to the hand's own ink, so
-  // the hand's contours stop short of the barrel where it crosses them. Nothing is painted on the
-  // page outside the hand, so writing under the nib stays whole.
+  // half the outline wide, so the two ink edges stay apart. The upper shaft crosses over the hand:
+  // a second mask cuts the hand's ink along the shaft plus the same half-outline gap, so its
+  // contours stop short of the barrel without painting anything on the page. Inside the hand the
+  // gap is refilled with card (clipped to the hand's fill), so it reads as the hand's own paper.
   const id = useId().replace(/[^\w-]/g, "")
   const maskId = `pluma-${id}`
-  const overId = `pluma-over-${id}`
+  const cutId = `pluma-cut-${id}`
+  const fillId = `pluma-fill-${id}`
   const outline = handOutline("pinch")
   const reach = (tail + len + size) * 2
   const box = { x: f(at.x - reach), y: f(at.y - reach), width: f(2 * reach), height: f(2 * reach) }
@@ -143,15 +144,22 @@ export function Pluma({
         </mask>
       )}
       {hand && (
-        <mask id={overId} maskUnits="userSpaceOnUse" {...box}>
+        <mask id={cutId} maskUnits="userSpaceOnUse" {...box}>
+          <rect {...box} fill="#fff" />
+          <path
+            transform={penFrame}
+            d={upper}
+            fill="#000"
+            stroke="#000"
+            strokeWidth={f(outline.strokeWidth * s)}
+            strokeLinejoin="round"
+          />
+        </mask>
+      )}
+      {hand && (
+        <mask id={fillId} maskUnits="userSpaceOnUse" {...box}>
           <g transform={handFrame}>
-            <path
-              d={outline.d}
-              fill="#fff"
-              stroke="#fff"
-              strokeWidth={outline.strokeWidth}
-              strokeLinejoin="round"
-            />
+            <path d={outline.d} fill="#fff" />
           </g>
         </mask>
       )}
@@ -165,17 +173,8 @@ export function Pluma({
         </g>
       </g>
       {hand && (
-        <Mano
-          at={at}
-          pose="pinch"
-          size={size}
-          angle={handAngle}
-          anchor={GRIP}
-        />
-      )}
-      {hand && (
-        <g data-pluma-over="">
-          <g mask={`url(#${overId})`}>
+        <>
+          <g mask={`url(#${fillId})`}>
             <path
               transform={penFrame}
               d={upper}
@@ -185,8 +184,13 @@ export function Pluma({
               strokeLinejoin="round"
             />
           </g>
-          <path transform={penFrame} d={upper} fill={color.ink} />
-        </g>
+          <g mask={`url(#${cutId})`}>
+            <Mano at={at} pose="pinch" size={size} angle={handAngle} anchor={GRIP} />
+          </g>
+          <g data-pluma-over="">
+            <path transform={penFrame} d={upper} fill={color.ink} />
+          </g>
+        </>
       )}
     </g>
   )

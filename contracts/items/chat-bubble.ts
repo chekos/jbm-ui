@@ -16,7 +16,7 @@ export default {
       props: {
         side: "\"start\" aligns the bubble and tail to the inline start (incoming); \"end\" to the inline end (outgoing). RTL-aware via logical margins.",
         tone: "Fill: \"paper\" (card stock with ink text and an ink outline), \"ink\", or \"accent\" (vermilion); ink and accent use cream text and no ink edge.",
-        tail: "Shows the tail below the bubble: its sides leave the bottom edge 35 and 55px in from the aligned side and meet at a tip 32px in, 12.5px below the bubble with its outline, which adds 13px bottom margin and a minimum width of 88px, so even a one-word message keeps the tail on the straight run of the bottom edge, clear of both rounded corners. False removes all three.",
+        tail: "Shows the tail below the bubble: its sides leave the bottom edge 37 and 57px in from the aligned side and meet at a tip 40px in (the outer side leans slightly inward, never back under the corner), 12.5px below the bubble with its outline, which adds 13px bottom margin and a minimum width of 90px, so even a one-word message keeps the tail on the straight run of the bottom edge, clear of both rounded corners. False removes all three.",
         speaker: "Optional speaker name above the message, 11px mono. Omit (null/undefined) to hide.",
       },
     },
@@ -24,7 +24,7 @@ export default {
   stage: {
     mode: "fluid",
     reason:
-      "Width fits the content up to 100% of the container (at least 88px with a tail); height is 16px top and bottom (13px padding inside the 3px edge) plus message lines at 18px × 1.5, an optional speaker line (11px + 6px gap), and 13px of margin for the tail when shown.",
+      "Width fits the content up to 100% of the container (at least 90px with a tail); height is 16px top and bottom (13px padding inside the 3px edge) plus message lines at 18px × 1.5, an optional speaker line (11px + 6px gap), and 13px of margin for the tail when shown.",
   },
   examples: [
     {

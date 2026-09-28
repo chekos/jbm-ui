@@ -221,17 +221,21 @@ test("pluma: plumaNib is the drawn nib tip at every angle, size, and offset", ()
         assert.ok(markup.includes("Hand: pinch"))
       }
   // The pen weaves with the hand (#170): the whole pen, masked by the hand's outline, lies under
-  // the hand; the upper shaft is drawn again over it, after the hand, with a card knockout that
-  // is masked to the hand's own ink, so nothing card-coloured reaches the page around the hand.
+  // the hand; the hand's ink is cut along the upper shaft (plus a half-outline gap), the gap is
+  // refilled with card only inside the hand's fill, and the upper shaft is drawn again over it.
+  // Nothing card-coloured is painted on the page around the hand.
   const held = renderToStaticMarkup(h("svg", null, h(Pluma, { at: { x: 100, y: 100 } })))
   assert.match(held, /<mask id="pluma-[\w-]+"/)
   const under = held.indexOf(`fill="${color.ink}"`)
+  const refill = held.indexOf('mask="url(#pluma-fill-')
+  const cut = held.indexOf('mask="url(#pluma-cut-')
   const hand = held.indexOf("Hand: pinch")
   const over = held.indexOf("data-pluma-over")
-  assert.ok(under >= 0 && under < hand && hand < over, "pen under the hand, upper shaft over it")
+  assert.ok(under >= 0 && under < refill && refill < cut && cut < hand && hand < over, "pen under the hand, upper shaft over it")
+  assert.ok(held.slice(refill, cut).includes(`stroke="${color.card}"`), "card refill of the cut, inside the hand")
+  const fillMask = held.slice(held.indexOf('<mask id="pluma-fill-'))
+  assert.ok(!fillMask.slice(0, fillMask.indexOf("</mask>")).includes("stroke="), "refill clipped to the hand's fill, not its outer stroke")
   const overPart = held.slice(over)
-  assert.match(overPart, /mask="url\(#pluma-over-[\w-]+\)"/, "knockout masked to the hand")
-  assert.ok(overPart.includes(`stroke="${color.card}"`), "card knockout around the upper shaft")
   assert.equal((held.match(/fill="#20241F"/g) ?? []).length, 2, "the pen, and its upper shaft again")
   // The upper shaft starts at the grip point and runs back to the tail, never toward the nib.
   const upper = overPart.match(/<path transform="[^"]*" d="M([-\d.]+) /)

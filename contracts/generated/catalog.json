@@ -5073,7 +5073,7 @@
               "type": "boolean",
               "required": false,
               "default": "true",
-              "description": "Shows the tail below the bubble: its sides leave the bottom edge 35 and 55px in from the aligned side and meet at a tip 32px in, 12.5px below the bubble with its outline, which adds 13px bottom margin and a minimum width of 88px, so even a one-word message keeps the tail on the straight run of the bottom edge, clear of both rounded corners. False removes all three."
+              "description": "Shows the tail below the bubble: its sides leave the bottom edge 37 and 57px in from the aligned side and meet at a tip 40px in (the outer side leans slightly inward, never back under the corner), 12.5px below the bubble with its outline, which adds 13px bottom margin and a minimum width of 90px, so even a one-word message keeps the tail on the straight run of the bottom edge, clear of both rounded corners. False removes all three."
             },
             {
               "name": "speaker",
@@ -5090,7 +5090,7 @@
       ],
       "stage": {
         "mode": "fluid",
-        "reason": "Width fits the content up to 100% of the container (at least 88px with a tail); height is 16px top and bottom (13px padding inside the 3px edge) plus message lines at 18px × 1.5, an optional speaker line (11px + 6px gap), and 13px of margin for the tail when shown."
+        "reason": "Width fits the content up to 100% of the container (at least 90px with a tail); height is 16px top and bottom (13px padding inside the 3px edge) plus message lines at 18px × 1.5, an optional speaker line (11px + 6px gap), and 13px of margin for the tail when shown."
       },
       "examples": [
         {
@@ -6208,7 +6208,7 @@
               "type": "HandPose",
               "required": false,
               "default": "\"point\"",
-              "description": "Silhouette: `open` (open palm, fingers together), `point` (index finger extended), `pinch` (index bent over the thumb; also the pen grip Pluma uses, so there is no pen pose), `grip` (front-view fist: four fingers with knuckle bumps on top and the curled fingertips in a row beneath, the thumb lying across under them, pointing in; lay the knuckles over a sheet or tab edge), `type` (the hand from above on a keyboard with the fingers curled down onto the keys: four short stubs, the middle tallest, whose caps are the bent middle joints with the fingertips out of sight beneath, each crossed by one fold mark where it turns down, and the thumb low, pointing left toward the space bar; at thumbnail size it reads as the open palm with its fingers folded), or `hold` (upright, seen from the side: the palm rises from the wrist and turns over into the thumb, which crosses the held object's rim; the four fingers lie stacked on the right, wrapped round the object's side with their tips facing the palm, and the open pocket between palm, thumb, fingertips, and heel is where the object sits; draw a side-view mug or a sheet's edge behind it, the rim or top edge just under the thumb). Every pose draws its dividers from the outline's valley points in the outline's stroke width; grip, type, and hold draw all their ink as one path (interior lines, and type's fold marks, retraced as spurs), so joins are tangent with no steps, and the valleys between fingertips and grip's palm edge between index and thumb round off in small fillets. The palm side meets the wrist cut in one tangent-continuous fillet. Also sets the accessible label, e.g. \"Hand: point\"."
+              "description": "Silhouette: `open` (open palm, fingers together), `point` (index finger extended), `pinch` (index bent over the thumb; also the pen grip Pluma uses, so there is no pen pose), `grip` (front-view fist: four fingers with knuckle bumps on top and the curled fingertips in a row beneath, the thumb lying across under them, pointing in; lay the knuckles over a sheet or tab edge), `type` (the hand from above on a keyboard with the fingers curled down onto the keys: four short stubs, the middle tallest, whose caps are the bent middle joints with the fingertips out of sight beneath, each crossed by one fold mark where it turns down, and the thumb low, pointing left toward the space bar; at thumbnail size it reads as the open palm with its fingers folded), or `hold` (upright, seen from the side: the palm rises from the wrist and turns over into the thumb, which crosses the held object's rim; the four fingers lie stacked on the right, wrapped round the object's side with their tips facing the palm, and the open pocket between palm, thumb, fingertips, and heel is where the object sits; draw a side-view mug or a sheet's edge behind it, the rim or top edge just under the thumb; the pose is drawn for an object, and on its own the stacked fingers read apart from the palm, so show it round one). Every pose draws its dividers from the outline's valley points in the outline's stroke width; grip, type, and hold draw all their ink as one path (interior lines, and type's fold marks, retraced as spurs), so joins are tangent with no steps, and the valleys between fingertips and grip's palm edge between index and thumb round off in small fillets. The palm side meets the wrist cut in one tangent-continuous fillet. Also sets the accessible label, e.g. \"Hand: point\"."
             },
             {
               "name": "halo",
@@ -6436,7 +6436,7 @@
         {
           "export": "Pluma",
           "kind": "component",
-          "summary": "SVG group: an ink pen (one silhouette: round-ended barrel tapering straight on to a pointed nib) held in the Hand's pinch pose through Mano. The pen weaves with the hand: the nib and lower shaft pass behind the thumb and the index pad, and from the grip point (in the open pocket of the pinch, where the change of layer cannot show) the upper shaft crosses in front of the index knuckle. A mask cuts the lower pen along the hand's outline (handOutline) plus a gap half the outline wide; the upper shaft is drawn again over the hand with a card knockout half the outline wide, masked to the hand's own ink, so the barrel's edges and the hand's contours stay separate at every crossing. Nothing is painted on the page outside the hand, so writing under or beside the nib stays whole. The nib, plumaNib, and the pinch silhouette are unchanged. Rotation, grip point, and nib are props; no internal timer. Render inside an <svg>.",
+          "summary": "SVG group: an ink pen (one silhouette: round-ended barrel tapering straight on to a pointed nib) held in the Hand's pinch pose through Mano. The pen weaves with the hand: the nib and lower shaft pass behind the thumb and the index pad, and from the grip point (in the open pocket of the pinch, where the change of layer cannot show) the upper shaft crosses in front of the index knuckle. A mask cuts the lower pen along the hand's outline (handOutline) plus a gap half the outline wide; over the hand, a second mask cuts the hand's ink along the upper shaft plus the same half-outline gap (refilled with card only inside the hand's fill) and the shaft is drawn again on top, so the barrel's edges and the hand's contours stay separate at every crossing. Nothing is painted on the page outside the hand, so writing under or beside the nib stays whole. The nib, plumaNib, and the pinch silhouette are unchanged. Rotation, grip point, and nib are props; no internal timer. Render inside an <svg>.",
           "props": [
             {
               "name": "at",
@@ -6575,7 +6575,7 @@
         "Rotate from −40° to 40° with the nib marker on: plumaNib lands on the drawn nib tip at every angle and size.",
         "Enlarge the pinch: the nib and lower shaft pass behind the thumb and the index pad, the pen shows in the pocket between them, and from there the upper shaft crosses in front of the index knuckle, one continuous pen with no gap or seam where it changes layer; a stranger says \"a hand writing with a pen\".",
         "Turn Hand off: the pen alone keeps its length and nib; a stranger names it \"pen\".",
-        "At 8× and angles −30°, 0°, 30°: wherever the barrel meets the thumb or index contour a gap separates them (under the hand, the mask gap; over it, the card knockout, which stops at the hand's outer edge); no outline disappears into the barrel, no card or cream ring shows around the hand on the page, and the last written glyph under the nib stays whole.",
+        "At 8× and angles −30°, 0°, 30°: wherever the barrel meets the thumb or index contour a gap separates them (under the hand, the mask gap; over it, the cut in the hand's ink, whose ends fall short of the barrel both inside the hand and on the page); no outline disappears into the barrel, no card or cream ring shows around the hand on the page, and the last written glyph under the nib stays whole.",
         "The underside of the bent index (the pad over the pen) is one smooth curve, with no corner where it turns down toward the thumb.",
         "Set nibOffset to (0, 90) and (−80, 20): the hand turns with the pen and the barrel still passes through the pinch, never behind the palm.",
         "On the bench, drag Write to End at Rotation −30° and 30°: the whole hand, barrel tail included, stays inside the stage."
@@ -6642,7 +6642,7 @@
               "type": "number",
               "required": false,
               "default": null,
-              "description": "Settled sheet count; each sheet sits 5 units above the last (the shared 3-unit outline plus a 2-unit gap). Floored; negative or non-finite values show none."
+              "description": "Settled sheet count. The bottom sheet lies in the well (top edge at y + 24); the second clears the back rim (y + 11) and each further sheet sits 5 units above the last (the shared 3-unit outline plus a 2-unit gap), so no edge fuses with the rim. Sheets under the top one show only their near edges, between upright stack sides. Floored; negative or non-finite values show none."
             },
             {
               "name": "landing",
@@ -6685,7 +6685,7 @@
               "type": "number",
               "required": false,
               "default": "0",
-              "description": "Settled sheet count; each sheet sits 5 units above the last (the shared 3-unit outline plus a 2-unit gap). Floored; negative or non-finite values show none."
+              "description": "Settled sheet count. The bottom sheet lies in the well (top edge at y + 24); the second clears the back rim (y + 11) and each further sheet sits 5 units above the last (the shared 3-unit outline plus a 2-unit gap), so no edge fuses with the rim. Sheets under the top one show only their near edges, between upright stack sides. Floored; negative or non-finite values show none."
             },
             {
               "name": "landing",
@@ -6695,7 +6695,7 @@
               "description": "Accepted for parity with Bandeja's props; the layout ignores it."
             }
           ],
-          "returns": "{ x, y, w, count, floor, stackTop }: the floored sheet count, the tray floor centre (y + 41), and the centre of the top of the settled stack (floor − count × 5), in parent SVG units."
+          "returns": "{ x, y, w, count, floor, stackTop }: the floored sheet count, the tray floor centre (y + 41), and where the next sheet lands (17 units below its top edge: y + 41 with no sheets, y + 33 − 5 × count after), in parent SVG units."
         }
       ],
       "stage": {
@@ -6708,7 +6708,7 @@
           "width": 280,
           "height": 52
         },
-        "basis": "Parent SVG user units at w 280: from the back rim at y + 16 to the base at y + 68. From three layers the top sheets rise over the back rim (top sheet at y + 24 − 5 × (layers − 1)), and a landing sheet starts 90 units above the stack, so leave headroom above y."
+        "basis": "Parent SVG user units at w 280: from the back rim at y + 16 to the base at y + 68. From two layers the top sheet rises over the back rim (top sheet at y + 16 − 5 × (layers − 1)), and a landing sheet starts 90 units above the stack, so leave headroom above y."
       },
       "examples": [
         {
@@ -6721,7 +6721,7 @@
         }
       ],
       "qa": [
-        "Drag Sheets from 0 to 12: each sheet steps up 5 units, its edge clear of the one below, the front lip always covers their lower edges, and tall stacks stay inside the viewBox.",
+        "Drag Sheets from 0 to 12: the second sheet jumps clear of the back rim, then each steps up 5 units; no sheet edge fuses with the rim, a wall, or the sheet below, the stack's sides stay upright inside the wall posts, and tall stacks stay inside the viewBox.",
         "Step landing through 0, 0.5, and 1: the incoming sheet fades in while descending and rests exactly on the stack at 1, then increment layers to settle it.",
         "Check the front notch stays centred when w changes."
       ],
@@ -8154,7 +8154,7 @@
         {
           "export": "PunchedTag",
           "kind": "component",
-          "summary": "A card-stock luggage tag: the two corners at the hole end cut off at 45°, the other end rounded 12px, a 14px cream punched hole ringed in ink, and one line of 28px extra-bold content beside it that ends in an ellipsis past maxWidth. Paper's stock, shared outline (kept the same width along the cuts), and shadow. No string: tie a Hilo at the hole (VideoPrint's layout gives the point). Width follows content up to maxWidth.",
+          "summary": "A card-stock luggage tag: the two corners at the hole end cut off at 45°, the other end rounded 12px, a 14px cream punched hole ringed in ink inside a flat line-grey reinforcement washer (4px; on ink or accent stock the ring is grey too, one eyelet), and one line of 28px extra-bold content beside it that ends in an ellipsis past maxWidth. Paper's stock, shared outline (kept the same width along the cuts), and shadow. No string: tie a Hilo at the hole (VideoPrint's layout gives the point). Width follows content up to maxWidth.",
           "props": [
             {
               "name": "children",
@@ -8175,14 +8175,14 @@
               "type": "number",
               "required": false,
               "default": "1",
-              "description": "Size multiplier (default 1) for the tag's own geometry: hole (14 × scale px), its ring (the shared outline, stroke.outline × scale, between 1px and stroke.outline), the corner cuts, radii, gap, padding, and type, so a tag on a smaller print keeps its proportions."
+              "description": "Size multiplier (default 1) for the tag's own geometry: hole (14 × scale px), its washer (4 × scale px), its ring (the shared outline, stroke.outline × scale, between 1px and stroke.outline), the corner cuts, radii, gap, padding, and type, so a tag on a smaller print keeps its proportions."
             },
             {
               "name": "cut",
               "type": "number",
               "required": false,
               "default": "14",
-              "description": "Depth of the hole end's two 45° corner cuts in px before scale (default 14). Keep it under half the tag's height; a slim tag (VideoPrint's) passes 8."
+              "description": "Depth of the hole end's two 45° corner cuts in px before scale (default 14). A slim tag (VideoPrint's) passes 8. Deeper than half the tag's height, the two cuts meet in one point (edge and stock clamp alike)."
             },
             {
               "name": "maxWidth",
@@ -8220,7 +8220,7 @@
         }
       ],
       "qa": [
-        "Toggle Ink stock: the hole stays cream with an ink ring and the text stays legible.",
+        "Toggle Ink stock: the hole stays cream inside one grey eyelet (ring and washer), never a radio-button target, and the text stays legible.",
         "Check a long label or URL at narrow width: it stays on one line and ends in an ellipsis inside the tag, and the hole keeps its 14px circle.",
         "Enlarge the cut corners at 8×: the ink edge keeps the shared outline's width along each cut, meets the straight edges without a step, and no square shadow corner shows beyond the cuts.",
         "Compare the shadow and edge with other paper surfaces; the tag draws no string (Hilo is the connector).",

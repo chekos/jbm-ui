@@ -381,7 +381,8 @@ test("DeskTop: a top or bottom drawer takes 40% of the height; every fill follow
 })
 test("DeskProp press reads: the pressed face insets and takes an ink wash", () => {
   const key = svg(React.createElement(DeskProp, { kind: "keyboard", x: 0, y: 0, press: 1, keys: [deskPropHomeKey] }))
-  assert.match(key, new RegExp(`data-key="${deskPropHomeKey}"><rect x="[-\\d.]+" y="[-\\d.]+" width="8"`))
+  // The key sinks a tenth of its short side (1.4 of 14 units) on every side: still a key, not a nub.
+  assert.match(key, new RegExp(`data-key="${deskPropHomeKey}"><rect x="[-\\d.]+" y="[-\\d.]+" width="11.2" height="11.2"`))
   assert.ok(key.includes('fill-opacity="0.28"'))
   const cap = svg(React.createElement(DeskProp, { kind: "keycap", x: 0, y: 0, press: 1 }))
   assert.ok(cap.includes('fill-opacity="0.28"'))

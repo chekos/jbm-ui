@@ -11,10 +11,11 @@ export type ChatBubbleProps = React.HTMLAttributes<HTMLDivElement> & {
 /**
  * The tail, in px from the bubble's padding edge at its bottom (the top of the bottom edge),
  * TAIL.inset in from the aligned side: a wedge whose outer side drops from the bottom edge at `a`
- * (leaning out a little) to `tip`, and whose inner side climbs back to the edge at `b`. Both sides
- * leave the bottom edge through a small round fillet, so body and tail read as one outline.
+ * (leaning in a little, never back under the corner) to `tip`, and whose inner side climbs back to
+ * the edge at `b`. Both sides leave the bottom edge through a small round fillet, so body and tail
+ * read as one outline; the outer fillet starts more than a fillet clear of the corner's curve.
  */
-const TAIL = { inset: 22, a: 10, b: 30, tip: { x: 7, y: 14 }, fillet: 4, width: 40, drop: 16 }
+const TAIL = { inset: 24, a: 10, b: 30, tip: { x: 13, y: 14 }, fillet: 4, width: 40, drop: 16 }
 
 /** The tail's outline and fill, drawn over the body's bottom edge so the two share one line. */
 function Tail({ side, fill, edge }: { side: "start" | "end"; fill: string; edge: string }) {

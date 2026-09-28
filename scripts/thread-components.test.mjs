@@ -389,6 +389,11 @@ test("PunchedTag: a luggage tag on one line, corners cut at the hole end, and no
   assert.equal(cuts.length, 2)
   assert.ok(Math.abs(cuts[0] - 14) < 1e-9 && Math.abs(cuts[1] - (14 - stroke.outline * (2 - Math.SQRT2))) < 0.01)
   assert.ok(!/<svg|<path|string/i.test(long), "no string or loop: Hilo is the connector")
+  // A cut deeper than half the tag meets in one point: edge and stock clamp the cut's ends alike.
+  assert.equal((long.match(/0 min\([\d.]+px, 50%\)\)/g) ?? []).length, 2, "both clips clamp at half the height")
+  // The hole sits in a flat grey washer (the grommet), ringed in ink on card stock and in grey on dark stock.
+  assert.match(long, /box-shadow:0 0 0 4px #D5D1C6/)
+  assert.match(render(PunchedTag, { tone: "ink", children: "x" }), /border:3px solid #D5D1C6/)
   // The label rule stays with a caller label style, and VideoPrint no longer repeats it.
   const styled = render(PunchedTag, { children: "x", labelStyle: { fontSize: 14 } })
   assert.ok(styled.includes("font-size:14px") && styled.includes("text-overflow:ellipsis"))
