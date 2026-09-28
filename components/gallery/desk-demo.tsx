@@ -51,11 +51,12 @@ const poseLabels: Record<HandPose, string> = {
 }
 /**
  * Hold in context: a side-view mug behind a Hand drawn 180 wide, scaled so its body fills the
- * pocket and runs on under the fingers, its rim's near end (deskPropLayout(...).rim, 93 34) just
+ * pocket and runs on under the fingers, its rim's near end (deskPropLayout(...).rim, 93 48.4) just
  * under the thumb and its far side a clear gap past the knuckles (never grazing them), with the
- * handle beyond. The viewBox widens to 216 to fit the handle.
+ * handle beyond; its body runs on below the wrist cut, clear of it. The viewBox widens to 222 to
+ * fit the handle.
  */
-const heldMug = { kind: "mug-side", x: 153, y: 80.5, scale: 1.5 } as const
+const heldMug = { kind: "mug-side", x: 157, y: 98, scale: 1.6 } as const
 const line = { x: 40, y: 262, w: 270 }
 /**
  * Pluma writes a PaperLine: mono glyphs advance exactly 0.6 em, so the nib's x follows `write`
@@ -369,7 +370,7 @@ function DeskObjectDemo({ name }: { name: string }) {
           // widens for the handle; where the column is too narrow, the scene scales down inside it.
           <div style={{ width: "100%", containerType: "inline-size", display: "flex", justifyContent: "center" }}>
             <svg
-              viewBox="0 0 216 174"
+              viewBox="0 0 222 174"
               role="img"
               aria-label="Hand: hold, round a mug"
               style={{
@@ -377,7 +378,7 @@ function DeskObjectDemo({ name }: { name: string }) {
                 // The bare Hand's box: its width, at the 155 × 174 ratio of its width and
                 // height attributes, with the hand drawn the same size inside it.
                 height: `calc(min(${compact ? 220 : 360}px, 100cqw) * 174 / 155)`,
-                width: `min(100%, ${compact ? 264 : 432}px)`,
+                width: `min(100%, ${compact ? 271 : 444}px)`,
                 flex: "none",
               }}
             >

@@ -147,12 +147,13 @@ const turn = (u, v) => {
 }
 
 test("grip, type, hold: one ink path; interior lines are retraced spurs; every join is tangent", () => {
-  // Deliberate corners: the wrist cut, type's thumb web, and where hold's heel meets the little
-  // finger (its underside, and the fingertip it leaves at a right angle).
+  // Deliberate corners: the wrist cut, type's thumb web, where hold's heel meets the little finger
+  // (its underside, and the fingertip it leaves at a right angle), and hold's thumb web, where the
+  // pocket edge ends on the thumb's underside (a T-junction; the crease carries the underside on).
   const corners = {
     grip: ["36.8,64.8", "54.1,60.1"],
     type: ["36.8,64.8", "54.1,60.1", "28.4,43.7"],
-    hold: ["36.8,64.8", "54.1,60.1", "63.8,50", "57.6,46.8"],
+    hold: ["36.8,64.8", "54.1,60.1", "62.3,55", "57.6,51.8", "43,25.81"],
   }
   for (const pose of ["grip", "type", "hold"]) {
     const paths = pathsOf(renderToStaticMarkup(h(Hand, { pose })))
@@ -161,8 +162,8 @@ test("grip, type, hold: one ink path; interior lines are retraced spurs; every j
     assert.notEqual(ink.fill, "none")
     const segs = segments(ink.d)
     assert.equal(segs.closed[0], true, `${pose}: the outline is closed`)
-    // Anything after the outline is a free stroke retraced out and back (type's fold marks).
-    assert.ok(segs.closed.slice(1).every((c) => !c), `${pose}: only the outline is closed`)
+    // The outline is the whole path: no free strokes.
+    assert.equal(segs.closed.length, 1, `${pose}: one subpath`)
     // A segment walked both ways is an interior spur (no fill); the rest is the outline.
     const k = (s) => `${s.a}|${s.b}`
     const count = new Map()

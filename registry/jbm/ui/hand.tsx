@@ -21,17 +21,19 @@ export type HandProps = SVGProps<SVGSVGElement> & {
 // grip is a front-view fist: knuckle bumps on top, the curled fingertips in a row below, the thumb
 // lying across under them, pointing in. type is the hand from above on a keyboard with the fingers
 // curled down onto the keys: short stubs (their caps are the bent middle joints; the tips are out
-// of sight under them), each crossed by one fold mark where it turns down, and the thumb low,
-// pointing left toward the space bar. hold is upright, seen from the side: the palm rises from the
-// wrist and turns over into the thumb, which crosses the held object's rim; the four fingers lie
-// stacked on the right, wrapped round the object's side with their tips facing the palm, and the
-// open pocket between palm, thumb, fingertips, and heel is the object's place (a mug's body, a
-// sheet's edge). The little fingertip curls on over the heel.
+// of sight under them), and the thumb low, pointing left toward the space bar; no marks cross the
+// fingers. hold is upright, seen from the side: the palm rises straight from the wrist and its
+// top sweeps up and right into the thumb, a finger-width digit that bends at a rounded joint and
+// lies over the held object's rim, tip toward the fingers; the four fingers lie stacked on the
+// right, wrapped round the object's side with their tips facing the palm, and the open pocket
+// between palm, thumb, fingertips, and heel is the object's place (a mug's body, a sheet's
+// corner). The pocket's palm edge ends on the thumb's underside, which carries on into the palm as
+// a short crease where the thumb leaves it; the little fingertip curls on over the heel.
 // Their ink is one path: the closed outline, with every interior line (dividers, fingertip row,
-// thumb fold, the little fingertip) walked out and back from an outline point as a retraced spur;
-// type's fold marks are short strokes retraced the same way. A spur adds no fill, and one stroke
-// never doubles its antialiased edge where lines meet, so joins show no steps. Every join is
-// tangent-continuous except the wrist cut, type's thumb web, and hold's heel where it meets the
+// thumb fold or crease, the little fingertip) walked out and back from an outline point as a
+// retraced spur. A spur adds no fill, and one stroke never doubles its antialiased edge where lines
+// meet, so joins show no steps. Every join is tangent-continuous except the wrist cut, type's thumb
+// web, hold's thumb web (the pocket edge meeting the underside), and hold's heel where it meets the
 // little finger; each valley between fingertips, and grip's palm edge between index and thumb,
 // rounds off in a fillet.
 // In every pose, including point and pinch, dividers start on the outline's valley points and use
@@ -157,7 +159,7 @@ const poses = {
   ],
   type: [
     {
-      d: "M54.1 60.1 C53.9 59 53.5 56.9 53.5 56 C53.5 53.8 55.5 50.2 55.5 45.2 C55.5 40.6 54 38.4 54 35 L54 33.6 A3.2 3.2 0 0 0 49.345 30.75 A1.2 1.2 0 0 1 47.6 29.681 A1.2 1.2 0 0 0 49.345 30.75 A3.2 3.2 0 0 0 47.6 33.6 L47.6 40.5 L47.6 33.6 L47.6 29.681 L47.6 29.6 A3.2 3.2 0 0 0 42.407 27.096 A1.2 1.2 0 0 1 40.662 26.824 A1.2 1.2 0 0 0 42.407 27.096 A3.2 3.2 0 0 0 41.2 29.6 L41.2 40.5 L41.2 29.6 L41.2 28.6 A3.2 3.2 0 0 0 40.662 26.824 A3.2 3.2 0 0 0 34.864 27.965 A1.2 1.2 0 0 1 33.118 28.783 A1.2 1.2 0 0 0 34.864 27.965 A3.2 3.2 0 0 0 34.8 28.6 L34.8 31.6 L34.8 40.5 L34.8 31.6 A3.2 3.2 0 0 0 33.118 28.783 A3.2 3.2 0 0 0 28.4 31.6 L28.4 43.7 L24 41.93 A3.203 3.203 0 0 0 19.83 43.7 A3.203 3.203 0 0 0 21.6 47.87 C24.38 48.99 29.4 53.6 32.9 57.6 C34.744 59.707 35.641 60.642 36.39 63.34 L36.8 64.8 Z M29.7 36.6 A3.2 3.2 0 0 1 33.5 36.6 A3.2 3.2 0 0 0 29.7 36.6 M36.1 33.6 A3.2 3.2 0 0 1 39.9 33.6 A3.2 3.2 0 0 0 36.1 33.6 M42.5 34.6 A3.2 3.2 0 0 1 46.3 34.6 A3.2 3.2 0 0 0 42.5 34.6 M48.9 38.6 A3.2 3.2 0 0 1 52.7 38.6 A3.2 3.2 0 0 0 48.9 38.6",
+      d: "M54.1 60.1 C53.9 59 53.5 56.9 53.5 56 C53.5 53.8 55.5 50.2 55.5 45.2 C55.5 40.6 54 38.4 54 35 L54 33.6 A3.2 3.2 0 0 0 49.345 30.75 A1.2 1.2 0 0 1 47.6 29.681 A1.2 1.2 0 0 0 49.345 30.75 A3.2 3.2 0 0 0 47.6 33.6 L47.6 40.5 L47.6 33.6 L47.6 29.681 L47.6 29.6 A3.2 3.2 0 0 0 42.407 27.096 A1.2 1.2 0 0 1 40.662 26.824 A1.2 1.2 0 0 0 42.407 27.096 A3.2 3.2 0 0 0 41.2 29.6 L41.2 40.5 L41.2 29.6 L41.2 28.6 A3.2 3.2 0 0 0 40.662 26.824 A3.2 3.2 0 0 0 34.864 27.965 A1.2 1.2 0 0 1 33.118 28.783 A1.2 1.2 0 0 0 34.864 27.965 A3.2 3.2 0 0 0 34.8 28.6 L34.8 31.6 L34.8 40.5 L34.8 31.6 A3.2 3.2 0 0 0 33.118 28.783 A3.2 3.2 0 0 0 28.4 31.6 L28.4 43.7 L24 41.93 A3.203 3.203 0 0 0 19.83 43.7 A3.203 3.203 0 0 0 21.6 47.87 C24.38 48.99 29.4 53.6 32.9 57.6 C34.744 59.707 35.641 60.642 36.39 63.34 L36.8 64.8 Z",
       fill: "#FFFFFF",
       stroke: "#111212",
       strokeWidth: WIDE,
@@ -167,7 +169,7 @@ const poses = {
   ],
   hold: [
     {
-      d: "M54.1 60.1 C55.331 57.364 61.68 53.392 63.8 50 L60.8 50 A3.2 3.2 0 0 1 57.6 46.8 A3.2 3.2 0 0 0 60.8 50 L63.8 50 L66.4 50 A3.2 3.2 0 0 0 69.036 44.986 A1.2 1.2 0 0 1 69.473 43.241 A1.2 1.2 0 0 0 69.036 44.986 A3.2 3.2 0 0 0 66.4 43.6 L60.8 43.6 L66.4 43.6 L68 43.6 A3.2 3.2 0 0 0 69.473 43.241 A3.2 3.2 0 0 0 70.333 38.209 A1.2 1.2 0 0 1 70.442 36.464 A1.2 1.2 0 0 0 70.333 38.209 A3.2 3.2 0 0 0 68 37.2 L59.5 37.2 L68 37.2 L68.4 37.2 A3.2 3.2 0 0 0 70.442 36.464 A3.2 3.2 0 0 0 70.079 31.276 A1.2 1.2 0 0 1 69.752 29.531 A1.2 1.2 0 0 0 70.079 31.276 A3.2 3.2 0 0 0 68.4 30.8 L67.2 30.8 L61 30.8 L67.2 30.8 A3.2 3.2 0 0 0 69.752 29.531 A3.2 3.2 0 0 0 67.2 24.4 L61 24.4 A3.2 3.2 0 0 0 58.345 29.386 A1.2 1.2 0 0 1 57.881 31.132 A1.2 1.2 0 0 0 58.345 29.386 A3.2 3.2 0 0 0 61 30.8 L59.3 30.8 A3.2 3.2 0 0 0 57.881 31.132 A3.2 3.2 0 0 0 57.179 36.396 A1.2 1.2 0 0 1 57.233 38.141 A1.2 1.2 0 0 0 57.179 36.396 A3.2 3.2 0 0 0 59.3 37.2 L59.5 37.2 A3.2 3.2 0 0 0 57.233 38.141 A3.2 3.2 0 0 0 57.871 43.154 A1.2 1.2 0 0 1 58.225 44.9 A1.2 1.2 0 0 0 57.871 43.154 A3.2 3.2 0 0 0 59.5 43.6 L60.8 43.6 A3.2 3.2 0 0 0 58.225 44.9 A3.2 3.2 0 0 0 57.6 46.8 L47 46.8 A4 4 0 0 1 43 42.8 L43 31 A9 9 0 0 1 53.563 22.137 A3.1 3.1 0 0 0 57.154 19.622 A3.1 3.1 0 0 0 54.639 16.031 A15.2 15.2 0 0 0 36.948 28.885 C34.721 44.729 35.052 58.522 36.39 63.34 L36.8 64.8 Z",
+      d: "M54.1 60.1 C56.221 57.979 60.002 56.928 62.3 55 L60.8 55 A3.2 3.2 0 0 1 57.6 51.8 A3.2 3.2 0 0 0 60.8 55 L62.3 55 L66.4 55 A3.2 3.2 0 0 0 69.036 49.986 A1.2 1.2 0 0 1 69.473 48.241 A1.2 1.2 0 0 0 69.036 49.986 A3.2 3.2 0 0 0 66.4 48.6 L60.8 48.6 L66.4 48.6 L68 48.6 A3.2 3.2 0 0 0 69.473 48.241 A3.2 3.2 0 0 0 70.333 43.209 A1.2 1.2 0 0 1 70.442 41.464 A1.2 1.2 0 0 0 70.333 43.209 A3.2 3.2 0 0 0 68 42.2 L59.5 42.2 L68 42.2 L68.4 42.2 A3.2 3.2 0 0 0 70.442 41.464 A3.2 3.2 0 0 0 70.079 36.276 A1.2 1.2 0 0 1 69.752 34.531 A1.2 1.2 0 0 0 70.079 36.276 A3.2 3.2 0 0 0 68.4 35.8 L67.2 35.8 L61 35.8 L67.2 35.8 A3.2 3.2 0 0 0 69.752 34.531 A3.2 3.2 0 0 0 67.2 29.4 L61 29.4 A3.2 3.2 0 0 0 58.345 34.386 A1.2 1.2 0 0 1 57.881 36.132 A1.2 1.2 0 0 0 58.345 34.386 A3.2 3.2 0 0 0 61 35.8 L59.3 35.8 A3.2 3.2 0 0 0 57.881 36.132 A3.2 3.2 0 0 0 57.179 41.396 A1.2 1.2 0 0 1 57.233 43.141 A1.2 1.2 0 0 0 57.179 41.396 A3.2 3.2 0 0 0 59.3 42.2 L59.5 42.2 A3.2 3.2 0 0 0 57.233 43.141 A3.2 3.2 0 0 0 57.871 48.154 A1.2 1.2 0 0 1 58.225 49.9 A1.2 1.2 0 0 0 57.871 48.154 A3.2 3.2 0 0 0 59.5 48.6 L60.8 48.6 A3.2 3.2 0 0 0 58.225 49.9 A3.2 3.2 0 0 0 57.6 51.8 L49 51.8 A6 6 0 0 1 43 45.8 L43 25.81 A2 2 0 0 0 40.921 26.779 L40.171 28.078 L40.921 26.779 A2 2 0 0 1 43 25.81 L53.444 27.651 A3.2 3.2 0 0 0 57.151 25.056 A3.2 3.2 0 0 0 54.556 21.349 L45.882 19.819 A3 3 0 0 0 42.904 21.053 L36.685 29.934 A6 6 0 0 0 35.6 33.376 L35.6 58.86 A12 12 0 0 0 36.038 62.072 L36.39 63.34 L36.8 64.8 Z",
       fill: "#FFFFFF",
       stroke: "#111212",
       strokeWidth: WIDE,
@@ -188,8 +190,7 @@ const transforms = {
  * A pose's closed outline in the Hand's 30×29 viewBox: its path, the transform that places it,
  * and the outline's stroke width in path units. Composites use it to cut art drawn behind the hand
  * (a mask or clip) instead of painting a halo over whatever else is under it. For grip, type, and
- * hold the path also retraces the interior lines (and type's fold marks) as spurs inside the
- * outline; they add no area.
+ * hold the path also retraces the interior lines as spurs inside the outline; they add no area.
  */
 export function handOutline(pose: HandPose = "point") {
   const outline = poses[pose][0]
