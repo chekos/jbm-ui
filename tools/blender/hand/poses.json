@@ -23,19 +23,19 @@
         70
       ],
       "thumb.0": [
-        38.0,
+        24.0,
         -32.0,
         12.0
       ],
       "thumb.1": [
-        46.0,
-        -27.0,
-        -41.0
+        44.0,
+        -23.5,
+        -37.0
       ],
       "thumb.2": [
-        -9.0,
-        0,
-        -77.5
+        -9.5,
+        0.0,
+        -62.5
       ]
     },
     "reference": {
@@ -112,17 +112,17 @@
         30
       ],
       "thumb.0": [
-        9.5,
-        -17.5,
-        8.0
+        -6.5,
+        -41.0,
+        -8.0
       ],
       "thumb.1": [
-        0,
-        -19.0,
-        -12.0
+        0.0,
+        -4.0,
+        4.0
       ],
       "thumb.2": [
-        0,
+        0.0,
         -16.0,
         7.5
       ]
@@ -166,5 +166,120 @@
         40.5
       ]
     }
+  },
+  "write": {
+    "$comment": "Experiment for #177, not the shipped pose: a tripod grip fitted to a pen (touch contacts, pen_free with a lean and joint priors) and traced with --draw. An honest 3D tripod did not read at the library's size (the house pinch fans the fingers open), so it shows the pen fitting and tracing, not a target.",
+    "facing": "away",
+    "look": [
+      1,
+      0,
+      -0.6
+    ],
+    "rotations": {
+      "hand": [
+        0,
+        0,
+        0
+      ],
+      "index": [
+        45,
+        35,
+        5
+      ],
+      "middle": [
+        55,
+        55,
+        20
+      ],
+      "ring": [
+        70,
+        85,
+        55
+      ],
+      "little": [
+        75,
+        90,
+        55
+      ],
+      "thumb.0": [
+        0,
+        0,
+        0
+      ],
+      "thumb.1": [
+        10,
+        0,
+        0
+      ],
+      "thumb.2": [
+        15,
+        0,
+        0
+      ]
+    },
+    "pen": {
+      "nib": [
+        32,
+        18,
+        -28
+      ],
+      "tail": [
+        21,
+        46,
+        30
+      ],
+      "radius": 2.7,
+      "lean": [
+        -0.15,
+        0.4,
+        0.9
+      ]
+    },
+    "pen_free": true,
+    "touch": {
+      "index.tip": {
+        "t": 0.2,
+        "side": [
+          0,
+          0,
+          1
+        ]
+      },
+      "thumb.tip": {
+        "t": 0.22,
+        "side": [
+          -1,
+          0,
+          -0.2
+        ]
+      },
+      "middle.tip": {
+        "t": 0.14,
+        "side": [
+          0.6,
+          0,
+          -1
+        ]
+      },
+      "index.mcp": {
+        "t": 0.5,
+        "side": [
+          0.7,
+          0,
+          -0.7
+        ]
+      }
+    },
+    "lines": [
+      "thumb",
+      "index",
+      "middle.3"
+    ],
+    "front": [
+      "thumb.1",
+      "thumb.2",
+      "index.2",
+      "index.3"
+    ]
   }
 }

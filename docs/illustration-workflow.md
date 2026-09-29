@@ -22,7 +22,7 @@ Give independent properties independent controls. Wood finish and cabinet side c
 
 Use simple geometric line art, flat fills, minimal contours, and recognizable silhouettes. Avoid realistic anatomy, wrinkles, incidental props, floating loading lines, or decoration borrowed from a reference scene without a role in the requested component. A desk can have an empty top; a caddy must read as a container on its own.
 
-When a complex shape resists clean construction, use the available Paper/Quiver vector tools or generate a reference-guided image and vectorize it in Paper. For a hand pose, pose the [capsule hand rig](../tools/blender/README.md) first: it fixes each finger's axis, width, and occlusion order in the Hand's own units. These are authoring aids, not acceptance criteria. Inspect and clean their output before publishing it. If simplification would materially change the requested object, discuss that choice with the user.
+When a complex shape resists clean construction, use the available Paper/Quiver vector tools or generate a reference-guided image and vectorize it in Paper. The [capsule hand rig](../tools/blender/README.md) checks a hand pose's proportions and what overlaps what, but draw the pose itself as vector: an honest 3D trace of a grip does not read at size (#177), and the house hands fan their fingers open so each one reads. These are authoring aids, not acceptance criteria. Inspect and clean their output before publishing it. If simplification would materially change the requested object, discuss that choice with the user.
 
 ## Preserve physical relationships
 
