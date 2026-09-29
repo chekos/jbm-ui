@@ -37,3 +37,4 @@ next-env.d.ts
 
 # local authoring output (tools/blender)
 /tools/blender/*/out/
+/tools/blender/**/__pycache__/
