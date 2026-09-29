@@ -257,6 +257,9 @@ def visible_pieces(shapes, front_of, joints):
                 if any(norm(sub(m, c)) < r + 1e-3 and any(o.name == nb for o in covering)
                        for c, r, nb in joints.get(s.name, [])):
                     continue
+                # The end cap round a shared joint is never a contour: it would hook the line's end.
+                if piece[0] == "A" and any(norm(sub(piece[1], c)) < 1e-6 for c, r, nb in joints.get(s.name, [])):
+                    continue
                 probe = add(m, mul(inward(piece, 0.5, s), 0.15))
                 if front_of(s, probe) == s.name and not any(on_piece(q[1], m) for q in out):
                     out.append((s.name, piece, "inner"))

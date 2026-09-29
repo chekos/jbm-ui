@@ -19,7 +19,8 @@ width), and a pivot at the wrist. Its units are Hand path units (the 0.48-scaled
 - `lineart.py`: hidden-line tracing in exact lines and arcs, and assembly into one Hand path.
 - `overlay.mjs`: the rig's capsules over the shipped pose, with each landmark's offset.
 - `preview.mjs`: the real Hand and Pluma rendered with a traced pose swapped in (a patched copy of
-  the registry under `out/`), beside pinch.
+  the registry under `out/`), beside pinch, plus a 3x close-up.
+- `reference/` and `trace/`: approved line-art references and the scripts that redraw them.
 
 ### Posing
 
@@ -57,13 +58,33 @@ blender -b --factory-startup -P tools/blender/hand/rig.py -- --pose write --draw
 node tools/blender/hand/preview.mjs write   # out/write.pluma.png
 ```
 
+### Tracing a reference (`trace/`)
+
+For a hand pose, the approach that worked (#177): generate a reference with Quiver Arrow in Paper
+(`quiver-arrow-edit`, with rendered library hands as `reference_nodes` and a very descriptive
+prompt), keep it in `reference/`, and redraw it on its own line centres. `trace/skeleton.py`
+rasterizes the SVG, removes filled areas (a pen's barrel, whose principal axis it also measures),
+skeletonizes the strokes, and numbers the branches (`out/<name>.branches.png`). A pose script
+(`trace/write.py`) picks branches, fits smooth curves and fingertip circles through them, rounds
+the valleys, walks the dividers and creases out and back, completes only what the pen hides, and
+writes the Hand path, the parts in front of the pen, and Pluma's pen placement. Check the result
+against the reference at the same size and slant (`out/write.trace.svg`, `preview.mjs`), not by
+eye alone.
+
+```sh
+uvx --with scikit-image --with pillow --with numpy python tools/blender/hand/trace/skeleton.py \
+    tools/blender/hand/reference/write.quiver.svg
+uvx --with numpy python tools/blender/hand/trace/write.py
+node tools/blender/hand/preview.mjs write   # out/write.pluma.png, out/write.zoom.png
+```
+
 ### What it is good for
 
 The rig reaches the shipped `grip` (front view) and `type` (from above) with one set of
 proportions, changing only joint angles: every landmark lies within 1.25 path units. Use it to
 check proportions, occlusion, and what overlaps what.
 
-It is not a way to draw a hand pose. The house hands are cartoons: `pinch` fans the fingers open so
+It is not a way to draw a hand pose; trace an approved reference instead (above). The house hands are cartoons: `pinch` fans the fingers open so
 each one reads, and an honest projection of a 3D grip loses that (the `write` experiment for #177
 traced a correct tripod that did not read at 150–180 px). Draw hands as vector in the library's
 construction, using the rig only as a reference. The tracer is best kept for non-anatomical objects
