@@ -44,7 +44,7 @@ const { Mano } = await import("../registry/jbm/motion/mano.tsx")
 const { Pluma, plumaNib, plumaPoses } = await import("../registry/jbm/motion/pluma.tsx")
 const { handOutline } = await import("../registry/jbm/ui/hand.tsx")
 const { createHash } = await import("node:crypto")
-const { color } = await import("../registry/jbm/lib/tokens.ts")
+const { color, outlineIn } = await import("../registry/jbm/lib/tokens.ts")
 const { renderToStaticMarkup } = await import("react-dom/server")
 const React = await import("react")
 const h = React.createElement
@@ -156,9 +156,8 @@ test("grip, type, hold, write: one ink path; interior lines are retraced spurs; 
     grip: ["36.8,64.8", "54.1,60.1"],
     type: ["36.8,64.8", "54.1,60.1", "28.4,43.7"],
     hold: ["36.8,64.8", "54.1,60.1", "62.3,55", "57.6,51.8", "43,25.81"],
-    // write: where the thumb's top side comes out from behind the index tip and the index's
-    // underside leaves it (a T-junction of the two creases).
-    write: ["36.8,64.8", "54.1,60.1", "27.498,17.962"],
+    // write: its own wrist cut, in the traced reference's frame (#177).
+    write: ["71.72,66.35", "54.9,74.35"],
   }
   for (const pose of ["grip", "type", "hold", "write"]) {
     const paths = pathsOf(renderToStaticMarkup(h(Hand, { pose })))
@@ -222,14 +221,45 @@ test("existing poses keep their artwork", () => {
   )
 })
 
-test("write: the pose stays in the shared box, wrist cut at the bottom", () => {
-  const { d, transform } = handOutline("write")
-  assert.equal(transform, handOutline("open").transform)
-  assert.ok(d.startsWith("M54.1 60.1 "), "starts at the shared wrist corner")
-  assert.ok(d.endsWith(" L36.8 64.8 Z"), "closes along the shared wrist cut")
+/** A pose transform ("translate(x y) rotate(deg) scale(k)", any subset, in order) as a point map. */
+const placement = (transform) => {
+  const ops = [...transform.matchAll(/(translate|rotate|scale)\(([^)]+)\)/g)].map(([, op, args]) => [op, args.split(/[\s,]+/).map(Number)])
+  const apply = ({ x, y }) => {
+    for (const [op, a] of [...ops].reverse()) {
+      if (op === "translate") { x += a[0]; y += a[1] ?? 0 }
+      if (op === "scale") { x *= a[0]; y *= a[1] ?? a[0] }
+      if (op === "rotate") {
+        const r = (a[0] * Math.PI) / 180
+        ;[x, y] = [x * Math.cos(r) - y * Math.sin(r), x * Math.sin(r) + y * Math.cos(r)]
+      }
+    }
+    return { x, y }
+  }
+  const invert = ({ x, y }) => {
+    for (const [op, a] of ops) {
+      if (op === "translate") { x -= a[0]; y -= a[1] ?? 0 }
+      if (op === "scale") { x /= a[0]; y /= a[1] ?? a[0] }
+      if (op === "rotate") {
+        const r = (-a[0] * Math.PI) / 180
+        ;[x, y] = [x * Math.cos(r) - y * Math.sin(r), x * Math.sin(r) + y * Math.cos(r)]
+      }
+    }
+    return { x, y }
+  }
+  const scale = Number(transform.match(/scale\(([-\d.]+)/)?.[1] ?? 1)
+  return { apply, invert, scale }
+}
+
+test("write: the pose stays in the box and closes along its wrist cut", () => {
+  const { d, transform, strokeWidth } = handOutline("write")
+  const place = placement(transform)
+  // Its own frame (the traced reference's, #177), at the shared outline weight.
+  assert.ok(Math.abs(strokeWidth * place.scale - outlineIn(30 / 180)) < 1e-3, "the outline token in viewBox units")
+  assert.ok(d.startsWith("M71.72 66.35 "), "starts at the right wrist corner")
+  assert.ok(d.endsWith(" L54.9 74.35 Z"), "closes along the wrist cut")
   // Every vertex inside the 30×29 box, half an outline clear of its edges.
   for (const p of vertices(d)) {
-    const x = (p.x - 19) * 0.48 + 4, y = (p.y - 13) * 0.48 + 1
+    const { x, y } = place.apply(p)
     assert.ok(x >= 0.25 && x <= 29.75 && y >= 0.25 && y <= 28.75, `${p.x},${p.y} leaves the box`)
   }
   assert.ok(handOutline("write").front, "write names the parts in front of a held pen")
@@ -380,7 +410,7 @@ test("pluma write: plumaNib is the drawn nib at every angle, size, and offset; t
   assert.ok(d.x < 0)
 })
 
-test("pluma write: the pen lies over the hand and under the thumb and index; nothing pierces a finger", () => {
+test("pluma write: the pen lies over the hand and under the thumb; nothing pierces a finger", () => {
   const held = renderToStaticMarkup(h("svg", null, h(Pluma, { at: { x: 100, y: 100 }, pose: "write" })))
   // Order: card refill of the cut (inside the hand only), the hand with its ink cut along the pen,
   // then the pen, masked by the hand's front (thumb and index) plus a half-outline gap.
@@ -397,15 +427,16 @@ test("pluma write: the pen lies over the hand and under the thumb and index; not
   // Geometry, in the pose's path units: wherever the front's edge crosses the pen's body, that edge
   // is the hand's own ink (a fingertip or a crease), so the pen always stops at a drawn contour
   // and never ends in the middle of a finger or shows through one.
-  const s = 1 / 0.48
-  const toPath = (p) => [(p.x - 4) * s + 19, (p.y - 1) * s + 13]
+  const place = placement(handOutline("write").transform)
+  const s = 1 / place.scale
+  const toPath = (p) => { const q = place.invert(p); return [q.x, q.y] }
   const g = plumaNib({ x: 0, y: 0 }, 0, undefined, 30, "write") // nib − grip, viewBox units
   const markup = renderToStaticMarkup(h("svg", null, h(Pluma, { at: { x: 0, y: 0 }, size: 30, pose: "write" })))
   const anchor = markup.match(/<g transform="translate\(([-\d.]+) ([-\d.]+)\)"><svg/).slice(1).map((v) => -Number(v))
   const G = toPath({ x: anchor[0], y: anchor[1] }) // the grip point
   const len = Math.hypot(g.x, g.y) * s
   const u = [-g.x / Math.hypot(g.x, g.y), -g.y / Math.hypot(g.x, g.y)] // grip → tail
-  const half = (2.6 / 2) * s, cone = 3.6 * s, tail = 22.5 * s
+  const half = (2.6 / 2) * s, cone = 3.6 * s, tail = 26.733 * s
   const inPen = ([x, y]) => {
     const dx = x - G[0], dy = y - G[1]
     const along = dx * u[0] + dy * u[1] // + toward the tail, −len at the nib
@@ -425,7 +456,7 @@ test("pluma write: the pen lies over the hand and under the thumb and index; not
       assert.ok(nearest(ink, p) < 0.1, `front edge at ${p.map((v) => v.toFixed(2))} crosses the pen off the hand's ink`)
     }
   })
-  assert.ok(crossings > 50, "the thumb and index do cross the pen")
+  assert.ok(crossings > 50, "the thumb does cross the pen")
   // A released pen is one silhouette in either pose.
   const alone = renderToStaticMarkup(h("svg", null, h(Pluma, { at: { x: 0, y: 0 }, hand: false, pose: "write" })))
   assert.ok(!alone.includes("Hand:") && !alone.includes("<mask"))

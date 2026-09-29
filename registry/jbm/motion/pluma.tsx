@@ -24,8 +24,8 @@ export type PlumaProps = {
   hand?: boolean
   /**
    * The grip: `pinch` (default) holds the pen in the Hand's pinch; `write` in the Hand's tripod
-   * writing pose, the nib and lower barrel under the thumb and index fingertips and the upper barrel
-   * over the web between them.
+   * writing pose, the barrel along the index finger, the thumb's tip over it near the nib, and the
+   * upper barrel over the web and the back of the hand. Both slant the same way at the same angle.
    */
   pose?: PlumaPose
 }
@@ -35,14 +35,14 @@ export type PlumaProps = {
 // the hand (issue #170): the nib and lower shaft pass behind the thumb and the index pad, and from the
 // grip point, in the open pocket where the change of layer cannot show, the upper shaft crosses in
 // front of the index knuckle toward the viewer.
-// write (issue #173): the pen lies along the reference's barrel; the grip point is where it leaves
-// the notch between the thumb and index fingertips, and the tail reaches past the back of the hand.
-// The pen lies over the hand, and the hand's front (thumb and index finger, handOutline's `front`)
-// lies over the pen, so the nib and lower barrel pass under both fingertips and the upper barrel
-// crosses the web in front of the palm.
+// write (issue #177): the pen lies on the traced reference's barrel axis; the grip point is where it
+// crosses the notch between the index and thumb tips, and the tail reaches past the back of the hand.
+// The pose is turned so the default nib slants as pinch's does, so a scene swaps grips at one angle.
+// The pen lies over the hand (the index and the web) and the hand's front (the thumb,
+// handOutline's `front`) lies over the pen.
 const GEOMETRY = {
   pinch: { grip: { x: 6.4, y: 12.1 }, nib: { x: -3.2, y: 24.26 }, tail: 17 },
-  write: { grip: { x: 9.76, y: 5.135 }, nib: { x: -2.151, y: 3.672 }, tail: 22.5 },
+  write: { grip: { x: 4.967, y: 15.786 }, nib: { x: -0.454, y: 22.653 }, tail: 26.733 },
 } as const
 const WIDTH = 2.6
 const CONE = 3.6
@@ -156,12 +156,13 @@ export function Pluma({
   const penPath = `M${f(coneBase)} ${f(-w / 2)} ${tailCap} H${f(coneBase)} L${f(len)} 0 Z`
   const mano = <Mano at={at} pose={pose} size={size} angle={handAngle} anchor={grip} />
   if (pose === "write" && hand) {
-    // The pen lies over the hand and the hand's front (thumb and index finger) over the pen. A mask
-    // cuts the pen along the front plus its outline and a gap half the outline wide, so the barrel
-    // stops short of the fingertips' and creases' ink. Over the rest of the hand a second mask cuts
+    // The pen lies over the hand and the hand's front (the thumb) over the pen. A mask cuts the pen
+    // along the front plus its outline and a gap half the outline wide, so the barrel stops short of
+    // the thumb's ink. Over the rest of the hand a second mask cuts
     // the hand's ink along the pen plus the same half-outline gap, sparing the front's own contours,
     // and the cut is refilled with card only inside the hand's fill; nothing is painted on the page.
-    // One element per subpath, so overlapping parts (thumb and index) union whatever their winding.
+    // One element per subpath, so overlapping parts (the thumb's tip and body) union whatever their
+    // winding.
     const front = (outline.front ?? "").split(/(?=M)/).map((d) => d.trim())
     const frontWidth = Number(outline.strokeWidth)
     return (

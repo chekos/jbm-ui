@@ -100,8 +100,8 @@ test("the shared outline is 3 stage px, and outlineIn converts it to local units
 })
 
 test("Hand: every pose's outline is the token at the default 180px size", () => {
-  // The Hand draws 30 viewBox units across 180 px; open, grip, type, hold, and write sit at scale 0.48.
-  const scale = { open: 0.48, point: 1, pinch: 1, grip: 0.48, type: 0.48, hold: 0.48, write: 0.48 }
+  // The Hand draws 30 viewBox units across 180 px; open, grip, type, and hold sit at scale 0.48, write at 0.45.
+  const scale = { open: 0.48, point: 1, pinch: 1, grip: 0.48, type: 0.48, hold: 0.48, write: 0.45 }
   for (const pose of handPoses) {
     const markup = html(h(Hand, { pose }))
     const px = widths(markup).map((w) => w * scale[pose] * 6)

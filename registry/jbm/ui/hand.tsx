@@ -29,20 +29,17 @@ export type HandProps = SVGProps<SVGSVGElement> & {
 // between palm, thumb, fingertips, and heel is the object's place (a mug's body, a sheet's
 // corner). The pocket's palm edge ends on the thumb's underside, which carries on into the palm as
 // a short crease where the thumb leaves it; the little fingertip curls on over the heel.
-// write (issue #173, owner-chosen references C and D, Paper page "hands", artboard "Hands v6 ·
-// write") is a right hand holding a pen in a tripod grip, seen from the thumb side, traced over the
-// reference scaled and turned so its straight wrist cut is the shared one (at Pluma's -45° it stands
-// as the reference does). The back of the hand rises from the wrist to a rounded knuckle; the index
-// finger runs along the top to its round tip at the left; under it the thumb tip, and under that the
-// middle fingertip, then one lobe for the tucked ring and little fingers. The index tip overlaps the
-// thumb tip in a filleted valley and lies in front of it: its lower contour carries on over the thumb
-// tip to J, where the thumb's top side comes out from behind it and runs down into the palm and the
-// index's underside curls up into the hand; the thumb's underside runs down between the thumb and the
-// curled fingers, and the middle finger's underside meets it. The barrel lies in the web between the
-// two creases from J (handOutline's `front` is the thumb and index, which lie over it); the middle
-// tip sits behind the pen's line, holding it from below. Every fingertip is a 6.4-wide round tip; no
-// nails, wrinkles, or forearm. Like grip, type, and hold, its ink is one path; its deliberate corners
-// are the wrist cut and J.
+// write (issue #177) traces an owner-approved Quiver Arrow reference (Paper page "hands", artboard
+// "Hands v7 · write (Quiver Arrow)"; tools/blender/hand/reference/write.quiver.svg), drawn at the
+// outline weight at scale 0.45, whose line centres it keeps (tools/blender/hand/trace). A right hand
+// seen from the back and a little above, fingers toward the nib: the index lies along the top of the
+// barrel to its round tip near the nib; the thumb's round tip meets the barrel from below just behind
+// it, so the two tips close in a notch (J) on the barrel; the middle fingertip shows under the thumb;
+// the curled ring, little, and middle fingers are three knuckles down the right side with short
+// dividers; the thumb's top edge runs into the web as a crease; the wrist is short. It is turned so
+// its pen slants as pinch's does (Pluma's write drops in for pinch at the same angle). Only the thumb
+// lies over the pen (handOutline's `front`); the barrel crosses the index and the web. Its ink is one
+// path; its deliberate corners are the wrist cut's ends.
 // Their ink is one path: the closed outline, with every interior line (dividers, fingertip row,
 // thumb fold or crease, the little fingertip) walked out and back from an outline point as a
 // retraced spur. A spur adds no fill, and one stroke never doubles its antialiased edge where lines
@@ -53,11 +50,12 @@ export type HandProps = SVGProps<SVGSVGElement> & {
 // In every pose, including point and pinch, dividers start on the outline's valley points and use
 // the outline's stroke width, and the palm side meets the wrist cut in one tangent fillet.
 // The outline is the shared token: Hand draws 30 viewBox units across 180 stage px, so it is
-// outlineIn(30 / 180) viewBox units wide. open, grip, type, hold, and write are authored at scale 0.48
-// (see transforms), point and pinch at 1, so each path carries the token in its own units.
+// outlineIn(30 / 180) viewBox units wide. open, grip, type, and hold are authored at scale 0.48,
+// write at 0.45 (see transforms), point and pinch at 1, so each path carries the token in its own units.
 const VIEW_OUTLINE = outlineIn(30 / 180)
 const WIDE = +(VIEW_OUTLINE / 0.48).toFixed(4)
 const FINE = +VIEW_OUTLINE.toFixed(4)
+const WRITE = +(VIEW_OUTLINE / 0.45).toFixed(4)
 const poses = {
   open: [
     {
@@ -193,22 +191,22 @@ const poses = {
   ],
   write: [
     {
-      d: "M54.1 60.1 C53.9 59 53.5 56.9 53.5 56 C53.5 53.8 55.5 50.2 55.5 45.2 L55.5 33 C55.5 28.604 55.682 26.964 52.857 23.596 L47.393 17.085 C42.844 11.663 43.892 11.338 36.832 11.831 L24.861 12.668 A3.2 3.2 0 0 0 23.462 18.618 A3.2 3.2 0 0 0 27.498 17.962 A3.2 3.2 0 0 1 29.4 19.007 L36.675 27.258 L29.4 19.007 A3.2 3.2 0 0 0 27.498 17.962 C29.074 16.152 30.065 15.019 32.413 14.52 C30.065 15.019 29.074 16.152 27.498 17.962 A3.2 3.2 0 0 1 23.462 18.618 A1.2 1.2 0 0 1 23.984 20.053 A3.2 3.2 0 0 0 23.808 20.897 A3.2 3.2 0 0 0 24.6 23.239 L31.874 31.49 L24.6 23.239 A3.2 3.2 0 0 1 23.808 20.897 A1.2 1.2 0 0 1 22.853 21.988 A3.2 3.2 0 0 0 21.324 27.468 A3.2 3.2 0 0 0 24.852 28.022 L27.662 26.712 L24.852 28.022 A3.2 3.2 0 0 1 21.324 27.468 A1.2 1.2 0 0 1 21.569 28.907 A3.2 3.2 0 0 0 21.274 31.084 L22.674 37.484 A3.2 3.2 0 0 0 25.244 39.951 C30.429 40.866 31.18 40.752 31.6 46 C32.174 53.173 34.445 56.412 36.39 63.34 L36.8 64.8 Z",
+      d: "M71.72 66.35 L69.2 55.95 C69.072 55.421 69.188 54.587 69.533 54.165 C70.228 53.313 71.127 52.319 71.544 51.55 C71.962 50.781 72.093 50.392 72.039 49.55 C71.985 48.708 71.731 47.37 71.222 46.5 C70.713 45.63 69.83 44.935 68.984 44.332 C68.568 44.035 67.962 43.279 68.193 42.823 C68.015 43.173 68.232 43.479 67.85 43.95 C67.468 44.421 66.495 45.026 65.9 45.65 C66.495 45.026 67.468 44.421 67.85 43.95 C68.232 43.479 68.015 43.173 68.193 42.823 C68.557 42.105 69.028 41.462 69.133 40.6 C69.238 39.738 69.128 38.474 68.822 37.65 C68.517 36.826 67.958 36.148 67.3 35.656 C66.642 35.163 65.719 34.909 64.876 34.697 C64.405 34.579 63.795 33.914 63.863 33.433 C63.808 33.822 63.977 34.131 63.7 34.6 C63.423 35.069 62.658 35.665 62.2 36.25 C62.658 35.665 63.423 35.069 63.7 34.6 C63.977 34.131 63.808 33.822 63.863 33.433 C64.014 32.366 64.105 31.126 63.844 30.2 C63.584 29.274 62.874 28.439 62.3 27.878 C61.726 27.317 61.942 27.355 60.4 26.833 C58.858 26.312 55.495 25.462 53.05 24.75 C50.061 23.88 46.682 21.243 43.85 19.95 C42.769 19.456 41.567 18.954 40.5 18.733 C39.433 18.513 38.45 18.498 37.45 18.628 C36.45 18.757 35.483 19.044 34.5 19.511 C33.517 19.979 34.242 18.935 31.55 21.433 C28.858 23.931 20.906 31.881 18.35 34.5 C15.794 37.119 16.799 36.317 16.211 37.15 C15.623 37.983 15.091 38.883 14.822 39.5 C14.554 40.117 14.557 40.317 14.6 40.85 C14.643 41.383 14.787 42.182 15.078 42.7 C15.369 43.218 15.825 43.67 16.346 43.957 C17.063 44.351 17.901 44.46 18.695 44.263 C19.488 44.066 20.178 43.577 20.627 42.893 C20.754 42.698 20.946 42.554 21.168 42.486 C21.391 42.417 21.63 42.429 21.845 42.518 C22.06 42.607 22.238 42.768 22.347 42.974 C22.455 43.18 22.489 43.417 22.442 43.645 C22.625 42.763 23.065 41.956 23.707 41.325 C24.349 40.695 25.164 40.269 26.049 40.101 C26.933 39.934 27.847 40.033 28.676 40.386 C29.584 40.773 30.054 40.689 31.4 41.55 C32.746 42.411 35.608 44.933 36.75 45.55 C37.892 46.167 37.508 46.117 38.25 45.25 C38.992 44.383 40.675 42.075 41.2 40.35 C41.725 38.625 41.4 36.718 41.4 34.9 C41.4 36.718 41.725 38.625 41.2 40.35 C40.675 42.075 38.992 44.383 38.25 45.25 C37.508 46.117 37.892 46.167 36.75 45.55 C35.608 44.933 32.746 42.411 31.4 41.55 C30.054 40.689 29.584 40.773 28.676 40.386 C27.847 40.033 26.933 39.934 26.049 40.101 C25.164 40.269 24.349 40.695 23.707 41.325 C23.065 41.956 22.625 42.763 22.442 43.645 C22.263 44.508 22.338 45.406 22.66 46.227 C22.964 47.003 22.992 47.55 23.7 48.5 C24.408 49.45 25.891 50.739 26.909 51.927 C25.891 50.739 24.408 49.45 23.7 48.5 C22.992 47.55 22.964 47.003 22.66 46.227 C22.755 46.468 22.752 46.737 22.652 46.976 C22.552 47.216 22.364 47.407 22.126 47.51 C21.281 47.875 20.612 48.557 20.265 49.41 C19.918 50.263 19.92 51.218 20.27 52.069 C20.62 52.921 21.29 53.601 22.136 53.964 C22.983 54.326 23.937 54.342 24.795 54.007 C25.653 53.673 26.345 53.015 26.723 52.175 C26.908 51.763 27.735 52.562 28.052 52.884 C32.025 56.923 37.35 62.555 40 64.972 C42.65 67.39 42.267 66.621 43.95 67.389 C45.633 68.156 48.468 68.602 50.1 69.578 C51.732 70.554 52.494 72.058 53.742 73.246 L54.9 74.35 Z",
       fill: "#FFFFFF",
       stroke: "#111212",
-      strokeWidth: WIDE,
+      strokeWidth: WRITE,
       strokeLinecap: "round",
       strokeLinejoin: "round",
     },
   ],
 } as const
 /**
- * The parts of a pose that lie in front of a held pen, in the pose's path units: write's thumb
- * and index finger, bounded by their own drawn contours (the fingertips and the two creases from
- * the notch between them), so a pen drawn over the hand stops at ink the hand already draws.
+ * The parts of a pose that lie in front of a held pen, in the pose's path units: write's thumb (its
+ * tip and the body between its drawn top edge and underside), bounded where the pen crosses it by
+ * ink the hand already draws, so a pen drawn over the hand stops at a drawn contour.
  */
 const fronts: Partial<Record<HandPose, string>> = {
-  write: "M38.659 29.508 L29.4 19.007 A3.2 3.2 0 0 0 24.6 23.239 L33.858 33.741 Z M28.285 15.861 A3.2 3.2 0 1 0 21.885 15.861 A3.2 3.2 0 1 0 28.285 15.861 Z M27.498 17.962 C29.074 16.152 30.065 15.019 32.413 14.52 L32.413 4.52 L25.085 4.52 L25.085 15.861 Z M23.462 18.618 A1.2 1.2 0 0 1 23.984 20.053 L26.042 18.492 Z",
+  write: "M31.44 44.569 C31.44 45.775 30.961 46.931 30.108 47.784 C29.256 48.636 28.099 49.115 26.894 49.115 C25.688 49.115 24.531 48.636 23.679 47.784 C22.826 46.931 22.347 45.775 22.347 44.569 C22.347 43.363 22.826 42.206 23.679 41.354 C24.531 40.501 25.688 40.022 26.894 40.022 C28.099 40.022 29.256 40.501 30.108 41.354 C30.961 42.206 31.44 43.363 31.44 44.569 Z M28.676 40.386 L31.4 41.55 L31.45 41.6 L31.5 41.65 L31.55 41.7 L31.6 41.75 L31.65 41.8 L31.7 41.8 L31.75 41.85 L31.8 41.9 L31.85 41.95 L31.9 42 L31.95 42 L32 42.05 L32.05 42.1 L32.1 42.15 L32.15 42.2 L32.2 42.2 L32.25 42.25 L32.3 42.3 L32.35 42.35 L32.4 42.4 L32.45 42.45 L32.5 42.45 L32.55 42.5 L32.6 42.55 L32.65 42.6 L32.7 42.65 L32.75 42.65 L32.8 42.7 L32.85 42.75 L32.9 42.8 L32.95 42.85 L33 42.85 L33.05 42.9 L33.1 42.95 L33.15 43 L33.2 43.05 L33.25 43.05 L33.3 43.1 L33.35 43.15 L33.4 43.2 L33.45 43.25 L33.5 43.25 L33.55 43.3 L33.6 43.35 L33.65 43.4 L33.7 43.4 L33.75 43.45 L33.8 43.5 L33.85 43.55 L33.9 43.6 L33.95 43.6 L34 43.65 L34.05 43.7 L34.1 43.75 L34.15 43.75 L34.2 43.8 L34.25 43.85 L34.3 43.9 L34.35 43.95 L34.4 43.95 L34.45 44 L34.5 44.05 L34.55 44.1 L34.6 44.1 L34.65 44.15 L34.7 44.2 L34.75 44.2 L34.8 44.25 L34.85 44.3 L34.9 44.3 L34.95 44.35 L35 44.4 L35.05 44.45 L35.1 44.45 L35.15 44.5 L35.2 44.55 L35.25 44.55 L35.3 44.6 L35.35 44.65 L35.4 44.65 L35.45 44.7 L35.5 44.75 L35.55 44.75 L35.6 44.8 L35.65 44.85 L35.7 44.9 L35.75 44.9 L35.8 44.95 L35.85 45 L35.9 45 L35.95 45.05 L36 45.1 L36.05 45.1 L36.1 45.15 L36.15 45.2 L36.2 45.2 L36.25 45.25 L36.3 45.25 L36.35 45.3 L36.4 45.35 L36.45 45.35 L36.5 45.4 L36.55 45.4 L36.6 45.45 L36.65 45.45 L36.7 45.5 L36.75 45.55 L36.8 45.55 L36.85 45.6 L36.9 45.6 L36.95 45.65 L37 45.65 L37.05 45.7 L37.1 45.7 L37.15 45.7 L27 52.25 L27 52.2 L27 52.15 L26.95 52.1 L26.95 52.05 L26.95 52 L26.9 51.95 L26.9 51.9 L26.9 51.85 L26.85 51.8 L26.85 51.75 L26.85 51.7 L26.8 51.65 L26.75 51.6 L26.7 51.55 L26.65 51.5 L26.6 51.45 L26.55 51.4 L26.5 51.35 L26.45 51.3 L26.4 51.25 L26.35 51.2 L26.3 51.15 L26.25 51.1 L26.2 51.05 L26.15 51 L26.1 50.95 L26.05 50.9 L26 50.85 L25.95 50.8 L25.9 50.75 L25.85 50.7 L25.8 50.65 L25.75 50.6 L25.7 50.55 L25.65 50.5 L25.6 50.45 L25.55 50.4 L25.5 50.35 L25.45 50.3 L25.4 50.25 L25.35 50.2 L25.3 50.15 L25.25 50.1 L25.2 50.05 L25.15 50 L25.1 49.95 L25.05 49.9 L25 49.85 L24.95 49.8 L24.9 49.75 L24.85 49.7 L24.8 49.65 L24.75 49.6 L24.7 49.55 L24.65 49.5 L24.6 49.45 L24.55 49.4 L24.55 49.35 L24.5 49.3 L24.45 49.25 L24.4 49.2 L24.35 49.15 L24.3 49.1 L24.25 49.05 L24.2 49 L24.15 48.95 L24.1 48.9 L24.05 48.85 L24 48.8 L23.95 48.75 L23.9 48.7 L23.85 48.65 L23.8 48.6 L23.75 48.55 L23.7 48.5 L23.7 48.45 L23.65 48.4 L23.6 48.35 L23.55 48.3 L23.5 48.25 L23.45 48.2 L22.66 46.227 Z",
 }
 const transforms = {
   open: "translate(4 1) scale(0.48) translate(-19 -13)",
@@ -217,15 +215,15 @@ const transforms = {
   grip: "translate(4 1) scale(0.48) translate(-19 -13)",
   type: "translate(4 1) scale(0.48) translate(-19 -13)",
   hold: "translate(4 1) scale(0.48) translate(-19 -13)",
-  write: "translate(4 1) scale(0.48) translate(-19 -13)",
+  write: "translate(-8.766 -1.826) rotate(-11.31) scale(0.45)",
 } as const
 /**
  * A pose's closed outline in the Hand's 30×29 viewBox: its path, the transform that places it,
  * and the outline's stroke width in path units. Composites use it to cut art drawn behind the hand
  * (a mask or clip) instead of painting a halo over whatever else is under it. For grip, type,
  * hold, and write the path also retraces the interior lines as spurs inside the outline; they add
- * no area. `front`, where a pose has one (write), is the region in front of a held pen (the thumb
- * and index finger) in the same units and transform; a pen drawn over the hand stops at it.
+ * no area. `front`, where a pose has one (write), is the region in front of a held pen (the thumb)
+ * in the same units and transform; a pen drawn over the hand stops at it.
  */
 export function handOutline(pose: HandPose = "point") {
   const outline = poses[pose][0]

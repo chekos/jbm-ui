@@ -24,6 +24,14 @@ const handFile = join(copy, "ui/hand.tsx")
 let hand = readFileSync(handFile, "utf8")
 hand = hand.replace(new RegExp(`(\\n  ${pose}: \\[\\s*\\{\\s*d: )"[^"]+"`), `$1${JSON.stringify(traced.d)}`)
 hand = hand.replace(new RegExp(`(\\n  ${pose}: )"M[^"]+"`), `$1${JSON.stringify(traced.front)}`)
+// A flat design may use another pose's frame and weight (flat.py's transform and stroke).
+if (traced.transform)
+  hand = hand.replace(new RegExp(`(\\n  ${pose}: )"translate[^"]+"`), `$1${JSON.stringify(traced.transform)}`)
+if (traced.stroke) {
+  const start = hand.indexOf(`\n  ${pose}: [`)
+  const end = hand.indexOf("\n  ],", start)
+  hand = hand.slice(0, start) + hand.slice(start, end).replace(/strokeWidth: \w+/, `strokeWidth: ${traced.stroke}`) + hand.slice(end)
+}
 writeFileSync(handFile, hand)
 if (traced.pen) {
   const plumaFile = join(copy, "motion/pluma.tsx")
@@ -61,15 +69,20 @@ const h = React.createElement
 // Each cell: a word ending where the nib writes, the hand at a scene's size and tilt.
 const cells = []
 const W = 360, H = 250
+// Scenes write at about 20-35 degrees and tug at 50 (issue #177), at 150-180 px.
 const tilts = [
-  ["write", -45, 180], ["write", -20, 180], ["write", 20, 150], ["write", 35, 150],
-  ["pinch", 20, 150], ["pinch", 35, 150],
+  [pose, 20, 150], [pose, 35, 150], [pose, 50, 150],
+  ["pinch", 20, 150], ["pinch", 35, 150], [pose, 35, 180],
 ]
 tilts.forEach(([p, angle, size], i) => {
   const nib = { x: 150, y: 150 }
   const o = plumaNib({ x: 0, y: 0 }, angle, undefined, size, p)
   const at = { x: nib.x - o.x, y: nib.y - o.y }
-  const pluma = renderToStaticMarkup(h("svg", null, h(Pluma, { at, angle, size, pose: p }))).replace(/^<svg>|<\/svg>$/g, "")
+  // Separately rendered roots repeat useId values: suffix each cell's mask ids so cells don't
+  // borrow each other's masks.
+  const pluma = renderToStaticMarkup(h("svg", null, h(Pluma, { at, angle, size, pose: p })))
+    .replace(/^<svg>|<\/svg>$/g, "")
+    .replace(/(id="|url\(#)([^")]+)/g, `$1$2-c${i}`)
   const x = (i % 3) * W, y = Math.floor(i / 3) * H
   cells.push(`<g transform="translate(${x} ${y})"><rect width="${W - 8}" height="${H - 8}" rx="6" fill="#fbf8f1" stroke="#ddd"/>` +
     `<text x="${nib.x - 6}" y="${nib.y}" text-anchor="end" font-family="Geist, sans-serif" font-weight="700" font-size="44" fill="#111212">bi</text>${pluma}` +
@@ -78,6 +91,13 @@ tilts.forEach(([p, angle, size], i) => {
 const bare = renderToStaticMarkup(h(Hand, { pose, width: 240 }))
 const sheet = `<svg xmlns="http://www.w3.org/2000/svg" width="${3 * W + 260}" height="${2 * H}" viewBox="0 0 ${3 * W + 260} ${2 * H}">` +
   `<rect width="100%" height="100%" fill="#fff"/>${cells.join("")}<g transform="translate(${3 * W + 10} 20)">${bare}</g></svg>\n`
+// A 3x close-up of the grip at a writing tilt, for joins and overlaps.
+const zoomNib = { x: 120, y: 330 }
+const zo = plumaNib({ x: 0, y: 0 }, 35, undefined, 450, pose)
+const zoom = renderToStaticMarkup(h("svg", null, h(Pluma, { at: { x: zoomNib.x - zo.x, y: zoomNib.y - zo.y }, angle: 35, size: 450, pose })))
+  .replace(/^<svg>|<\/svg>$/g, "")
+writeFileSync(join(out, `${pose}.zoom.svg`), `<svg xmlns="http://www.w3.org/2000/svg" width="720" height="600" viewBox="0 0 720 600"><rect width="100%" height="100%" fill="#fbf8f1"/>${zoom}</svg>\n`)
+execFileSync("/Applications/Google Chrome.app/Contents/MacOS/Google Chrome", ["--headless", "--disable-gpu", "--hide-scrollbars", `--screenshot=${join(out, `${pose}.zoom.png`)}`, "--window-size=720,600", `file://${join(out, `${pose}.zoom.svg`)}`], { stdio: "ignore" })
 const file = join(out, `${pose}.pluma.svg`)
 writeFileSync(file, sheet)
 execFileSync("/Applications/Google Chrome.app/Contents/MacOS/Google Chrome", ["--headless", "--disable-gpu", "--hide-scrollbars", `--screenshot=${file.replace(/svg$/, "png")}`, `--window-size=${3 * W + 260},${2 * H}`, `file://${file}`], { stdio: "ignore" })

@@ -1013,7 +1013,7 @@
         "@jbm/scene-geometry",
         "@jbm/mano"
       ],
-      "snippet": "import { Pluma, plumaNib } from \"@/jbm/motion/pluma\"\n\n// The nib ends the written word; solve the grip point from it.\nconst nib = { x: 260, y: 200 }\nconst o = plumaNib({ x: 0, y: 0 }, -45, undefined, 180, \"write\")\n<svg viewBox=\"0 0 600 340\">\n  <Pluma at={{ x: nib.x - o.x, y: nib.y - o.y }} angle={-45} size={180} pose=\"write\" />\n</svg>",
+      "snippet": "import { Pluma, plumaNib } from \"@/jbm/motion/pluma\"\n\n// The nib ends the written word; solve the grip point from it.\nconst nib = { x: 260, y: 200 }\nconst o = plumaNib({ x: 0, y: 0 }, 30, undefined, 180, \"write\")\n<svg viewBox=\"0 0 600 340\">\n  <Pluma at={{ x: nib.x - o.x, y: nib.y - o.y }} angle={30} size={180} pose=\"write\" />\n</svg>",
       "installName": "pluma",
       "sourcePath": "registry/jbm/motion/pluma.tsx",
       "inRegistry": true
