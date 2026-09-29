@@ -1,0 +1,170 @@
+{
+  "grip": {
+    "$comment": "Front-view fist, palm to the camera: knuckles on top, middle phalanges down, tips tucked; the thumb crosses in front below them.",
+    "rotations": {
+      "index": [
+        90,
+        90,
+        70
+      ],
+      "middle": [
+        90,
+        90,
+        70
+      ],
+      "ring": [
+        90,
+        90,
+        70
+      ],
+      "little": [
+        90,
+        90,
+        70
+      ],
+      "thumb.0": [
+        38.0,
+        -32.0,
+        12.0
+      ],
+      "thumb.1": [
+        46.0,
+        -27.0,
+        -41.0
+      ],
+      "thumb.2": [
+        -9.0,
+        0,
+        -77.5
+      ]
+    },
+    "reference": {
+      "$comment": "Landmarks read from hand.tsx's grip path: knuckle bump centres, the fingertip-row arc centres, the thumb's tip and its straight run's left end.",
+      "index.pip": [
+        31.6,
+        31.05
+      ],
+      "middle.pip": [
+        38,
+        28.85
+      ],
+      "ring.pip": [
+        44.4,
+        30.25
+      ],
+      "little.pip": [
+        50.8,
+        32.65
+      ],
+      "index.dip": [
+        31.6,
+        38.3
+      ],
+      "middle.dip": [
+        38,
+        38.3
+      ],
+      "ring.dip": [
+        44.4,
+        38.3
+      ],
+      "little.dip": [
+        50.8,
+        38.3
+      ],
+      "thumb.ip": [
+        30.4,
+        48.7
+      ],
+      "thumb.tip": [
+        38.4,
+        48.7
+      ]
+    }
+  },
+  "type": {
+    "$comment": "Seen from above on a keyboard, the back of the hand to the camera: fingers reach forward and curl down onto the keys, so each shows as a stub ending at its bent middle joint; the thumb lies low, pointing left.",
+    "facing": "away",
+    "rotations": {
+      "hand": [
+        46.5,
+        0,
+        0
+      ],
+      "index": [
+        -2.5,
+        90,
+        30
+      ],
+      "middle": [
+        -8,
+        90,
+        30
+      ],
+      "ring": [
+        -10,
+        90,
+        30
+      ],
+      "little": [
+        -8,
+        90,
+        30
+      ],
+      "thumb.0": [
+        9.5,
+        -17.5,
+        8.0
+      ],
+      "thumb.1": [
+        0,
+        -19.0,
+        -12.0
+      ],
+      "thumb.2": [
+        0,
+        -16.0,
+        7.5
+      ]
+    },
+    "reference": {
+      "$comment": "Landmarks read from hand.tsx's type path: each finger stub's round end (the bent middle joint), its knuckle where the dividers stop, and the thumb tip.",
+      "index.pip": [
+        31.6,
+        31.6
+      ],
+      "middle.pip": [
+        38,
+        28.6
+      ],
+      "ring.pip": [
+        44.4,
+        29.6
+      ],
+      "little.pip": [
+        50.8,
+        33.6
+      ],
+      "thumb.tip": [
+        22.8,
+        44.9
+      ],
+      "index.mcp": [
+        31.6,
+        40.5
+      ],
+      "middle.mcp": [
+        38,
+        40.5
+      ],
+      "ring.mcp": [
+        44.4,
+        40.5
+      ],
+      "little.mcp": [
+        50.8,
+        40.5
+      ]
+    }
+  }
+}
