@@ -1,4 +1,5 @@
 import { ReplayDemo } from "./replay-demo"
+import { IconsDemo } from "./icons-demo"
 import { color } from "@/registry/jbm/lib/tokens"
 import { Big } from "@/registry/jbm/ui/big"
 import { Brand } from "@/registry/jbm/ui/brand"
@@ -19,6 +20,7 @@ import {
 } from "@/registry/jbm/ui/ui-bits"
 
 export const examples = {
+  icons: <IconsDemo />,
   "scene-geometry": (
     <svg
       viewBox="0 0 500 220"
