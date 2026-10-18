@@ -14,7 +14,7 @@ export default {
       export: "JbmIcon",
       kind: "component",
       summary:
-        "A static 24-unit icon. Uses a two-unit stroke derived from the shared outline token, round caps and joins. No timer, client boundary, or Remotion dependency. Decorative unless label is supplied; label an icon-only parent button separately.",
+        "A static 24-unit icon. Uses a 2.5-unit stroke derived from the shared outline token, round caps and joins. No timer, client boundary, or Remotion dependency. Decorative unless label is supplied; label an icon-only parent button separately.",
       props: {
         name: "arrow-right, search, close, check, play, replay, folder, notebook, dataset, chart, code, or agent.",
         size: "Square CSS-pixel size. Non-positive or non-finite values fall back to 24. Inspect 16, 20, 24 and 32px before use.",

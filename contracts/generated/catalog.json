@@ -10655,7 +10655,7 @@
         {
           "export": "JbmIcon",
           "kind": "component",
-          "summary": "A static 24-unit icon. Uses a two-unit stroke derived from the shared outline token, round caps and joins. No timer, client boundary, or Remotion dependency. Decorative unless label is supplied; label an icon-only parent button separately.",
+          "summary": "A static 24-unit icon. Uses a 2.5-unit stroke derived from the shared outline token, round caps and joins. No timer, client boundary, or Remotion dependency. Decorative unless label is supplied; label an icon-only parent button separately.",
           "props": [
             {
               "name": "name",
