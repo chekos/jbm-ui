@@ -5,7 +5,7 @@
 ## Drawing rules
 
 - Use original minimal geometry. Keep strokes inside the viewBox, including round caps and joins.
-- Use the shared outline token at two-thirds weight (2 units on the 24-unit grid). This is the icon scale; do not change the 3px illustration outline to match it.
+- Use the shared outline token at five-sixths weight (2.5 units on the 24-unit grid). This is the icon scale; do not change the 3px illustration outline to match it.
 - Enclosed silhouettes go in `body`; interior and open strokes go in `marks`. Only `body` receives the paper fill. Avoid overlapping edges, tight double contours and decorative detail that disappears at 16px.
 - Outline icons inherit `currentColor` and have transparent interiors. Paper icons default to cream; choose an explicit `paperColor` for other backgrounds. The studio compares vermilion paper on cream and ink surfaces.
 - Inspect 16, 20, 24 and 32px at actual size, plus enlarged contours. Small-size readability takes precedence over extra detail.

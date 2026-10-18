@@ -5,8 +5,8 @@ import { color as palette, stroke } from "../lib/tokens"
 export const iconPaths = {
   "arrow-right": { body: "", marks: "M4 12H20M14 6L20 12L14 18" },
   search: {
-    body: "M17 10A7 7 0 1 1 3 10A7 7 0 1 1 17 10Z",
-    marks: "M15 15L21 21",
+    body: "M18.5 10.5A8 8 0 1 1 2.5 10.5A8 8 0 1 1 18.5 10.5Z",
+    marks: "M16.157 16.157L20.5 20.5",
   },
   close: { body: "", marks: "M6 6L18 18M18 6L6 18" },
   check: { body: "", marks: "M4 12L9 17L20 6" },
@@ -60,7 +60,7 @@ export function JbmIcon({
       viewBox="0 0 24 24"
       fill="none"
       stroke={color}
-      strokeWidth={stroke.outline * (2 / 3)}
+      strokeWidth={stroke.outline * (5 / 6)}
       strokeLinecap="round"
       strokeLinejoin="round"
       role={label ? "img" : undefined}

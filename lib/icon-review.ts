@@ -1,4 +1,4 @@
-export const REVIEW_VERSION = "jbm-icons-v1"
+export const REVIEW_VERSION = "jbm-icons-v2"
 export const reviewNames = [
   "arrow-right",
   "search",
@@ -26,7 +26,7 @@ export type Review = {
 }
 export function emptyReview(): Review {
   return {
-    direction: "Undecided",
+    direction: "A — Outline",
     weight: "Undecided",
     personality: "Undecided",
     useCases: "",

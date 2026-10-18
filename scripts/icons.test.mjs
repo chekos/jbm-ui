@@ -20,6 +20,15 @@ const { emptyReview, parseReview, reviewPacket, reviewNames, REVIEW_VERSION } = 
 test("review covers the entire published icon inventory", () => {
   assert.deepEqual(reviewNames, Object.keys(iconPaths))
 })
+test("v2 keeps approved silhouettes and does not inherit v1 approvals", () => {
+  assert.equal(iconPaths.folder.body, "M3 5H9L12 8H21V20H3Z")
+  assert.equal(iconPaths.notebook.body, "M5 3H20V21H5Z")
+  assert.equal(iconPaths.chart.body, "M8 20V12H13V20ZM13 20V5H18V20Z")
+  assert.equal(REVIEW_VERSION, "jbm-icons-v2")
+  assert.throws(() => parseReview(JSON.stringify({ version: "jbm-icons-v1", review: emptyReview() })))
+  assert.ok(Object.values(emptyReview().icons).every(icon => icon.decision === "Unreviewed"))
+  assert.match(renderToStaticMarkup(React.createElement(JbmIcon, { name: "search" })), /stroke-width="2.5"/)
+})
 test("decorative and named icons have distinct accessibility semantics", () => {
   const decorative = renderToStaticMarkup(React.createElement(JbmIcon, { name: "folder" }))
   assert.match(decorative, /aria-hidden="true"/)

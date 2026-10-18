@@ -39,7 +39,7 @@ export function IconReview() {
   const [surface, setSurface] = useState("cream")
   const [size, setSize] = useState(24)
   const [query, setQuery] = useState("")
-  const [selected, setSelected] = useState<IconName>("folder")
+  const [selected, setSelected] = useState<IconName>("search")
   useEffect(() => {
     // Restore only after hydration; persistence happens in user event handlers, never on mount.
     try {
@@ -97,7 +97,7 @@ export function IconReview() {
         <Link href="/" aria-label="JBM gallery" className={styles.brand}>
           jbm—ui
         </Link>
-        <span>ICON STUDIO / PILOT 01</span>
+        <span>ICON STUDIO / REVISION 02</span>
         <a href="#feedback">
           Your feedback <span aria-hidden="true">↗</span>
         </a>
@@ -119,12 +119,7 @@ export function IconReview() {
           className={styles.hero}
           aria-label="Folder, notebook and agent icon specimens"
         >
-          <JbmIcon
-            name="folder"
-            size={88}
-            treatment="paper"
-            paperColor={color.accent}
-          />
+          <JbmIcon name="folder" size={88} />
           <JbmIcon name="notebook" size={72} />
           <JbmIcon name="agent" size={64} />
         </div>
@@ -132,43 +127,58 @@ export function IconReview() {
       <section aria-labelledby="compare-title" className={styles.section}>
         <div className={styles.sectionTitle}>
           <span>01 / DIRECTION</span>
-          <h2 id="compare-title">One geometry. Two treatments.</h2>
+          <h2 id="compare-title">More presence. A little more play.</h2>
         </div>
         <div className={styles.directions}>
-          {(["outline", "paper"] as const).map((variant) => (
-            <button
-              key={variant}
-              className={styles.direction}
-              aria-pressed={treatment === variant}
-              onClick={() => setTreatment(variant)}
-            >
-              <span className={styles.directionIcons}>
-                {(["folder", "notebook", "dataset", "agent"] as const).map(
-                  (name) => (
-                    <JbmIcon
-                      key={name}
-                      name={name}
-                      size={40}
-                      treatment={variant}
-                      paperColor={color.accent}
-                    />
-                  )
-                )}
-              </span>
-              <strong>
-                {variant === "outline" ? "A — Outline" : "B — Paper"}
-              </strong>
-              <span>
-                {variant === "outline"
-                  ? "Quiet, transparent, at home beside text. My starting recommendation."
-                  : "Flat color inside enclosed shapes. A little more illustration in the interface."}
-              </span>
-            </button>
-          ))}
+          <div className={styles.direction}>
+            <span className={styles.directionIcons}>
+              {[24, 64].map((px) => (
+                <svg
+                  key={px}
+                  width={px}
+                  height={px}
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  role="img"
+                  aria-label={`Previous search at ${px} pixels`}
+                >
+                  <path d="M17 10A7 7 0 1 1 3 10A7 7 0 1 1 17 10Z" />
+                  <path d="M15 15L21 21" />
+                </svg>
+              ))}
+            </span>
+            <strong>Before — v1</strong>
+            <span>
+              Original search: 2-unit outline, smaller lens, longer handle.
+            </span>
+          </div>
+          <div className={styles.direction}>
+            <span className={styles.directionIcons}>
+              {[24, 64].map((px) => (
+                <JbmIcon
+                  key={px}
+                  name="search"
+                  size={px}
+                  label={`Revised search at ${px} pixels`}
+                />
+              ))}
+            </span>
+            <strong>After — v2</strong>
+            <span>
+              A 25% heavier outline across the set. Search gets a larger lens
+              and a shorter handle.
+            </span>
+          </div>
         </div>
         <p className={styles.hint}>
-          Open marks such as arrows and checks stay the same. Selecting a
-          preview does not record a preference; choose that below.
+          Outline is the chosen direction. Folder, notebook, and chart keep
+          their approved silhouettes with the new weight. Other silhouettes are
+          unchanged and remain unreviewed. Earlier notes stay saved separately;
+          this form reviews v2.
         </p>
       </section>
       <section aria-labelledby="set-title" className={styles.section}>
@@ -185,6 +195,18 @@ export function IconReview() {
               onChange={(event) => setQuery(event.target.value)}
               placeholder="folder, code, agent…"
             />
+          </label>
+          <label>
+            Treatment
+            <select
+              value={treatment}
+              onChange={(event) =>
+                setTreatment(event.target.value as IconTreatment)
+              }
+            >
+              <option value="outline">Outline</option>
+              <option value="paper">Paper</option>
+            </select>
           </label>
           <label>
             Size
