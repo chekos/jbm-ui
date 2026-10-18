@@ -8,6 +8,7 @@ export default {
     "Twelve original geometric SVG icons with outline and paper treatments, inherited color, and optional accessible labels.",
   category: "UI",
   capabilities: [],
+  docs: [{ title: "Icon drawing and review guide", url: "https://jbm-ui.bns.studio/docs/icons.md" }],
   api: [
     {
       export: "JbmIcon",

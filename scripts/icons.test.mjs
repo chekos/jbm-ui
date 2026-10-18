@@ -9,10 +9,10 @@ import { renderToStaticMarkup } from "react-dom/server"
 const require = createRequire(import.meta.url)
 function load(file) {
   const source = ts.transpileModule(readFileSync(new URL(file, import.meta.url), "utf8"), { compilerOptions: { jsx: ts.JsxEmit.ReactJSX, module: ts.ModuleKind.CommonJS } }).outputText
-  const module = { exports: {} }
+  const compiled = { exports: {} }
   const imports = name => name === "../lib/tokens" ? { color: { bg: "#FFF6E8" }, stroke: { outline: 3 } } : require(name)
-  new Function("require", "module", "exports", source)(imports, module, module.exports)
-  return module.exports
+  new Function("require", "module", "exports", source)(imports, compiled, compiled.exports)
+  return compiled.exports
 }
 const { JbmIcon, iconPaths } = load("../registry/jbm/ui/icons.tsx")
 const { emptyReview, parseReview, reviewPacket, reviewNames, REVIEW_VERSION } = load("../lib/icon-review.ts")
