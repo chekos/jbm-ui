@@ -1542,6 +1542,25 @@
           "target": "src/jbm/ui/folder-carry.tsx"
         }
       ]
+    },
+    {
+      "name": "icons",
+      "type": "registry:ui",
+      "title": "JbmIcon",
+      "description": "Twelve original geometric SVG icons with outline and paper treatments, inherited color, and optional accessible labels.",
+      "categories": [
+        "UI"
+      ],
+      "registryDependencies": [
+        "@jbm/tokens"
+      ],
+      "files": [
+        {
+          "path": "registry/jbm/ui/icons.tsx",
+          "type": "registry:ui",
+          "target": "src/jbm/ui/icons.tsx"
+        }
+      ]
     }
   ]
 }

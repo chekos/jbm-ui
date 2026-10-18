@@ -1,4 +1,5 @@
 import { Gallery } from "@/components/gallery/gallery"
+import Link from "next/link"
 import registry from "@/registry.json"
 
 const itemCount = registry.items.length
@@ -14,6 +15,9 @@ export default function Page() {
           Cut-paper primitives and motion blocks for tacosdedatos explainers.
         </p>
         <p className="site-count">{itemCount} registry items</p>
+        <p>
+          <Link href="/icons">Explore the icon studio →</Link>
+        </p>
       </header>
       <Gallery />
       <footer>

@@ -1458,6 +1458,21 @@
       "installName": "folder-carry",
       "sourcePath": "registry/jbm/ui/folder-carry.tsx",
       "inRegistry": true
+    },
+    {
+      "name": "icons",
+      "title": "JbmIcon",
+      "description": "Twelve original geometric SVG icons with outline and paper treatments, inherited color, and optional accessible labels.",
+      "category": "UI",
+      "capabilities": [],
+      "needsRemotion": false,
+      "registryDependencies": [
+        "@jbm/tokens"
+      ],
+      "snippet": "import { JbmIcon } from \"@/jbm/ui/icons\"\n\n<button><JbmIcon name=\"play\" size={20} /> Start lesson</button>",
+      "installName": "icons",
+      "sourcePath": "registry/jbm/ui/icons.tsx",
+      "inRegistry": true
     }
   ]
 }

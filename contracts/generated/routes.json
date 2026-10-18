@@ -75,7 +75,8 @@
     "paper-tape",
     "frontmatter",
     "folder-contents",
-    "folder-carry"
+    "folder-carry",
+    "icons"
   ],
   "docs": [
     {
@@ -89,6 +90,10 @@
     {
       "slug": "desk-components",
       "title": "Desk illustrations"
+    },
+    {
+      "slug": "icons",
+      "title": "JBM icons"
     },
     {
       "slug": "scene-spec",
