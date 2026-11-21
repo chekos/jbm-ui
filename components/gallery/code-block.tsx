@@ -1,5 +1,6 @@
 "use client"
 
+import { Button } from "@ui-sdk/react/button"
 import { useEffect, useRef, useState } from "react"
 
 // Copyable code for the gallery: every usage snippet on the index and on /c/<name> renders
@@ -38,14 +39,14 @@ export function CopyButton({
   }
   return (
     <>
-      <button
+      <Button
         type="button"
         className="copy-button"
         aria-label={label}
         onClick={copy}
       >
         {children}
-      </button>
+      </Button>
       <span className="copy-status" role="status" aria-live="polite">
         {status}
       </span>

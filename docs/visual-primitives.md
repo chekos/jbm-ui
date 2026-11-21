@@ -12,7 +12,7 @@ These components adapt visual ideas from the earlier Design productions to jbm-u
 | ComparisonBars | Jev's closing comparison | Nonnegative values on one zero-based scale. Default maximum fits the largest value (at least 1); explicit maximum must cover every value. Invalid values throw. Empty input renders no rows. |
 | Clock | September recap's corner clock | Explicit hours/minutes, normalized across day boundaries; no system clock or timer. Custom label replaces the visible time. |
 
-All seven live in `ui/` and use no Remotion imports or runtime dependencies beyond React and tokens. Drive Folder opening, ScoreScale values, or Clock time from your own state or timeline. Their gallery sliders demonstrate that contract without autoplay.
+All seven live in `ui/`. ScoreScale uses UI SDK’s Meter and the registry installs its SDK dependencies. The primitives render in React and can be used in Remotion compositions. Drive Folder opening, ScoreScale values, or Clock time from your own state or timeline. Their gallery sliders demonstrate that contract without autoplay.
 
 Document and Folder are illustrations, not file upload or folder navigation controls. Omit their label to make them decorative, or provide one to give the SVG an accessible name. Folder's accessible name includes its open/closed state. Supply surrounding text for information beyond the illustration.
 

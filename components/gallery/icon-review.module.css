@@ -140,7 +140,7 @@
   width: min(360px, 50%);
 }
 .studio input,
-.studio select,
+.studio :global(.gallery-select),
 .studio textarea {
   border: 1px solid var(--jbm-line);
   border-radius: 4px;
@@ -156,7 +156,7 @@
   resize: vertical;
   line-height: 1.6;
 }
-.studio :is(button, a, input, select, textarea, summary):focus-visible {
+.studio :is(button, a, input, textarea):focus-visible {
   outline: 2px solid var(--jbm-accent);
   outline-offset: 4px;
 }
@@ -335,8 +335,9 @@
   margin-top: 20px;
   font-size: 13px;
 }
-.packet summary {
+.packet :global([data-slot="collapsible-trigger"]) {
   cursor: pointer;
+  min-height: 44px;
   padding: 12px 0;
 }
 .packet textarea {

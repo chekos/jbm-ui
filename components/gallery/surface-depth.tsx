@@ -1,5 +1,8 @@
 "use client"
 
+import { GalleryCheckbox } from "./controls"
+import { Toggle, ToggleGroup } from "@ui-sdk/react/toggle"
+import { Button } from "@ui-sdk/react/button"
 import { useState } from "react"
 import { color, shadowLayers, surfaceBorder } from "@/registry/jbm/lib/tokens"
 import { getGalleryItem } from "./item-meta"
@@ -21,18 +24,17 @@ export function SurfaceDepth() {
   const compact = useBenchCompact()
   return (
     <div className="surface-lab">
-      <div
+      <ToggleGroup
         className="surface-modes"
-        role="group"
         aria-label="Surface comparison"
+        value={[before ? "before" : "layered"]}
+        onValueChange={([next]) => {
+          if (next) setBefore(next === "before")
+        }}
       >
-        <button aria-pressed={before} onClick={() => setBefore(true)}>
-          Before
-        </button>
-        <button aria-pressed={!before} onClick={() => setBefore(false)}>
-          Layered
-        </button>
-      </div>
+        <Toggle value="before">Before</Toggle>
+        <Toggle value="layered">Layered</Toggle>
+      </ToggleGroup>
       <div className="surface-samples">
         {(["card", "cardDark"] as const).map((variant) => {
           const dark = variant === "cardDark"
@@ -77,11 +79,10 @@ export function SurfaceDepth() {
             ] as const
           ).map(([key, label]) => (
             <label key={key}>
-              <input
-                type="checkbox"
+              <GalleryCheckbox
                 checked={layers[key]}
-                onChange={(event) =>
-                  setLayers({ ...layers, [key]: event.target.checked })
+                onCheckedChange={(checked) =>
+                  setLayers({ ...layers, [key]: checked })
                 }
               />
               {label}
@@ -96,7 +97,7 @@ export function SurfaceDepth() {
             ? "The current recipe: border, inset highlight, contact and soft outer shadows."
             : "Toggle layers to inspect the current recipe. Copy uses the complete recipe."}
       </p>
-      <button
+      <Button
         className="surface-copy"
         onClick={async () => {
           try {
@@ -108,7 +109,7 @@ export function SurfaceDepth() {
         }}
       >
         Copy token usage
-      </button>
+      </Button>
       <p role="status" className="surface-note">
         {status}
       </p>

@@ -1,5 +1,6 @@
 "use client"
 
+import { GalleryCheckbox, GallerySelect } from "./controls"
 import { WorkOrderExample } from "./design-video-demo"
 
 import { useBenchParam } from "./bench-url"
@@ -45,10 +46,9 @@ function TicketDemo() {
         </p>
       </Ticket>
       <label style={{ fontSize: 12 }}>
-        <input
-          type="checkbox"
+        <GalleryCheckbox
           checked={accent}
-          onChange={(event) => setAccent(event.target.checked)}
+          onCheckedChange={(checked) => setAccent(checked)}
         />{" "}
         Vermilion header
       </label>
@@ -88,36 +88,37 @@ function FolderDemo() {
       <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 16, fontSize: 12 }}>
         <label>
           Tone{" "}
-          <select
-            aria-label="folder Tone"
+          <GallerySelect
+            label="folder Tone"
             value={tone}
-            onChange={(e) => setTone(e.target.value as FolderTone)}
-          >
-            <option value="accent">Vermilion</option>
-            <option value="ink">Ink</option>
-            <option value="card">Card</option>
-          </select>
+            onValueChange={setTone}
+            options={[
+              { value: "accent", label: "Vermilion" },
+              { value: "ink", label: "Ink" },
+              { value: "card", label: "Card" },
+            ]}
+          />
         </label>
         {!compact && (
           <label>
             Label on{" "}
-            <select
-              aria-label="folder Label on"
+            <GallerySelect
+              label="folder Label on"
               value={place}
-              onChange={(e) => setPlace(e.target.value as typeof place)}
-            >
-              <option value="auto">Tone default</option>
-              <option value="front">Front panel</option>
-              <option value="tab">Tab</option>
-            </select>
+              onValueChange={setPlace}
+              options={[
+                { value: "auto", label: "Tone default" },
+                { value: "front", label: "Front panel" },
+                { value: "tab", label: "Tab" },
+              ]}
+            />
           </label>
         )}
         <label>
-          <input
-            type="checkbox"
+          <GalleryCheckbox
             aria-label="folder Sublabel"
             checked={sublabel}
-            onChange={(e) => setSublabel(e.target.checked)}
+            onCheckedChange={(checked) => setSublabel(checked)}
           />{" "}
           Sublabel
         </label>

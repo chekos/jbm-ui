@@ -1,5 +1,11 @@
 "use client"
 
+import {
+  Collapsible,
+  CollapsiblePanel,
+  CollapsibleTrigger,
+} from "@ui-sdk/react/collapsible"
+import { GalleryCheckbox, GallerySelect } from "./controls"
 import { useBenchParam } from "./bench-url"
 import { useBenchCompact } from "./bench-compact"
 import { Cajon, cajonLayout, type DrawerFolder } from "@/registry/jbm/motion/cajon"
@@ -189,11 +195,10 @@ function CajonDemo() {
   )
   const check = (label: string, value: boolean, set: (v: boolean) => void) => (
     <label>
-      <input
-        type="checkbox"
+      <GalleryCheckbox
         aria-label={`${name} ${label}`}
         checked={value}
-        onChange={(e) => set(e.target.checked)}
+        onCheckedChange={(checked) => set(checked)}
       />{" "}
       {label}
     </label>
@@ -239,18 +244,18 @@ function CajonDemo() {
           <>
             <label>
               Target{" "}
-              <select
-                aria-label={`${name} target folder`}
+              <GallerySelect
+                label={`${name} target folder`}
                 value={target}
-                onChange={(e) => setTarget(Number(e.target.value))}
-              >
-                <option value={-1}>All folders</option>
-                {sources.slice(0, count).map(([source], i) => (
-                  <option key={source} value={i}>
-                    {i + 1}. {source}
-                  </option>
-                ))}
-              </select>
+                onValueChange={setTarget}
+                options={[
+                  { value: -1, label: "All folders" },
+                  ...sources.slice(0, count).map(([source], i) => ({
+                    value: i,
+                    label: `${i + 1}. ${source}`,
+                  })),
+                ]}
+              />
             </label>
             {range(`Lift (${targetName})`, pull, setPull, ["Filed", "Half", "Lifted"])}
             {range(`Flap ajar (${targetName})`, ajar, setAjar, ["Shut", "Half", "Ajar"])}
@@ -258,56 +263,58 @@ function CajonDemo() {
         )}
         {!compact && (
           // Secondary controls fold away so the stage and the main controls fit a 1280×800 screen.
-          <details className="bench-more">
-            <summary>More options</summary>
-            <div>
-            {count > 0 && (
-              <>
-                {range(`Name reveal (${targetName})`, reveal, setReveal, ["Blank", "Half", "Named"])}
-                {check("Set light", setLight, setSetLight)}
-                {setLight && (
-                  <RangeControl
-                    label={`Light (${targetName})`}
-                    ariaLabel={`${name} Light`}
-                    value={k}
-                    onChange={setK}
-                    min={0.72}
-                    max={1}
-                    step={0.01}
-                    format={(n) => `${Math.round(n * 100)}%`}
-                  />
-                )}
-                {check("Vermilion target", accent, setAccent)}
-              </>
-            )}
-            <RangeControl
-              label="Name size"
-              ariaLabel={`${name} Name size`}
-              value={labelSize}
-              onChange={setLabelSize}
-              min={10}
-              max={36}
-              step={1}
-              format={(n) => `${n} units`}
-            />
-            <label>
-              Folder spacing{" "}
-              <select
-                aria-label={`${name} folder spacing`}
-                value={rise}
-                onChange={(e) => setRise(Number(e.target.value) as (typeof riseOptions)[number])}
-              >
-                {riseOptions.map((r) => (
-                  <option key={r} value={r}>
-                    {r === 0 ? "Auto" : `${r} units apart`}
-                  </option>
-                ))}
-              </select>
-            </label>
-            {check("Titles", titles, setTitles)}
-            {check("Staggered tabs", stagger, setStagger)}
-            </div>
-          </details>
+          <Collapsible className="bench-more gallery-disclosure">
+            <CollapsibleTrigger>More options</CollapsibleTrigger>
+            <CollapsiblePanel keepMounted>
+              {count > 0 && (
+                <>
+                  {range(`Name reveal (${targetName})`, reveal, setReveal, [
+                    "Blank",
+                    "Half",
+                    "Named",
+                  ])}
+                  {check("Set light", setLight, setSetLight)}
+                  {setLight && (
+                    <RangeControl
+                      label={`Light (${targetName})`}
+                      ariaLabel={`${name} Light`}
+                      value={k}
+                      onChange={setK}
+                      min={0.72}
+                      max={1}
+                      step={0.01}
+                      format={(n) => `${Math.round(n * 100)}%`}
+                    />
+                  )}
+                  {check("Vermilion target", accent, setAccent)}
+                </>
+              )}
+              <RangeControl
+                label="Name size"
+                ariaLabel={`${name} Name size`}
+                value={labelSize}
+                onChange={setLabelSize}
+                min={10}
+                max={36}
+                step={1}
+                format={(n) => `${n} units`}
+              />
+              <label>
+                Folder spacing{" "}
+                <GallerySelect
+                  label={`${name} folder spacing`}
+                  value={rise}
+                  onValueChange={setRise}
+                  options={riseOptions.map((r) => ({
+                    value: r,
+                    label: r === 0 ? "Auto" : `${r} units apart`,
+                  }))}
+                />
+              </label>
+              {check("Titles", titles, setTitles)}
+              {check("Staggered tabs", stagger, setStagger)}
+            </CollapsiblePanel>
+          </Collapsible>
         )}
       </div>
     </div>
@@ -576,27 +583,24 @@ function DeskObjectDemo({ name }: { name: string }) {
         {name === "escritorio" && (
           <>
             <label>
-              <input
-                type="checkbox"
+              <GalleryCheckbox
                 checked={wood}
-                onChange={(e) => setWood(e.target.checked)}
+                onCheckedChange={(checked) => setWood(checked)}
               />{" "}
               Wood finish
             </label>
             <label>
-              <input
-                type="checkbox"
+              <GalleryCheckbox
                 checked={cabinet}
-                onChange={(e) => setCabinet(e.target.checked)}
+                onCheckedChange={(checked) => setCabinet(checked)}
               />{" "}
               File cabinet
             </label>
             {cabinet && !compact && (
               <label>
-                <input
-                  type="checkbox"
+                <GalleryCheckbox
                   checked={right}
-                  onChange={(e) => setRight(e.target.checked)}
+                  onCheckedChange={(checked) => setRight(checked)}
                 />{" "}
                 Cabinet on right
               </label>
@@ -606,35 +610,31 @@ function DeskObjectDemo({ name }: { name: string }) {
         {(name === "hand" || name === "mano") && (
           <label>
             Pose{" "}
-            <select
-              aria-label={`${name} pose`}
+            <GallerySelect
+              label={`${name} pose`}
               value={pose}
-              onChange={(e) => setPose(e.target.value as HandPose)}
-            >
-              {handPoses.map((p) => (
-                <option key={p} value={p}>
-                  {poseLabels[p]}
-                </option>
-              ))}
-            </select>
+              onValueChange={setPose}
+              options={handPoses.map((p) => ({
+                value: p,
+                label: poseLabels[p],
+              }))}
+            />
           </label>
         )}
         {name === "hand" && pose === "write" && (
           <label>
-            <input
-              type="checkbox"
+            <GalleryCheckbox
               checked={pen}
-              onChange={(e) => setPen(e.target.checked)}
+              onCheckedChange={(checked) => setPen(checked)}
             />{" "}
             Pen (write is drawn for a pen)
           </label>
         )}
         {name === "hand" && pose === "hold" && (
           <label>
-            <input
-              type="checkbox"
+            <GalleryCheckbox
               checked={mug}
-              onChange={(e) => setMug(e.target.checked)}
+              onCheckedChange={(checked) => setMug(checked)}
             />{" "}
             Mug (hold is drawn round an object)
           </label>
@@ -643,26 +643,23 @@ function DeskObjectDemo({ name }: { name: string }) {
           <>
             <label>
               Grip{" "}
-              <select
-                aria-label={`${name} grip`}
+              <GallerySelect
+                label={`${name} grip`}
                 value={penPose}
-                onChange={(e) => setPose(e.target.value as PlumaPose)}
-              >
-                {plumaPoses.map((p) => (
-                  <option key={p} value={p}>
-                    {plumaPoseLabels[p]}
-                  </option>
-                ))}
-              </select>
+                onValueChange={setPose}
+                options={plumaPoses.map((p) => ({
+                  value: p,
+                  label: plumaPoseLabels[p],
+                }))}
+              />
             </label>
             {range("Write", write, setWrite, ["Start", "Half", "End"])}
             {/* The index card keeps Grip, Write, and Rotation. */}
             {!compact && (
               <label>
-                <input
-                  type="checkbox"
+                <GalleryCheckbox
                   checked={showHand}
-                  onChange={(e) => setShowHand(e.target.checked)}
+                  onCheckedChange={(checked) => setShowHand(checked)}
                 />{" "}
                 Hand
               </label>

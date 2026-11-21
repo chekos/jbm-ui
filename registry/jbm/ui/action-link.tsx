@@ -1,5 +1,6 @@
 "use client"
 
+import { Button } from "@ui-sdk/react/button"
 import * as React from "react"
 import { color, font } from "../lib/tokens"
 
@@ -21,24 +22,28 @@ export function ActionLink({
   const [hovered, setHovered] = React.useState(false)
   const [focused, setFocused] = React.useState(false)
   return (
-    <a
-      {...props}
-      onMouseEnter={(event) => {
-        setHovered(true)
-        onMouseEnter?.(event)
-      }}
-      onMouseLeave={(event) => {
-        setHovered(false)
-        onMouseLeave?.(event)
-      }}
-      onFocus={(event) => {
-        setFocused(true)
-        onFocus?.(event)
-      }}
-      onBlur={(event) => {
-        setFocused(false)
-        onBlur?.(event)
-      }}
+    <Button
+      render={
+        <a
+          {...props}
+          onMouseEnter={(event) => {
+            setHovered(true)
+            onMouseEnter?.(event)
+          }}
+          onMouseLeave={(event) => {
+            setHovered(false)
+            onMouseLeave?.(event)
+          }}
+          onFocus={(event) => {
+            setFocused(true)
+            onFocus?.(event)
+          }}
+          onBlur={(event) => {
+            setFocused(false)
+            onBlur?.(event)
+          }}
+        />
+      }
       style={{
         display: "inline-flex",
         alignItems: "baseline",
@@ -64,6 +69,6 @@ export function ActionLink({
           ↗
         </span>
       )}
-    </a>
+    </Button>
   )
 }

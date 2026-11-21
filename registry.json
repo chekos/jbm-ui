@@ -233,6 +233,10 @@
           "type": "registry:ui",
           "target": "src/jbm/ui/replay-button.tsx"
         }
+      ],
+      "dependencies": [
+        "@ui-sdk/core@0.1.0-beta.13",
+        "@ui-sdk/react@0.1.0-beta.13"
       ]
     },
     {
@@ -722,6 +726,10 @@
           "type": "registry:ui",
           "target": "src/jbm/ui/scroll-text-fill.tsx"
         }
+      ],
+      "dependencies": [
+        "@ui-sdk/core@0.1.0-beta.13",
+        "@ui-sdk/react@0.1.0-beta.13"
       ]
     },
     {
@@ -741,6 +749,10 @@
           "type": "registry:ui",
           "target": "src/jbm/ui/flip-text.tsx"
         }
+      ],
+      "dependencies": [
+        "@ui-sdk/core@0.1.0-beta.13",
+        "@ui-sdk/react@0.1.0-beta.13"
       ]
     },
     {
@@ -760,6 +772,10 @@
           "type": "registry:ui",
           "target": "src/jbm/ui/scroll-stack.tsx"
         }
+      ],
+      "dependencies": [
+        "@ui-sdk/core@0.1.0-beta.13",
+        "@ui-sdk/react@0.1.0-beta.13"
       ]
     },
     {
@@ -779,6 +795,10 @@
           "type": "registry:ui",
           "target": "src/jbm/ui/rule.tsx"
         }
+      ],
+      "dependencies": [
+        "@ui-sdk/core@0.1.0-beta.13",
+        "@ui-sdk/react@0.1.0-beta.13"
       ]
     },
     {
@@ -798,6 +818,10 @@
           "type": "registry:ui",
           "target": "src/jbm/ui/action-link.tsx"
         }
+      ],
+      "dependencies": [
+        "@ui-sdk/core@0.1.0-beta.13",
+        "@ui-sdk/react@0.1.0-beta.13"
       ]
     },
     {
@@ -932,6 +956,10 @@
           "type": "registry:ui",
           "target": "src/jbm/ui/score-scale.tsx"
         }
+      ],
+      "dependencies": [
+        "@ui-sdk/core@0.1.0-beta.13",
+        "@ui-sdk/react@0.1.0-beta.13"
       ]
     },
     {

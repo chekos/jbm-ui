@@ -1,5 +1,6 @@
 "use client"
 
+import { Button } from "@ui-sdk/react/button"
 import { useEffect, useRef, type CSSProperties } from "react"
 import { color, font } from "../lib/tokens"
 
@@ -79,7 +80,7 @@ export function FlipText({
 
   const segmenter = new Intl.Segmenter(undefined, { granularity: "grapheme" })
   return (
-    <button
+    <Button
       ref={ref}
       type="button"
       aria-label={`Flip text: ${children}`}
@@ -132,6 +133,6 @@ export function FlipText({
           )
         )}
       </span>
-    </button>
+    </Button>
   )
 }

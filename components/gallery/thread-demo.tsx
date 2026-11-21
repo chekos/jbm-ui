@@ -1,5 +1,7 @@
 "use client"
 
+import { Toggle, ToggleGroup } from "@ui-sdk/react/toggle"
+import { GalleryCheckbox, GallerySelect } from "./controls"
 import { useId, type ReactNode } from "react"
 import { BenchToolbarSlot, useBenchParam } from "./bench-url"
 import { useBenchCompact } from "./bench-compact"
@@ -20,7 +22,7 @@ import { ProgressControl, RangeControl } from "./progress-control"
 
 export { threadNames } from "./demo-data"
 
-function Toggle({
+function CheckControl({
   label,
   value,
   onChange,
@@ -33,10 +35,9 @@ function Toggle({
     <label
       style={{ display: "flex", gap: 8, alignItems: "center", fontSize: 12 }}
     >
-      <input
-        type="checkbox"
+      <GalleryCheckbox
         checked={value}
-        onChange={(e) => onChange(e.target.checked)}
+        onCheckedChange={(checked) => onChange(checked)}
       />
       {label}
     </label>
@@ -306,7 +307,7 @@ function ThreadToDrawer() {
           presets={["Closed", "Half", "Open"]}
         />
         {!compact && (
-          <Toggle
+          <CheckControl
             label="Snap the oldest thread"
             value={snap}
             onChange={setSnap}
@@ -380,12 +381,16 @@ function HiloDemo() {
         />
         {!compact && (
           <>
-            <Toggle
+            <CheckControl
               label="Snaps at 50% of draw"
               value={snaps}
               onChange={setSnaps}
             />
-            <Toggle label="Vermilion notch" value={notch} onChange={setNotch} />
+            <CheckControl
+              label="Vermilion notch"
+              value={notch}
+              onChange={setNotch}
+            />
           </>
         )}
         <ProgressControl
@@ -436,14 +441,15 @@ function HiloDemo() {
             />
             <label style={{ fontSize: 12 }}>
               Curve{" "}
-              <select
-                aria-label="hilo curve"
+              <GallerySelect
+                label="hilo curve"
                 value={curve}
-                onChange={(e) => setCurve(e.target.value as HiloCurve)}
-              >
-                <option value="s">Level ends (S)</option>
-                <option value="arc">Arc</option>
-              </select>
+                onValueChange={setCurve}
+                options={[
+                  { value: "s", label: "Level ends (S)" },
+                  { value: "arc", label: "Arc" },
+                ]}
+              />
             </label>
           </>
         )}
@@ -490,13 +496,17 @@ function VideoPrintDemo() {
           presets={["Start", "Half", "End"]}
         />
         {!compact && (
-          <Toggle
+          <CheckControl
             label="Marks at 12, 30, 46, 62%"
             value={marks}
             onChange={setMarks}
           />
         )}
-        <Toggle label="Opened: link tag" value={link} onChange={setLink} />
+        <CheckControl
+          label="Opened: link tag"
+          value={link}
+          onChange={setLink}
+        />
         {link && !compact && (
           <ProgressControl
             label="Tag drops in"
@@ -506,7 +516,7 @@ function VideoPrintDemo() {
             presets={["Hidden", "Half", "Attached"]}
           />
         )}
-        <Toggle label="Paper sheet" value={sheet} onChange={setSheet} />
+        <CheckControl label="Paper sheet" value={sheet} onChange={setSheet} />
       </Controls>
     </>
   )
@@ -528,18 +538,20 @@ export function HiloSceneSwitch() {
     allowed: ["bench", "drawer"],
   })
   return (
-    <div className="bench-segmented" role="group" aria-label="Hilo scene">
+    <ToggleGroup
+      className="bench-segmented"
+      aria-label="Hilo scene"
+      value={[scene]}
+      onValueChange={([next]) => {
+        if (next !== undefined) setScene(next)
+      }}
+    >
       {hiloScenes.map(([value, label]) => (
-        <button
-          key={value}
-          type="button"
-          aria-pressed={scene === value}
-          onClick={() => setScene(value)}
-        >
+        <Toggle key={value} value={value}>
           {label}
-        </button>
+        </Toggle>
       ))}
-    </div>
+    </ToggleGroup>
   )
 }
 

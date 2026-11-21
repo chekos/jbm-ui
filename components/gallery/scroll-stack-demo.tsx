@@ -1,5 +1,7 @@
 "use client"
 
+import { GalleryCheckbox } from "./controls"
+import { Button } from "@ui-sdk/react/button"
 import { useState } from "react"
 import { ScrollStack } from "@/registry/jbm/ui/scroll-stack"
 import { Card } from "@/registry/jbm/ui/card"
@@ -23,10 +25,9 @@ export function ScrollStackDemo() {
       >
         <span>Scroll to stack ↓ · Keyboard: ↓ / ↑</span>
         <label style={{ display: "flex", gap: 6, alignItems: "center" }}>
-          <input
-            type="checkbox"
+          <GalleryCheckbox
             checked={plain}
-            onChange={(event) => setPlain(event.target.checked)}
+            onCheckedChange={(checked) => setPlain(checked)}
           />
           Plain list
         </label>
@@ -69,7 +70,7 @@ export function ScrollStackDemo() {
           >
             The content stays yours.
           </h4>
-          <button
+          <Button
             onClick={() => setCount((value) => value + 1)}
             style={{
               background: color.bg,
@@ -82,7 +83,7 @@ export function ScrollStackDemo() {
             }}
           >
             Add an idea · {count}
-          </button>
+          </Button>
         </Card>
         <div
           style={{

@@ -33,6 +33,8 @@ Add the namespace to a project's `components.json`:
 
 then `npx shadcn add @jbm/stat-card`. Items pull their own dependencies (`@jbm/tokens`, `@jbm/card`, `remotion` for motion items).
 
+Action Link, Flip Text, Replay Button, Rule, Score Scale, Scroll Stack, and Scroll Text Fill install Vercel UI SDK with their source. These items require React 19+ and, in TypeScript projects, `@types/react` 19.2.10+. The gallery and component benches offer UI SDK WebMCP tools in supported browsers.
+
 ## Developing
 
 `pnpm dev` runs the preview site. `pnpm registry:build` regenerates `public/r/`. Add a component by writing it under `registry/jbm/`, registering it in `registry.json`, adding its preview under `components/gallery/`, and writing its agent contract in `contracts/items/<name>.ts` (category, capabilities, props, stage, examples; see `docs/agent-contract.md`).
