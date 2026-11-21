@@ -23,7 +23,11 @@ test("score meters expose clamped values and reject ranges that cannot be plotte
   const base = { label: "Score", min: -5, max: 5 }
   assert.match(render(ScoreScale, { ...base, value: 20 }), /aria-valuenow="5"/)
   assert.match(render(ScoreScale, { ...base, value: -20 }), /aria-valuenow="-5"/)
-  assert.match(render(ScoreScale, { ...base, value: 0 }), /left:50%/)
+  const midpoint = render(ScoreScale, { ...base, value: 0, formatValue: () => "Moderate" })
+  assert.match(midpoint, /data-slot="meter"/)
+  assert.match(midpoint, /aria-valuetext="Moderate"/)
+  assert.match(midpoint, /--meter-value:50%/)
+  assert.match(midpoint, /left:var\(--meter-value\)/)
   for (const props of [{ value: NaN }, { value: Infinity }, { value: 0, min: 5, max: 5 }]) assert.throws(() => render(ScoreScale, { ...base, ...props }), RangeError)
 })
 test("comparison bars share one scale and never silently misrepresent out-of-range values", () => {

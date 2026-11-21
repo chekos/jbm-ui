@@ -161,7 +161,7 @@ export default function MotionBench({
   // slider (which announces the opened frame) and the bench scrolls back into view, since on
   // phones the single stage sits far above the stacked strip.
   const bench = useRef<HTMLDivElement>(null)
-  const scrub = useRef<HTMLInputElement>(null)
+  const scrub = useRef<HTMLDivElement>(null)
   const focusScrub = useRef(false)
   function openFrame(target: number, stripOrientation?: Orientation) {
     pushView({
@@ -182,7 +182,7 @@ export default function MotionBench({
       block: "nearest",
       behavior: reduce ? "auto" : "smooth",
     })
-    scrub.current?.focus({ preventScroll: true })
+    scrub.current?.querySelector("input")?.focus({ preventScroll: true })
   }, [view])
 
   const sceneOptions = (

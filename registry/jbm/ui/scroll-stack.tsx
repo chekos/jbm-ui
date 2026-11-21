@@ -1,6 +1,12 @@
 "use client"
 
 import {
+  ScrollArea,
+  ScrollAreaContent,
+  ScrollAreaViewport,
+} from "@ui-sdk/react/scroll-area"
+
+import {
   Children,
   Fragment,
   useEffect,
@@ -160,56 +166,62 @@ export function ScrollStack({
   }, [children, contained, viewportHeight, inset, gap, scale, reducedMotion])
 
   return (
-    <div
-      ref={root}
-      role="region"
-      aria-label={label}
-      tabIndex={contained && items.length ? 0 : undefined}
-      className={className}
-      style={{
-        width: "100%",
-        fontFamily: font.sans,
-        ...style,
-        height: contained ? viewportHeight : undefined,
-        overflowY: contained ? "auto" : undefined,
-        overscrollBehaviorY: contained ? "contain" : undefined,
-      }}
-    >
-      <div
-        ref={list}
-        role="list"
+    <ScrollArea>
+      <ScrollAreaViewport
+        ref={root}
+        role="region"
+        aria-label={label}
+        tabIndex={contained && items.length ? 0 : undefined}
+        className={className}
         style={{
-          position: "relative",
-          padding: `${inset}px 24px`,
-          isolation: "isolate",
+          width: "100%",
+          fontFamily: font.sans,
+          overflow: "visible",
+          ...style,
+          height: contained ? viewportHeight : undefined,
+          overflowY: contained ? "auto" : undefined,
+          overscrollBehaviorY: contained ? "contain" : undefined,
         }}
       >
-        {items.map((child, index) => (
-          <Fragment
-            key={
-              typeof child === "object" && "key" in child ? child.key : index
-            }
-          >
-            <div aria-hidden="true" />
-            <div
-              role="listitem"
-              data-stack-item=""
-              style={{
-                position: "relative",
-                zIndex: index + 1,
-                marginBottom: index < items.length - 1 ? 24 : 0,
-              }}
+        <ScrollAreaContent
+          ref={list}
+          role="list"
+          style={{
+            position: "relative",
+            padding: `${inset}px 24px`,
+            isolation: "isolate",
+          }}
+        >
+          {items.map((child, index) => (
+            <Fragment
+              key={
+                typeof child === "object" && "key" in child ? child.key : index
+              }
             >
+              <div aria-hidden="true" />
               <div
-                style={{ transformOrigin: "center top", display: "flow-root" }}
+                role="listitem"
+                data-stack-item=""
+                style={{
+                  position: "relative",
+                  zIndex: index + 1,
+                  marginBottom: index < items.length - 1 ? 24 : 0,
+                }}
               >
-                {child}
+                <div
+                  style={{
+                    transformOrigin: "center top",
+                    display: "flow-root",
+                  }}
+                >
+                  {child}
+                </div>
               </div>
-            </div>
-          </Fragment>
-        ))}
-        <div ref={tail} aria-hidden="true" />
-      </div>
-    </div>
+            </Fragment>
+          ))}
+          <div ref={tail} aria-hidden="true" />
+        </ScrollAreaContent>
+      </ScrollAreaViewport>
+    </ScrollArea>
   )
 }

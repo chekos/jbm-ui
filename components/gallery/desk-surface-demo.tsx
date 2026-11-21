@@ -1,5 +1,6 @@
 "use client"
 
+import { GalleryCheckbox, GallerySelect } from "./controls"
 import { useBenchCompact } from "./bench-compact"
 import { useBenchParam } from "./bench-url"
 import { DESK_EDGE, DeskTop, type DeskTopDrawerSide } from "@/registry/jbm/ui/desk-top"
@@ -115,17 +116,12 @@ export function DeskSurfaceDemo({ name }: { name: string }) {
   ) => (
     <label>
       {label}{" "}
-      <select
-        aria-label={`${name} ${label}`}
+      <GallerySelect
+        label={`${name} ${label}`}
         value={value}
-        onChange={(e) => set(e.target.value as T)}
-      >
-        {options.map((o) => (
-          <option key={o} value={o}>
-            {text(o)}
-          </option>
-        ))}
-      </select>
+        onValueChange={set}
+        options={options.map((o) => ({ value: o, label: text(o) }))}
+      />
     </label>
   )
   const focused: readonly Quadrant[] | undefined =
@@ -250,11 +246,10 @@ export function DeskSurfaceDemo({ name }: { name: string }) {
             {select("Drawer", drawer, setDrawer, drawerOptions)}
             {!compact && (
               <label>
-                <input
-                  type="checkbox"
+                <GalleryCheckbox
                   aria-label={`${name} Props on top`}
                   checked={props}
-                  onChange={(e) => setProps(e.target.checked)}
+                  onCheckedChange={(checked) => setProps(checked)}
                 />{" "}
                 Props on top
               </label>

@@ -1,4 +1,7 @@
-import * as React from "react"
+"use client"
+
+import { Button } from "@ui-sdk/react/button"
+import type * as React from "react"
 import { color } from "../lib/tokens"
 
 export type ReplayButtonProps = Omit<
@@ -33,18 +36,14 @@ export function ReplayButton({
   const headCharge = Math.min(1, Math.max(0, (charge - 0.85) / 0.15))
   const locked = charging || disabled
   return (
-    <button
+    <Button
       {...props}
       type="button"
       aria-label={label}
       title={title ?? (charging ? "Replay recharging" : "Replay")}
-      // Charging keeps the button focusable: `disabled` would drop keyboard focus to <body>
-      // mid-playback (WCAG 2.4.3). aria-disabled announces the lock; activation is ignored.
-      aria-disabled={locked || undefined}
-      disabled={disabled || undefined}
-      onClick={() => {
-        if (!locked) onReplay()
-      }}
+      disabled={locked}
+      focusableWhenDisabled={charging && !disabled}
+      onClick={() => onReplay()}
       style={{
         color: color.ink,
         border: 0,
@@ -104,6 +103,6 @@ export function ReplayButton({
           </>
         )}
       </svg>
-    </button>
+    </Button>
   )
 }

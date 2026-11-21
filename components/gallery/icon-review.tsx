@@ -1,5 +1,16 @@
 "use client"
 
+import { createLocalStorage } from "@ui-sdk/core"
+import {
+  Collapsible,
+  CollapsiblePanel,
+  CollapsibleTrigger,
+} from "@ui-sdk/react/collapsible"
+import { Toggle, ToggleGroup } from "@ui-sdk/react/toggle"
+import { GallerySelect } from "./controls"
+import { Textarea } from "@ui-sdk/react/textarea"
+import { Input } from "@ui-sdk/react/input"
+import { Button } from "@ui-sdk/react/button"
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import { renderToStaticMarkup } from "react-dom/server"
@@ -16,10 +27,11 @@ import {
   reviewNames,
   reviewPacket,
   REVIEW_VERSION,
-  type Decision,
   type Review,
 } from "@/lib/icon-review"
 import styles from "./icon-review.module.css"
+
+const reviewStorage = createLocalStorage(REVIEW_VERSION)
 
 function download(text: string, name: string, type: string) {
   const url = URL.createObjectURL(new Blob([text], { type }))
@@ -43,7 +55,9 @@ export function IconReview() {
   useEffect(() => {
     // Restore only after hydration; persistence happens in user event handlers, never on mount.
     try {
-      const raw = localStorage.getItem(REVIEW_VERSION)
+      if (!reviewStorage.available())
+        throw new Error("Browser storage unavailable")
+      const raw = reviewStorage.get()
       // eslint-disable-next-line react-hooks/set-state-in-effect -- synchronizes browser-only storage after hydration
       if (raw) setReview(parseReview(raw))
       setSaved(
@@ -61,15 +75,14 @@ export function IconReview() {
   function update(next: Review) {
     setReview(next)
     setNotice("")
-    try {
-      localStorage.setItem(
-        REVIEW_VERSION,
-        JSON.stringify({ version: REVIEW_VERSION, review: next })
-      )
-      setSaved("Saved in this browser · not sent")
-    } catch {
-      setSaved("Browser storage unavailable. Download feedback before leaving.")
-    }
+    const written = reviewStorage.set(
+      JSON.stringify({ version: REVIEW_VERSION, review: next })
+    )
+    setSaved(
+      written
+        ? "Saved in this browser · not sent"
+        : "Browser storage unavailable. Download feedback before leaving."
+    )
   }
   const dark = surface === "ink"
   const ink = dark ? color.bg : color.ink
@@ -189,69 +202,70 @@ export function IconReview() {
         <div className={styles.toolbar}>
           <label>
             Find an icon
-            <input
+            <Input
               type="search"
               value={query}
-              onChange={(event) => setQuery(event.target.value)}
+              onValueChange={(value) => setQuery(value)}
               placeholder="folder, code, agent…"
             />
           </label>
           <label>
             Treatment
-            <select
+            <GallerySelect
+              label="Treatment"
               value={treatment}
-              onChange={(event) =>
-                setTreatment(event.target.value as IconTreatment)
-              }
-            >
-              <option value="outline">Outline</option>
-              <option value="paper">Paper</option>
-            </select>
+              onValueChange={setTreatment}
+              options={[
+                { value: "outline", label: "Outline" },
+                { value: "paper", label: "Paper" },
+              ]}
+            />
           </label>
           <label>
             Size
-            <select
+            <GallerySelect
+              label="Size"
               value={size}
-              onChange={(event) => setSize(Number(event.target.value))}
-            >
-              {[16, 20, 24, 32, 48].map((px) => (
-                <option key={px} value={px}>
-                  {px} px
-                </option>
-              ))}
-            </select>
+              onValueChange={setSize}
+              options={[16, 20, 24, 32, 48].map((px) => ({
+                value: px,
+                label: `${px} px`,
+              }))}
+            />
           </label>
           <label>
             Surface
-            <select
+            <GallerySelect
+              label="Surface"
               value={surface}
-              onChange={(event) => setSurface(event.target.value)}
-            >
-              <option value="cream">Cream</option>
-              <option value="ink">Ink</option>
-            </select>
+              onValueChange={setSurface}
+              options={[
+                { value: "cream", label: "Cream" },
+                { value: "ink", label: "Ink" },
+              ]}
+            />
           </label>
         </div>
-        <div
+        <ToggleGroup
+          value={[selected]}
+          aria-label="Inspect icon"
+          onValueChange={([next]) => {
+            if (next) setSelected(next)
+          }}
           className={styles.grid}
           data-surface={surface}
           style={{ color: ink, background: dark ? color.ink : color.card }}
         >
           {filtered.map((name) => (
-            <button
-              key={name}
-              className={styles.tile}
-              aria-pressed={selected === name}
-              onClick={() => setSelected(name)}
-            >
+            <Toggle key={name} className={styles.tile} value={name}>
               <span>{icon(name)}</span>
               <span>{name}</span>
-            </button>
+            </Toggle>
           ))}
           {!filtered.length && (
             <p className={styles.empty}>No matching icons. Try another name.</p>
           )}
-        </div>
+        </ToggleGroup>
         <div className={styles.inspector}>
           <div className={styles.enlarged}>
             {
@@ -278,7 +292,7 @@ export function IconReview() {
                 </div>
               ))}
             </div>
-            <button
+            <Button
               className={styles.action}
               onClick={() =>
                 download(
@@ -298,7 +312,7 @@ export function IconReview() {
               }
             >
               Download {selected} SVG <span aria-hidden="true">↓</span>
-            </button>
+            </Button>
           </div>
           <div className={styles.context}>
             <span className={styles.eyebrow}>IN CONTEXT / SIZE 20</span>
@@ -376,16 +390,15 @@ export function IconReview() {
             ).map(([key, title, options]) => (
               <label key={key}>
                 {title}
-                <select
+                <GallerySelect
+                  label={title}
                   value={review[key]}
-                  onChange={(event) =>
-                    update({ ...review, [key]: event.target.value })
-                  }
-                >
-                  {options.map((option) => (
-                    <option key={option}>{option}</option>
-                  ))}
-                </select>
+                  onValueChange={(next) => update({ ...review, [key]: next })}
+                  options={options.map((option) => ({
+                    value: option,
+                    label: option,
+                  }))}
+                />
               </label>
             ))}
           </div>
@@ -399,38 +412,39 @@ export function IconReview() {
                 </div>
                 <label>
                   <span className={styles.srOnly}>Decision for {name}</span>
-                  <select
+                  <GallerySelect
+                    label={`${name} decision`}
                     value={review.icons[name].decision}
-                    onChange={(event) =>
+                    onValueChange={(next) =>
                       update({
                         ...review,
                         icons: {
                           ...review.icons,
                           [name]: {
                             ...review.icons[name],
-                            decision: event.target.value as Decision,
+                            decision: next,
                           },
                         },
                       })
                     }
-                  >
-                    {decisions.map((decision) => (
-                      <option key={decision}>{decision}</option>
-                    ))}
-                  </select>
+                    options={decisions.map((decision) => ({
+                      value: decision,
+                      label: decision,
+                    }))}
+                  />
                 </label>
                 <label>
                   <span className={styles.srOnly}>Notes for {name}</span>
-                  <input
+                  <Input
                     value={review.icons[name].note}
-                    onChange={(event) =>
+                    onValueChange={(value) =>
                       update({
                         ...review,
                         icons: {
                           ...review.icons,
                           [name]: {
                             ...review.icons[name],
-                            note: event.target.value,
+                            note: value,
                           },
                         },
                       })
@@ -463,13 +477,11 @@ export function IconReview() {
             ).map(([key, title, placeholder]) => (
               <label key={key}>
                 {title}
-                <textarea
+                <Textarea
                   rows={3}
                   value={review[key]}
                   placeholder={placeholder}
-                  onChange={(event) =>
-                    update({ ...review, [key]: event.target.value })
-                  }
+                  onValueChange={(value) => update({ ...review, [key]: value })}
                 />
               </label>
             ))}
@@ -478,7 +490,7 @@ export function IconReview() {
         <div className={styles.exportBar}>
           <p>{reviewed} / 12 reviewed · Unreviewed does not mean approved.</p>
           <div>
-            <button
+            <Button
               disabled={!ready}
               className={styles.primary}
               onClick={async () => {
@@ -493,8 +505,8 @@ export function IconReview() {
               }}
             >
               Copy feedback
-            </button>
-            <button
+            </Button>
+            <Button
               disabled={!ready}
               className={styles.action}
               onClick={() =>
@@ -502,19 +514,21 @@ export function IconReview() {
               }
             >
               Download feedback
-            </button>
+            </Button>
           </div>
         </div>
         <p role="status">{notice}</p>
-        <details className={styles.packet}>
-          <summary>Read your feedback packet</summary>
-          <textarea
-            aria-label="Feedback packet"
-            readOnly
-            value={packet}
-            rows={18}
-          />
-        </details>
+        <Collapsible className={styles.packet}>
+          <CollapsibleTrigger>Read your feedback packet</CollapsibleTrigger>
+          <CollapsiblePanel keepMounted>
+            <Textarea
+              aria-label="Feedback packet"
+              readOnly
+              value={packet}
+              rows={18}
+            />
+          </CollapsiblePanel>
+        </Collapsible>
       </section>
       <footer className={styles.footer}>
         <span>Built to be used again.</span>

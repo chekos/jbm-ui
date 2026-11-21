@@ -1,5 +1,6 @@
 "use client"
 
+import { GalleryCheckbox, GallerySelect } from "./controls"
 import { useBenchParam } from "./bench-url"
 import { useBenchCompact } from "./bench-compact"
 import { StageFit } from "./stage-fit"
@@ -38,8 +39,13 @@ const countDefault: Record<RegisterKind, number> = { mono: 7, plain: 10, grid: 7
 
 function Toggle({ label, value, onChange }: { label: string; value: boolean; onChange: (v: boolean) => void }) {
   return (
-    <label style={{ display: "flex", gap: 8, alignItems: "center", fontSize: 12 }}>
-      <input type="checkbox" checked={value} onChange={(e) => onChange(e.target.checked)} />
+    <label
+      style={{ display: "flex", gap: 8, alignItems: "center", fontSize: 12 }}
+    >
+      <GalleryCheckbox
+        checked={value}
+        onCheckedChange={(checked) => onChange(checked)}
+      />
       {label}
     </label>
   )
@@ -115,20 +121,15 @@ function RegisterBench() {
       <div className="composition-options" style={{ display: "flex", flexWrap: "wrap", gap: 16, padding: "16px 24px" }}>
         <label>
           Kind{" "}
-          <select
-            aria-label="register kind"
+          <GallerySelect
+            label="register kind"
             value={kind}
-            onChange={(e) => {
-              setKind(e.target.value as RegisterKind)
+            onValueChange={(next) => {
+              setKind(next)
               setN(-1)
             }}
-          >
-            {kinds.map((k) => (
-              <option key={k} value={k}>
-                {kindNames[k]}
-              </option>
-            ))}
-          </select>
+            options={kinds.map((k) => ({ value: k, label: kindNames[k] }))}
+          />
         </label>
         <StepperControl
           label={kind === "prose" ? "Sources" : kind === "mixed" ? "Bands" : "Count"}

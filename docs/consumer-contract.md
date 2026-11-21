@@ -9,7 +9,7 @@ Run `pnpm registry:build && pnpm consumer:check` to verify both distribution pat
 
 Both paths compile the same minimal video entry with the fixture settings. The fixture imports the explainer's required components and uses configurable code typing. Registry items have explicit `src/jbm` destinations so relative imports survive installation. Existing installs in other folders need migration or reinstalling; custom placement must preserve the directory structure.
 
-Temporary consumers install pinned React, Remotion, and type packages independently of the gallery. They use the repository's locked TypeScript and shadcn executables. Network access is needed for npm dependencies and shadcn metadata. Temporary projects are removed after success or failure.
+Temporary consumers install pinned React, Remotion, and type packages independently of the gallery. The copy fixture also installs the gallery’s pinned UI SDK packages. The registry fixture receives them through shadcn, using the dependencies declared by the published items. They use the repository's locked TypeScript and shadcn executables. Network access is needed for npm dependencies and shadcn metadata. Temporary projects are removed after success or failure.
 
 `registry:check` additionally rejects unpublished source files and stale generated output. The GitHub Actions Registry contract workflow runs these checks, lint, app typechecking, regression tests, and the production build on pull requests and main pushes. A passing local gallery build alone is insufficient.
 

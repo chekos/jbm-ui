@@ -1,11 +1,16 @@
 "use client"
 
+import { Toggle, ToggleGroup } from "@ui-sdk/react/toggle"
+import { Field, FieldLabel } from "@ui-sdk/react/field"
+import { Button } from "@ui-sdk/react/button"
+import { GallerySlider } from "./controls"
 import { useId } from "react"
 
 /** Three named states at 0, ½ and 1, in that order ("Closed", "Half", "Open"). */
 export type Presets = readonly [string, string, string]
 
 const stops = [0, 0.5, 1] as const
+const presetValues = ["0", "0.5", "1"] as const
 const percent = (value: number) => `${Math.round(value * 100)}%`
 
 /** Whole degrees with a true minus sign: "−7°". */
@@ -33,47 +38,41 @@ export function ProgressControl({
   /** Accessible slider name when the visible label needs more context. */
   ariaLabel?: string
 }) {
-  const id = useId()
+  const activePreset = stops.findIndex((stop) => Math.abs(value - stop) < 0.005)
   return (
-    <div className="progress-control">
+    <Field className="progress-control">
       <div className="progress-control-head">
-        <label htmlFor={id}>{label}</label>
-        <output htmlFor={id} aria-hidden="true">
-          {percent(value)}
-        </output>
+        <FieldLabel>{label}</FieldLabel>
+        <output aria-hidden="true">{percent(value)}</output>
       </div>
       <div className="progress-control-row">
-        <input
-          id={id}
-          aria-label={ariaLabel}
-          aria-valuetext={percent(value)}
-          type="range"
+        <GallerySlider
+          label={ariaLabel}
+          format={percent}
           min={0}
           max={1}
           step={0.01}
           value={value}
-          onChange={(event) => onChange(Number(event.target.value))}
+          onValueChange={onChange}
         />
         {presets && (
-          <div
+          <ToggleGroup
             className="progress-presets"
-            role="group"
-            aria-label={`${ariaLabel} presets`}
+            aria-label={ariaLabel + " presets"}
+            value={activePreset === -1 ? [] : [presetValues[activePreset]]}
+            onValueChange={([next]) => {
+              if (next !== undefined) onChange(Number(next))
+            }}
           >
             {presets.map((name, i) => (
-              <button
-                key={name}
-                type="button"
-                aria-pressed={Math.abs(value - stops[i]) < 0.005}
-                onClick={() => onChange(stops[i])}
-              >
+              <Toggle key={name} value={presetValues[i]}>
                 {name}
-              </button>
+              </Toggle>
             ))}
-          </div>
+          </ToggleGroup>
         )}
       </div>
-    </div>
+    </Field>
   )
 }
 
@@ -100,29 +99,24 @@ export function RangeControl({
   format: (value: number) => string
   ariaLabel?: string
 }) {
-  const id = useId()
   return (
-    <div className="progress-control">
+    <Field className="progress-control">
       <div className="progress-control-head">
-        <label htmlFor={id}>{label}</label>
-        <output htmlFor={id} aria-hidden="true">
-          {format(value)}
-        </output>
+        <FieldLabel>{label}</FieldLabel>
+        <output aria-hidden="true">{format(value)}</output>
       </div>
       <div className="progress-control-row">
-        <input
-          id={id}
-          aria-label={ariaLabel}
-          aria-valuetext={format(value)}
-          type="range"
+        <GallerySlider
+          label={ariaLabel}
+          format={format}
           min={min}
           max={max}
           step={step}
           value={value}
-          onChange={(event) => onChange(Number(event.target.value))}
+          onValueChange={onChange}
         />
       </div>
-    </div>
+    </Field>
   )
 }
 
@@ -164,18 +158,18 @@ export function StepperControl({
       <div className="progress-control-row">
         <div className="progress-presets progress-stepper">
           {steps.map(([glyph, name, delta, atBound]) => (
-            <button
+            <Button
               key={glyph}
               type="button"
               aria-label={name}
-              aria-disabled={atBound || undefined}
-              onClick={() => {
-                if (!atBound)
-                  onChange(Math.min(max, Math.max(min, value + delta)))
-              }}
+              disabled={atBound}
+              focusableWhenDisabled
+              onClick={() =>
+                onChange(Math.min(max, Math.max(min, value + delta)))
+              }
             >
               <span aria-hidden="true">{glyph}</span>
-            </button>
+            </Button>
           ))}
         </div>
       </div>

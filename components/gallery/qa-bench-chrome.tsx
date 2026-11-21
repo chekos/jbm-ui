@@ -1,6 +1,9 @@
 "use client"
 
-import type { CSSProperties, KeyboardEvent, ReactNode, RefObject } from "react"
+import { Toggle, ToggleGroup } from "@ui-sdk/react/toggle"
+import { GalleryCheckbox, GallerySelect, GallerySlider } from "./controls"
+import { Button } from "@ui-sdk/react/button"
+import type { CSSProperties, ReactNode, RefObject } from "react"
 import { useId } from "react"
 import type { SceneLayout } from "@/registry/jbm/motion/spec"
 import { stage, type Orientation } from "@/registry/jbm/lib/tokens"
@@ -144,18 +147,20 @@ export function BenchToolbar({
   return (
     <div className="bench-toolbar">
       {showViews && (
-        <div className="bench-segmented" role="group" aria-label="Bench view">
+        <ToggleGroup
+          className="bench-segmented"
+          aria-label="Bench view"
+          value={[view]}
+          onValueChange={([next]) => {
+            if (next !== undefined) onView(next)
+          }}
+        >
           {viewChoices.map((option) => (
-            <button
-              key={option.value}
-              type="button"
-              aria-pressed={view === option.value}
-              onClick={() => onView(option.value)}
-            >
+            <Toggle key={option.value} value={option.value}>
               {option.label}
-            </button>
+            </Toggle>
           ))}
-        </div>
+        </ToggleGroup>
       )}
       <CopyBenchLink href={href} />
     </div>
@@ -170,22 +175,20 @@ export function OrientSwitch({
   onChange: (orientation: Orientation) => void
 }) {
   return (
-    <div
+    <ToggleGroup
       className="bench-segmented bench-orient"
-      role="group"
       aria-label="Stage orientation"
+      value={[orientation]}
+      onValueChange={([next]) => {
+        if (next !== undefined) onChange(next)
+      }}
     >
       {orientationChoices.map((option) => (
-        <button
-          key={option.value}
-          type="button"
-          aria-pressed={orientation === option.value}
-          onClick={() => onChange(option.value)}
-        >
+        <Toggle key={option.value} value={option.value}>
           {option.label}
-        </button>
+        </Toggle>
       ))}
-    </div>
+    </ToggleGroup>
   )
 }
 
@@ -216,30 +219,36 @@ export function SceneOptions({
     >
       <label>
         Layout
-        <select
+        <GallerySelect
+          label="Layout"
           value={layout}
-          onChange={(e) => onLayout(e.target.value as SceneLayout)}
-        >
-          <option value="hero">Centered hero</option>
-          <option value="headline-illustration">Headline + illustration</option>
-          <option value="illustration">Illustration</option>
-        </select>
+          onValueChange={onLayout}
+          options={[
+            { value: "hero", label: "Centered hero" },
+            {
+              value: "headline-illustration",
+              label: "Headline + illustration",
+            },
+            { value: "illustration", label: "Illustration" },
+          ]}
+        />
       </label>
       <label>
         Safe area
-        <select
+        <GallerySelect
+          label="Safe area"
           value={safeArea}
-          onChange={(e) => onSafeArea(e.target.value as BenchSafeArea)}
-        >
-          <option value="full">Full frame</option>
-          <option value="social">Social</option>
-        </select>
+          onValueChange={onSafeArea}
+          options={[
+            { value: "full", label: "Full frame" },
+            { value: "social", label: "Social" },
+          ]}
+        />
       </label>
       <label className="bench-check">
-        <input
-          type="checkbox"
+        <GalleryCheckbox
           checked={guides}
-          onChange={(e) => onGuides(e.target.checked)}
+          onCheckedChange={(checked) => onGuides(checked)}
         />
         Safe-area guides
       </label>
@@ -266,7 +275,7 @@ export function FrameStepper({
   progress: number
   seek: (frame: number) => void
   replay: () => void
-  scrubRef?: RefObject<HTMLInputElement | null>
+  scrubRef?: RefObject<HTMLDivElement | null>
   /** Pad frame numbers to this frame's digits (the item's longest timeline); defaults to last. */
   padTo?: number
 }) {
@@ -274,12 +283,6 @@ export function FrameStepper({
   const last = Math.max(0, durationInFrames - 1)
   const middle = Math.round(last / 2)
   const width = padTo ?? last
-  // Screen readers hear the zero-based frame out of the last one, then the time: "Frame 15 of 45, 0.50 s".
-  const readout = `Frame ${frame} of ${last}, ${seconds(frame)}`
-  function stepBy(delta: number, event: KeyboardEvent<HTMLInputElement>) {
-    event.preventDefault()
-    seek(frame + delta)
-  }
   if (last === 0)
     return (
       <p className="bench-note">
@@ -296,37 +299,28 @@ export function FrameStepper({
             ["End", last],
           ] as const
         ).map(([label, target]) => (
-          <button
+          <Button
             key={label}
             type="button"
             aria-current={frame === target && !charging ? "step" : undefined}
             onClick={() => seek(target)}
           >
             {label}
-          </button>
+          </Button>
         ))}
       </div>
       <div className="bench-scrub">
-        <label className="sr-only" htmlFor={`${id}-frame`}>
-          Frame
-        </label>
-        <input
-          ref={scrubRef}
-          id={`${id}-frame`}
-          type="range"
+        <GallerySlider
+          sliderRef={scrubRef}
+          label="Frame"
           min={0}
           max={last}
           step={1}
+          largeStep={5}
           value={frame}
-          aria-valuetext={readout}
-          aria-describedby={`${id}-keys`}
-          onChange={(e) => seek(Number(e.target.value))}
-          onKeyDown={(event) => {
-            // Arrow keys step one frame natively; PageUp/PageDown step a fixed five frames
-            // (browsers otherwise pick a tenth of the range).
-            if (event.key === "PageUp") stepBy(5, event)
-            else if (event.key === "PageDown") stepBy(-5, event)
-          }}
+          format={(value) => `Frame ${value} of ${last}, ${seconds(value)}`}
+          describedBy={`${id}-keys`}
+          onValueChange={seek}
         />
         <p className="bench-keys" aria-hidden="true">
           0–{last} · ← → 1 · PgUp PgDn 5 · Home End
@@ -337,7 +331,7 @@ export function FrameStepper({
           and last frame.
         </span>
       </div>
-      <output className="bench-readout" htmlFor={`${id}-frame`}>
+      <output className="bench-readout">
         <span>
           {padFrame(frame, width)}/{padFrame(last, width)}
         </span>
@@ -460,7 +454,7 @@ export function StripLayout({
                     {frame(target, orientation)}
                   </div>
                   <figcaption>
-                    <button
+                    <Button
                       type="button"
                       aria-label={`${label}, frame ${target}${
                         orientation ? `, ${orientationLabel[orientation]}` : ""
@@ -471,7 +465,7 @@ export function StripLayout({
                       <span className="bench-strip-frame-no">
                         {padFrame(target, padTo)}
                       </span>
-                    </button>
+                    </Button>
                   </figcaption>
                 </figure>
               </li>

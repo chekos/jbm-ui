@@ -1,4 +1,5 @@
-import * as React from "react"
+import { Separator } from "@ui-sdk/react/separator"
+import type * as React from "react"
 import { color, font } from "../lib/tokens"
 
 export type RuleProps = React.HTMLAttributes<HTMLDivElement> & {
@@ -17,8 +18,7 @@ export function Rule({
 }: RuleProps) {
   const ink = accent ? color.accent : strong ? color.ink : color.line
   return (
-    <div
-      role="separator"
+    <Separator
       aria-label={label}
       {...props}
       style={{
@@ -53,6 +53,6 @@ export function Rule({
           borderTop: `${strong ? 3 : 1}px solid currentColor`,
         }}
       />
-    </div>
+    </Separator>
   )
 }

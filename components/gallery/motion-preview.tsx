@@ -1,5 +1,6 @@
 "use client"
 
+import { GalleryCheckbox, GallerySelect } from "./controls"
 import { useEffect, useRef, useState, type ReactNode } from "react"
 import { Player, type PlayerRef } from "@remotion/player"
 import { SceneFromSpec } from "@/registry/jbm/motion/compile"
@@ -318,35 +319,37 @@ export default function MotionPreview({ name }: { name: string }) {
         <div className="composition-options">
           <label>
             Layout{" "}
-            <select
-              aria-label="Scene layout"
+            <GallerySelect
+              label="Scene layout"
               value={layout}
-              onChange={(e) => setLayout(e.target.value as SceneLayout)}
-            >
-              <option value="hero">Centered hero</option>
-              <option value="headline-illustration">
-                Headline + illustration
-              </option>
-              <option value="illustration">Illustration</option>
-            </select>
+              onValueChange={setLayout}
+              options={[
+                { value: "hero", label: "Centered hero" },
+                {
+                  value: "headline-illustration",
+                  label: "Headline + illustration",
+                },
+                { value: "illustration", label: "Illustration" },
+              ]}
+            />
           </label>
           <label>
             Safe area{" "}
-            <select
-              aria-label="Scene safe area"
+            <GallerySelect
+              label="Scene safe area"
               value={safeArea}
-              onChange={(e) => setSafeArea(e.target.value as "full" | "social")}
-            >
-              <option value="full">Full frame</option>
-              <option value="social">Social</option>
-            </select>
+              onValueChange={setSafeArea}
+              options={[
+                { value: "full", label: "Full frame" },
+                { value: "social", label: "Social" },
+              ]}
+            />
           </label>
           {!compact && (
             <label>
-              <input
-                type="checkbox"
+              <GalleryCheckbox
                 checked={guides}
-                onChange={(e) => setGuides(e.target.checked)}
+                onCheckedChange={(checked) => setGuides(checked)}
               />{" "}
               Show safe area
             </label>

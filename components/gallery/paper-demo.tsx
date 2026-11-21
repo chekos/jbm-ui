@@ -1,5 +1,7 @@
 "use client"
 
+import { GalleryCheckbox } from "./controls"
+import { Toggle, ToggleGroup } from "@ui-sdk/react/toggle"
 import { useBenchParam } from "./bench-url"
 import { useBenchCompact } from "./bench-compact"
 import { StageFit } from "./stage-fit"
@@ -21,7 +23,7 @@ import {
 /** Sheet pieces previewed by PaperDemo: Paper's tension and tab, and Tear. */
 export { paperNames } from "./demo-data"
 
-function Toggle({
+function CheckControl({
   label,
   value,
   onChange,
@@ -34,10 +36,9 @@ function Toggle({
     <label
       style={{ display: "flex", gap: 8, alignItems: "center", fontSize: 12 }}
     >
-      <input
-        type="checkbox"
+      <GalleryCheckbox
         checked={value}
-        onChange={(e) => onChange(e.target.checked)}
+        onCheckedChange={(checked) => onChange(checked)}
       />
       {label}
     </label>
@@ -136,25 +137,39 @@ function PaperBench() {
           <div className="progress-control-head">
             <span>Pulled corners</span>
           </div>
-          <div className="progress-presets">
+          <ToggleGroup
+            className="progress-presets"
+            aria-label="Pulled corners"
+            value={[corners]}
+            onValueChange={([next]) => {
+              if (next) setCorners(next)
+            }}
+          >
             {(["all", "diagonal", "top"] as const).map((c) => (
-              <button
-                key={c}
-                type="button"
-                aria-pressed={corners === c}
-                onClick={() => setCorners(c)}
-              >
-                {c === "all" ? "All four" : c === "diagonal" ? "Diagonal" : "Top pair"}
-              </button>
+              <Toggle key={c} value={c}>
+                {c === "all"
+                  ? "All four"
+                  : c === "diagonal"
+                    ? "Diagonal"
+                    : "Top pair"}
+              </Toggle>
             ))}
-          </div>
+          </ToggleGroup>
         </div>
         {!compact && (
           <>
-            <Toggle label="Tab" value={showTab} onChange={setShowTab} />
-            <Toggle label="Tear from the right edge" value={right} onChange={setRight} />
-            <Toggle label="Ink stock" value={ink} onChange={setInk} />
-            <Toggle label="Tear through the writing" value={across} onChange={setAcross} />
+            <CheckControl label="Tab" value={showTab} onChange={setShowTab} />
+            <CheckControl
+              label="Tear from the right edge"
+              value={right}
+              onChange={setRight}
+            />
+            <CheckControl label="Ink stock" value={ink} onChange={setInk} />
+            <CheckControl
+              label="Tear through the writing"
+              value={across}
+              onChange={setAcross}
+            />
           </>
         )}
       </div>

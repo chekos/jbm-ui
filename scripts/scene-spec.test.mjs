@@ -7,6 +7,8 @@ import { dirname, resolve, join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { execFileSync } from 'node:child_process';
 import ts from 'typescript';
+import { createElement } from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 registerHooks({
   resolve(specifier, context, next) {
@@ -121,14 +123,13 @@ test('completed replay uses a solid path; charging dash offsets never become neg
     assert.ok(paths[0].props.d.includes('H21 V3'));
     assert.equal(paths[0].props.strokeDashoffset,undefined);
     assert.equal(paths[0].props.strokeDasharray,undefined);
-    // Charging stays focusable: aria-disabled, never the native disabled attribute.
-    assert.equal(tree.props['aria-disabled'],charging||undefined);
-    assert.equal(tree.props.disabled,undefined);
-    let replays=0;
-    ReplayButton({progress:0.5,charging,onReplay:()=>replays++}).props.onClick();
-    assert.equal(replays,charging?0:1);
+    const markup = renderToStaticMarkup(tree);
+    assert.match(markup, /data-slot="button"/);
+    assert.equal(markup.includes('aria-disabled="true"'), charging);
+    assert.doesNotMatch(markup, /\sdisabled=""/);
   }
-  assert.equal(ReplayButton({progress:1,charging:false,disabled:true,onReplay:()=>{}}).props.disabled,true);
+  const disabled = renderToStaticMarkup(createElement(ReplayButton, {progress:1,charging:true,disabled:true,onReplay:()=>{}}));
+  assert.match(disabled, /\sdisabled=""/);
   for(const progress of [0,0.85,0.9,0.999999999,NaN]) {
     const tree=ReplayButton({progress,charging:true,onReplay:()=>{}});
     for(const path of find(tree,'path')) if(path.props.strokeDashoffset!==undefined) assert.ok(path.props.strokeDashoffset>=0 && path.props.strokeDashoffset<=1);

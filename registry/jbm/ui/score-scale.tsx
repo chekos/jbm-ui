@@ -1,4 +1,6 @@
-import * as React from "react"
+import { Meter } from "@ui-sdk/react/meter"
+import { useId } from "react"
+import type * as React from "react"
 import { color, font } from "../lib/tokens"
 
 export type ScoreScaleProps = React.HTMLAttributes<HTMLDivElement> & {
@@ -21,10 +23,11 @@ export function ScoreScale({
   style,
   ...props
 }: ScoreScaleProps) {
+  const labelId = useId()
   if (![value, min, max].every(Number.isFinite) || max <= min)
     throw new RangeError("ScoreScale requires finite values and max > min")
   const v = Math.max(min, Math.min(max, value))
-  const p = (v - min) / (max - min)
+  const text = formatValue(v)
   return (
     <div
       {...props}
@@ -40,18 +43,18 @@ export function ScoreScale({
           overflowWrap: "anywhere",
         }}
       >
-        <span style={{ fontSize: 16, fontWeight: 600 }}>{label}</span>
+        <span id={labelId} style={{ fontSize: 16, fontWeight: 600 }}>
+          {label}
+        </span>
         <strong style={{ fontFamily: font.mono, color: color.accent }}>
-          {formatValue(v)}
+          {text}
         </strong>
       </div>
-      <div
-        role="meter"
-        aria-label={label}
-        aria-valuemin={min}
-        aria-valuemax={max}
-        aria-valuenow={v}
-        aria-valuetext={formatValue(v)}
+      <Meter
+        render={<div aria-labelledby={labelId} aria-valuetext={text} />}
+        min={min}
+        max={max}
+        value={v}
         style={{ paddingInline: 12 }}
       >
         <div style={{ position: "relative", height: 24 }}>
@@ -83,7 +86,7 @@ export function ScoreScale({
           <span
             style={{
               position: "absolute",
-              left: `${p * 100}%`,
+              left: "var(--meter-value)",
               top: 0,
               width: 24,
               height: 24,
@@ -95,7 +98,7 @@ export function ScoreScale({
             }}
           />
         </div>
-      </div>
+      </Meter>
       <div
         style={{
           display: "flex",

@@ -1,3 +1,4 @@
+import { GalleryAgentTools } from "@/components/gallery/agent-tools"
 import { Gallery } from "@/components/gallery/gallery"
 import Link from "next/link"
 import registry from "@/registry.json"
@@ -7,6 +8,7 @@ const itemCount = registry.items.length
 export default function Page() {
   return (
     <main className="site-shell" id="main" tabIndex={-1}>
+      <GalleryAgentTools />
       <header className="site-header">
         <h1 className="wordmark" aria-label="jbm-ui">
           jbm<span aria-hidden="true">—</span>ui

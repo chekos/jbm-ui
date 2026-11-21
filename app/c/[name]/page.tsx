@@ -1,3 +1,4 @@
+import { GalleryAgentTools } from "@/components/gallery/agent-tools"
 import type { Metadata } from "next"
 import Link from "next/link"
 import { notFound } from "next/navigation"
@@ -130,6 +131,7 @@ export default async function ItemPage({ params }: Props) {
 
   return (
     <main className="site-shell item-page item-qa" id="main" tabIndex={-1}>
+      <GalleryAgentTools />
       <header className="item-topbar">
         <Link className="wordmark" href="/" aria-label="jbm-ui gallery">
           jbm<span aria-hidden="true">—</span>ui

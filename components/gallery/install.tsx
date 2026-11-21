@@ -1,6 +1,8 @@
 "use client"
 
-import { useState, useSyncExternalStore } from "react"
+import { createLocalStorage, createPreference } from "@ui-sdk/core"
+import { usePreference } from "@ui-sdk/react/preferences"
+import { useSyncExternalStore } from "react"
 import { registryUrlTemplate, siteOrigin } from "@/lib/site"
 import { CodeLines, CopyButton } from "./code-block"
 import { addCommand } from "./item-meta"
@@ -25,22 +27,13 @@ function useOrigin() {
 const narrowQuery = "(max-width: 760px)"
 const storageKey = "jbm:install-once"
 
-// Storage can throw (private windows, blocked site data); the default then applies.
-function readStored(): boolean | null {
-  try {
-    const value = window.localStorage.getItem(storageKey)
-    return value === "open" ? true : value === "closed" ? false : null
-  } catch {
-    return null
-  }
-}
-function writeStored(open: boolean) {
-  try {
-    window.localStorage.setItem(storageKey, open ? "open" : "closed")
-  } catch {
-    // Not remembered; this visit still honours the toggle.
-  }
-}
+const installPreference = createPreference({
+  values: ["auto", "open", "closed"],
+  defaultValue: "auto",
+  attribute: "data-install-preference",
+  storage: createLocalStorage(storageKey),
+})
+
 function subscribeNarrow(onChange: () => void) {
   const list = window.matchMedia(narrowQuery)
   list.addEventListener("change", onChange)
@@ -58,17 +51,15 @@ function useInstallOpen() {
     () => true,
     () => false
   )
-  const stored = useSyncExternalStore(noop, readStored, () => null)
-  const [toggled, setToggled] = useState<boolean | null>(null)
-  const open = toggled ?? stored ?? !narrow
+  const { value } = usePreference(installPreference)
+  const open = value === "auto" ? !narrow : value === "open"
   // Only the reader's own toggles count: React changing the `open` prop also fires
   // `toggle`, but then the element already matches the computed state. Before hydration
   // settles, `open` still holds the server default, so a toggle from the pre-paint script
   // must not be mistaken for the reader's.
   const onToggle = (next: boolean) => {
     if (!hydrated || next === open) return
-    setToggled(next)
-    writeStored(next)
+    installPreference.set(next ? "open" : "closed")
   }
   return { open, hydrated, onToggle }
 }

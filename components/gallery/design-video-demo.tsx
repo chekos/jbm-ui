@@ -1,5 +1,6 @@
 "use client"
 
+import { GalleryCheckbox, GallerySelect } from "./controls"
 import type { ReactNode } from "react"
 import { useBenchParam } from "./bench-url"
 import { useBenchCompact } from "./bench-compact"
@@ -80,11 +81,10 @@ function Toggle({
     <label
       style={{ display: "flex", gap: 8, alignItems: "center", fontSize: 12 }}
     >
-      <input
-        type="checkbox"
+      <GalleryCheckbox
         aria-label={ariaLabel}
         checked={value}
-        onChange={(e) => onChange(e.target.checked)}
+        onCheckedChange={(checked) => onChange(checked)}
       />
       {label}
     </label>
@@ -306,15 +306,16 @@ export function DesignVideoDemo({ name }: { name: string }) {
         {!compact && (
           <label style={{ display: "flex", gap: 8, alignItems: "center", fontSize: 12 }}>
             Folder fill
-            <select
-              aria-label="folder-carry Folder fill"
+            <GallerySelect
+              label="folder-carry Folder fill"
               value={fill}
-              onChange={(e) => setFill(e.target.value as typeof fill)}
-            >
-              <option value="accent">Vermilion</option>
-              <option value="ink">Ink</option>
-              <option value="card">Card</option>
-            </select>
+              onValueChange={setFill}
+              options={[
+                { value: "accent", label: "Vermilion" },
+                { value: "ink", label: "Ink" },
+                { value: "card", label: "Card" },
+              ]}
+            />
           </label>
         )}
       </>

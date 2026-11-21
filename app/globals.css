@@ -1,3 +1,4 @@
+@layer ui-sdk;
 @import "tailwindcss";
 @import "tw-animate-css";
 
@@ -455,12 +456,13 @@ footer a {
   align-items: center;
   min-height: 24px;
 }
-details {
+details, .gallery-disclosure {
   border-top: 1px solid var(--jbm-line);
   padding-top: 14px;
   font-size: 14px;
 }
-summary {
+summary,
+.gallery-disclosure > [data-slot="collapsible-trigger"] {
   font-weight: 500;
   min-height: 24px;
   padding-block: 2px;
@@ -748,11 +750,14 @@ footer {
 
 .composition-options { display: flex; flex-wrap: wrap; gap: 10px; padding: 12px; font-size: 12px; }
 .composition-options label { display: flex; align-items: center; gap: 6px; }
-/* One select and one checkbox for every gallery control (index cards, /c/<name> benches, and the
-   motion bench's scene options): a 28px select that matches the preset buttons, and a checkbox
-   whose label is a 24px-tall hit area (WCAG 2.2 target size). Demos only lay controls out. */
-:is(.results, .bench) select {
+/* Shared gallery controls keep the cream and ink treatment on portal content too. */
+.gallery-select {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
   max-width: 100%;
+  min-width: 0;
   min-height: 28px;
   border: 1px solid var(--jbm-line);
   border-radius: 6px;
@@ -762,12 +767,38 @@ footer {
   font: inherit;
   font-size: 12px;
   line-height: 1.4;
+  text-align: start;
 }
-:is(.results, .bench) select:hover {
-  border-color: var(--jbm-ink);
+.gallery-select:hover { border-color: var(--jbm-ink); }
+.gallery-select > svg { flex: none; }
+.gallery-options {
+  z-index: 20;
+  min-width: var(--anchor-width);
+  max-width: min(320px, calc(100vw - 16px));
+  max-height: min(var(--available-height), 320px);
+  overflow: auto;
+  padding: 4px;
+  border: 1px solid var(--jbm-line);
+  border-radius: 6px;
+  background: var(--jbm-card);
+  color: var(--jbm-ink);
+  font-size: 13px;
+  box-shadow: 0 8px 24px rgb(32 36 31 / 14%);
 }
-:is(.results, .bench) label:has(> input[type="checkbox"]) {
-  box-sizing: border-box;
+.gallery-options [data-slot="select-item"] {
+  display: flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.gallery-options [data-slot="select-item"][data-selected] { font-weight: 650; }
+.gallery-options [data-slot="select-item"][data-highlighted] {
+  color: var(--jbm-card);
+  background: var(--jbm-ink);
+}
+label:has(> [data-slot="checkbox"]) {
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -775,11 +806,55 @@ footer {
   padding-block: 2px;
   cursor: pointer;
 }
-:is(.results, .bench) input[type="checkbox"] {
+button[data-slot="checkbox"] {
+  display: inline-grid;
+  place-items: center;
   flex: none;
   width: 16px;
   height: 16px;
-  margin: 0;
+  border: 1px solid var(--jbm-dim);
+  border-radius: 3px;
+  color: var(--jbm-card);
+  background: var(--jbm-card);
+  font: 700 12px/1 sans-serif;
+}
+button[data-slot="checkbox"][aria-checked="true"] { background: var(--jbm-ink); }
+.gallery-slider [data-slot="slider-control"] {
+  display: flex;
+  align-items: center;
+  padding-inline: 8px;
+  height: 24px;
+  touch-action: pan-y;
+  cursor: pointer;
+}
+.gallery-slider [data-slot="slider-track"] {
+  position: relative;
+  width: 100%;
+  height: 6px;
+  border-radius: 99px;
+  background: var(--jbm-line);
+}
+.gallery-slider [data-slot="slider-indicator"] {
+  height: 100%;
+  border-radius: inherit;
+  background: var(--jbm-ink);
+}
+.gallery-slider [data-slot="slider-thumb"] {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--jbm-ink);
+}
+.gallery-slider [data-slot="slider-thumb"]:has(:focus-visible) {
+  outline: 2px solid var(--jbm-accent);
+  outline-offset: 3px;
+}
+.gallery-disclosure > [data-slot="collapsible-trigger"]::before {
+  content: "▸";
+  margin-inline-end: 5px;
+}
+.gallery-disclosure > [data-slot="collapsible-trigger"][aria-expanded="true"]::before {
+  content: "▾";
 }
 .preview:has(.composition-options) { aspect-ratio: auto; }
 /* Index cards cap an illustration's art at 360px tall and scale it to fit, so a portrait page or
@@ -793,8 +868,8 @@ footer {
   .thread-scene-tall { display: block; }
 }
 /* A bench's secondary controls fold under "More options" so the stage and main controls fit. */
-.composition-options > details.bench-more { flex: 1 1 100%; border-top: 1px solid var(--jbm-line); padding-top: 6px; font-size: 12px; }
-.bench-more > div { display: flex; flex-wrap: wrap; gap: 10px; padding-top: 10px; }
+.composition-options > .bench-more { flex: 1 1 100%; border-top: 1px solid var(--jbm-line); padding-top: 6px; font-size: 12px; }
+.bench-more > [data-slot="collapsible-panel"]:not([hidden]) { display: flex; flex-wrap: wrap; gap: 10px; padding-top: 10px; }
 .bench-more .progress-control { flex: 1 1 100%; }
 
 /* Illustration sliders (ProgressControl / RangeControl): label and mono readout on one line,
@@ -828,7 +903,7 @@ footer {
   align-items: center;
   gap: 8px 12px;
 }
-.progress-control-row input[type="range"] {
+.progress-control-row .gallery-slider {
   flex: 1 1 112px;
   min-width: 0;
   min-height: 24px;
@@ -1646,15 +1721,6 @@ details > p {
   gap: 8px;
   min-height: 24px;
 }
-:is(.results, .bench) select:focus-visible,
-.bench-check input:focus-visible {
-  outline: 2px solid var(--jbm-accent);
-  outline-offset: 3px;
-}
-.bench-check input,
-.bench-scrub input {
-  accent-color: var(--jbm-ink);
-}
 .bench-segmented,
 .bench-steps {
   display: inline-flex;
@@ -1737,11 +1803,7 @@ details > p {
   gap: 2px;
   min-width: 160px;
 }
-.bench-scrub input {
-  width: 100%;
-  height: 24px;
-  margin: 0;
-}
+.bench-scrub .gallery-slider { width: 100%; }
 /* Keyboard hint under the scrubber; the full sentence is its aria-describedby text. */
 .bench-keys {
   margin: 0;
@@ -1860,10 +1922,6 @@ details > p {
   font-family: var(--font-mono);
   font-size: 12px;
   font-variant-numeric: tabular-nums;
-}
-.bench-scrub input:focus-visible {
-  outline: 2px solid var(--jbm-accent);
-  outline-offset: 4px;
 }
 /* Room for the widest readout ("000/000 00.00 s"), so the scrubber track ends at the same x on
    every item whatever its frame count. */

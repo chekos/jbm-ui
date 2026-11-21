@@ -1,6 +1,15 @@
 "use client"
 
 import {
+  Collapsible,
+  CollapsiblePanel,
+  CollapsibleTrigger,
+} from "@ui-sdk/react/collapsible"
+import { Toggle, ToggleGroup } from "@ui-sdk/react/toggle"
+import { useShortcut } from "@ui-sdk/react/shortcuts"
+import { Input } from "@ui-sdk/react/input"
+import { Button } from "@ui-sdk/react/button"
+import {
   useEffect,
   useLayoutEffect,
   useRef,
@@ -160,14 +169,6 @@ function usePrefilterCleanup(search: string) {
   return style
 }
 
-function isTyping(target: EventTarget | null) {
-  return (
-    target instanceof HTMLElement &&
-    (target.isContentEditable ||
-      ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName))
-  )
-}
-
 function Preview({ item }: { item: GalleryItem }) {
   const { name } = item
   return (
@@ -282,50 +283,54 @@ function ComponentCard({
         </div>
         <p>{item.description}</p>
         <AddCommand name={item.installName} />
-        <details>
-          <summary>Usage</summary>
-          {documentation && (
-            <p>
-              Documentation entry, not a registry item. Its shadow and border
-              tokens install with <code>@jbm/tokens</code>.
-            </p>
-          )}
-          {dependencies.length > 0 && (
-            <p>
-              Also installs{" "}
-              {dependencies.map((dependency, i) => (
-                <span key={dependency}>
-                  {i > 0 && ", "}
-                  <code>{dependency}</code>
-                </span>
-              ))}
-              .
-            </p>
-          )}
-          {item.needsRemotion && (
-            <p>
-              Needs Remotion: render inside a Remotion{" "}
-              <code>{"<Composition>"}</code> or <code>{"<Player>"}</code>, not a
-              plain React tree. Timing values are in seconds.
-            </p>
-          )}
-          <CodeBlock code={item.snippet} title={item.title} />
-          <div className="card-links">
-            {documentation ? (
-              <a href="/docs/surface-depth.md">Design note</a>
-            ) : (
-              <a href={`/r/${name}.json`}>Registry JSON ↗</a>
+        <Collapsible className="gallery-disclosure">
+          <CollapsibleTrigger aria-label={`Usage for ${item.title}`}>
+            Usage
+          </CollapsibleTrigger>
+          <CollapsiblePanel hiddenUntilFound>
+            {documentation && (
+              <p>
+                Documentation entry, not a registry item. Its shadow and border
+                tokens install with <code>@jbm/tokens</code>.
+              </p>
             )}
-            <a
-              href={repoSourceUrl(item.sourcePath)}
-              target="_blank"
-              rel="noopener"
-            >
-              Source<span className="sr-only"> of {item.title} on GitHub</span>{" "}
-              ↗
-            </a>
-          </div>
-        </details>
+            {dependencies.length > 0 && (
+              <p>
+                Also installs{" "}
+                {dependencies.map((dependency, i) => (
+                  <span key={dependency}>
+                    {i > 0 && ", "}
+                    <code>{dependency}</code>
+                  </span>
+                ))}
+                .
+              </p>
+            )}
+            {item.needsRemotion && (
+              <p>
+                Needs Remotion: render inside a Remotion{" "}
+                <code>{"<Composition>"}</code> or <code>{"<Player>"}</code>, not
+                a plain React tree. Timing values are in seconds.
+              </p>
+            )}
+            <CodeBlock code={item.snippet} title={item.title} />
+            <div className="card-links">
+              {documentation ? (
+                <a href="/docs/surface-depth.md">Design note</a>
+              ) : (
+                <a href={`/r/${name}.json`}>Registry JSON ↗</a>
+              )}
+              <a
+                href={repoSourceUrl(item.sourcePath)}
+                target="_blank"
+                rel="noopener"
+              >
+                Source
+                <span className="sr-only"> of {item.title} on GitHub</span> ↗
+              </a>
+            </div>
+          </CollapsiblePanel>
+        </Collapsible>
       </div>
     </article>
   )
@@ -394,27 +399,7 @@ export function Gallery() {
     })
   }
 
-  // "/" focuses search from anywhere except another text field.
-  useEffect(() => {
-    function onKey(event: KeyboardEvent) {
-      if (
-        event.key !== "/" ||
-        event.metaKey ||
-        event.ctrlKey ||
-        event.altKey ||
-        isTyping(event.target)
-      )
-        return
-      event.preventDefault()
-      setSearchOpen(true)
-      requestAnimationFrame(() => {
-        searchInput.current?.focus()
-        searchInput.current?.select()
-      })
-    }
-    document.addEventListener("keydown", onKey)
-    return () => document.removeEventListener("keydown", onKey)
-  }, [])
+  useShortcut("/", openSearch, { description: "Search components" })
 
   // Anchors and focus scroll clear of the sticky bars (WCAG 2.4.11). The first
   // measurement happens after the browser has already jumped to a #hash, so
@@ -498,22 +483,28 @@ export function Gallery() {
         suppressHydrationWarning
       >
         <div className="toolbar-row">
-          <div className="filters" role="group" aria-label="Component category">
+          <ToggleGroup
+            className="filters"
+            aria-label="Component category"
+            value={[filter]}
+            onValueChange={([next]) => {
+              if (next !== undefined) setFilter(next)
+            }}
+          >
             {categories.map((value) => (
-              <button
+              <Toggle
                 key={value}
-                aria-pressed={filter === value}
+                value={value}
                 data-cat={value === "All" ? "" : slug(value)}
-                onClick={() => setFilter(value)}
                 // The pre-paint filter marks the chip in the URL before hydration.
                 suppressHydrationWarning
               >
                 {value}
                 <span suppressHydrationWarning>{count(value)}</span>
-              </button>
+              </Toggle>
             ))}
-          </div>
-          <button
+          </ToggleGroup>
+          <Button
             type="button"
             className="search-toggle"
             ref={searchToggle}
@@ -542,17 +533,17 @@ export function Gallery() {
                 strokeLinecap="round"
               />
             </svg>
-          </button>
+          </Button>
           <label className="search">
             <span className="sr-only">Search components</span>
-            <input
+            <Input
               id="gallery-search"
               ref={searchInput}
               type="search"
               placeholder="Search name or tag…"
               aria-keyshortcuts="/"
               value={query}
-              onChange={(event) => setQuery(event.target.value)}
+              onValueChange={(value) => setQuery(value)}
               onKeyDown={(event) => {
                 if (
                   event.key === "Escape" &&
@@ -582,9 +573,9 @@ export function Gallery() {
         </p>
         {/* The empty state carries its own Clear; never show two. */}
         {active && items.length > 0 && (
-          <button className="toolbar-clear" onClick={clear}>
+          <Button className="toolbar-clear" onClick={clear}>
             Clear
-          </button>
+          </Button>
         )}
         {visibleGroups.length > 1 && (
           <nav className="section-jump" aria-label="Jump to section">
@@ -682,15 +673,15 @@ export function Gallery() {
               : "Try another name or tag, or browse the full collection."}
           </p>
           <div className="empty-actions">
-            <button
+            <Button
               data-search-all=""
               hidden={everywhere === 0}
               suppressHydrationWarning
               onClick={() => setFilter("All")}
             >
               Search all categories
-            </button>
-            <button onClick={clear}>Clear</button>
+            </Button>
+            <Button onClick={clear}>Clear</Button>
           </div>
         </div>
       </div>

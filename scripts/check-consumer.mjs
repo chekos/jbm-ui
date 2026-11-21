@@ -6,6 +6,7 @@ import { join, resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const registry = JSON.parse(await readFile(join(root, 'registry.json'), 'utf8'));
+const { dependencies } = JSON.parse(await readFile(join(root, 'package.json'), 'utf8'));
 const temp = await mkdtemp(join(tmpdir(), 'jbm-consumer-'));
 function run(command, args, cwd) {
   return new Promise((accept, reject) => {
@@ -28,7 +29,7 @@ try {
     const cwd = join(temp,mode);
     await mkdir(join(cwd,'src'),{recursive:true});
     await cp(join(root,'fixtures/consumer/tsconfig.json'),join(cwd,'tsconfig.json'));
-    await writeFile(join(cwd,'package.json'),JSON.stringify({name:'jbm-consumer-fixture',private:true,type:'module',dependencies:{react:'19.2.8','react-dom':'19.2.8',remotion:'4.0.526'},devDependencies:{'@types/react':'19.2.7','@types/node':'20.19.0'}}));
+    await writeFile(join(cwd,'package.json'),JSON.stringify({name:'jbm-consumer-fixture',private:true,type:'module',dependencies:{react:'19.2.8','react-dom':'19.2.8',remotion:'4.0.526',...(mode === 'copy' ? { '@ui-sdk/core': dependencies['@ui-sdk/core'], '@ui-sdk/react': dependencies['@ui-sdk/react'] } : {})},devDependencies:{'@types/react':'19.2.10','@types/node':'20.19.0'}}));
     await run('npm',['install','--ignore-scripts','--no-audit','--no-fund'],cwd);
     if(mode === 'copy') await cp(join(root,'registry/jbm'),join(cwd,'src/jbm'),{recursive:true});
     else {

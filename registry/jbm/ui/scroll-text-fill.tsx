@@ -1,5 +1,11 @@
 "use client"
 
+import {
+  ScrollArea,
+  ScrollAreaContent,
+  ScrollAreaViewport,
+} from "@ui-sdk/react/scroll-area"
+
 import { useEffect, useRef, useState, useSyncExternalStore } from "react"
 import { TextFill, type TextFillProps } from "./text-fill"
 import { color } from "../lib/tokens"
@@ -57,35 +63,43 @@ export function ScrollTextFill({
     }
   }, [reduced, travel, viewport, props.text])
   return (
-    <div
-      ref={ref}
-      role="region"
-      aria-label={label}
-      tabIndex={reduced ? undefined : 0}
-      style={{
-        width: "100%",
-        height: reduced ? "auto" : viewport,
-        overflowY: reduced ? "visible" : "auto",
-        overscrollBehavior: "contain",
-        background: color.bg,
-      }}
-    >
-      <div style={{ minHeight: reduced ? undefined : viewport + travel }}>
-        <div
-          style={{
-            position: reduced ? "relative" : "sticky",
-            top: 0,
-            minHeight: viewport,
-            display: "flex",
-            alignItems: "center",
-            padding: 24,
-          }}
+    <ScrollArea>
+      <ScrollAreaViewport
+        ref={ref}
+        role="region"
+        aria-label={label}
+        tabIndex={reduced ? undefined : 0}
+        style={{
+          width: "100%",
+          height: reduced ? "auto" : viewport,
+          overflow: reduced ? "visible" : "auto",
+          overscrollBehavior: "contain",
+          background: color.bg,
+        }}
+      >
+        <ScrollAreaContent
+          style={{ minHeight: reduced ? undefined : viewport + travel }}
         >
-          <p style={{ margin: 0, width: "100%" }}>
-            <TextFill {...props} progress={progress} reducedMotion={reduced} />
-          </p>
-        </div>
-      </div>
-    </div>
+          <div
+            style={{
+              position: reduced ? "relative" : "sticky",
+              top: 0,
+              minHeight: viewport,
+              display: "flex",
+              alignItems: "center",
+              padding: 24,
+            }}
+          >
+            <p style={{ margin: 0, width: "100%" }}>
+              <TextFill
+                {...props}
+                progress={progress}
+                reducedMotion={reduced}
+              />
+            </p>
+          </div>
+        </ScrollAreaContent>
+      </ScrollAreaViewport>
+    </ScrollArea>
   )
 }

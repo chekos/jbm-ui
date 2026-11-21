@@ -14,10 +14,19 @@ if (changes.trim())
     "Registry output is stale. Run pnpm registry:build and commit public/r/."
   )
 const registry = JSON.parse(readFileSync("registry.json", "utf8"))
+const { dependencies } = JSON.parse(readFileSync("package.json", "utf8"))
+const sdkPackages = ["@ui-sdk/core", "@ui-sdk/react"]
 for (const item of registry.items) {
   const built = JSON.parse(readFileSync(`public/r/${item.name}.json`, "utf8"))
   if (built.name !== item.name)
     throw new Error(`Incorrect registry item: ${item.name}`)
+  if (built.files.some(({ content }) => /from ["']@ui-sdk\//.test(content))) {
+    for (const name of sdkPackages) {
+      const dependency = `${name}@${dependencies[name]}`
+      if (!item.dependencies?.includes(dependency) || !built.dependencies?.includes(dependency))
+        throw new Error(`${item.name} must declare ${dependency}`)
+    }
+  }
   for (const file of built.files) {
     if (file.content !== readFileSync(file.path, "utf8"))
       throw new Error(`Stale source: ${file.path}`)
